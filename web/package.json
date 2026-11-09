@@ -10,8 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "screenshots": "node scripts/screenshots.mjs"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@commonkit/sdk": "workspace:*",
