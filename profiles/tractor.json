@@ -14,7 +14,7 @@
     "trusted_after": 3,
     "required_credential": "tractor_operator",
     "float_cap": "10000000000000000000000000",
-    "storage_reserve": "5000000000000000000000000",
+    "storage_reserve": "7000000000000000000000000",
     "auto_reward_cash_cap": "1000000000000000000000000",
     "council_threshold_cash": "500000000000000000000000",
     "period_days": 30,

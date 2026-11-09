@@ -27,7 +27,7 @@ Numbering (D-801): steps 1–17 are unchanged from the earlier 18-step flow. The
 
 | # | Do | See | Negative? |
 | :--- | :--- | :--- | :--- |
-| 1 | DAO proposal registers `printer-01`, sets profile, funds float | Proposal approved; asset float = 3 NEAR; DAO treasury decreased | |
+| 1 | DAO proposal registers `printer-01`, sets profile, funds float | Proposal approved; asset float = 2 NEAR (cap 3, D-706); DAO treasury decreased | |
 | 2 | Ali reserves 2 slots, pays 0.5 fee + 2 deposit | Reservation Confirmed; float +0.5; deposits_held +2 | |
 | 3 | Ali requests access via bridge (signed) | Bridge 200; `session_started` event; printer prints (video) / simulator session | |
 | 4 | Can (no reservation) requests access | Bridge 403 `no valid reservation`; no on-chain change | ✓ |

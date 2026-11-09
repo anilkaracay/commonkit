@@ -14,7 +14,7 @@
     "trusted_after": 0,
     "required_credential": "gpu_basics",
     "float_cap": "5000000000000000000000000",
-    "storage_reserve": "5000000000000000000000000",
+    "storage_reserve": "7000000000000000000000000",
     "auto_reward_cash_cap": "500000000000000000000000",
     "council_threshold_cash": "250000000000000000000000",
     "period_days": 30,
