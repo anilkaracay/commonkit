@@ -1,0 +1,53 @@
+import { Link } from 'react-router';
+import type { AssetSnapshot } from '../data/hooks';
+import type { DeployedAsset } from '../data/offchain';
+import { AssetIcon } from './AssetIcon';
+import { Pill, SimulatedBadge } from './Badges';
+import { KasaBar } from './KasaBar';
+import { MaintenanceGauge } from './MaintenanceGauge';
+import { assetStatus } from './assetStatus';
+import { useDemoLink } from '../demo/demo';
+
+/** The machine nameplate used on the board: name, account, status, dial, cash box. */
+export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: AssetSnapshot }) {
+  const status = assetStatus(snap);
+  const sim = deployed.simulated || snap.profile.adapter === 'simulator';
+  const link = useDemoLink();
+  return (
+    <article className={`tag relative flex flex-col gap-4 p-4 ${sim ? 'tag-sim' : ''}`} aria-label={snap.meta.display_name}>
+      <header className="flex items-start gap-3">
+        <div className={`grid size-12 shrink-0 place-items-center rounded-xl border ${sim ? 'border-sim text-sim' : 'border-line-strong text-ink'}`}>
+          <AssetIcon type={snap.profile.asset_type} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-lg font-bold">
+              <Link to={link(`/a/${deployed.asset_id}`)} className="after:absolute after:inset-0 hover:underline">
+                {snap.meta.display_name}
+              </Link>
+            </h3>
+            {sim && <SimulatedBadge />}
+          </div>
+          <p className="mono-id truncate">{deployed.asset_id}</p>
+        </div>
+      </header>
+
+      <div className="flex items-center gap-4">
+        <MaintenanceGauge rules={snap.rules} ruleDefs={snap.profile.rules} size={118} />
+        <div className="min-w-0 flex-1 space-y-2 text-sm">
+          <Pill tone={status.tone}>{status.label}</Pill>
+          <p className="text-ink-2">
+            <span className="num">{snap.profile.group_id}</span>
+          </p>
+          {snap.profile.required_credential && (
+            <p className="text-xs">
+              needs <span className="num font-semibold text-cred">{snap.profile.required_credential}</span>
+            </p>
+          )}
+        </div>
+      </div>
+
+      <KasaBar ledger={snap.ledger} floatCap={snap.profile.float_cap} compact />
+    </article>
+  );
+}

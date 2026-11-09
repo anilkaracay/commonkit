@@ -1,0 +1,93 @@
+/*
+ * COMMONKIT design tokens — "equipment tag" direction (see web/DESIGN.md).
+ * Warm paper + ink, one moss "alive" accent, safety amber for maintenance due,
+ * slate for deposits (liability), blueprint blue + hatching for simulation.
+ */
+:root {
+  color-scheme: light;
+  --ck-paper: #f3efe6;
+  --ck-surface: #fbf9f4;
+  --ck-surface-2: #ebe6da;
+  --ck-ink: #1d1b16;
+  --ck-ink-2: #4f4a42;
+  --ck-ink-3: #6b6559;
+  --ck-line: #d6cfbf;
+  --ck-line-strong: #b9b09d;
+
+  --ck-alive: #2f6b4f;
+  --ck-alive-soft: #d9e7dc;
+  --ck-due: #9a5b00;
+  --ck-due-fill: #e0a526;
+  --ck-due-soft: #f6e5bf;
+  --ck-danger: #a8321c;
+  --ck-danger-soft: #f4d9d1;
+  --ck-liability: #44557a;
+  --ck-liability-soft: #dde2ee;
+  --ck-sim: #22618f;
+  --ck-sim-soft: #dde9f3;
+  --ck-cred: #a8321c;
+  --ck-dao: #1d1b16;
+
+  --ck-radius: 14px;
+  --ck-radius-sm: 8px;
+  --ck-shadow: 0 1px 0 rgb(29 27 22 / 0.06), 0 8px 24px -12px rgb(29 27 22 / 0.18);
+  --ck-key-scale: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --ck-paper: #14130f;
+    --ck-surface: #1d1b17;
+    --ck-surface-2: #29261f;
+    --ck-ink: #f0ebdf;
+    --ck-ink-2: #c4bdae;
+    --ck-ink-3: #9a9384;
+    --ck-line: #38342b;
+    --ck-line-strong: #534d41;
+    --ck-alive: #74c39a;
+    --ck-alive-soft: #1f3a2c;
+    --ck-due: #f0b84a;
+    --ck-due-fill: #e0a526;
+    --ck-due-soft: #3d2f12;
+    --ck-danger: #f2846c;
+    --ck-danger-soft: #45201a;
+    --ck-liability: #a7b6d8;
+    --ck-liability-soft: #252c3d;
+    --ck-sim: #86bde6;
+    --ck-sim-soft: #182a3a;
+    --ck-cred: #f2846c;
+    --ck-dao: #f0ebdf;
+    --ck-shadow: 0 1px 0 rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ck-paper: #14130f;
+  --ck-surface: #1d1b17;
+  --ck-surface-2: #29261f;
+  --ck-ink: #f0ebdf;
+  --ck-ink-2: #c4bdae;
+  --ck-ink-3: #9a9384;
+  --ck-line: #38342b;
+  --ck-line-strong: #534d41;
+  --ck-alive: #74c39a;
+  --ck-alive-soft: #1f3a2c;
+  --ck-due: #f0b84a;
+  --ck-due-fill: #e0a526;
+  --ck-due-soft: #3d2f12;
+  --ck-danger: #f2846c;
+  --ck-danger-soft: #45201a;
+  --ck-liability: #a7b6d8;
+  --ck-liability-soft: #252c3d;
+  --ck-sim: #86bde6;
+  --ck-sim-soft: #182a3a;
+  --ck-cred: #f2846c;
+  --ck-dao: #f0ebdf;
+  --ck-shadow: 0 1px 0 rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+}
+
+:root[data-demo='true'] {
+  --ck-key-scale: 1.35;
+}
