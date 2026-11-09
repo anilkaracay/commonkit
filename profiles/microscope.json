@@ -1,0 +1,52 @@
+{
+  "profile": {
+    "asset_type": "microscope",
+    "display_name": "School microscope",
+    "group_id": "school-lab",
+    "adapter": "manual_qr",
+    "usage_unit_label": "loan",
+    "slot_minutes": 1440,
+    "max_slots_per_reservation": 3,
+    "booking_horizon_days": 30,
+    "price_per_slot": "0",
+    "deposit": "1000000000000000000000000",
+    "deposit_trusted": "1000000000000000000000000",
+    "trusted_after": 0,
+    "required_credential": null,
+    "float_cap": "1000000000000000000000000",
+    "storage_reserve": "5000000000000000000000000",
+    "auto_reward_cash_cap": "500000000000000000000000",
+    "council_threshold_cash": "250000000000000000000000",
+    "period_days": 30,
+    "period_reward_quota": 4,
+    "right_max_slots": 1,
+    "right_validity_days": 60,
+    "first_task_needs_council": false,
+    "start_window_minutes": 15,
+    "rules": [
+      {
+        "rule_id": "clean_inventory",
+        "metric": "uses",
+        "threshold": 20,
+        "title": "Clean optics and check the inventory",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 168
+      }
+    ],
+    "protocol_fee_bps": 0,
+    "protocol_fee_receiver": null
+  },
+  "meta": {
+    "display_name": "School microscope",
+    "community": "school-lab",
+    "icon": "microscope",
+    "photo": null,
+    "status": "profile example only",
+    "scenario_story_en": "A school microscope lent to students.",
+    "scenario_story_tr": "Öğrencilere ödünç verilen okul mikroskobu.",
+    "pilot_overrides": {},
+    "purchase_hints": []
+  }
+}

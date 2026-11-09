@@ -1,0 +1,62 @@
+{
+  "profile": {
+    "asset_type": "cargo_bike",
+    "display_name": "Street cargo bike",
+    "group_id": "street-bikes",
+    "adapter": "smart_lock",
+    "usage_unit_label": "km (billed per slot in v1)",
+    "slot_minutes": 60,
+    "max_slots_per_reservation": 6,
+    "booking_horizon_days": 14,
+    "price_per_slot": "200000000000000000000000",
+    "deposit": "3000000000000000000000000",
+    "deposit_trusted": "1000000000000000000000000",
+    "trusted_after": 5,
+    "required_credential": null,
+    "float_cap": "2000000000000000000000000",
+    "storage_reserve": "5000000000000000000000000",
+    "auto_reward_cash_cap": "500000000000000000000000",
+    "council_threshold_cash": "250000000000000000000000",
+    "period_days": 30,
+    "period_reward_quota": 8,
+    "right_max_slots": 2,
+    "right_validity_days": 60,
+    "first_task_needs_council": false,
+    "start_window_minutes": 15,
+    "rules": [
+      {
+        "rule_id": "brake_check",
+        "metric": "km",
+        "threshold": 300,
+        "title": "Check and adjust the brakes",
+        "reward_rights": 2,
+        "reward_cash": "0",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "tire_check",
+        "metric": "km",
+        "threshold": 500,
+        "title": "Check tires and pressure",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 72
+      }
+    ],
+    "protocol_fee_bps": 0,
+    "protocol_fee_receiver": null
+  },
+  "meta": {
+    "display_name": "Street cargo bike",
+    "community": "street-bikes",
+    "icon": "bike",
+    "photo": null,
+    "status": "profile example only",
+    "scenario_story_en": "A cargo bike shared by a street.",
+    "scenario_story_tr": "Bir sokağın ortak kargo bisikleti.",
+    "pilot_overrides": {},
+    "purchase_hints": []
+  }
+}

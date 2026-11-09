@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/anilkaracay/commonkit/profiles/profile.schema.json",
+  "title": "COMMONKIT asset profile file",
+  "description": "`profile` is the on-chain Profile (CONTRACT_SPEC §2.1) and must pass the contract's validate_profile. `meta` never goes on-chain. Cross-field rules (deposit_trusted <= deposit, reward_cash <= auto_reward_cash_cap, unique rule ids, protocol_fee_bps <= 200) are checked by scripts/validate-profiles.ts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "meta"],
+  "$defs": {
+    "yocto": { "type": "string", "pattern": "^(0|[1-9][0-9]{0,38})$" },
+    "id": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z0-9_-]+$" },
+    "account": { "type": "string", "minLength": 2, "maxLength": 64, "pattern": "^(([a-z\\d]+[-_])*[a-z\\d]+\\.)*([a-z\\d]+[-_])*[a-z\\d]+$" },
+    "u32": { "type": "integer", "minimum": 0, "maximum": 4294967295 },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "metric", "threshold", "title", "reward_rights", "reward_cash", "requires_verification_test", "claim_timeout_hours"],
+      "properties": {
+        "rule_id": { "$ref": "#/$defs/id" },
+        "metric": { "$ref": "#/$defs/id" },
+        "threshold": { "type": "integer", "minimum": 1 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "reward_rights": { "$ref": "#/$defs/u32" },
+        "reward_cash": { "$ref": "#/$defs/yocto" },
+        "requires_verification_test": { "type": "boolean" },
+        "claim_timeout_hours": { "type": "integer", "minimum": 1, "maximum": 4294967295 }
+      }
+    }
+  },
+  "properties": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset_type", "display_name", "group_id", "adapter", "usage_unit_label", "slot_minutes", "max_slots_per_reservation", "booking_horizon_days", "price_per_slot", "deposit", "deposit_trusted", "trusted_after", "required_credential", "float_cap", "storage_reserve", "auto_reward_cash_cap", "council_threshold_cash", "period_days", "period_reward_quota", "right_max_slots", "right_validity_days", "first_task_needs_council", "start_window_minutes", "rules", "protocol_fee_bps", "protocol_fee_receiver"],
+      "properties": {
+        "asset_type": { "$ref": "#/$defs/id" },
+        "display_name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "group_id": { "$ref": "#/$defs/id" },
+        "adapter": { "$ref": "#/$defs/id" },
+        "usage_unit_label": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "slot_minutes": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        "max_slots_per_reservation": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        "booking_horizon_days": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        "price_per_slot": { "$ref": "#/$defs/yocto" },
+        "deposit": { "$ref": "#/$defs/yocto" },
+        "deposit_trusted": { "$ref": "#/$defs/yocto" },
+        "trusted_after": { "$ref": "#/$defs/u32" },
+        "required_credential": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/id" }] },
+        "float_cap": { "$ref": "#/$defs/yocto", "not": { "const": "0" } },
+        "storage_reserve": { "$ref": "#/$defs/yocto" },
+        "auto_reward_cash_cap": { "$ref": "#/$defs/yocto" },
+        "council_threshold_cash": { "$ref": "#/$defs/yocto" },
+        "period_days": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        "period_reward_quota": { "$ref": "#/$defs/u32" },
+        "right_max_slots": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        "right_validity_days": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        "first_task_needs_council": { "type": "boolean" },
+        "start_window_minutes": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        "rules": { "type": "array", "items": { "$ref": "#/$defs/rule" } },
+        "protocol_fee_bps": { "type": "integer", "minimum": 0, "maximum": 200 },
+        "protocol_fee_receiver": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/account" }] }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["display_name", "community", "icon", "photo", "status", "scenario_story_en", "scenario_story_tr", "pilot_overrides", "purchase_hints"],
+      "properties": {
+        "display_name": { "type": "string", "minLength": 1 },
+        "community": { "$ref": "#/$defs/id" },
+        "icon": { "type": "string" },
+        "photo": { "type": ["string", "null"] },
+        "status": { "type": "string", "pattern": "^(real hardware|simulation|profile example only)" },
+        "scenario_story_en": { "type": "string" },
+        "scenario_story_tr": { "type": "string" },
+        "pilot_overrides": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } },
+        "purchase_hints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rule_id", "after_n", "item", "amount", "receiver"],
+            "properties": {
+              "rule_id": { "$ref": "#/$defs/id" },
+              "after_n": { "type": "integer", "minimum": 1 },
+              "item": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "amount": { "$ref": "#/$defs/yocto" },
+              "receiver": { "$ref": "#/$defs/account" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
