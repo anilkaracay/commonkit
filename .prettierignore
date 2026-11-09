@@ -1,0 +1,6 @@
+docs/
+contracts/
+evidence/
+deployments/
+pnpm-lock.yaml
+**/dist/

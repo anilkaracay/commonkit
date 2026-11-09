@@ -1,0 +1,29 @@
+{
+  "name": "commonkit",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shared things that pay for their own upkeep — and open up to the people who keep them alive.",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "packageManager": "pnpm@12.16.1",
+  "scripts": {
+    "build:contracts": "bash scripts/build-contracts.sh",
+    "test:contracts": "pnpm test:contracts:unit && pnpm test:contracts:int",
+    "test:contracts:unit": "cargo test --manifest-path contracts/Cargo.toml --workspace --exclude commonkit-integration-tests",
+    "test:contracts:int": "pnpm build:contracts && cargo test --manifest-path contracts/Cargo.toml -p commonkit-integration-tests",
+    "test": "pnpm -r --if-present test",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "format": "prettier --write .",
+    "validate:profiles": "tsx scripts/validate-profiles.ts",
+    "setup:testnet": "tsx scripts/setup-testnet.ts",
+    "seed:testnet": "tsx scripts/seed-testnet.ts",
+    "demo:step": "tsx scripts/demo/run.ts",
+    "demo:all": "tsx scripts/demo/run.ts all",
+    "dev:web": "pnpm --filter @commonkit/web dev",
+    "dev:bridge": "pnpm --filter @commonkit/bridge dev",
+    "dev:agent": "pnpm --filter @commonkit/agent dev"
+  },
+  "devDependencies": {}
+}

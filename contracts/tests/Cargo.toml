@@ -1,0 +1,10 @@
+[package]
+name = "commonkit-integration-tests"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+
+[dev-dependencies]
