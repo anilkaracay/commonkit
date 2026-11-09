@@ -64,7 +64,7 @@
     "community": "street-fridge",
     "icon": "fridge",
     "photo": null,
-    "status": "profile example only",
+    "status": "simulation",
     "scenario_story_en": "A free community fridge that asks for its weekly cleaning and flags temperature problems.",
     "scenario_story_tr": "Haftalık temizliğini kendisi isteyen ve sıcaklık sorunlarını bildiren mahalle buzdolabı.",
     "pilot_overrides": {},

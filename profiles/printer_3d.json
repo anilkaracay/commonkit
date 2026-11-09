@@ -96,7 +96,7 @@
     "community": "makerlab",
     "icon": "printer",
     "photo": null,
-    "status": "real hardware (pending: no printer confirmed yet, D-013)",
+    "status": "simulation",
     "scenario_story_en": "A makerspace printer that only prints for an on-chain reservation, asks for its own upkeep and pays whoever keeps it alive.",
     "scenario_story_tr": "Sadece zincir üstü rezervasyonla basan, bakımını kendisi isteyen ve onu yaşatana kullanım hakkı veren makerspace yazıcısı.",
     "pilot_overrides": {

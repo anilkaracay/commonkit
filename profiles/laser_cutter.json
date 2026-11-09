@@ -64,7 +64,7 @@
     "community": "makerlab",
     "icon": "laser",
     "photo": null,
-    "status": "real hardware (stand-in allowed; pending: no plug confirmed yet, D-013)",
+    "status": "simulation",
     "scenario_story_en": "A risky machine: you need a laser_safety credential card to book it; trainers earn rights for training others.",
     "scenario_story_tr": "Riskli makine: rezervasyon için laser_safety yeterlilik kartı gerekir; eğitmenler eğittikleri için hak kazanır.",
     "pilot_overrides": {
