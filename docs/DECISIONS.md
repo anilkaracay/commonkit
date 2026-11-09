@@ -249,3 +249,36 @@ Context: D-017 brings metrics such as `temperature_c` (community fridge) and `fu
 Decision: Adapters may expose `readGauges()` next to `readMetrics()`. A gauge is never sent to the chain raw. Per asset, the bridge config `gauges` derives counters on every telemetry tick: `samples_above` / `samples_below` a limit (× `telemetry_interval_sec` ≈ time out of range), `decrease_sum` (× `scale`, e.g. fuel used) and `increase_count` (rises ≥ `min_step`, e.g. refills). State lives in `bridge/state/<asset>.gauges.json`, and the counters then get the usual monotonic protection (D-406). Live gauge values appear in `telemetry_reported` events and `/assets`. Simulator scenarios add `type: gauge` metrics, `gauge_set` failures, and `verification.sets` (a passed check finds the gauge restored). Profiles use the derived counter names in `Metric` triggers (e.g. `temp_high_samples >= 6`, `fuel_used_dl >= 300`).
 Out of service: `can_access` reason `out_of_service` and `E_OUT_OF_SERVICE` from `mark_session_started` both return 403 `OUT_OF_SERVICE`, and the device stays locked (D-404 order). Contract panics with an `E_*` code are no longer retried (they are deterministic); RPC failures still are. The NEAR client keeps `E_*` codes the sdk does not list yet.
 Consequences: Profile authors pick derived counter names; for a live temperature display the web reads the bridge, not the chain.
+
+## D-501 — Web stack and pinned versions
+2026-11-09 · accepted
+Context: M5 web skeleton; pnpm's `minimumReleaseAge` policy rejects packages published in the last 24 h.
+Decision: Vite 8.3.5 and `@vitejs/plugin-react` 6.2.1 pinned exactly (newer releases were hours old); React 19, React Router 7 (data router, `createMemoryRouter` in tests), TanStack Query 5, Tailwind 4 (`@tailwindcss/vite`, tokens via `@theme inline` over CSS variables), vitest 5 + Testing Library + jsdom. TypeScript `~6.0` in `web/` because typescript-eslint supports `< 6.1`. Fonts self-hosted with Fontsource (Bricolage Grotesque, Instrument Sans, JetBrains Mono). The web reuses `@commonkit/sdk` for `yoctoToNear`/`nearToYocto` and `ERROR_CODES`.
+Consequences: Bundle is ~515 kB (zod via the sdk); code-split in M7 if Lighthouse needs it.
+
+## D-502 — Design direction "equipment tag"
+2026-11-09 · accepted
+Decision: Assets are drawn as workshop nameplates: warm paper + ink, moss for alive, safety amber for due, vermilion for faults/credentials, slate hatching for deposits (liability), blueprint blue + hatching for simulation. Upkeep dial, kasa bar (float vs cap with the above-cap zone hatched as "goes to the DAO"; deposits on the same scale as a separate liability bar), "who keeps me alive" list. Documented in `web/DESIGN.md`.
+
+## D-503 — Web data layer behind `DataSource`; view JSON assumptions
+2026-11-09 · accepted
+Context: Contracts and testnet are not ready; the UI must not hard-code where data comes from.
+Decision: `web/src/data/source.ts` defines `DataSource { asset(id): AssetViews; commons(id); dao(id); getDaoList; viewAccount; viewAccessKeyList; getDeployment; getProfileCatalog; getProfileMeta; getEvidenceSteps; getAgentLimits; rowTx(key); now() }`; `AssetViews`/`CommonsViews`/`DaoViews` mirror the view names and args in CONTRACT_SPEC §3.6/§5.2 one-to-one. M5 ships `createMockSource()`; M7 adds an RPC source on `@commonkit/sdk`. Assumed JSON shapes that M7 must confirm against the contracts: u128/u64 as strings, except fields the spec shows as numbers (trigger thresholds, `get_rule_status` counters, `due_value_at_open`), typed `string | number` and always read through `BigInt`; `get_availability` → `(U64 | null)[]` (holding reservation id per slot); `get_assets`/`get_all_roles` → arrays of `[key, value]`; `get_wiring` → `{dao_id, commons_id, bridge_id, agent_id, profile_version, roles_version}`; `get_ledger` adds `account_balance, storage_reserve, storage_usage, storage_byte_cost, invariant_ok`. Expected `deployments/testnet.json` shape is `Deployment` in `web/src/data/offchain.ts` (communities, assets with `simulated` + `code_hash`, members with `kind`, `keyless_accounts`, recorded wasm hashes). The scenario matrix reads `profiles/*.json` at build time (real files, not mock).
+Consequences: Any shape difference is fixed in one place (the RPC source or the types), not in components.
+
+## D-504 — Mock data is impossible to mistake for testnet
+2026-11-09 · accepted
+Decision: While the mock source is active a sticky amber "MOCK DATA · not from testnet" banner is shown on every route; mock tx/code hashes start with `mock`, render as `tx·mock` and never link to the explorer. Mock numbers are internally consistent (ledger sums, sweeps, rights ↔ tasks) so the proof checks pass on them and fail when an invariant is broken on purpose (tests).
+
+## D-505 — `/proof` runs verify.sh's checks in the browser
+2026-11-09 · accepted
+Decision: `web/src/proof/checks.ts` implements TEST_PLAN §6 checks 1–11 in the same order and numbering (keyless, asset code hash, commons code hash, factory DAOs, ledgers incl. storage ≤ 80 % of reserve, swept totals, rights ↔ tasks, escalation proposals, reimbursement caps, out-of-service periods, 21 evidence steps). Differences forced by the browser: check 2/3 compare against the wasm hash recorded in `deployments/testnet.json` (a browser cannot rebuild) and warn when none is recorded; check 6 compares `total_swept` with the asset's own Succeeded Sweep ops (verify.sh additionally uses evidence txs). Rows are ✅/❌ marks drawn as icons with text labels.
+Consequences: When verify.sh changes, `checks.ts` and its test change in the same PR.
+
+## D-506 — Web error messages cover the spec, not only the sdk list
+2026-11-09 · accepted
+Decision: `web/src/lib/errors.ts` maps every `E_*` code in CONTRACT_SPEC §10 (including `E_INVALID_ARGS`, `E_NOT_FOUND` and the five D-017 codes, which `@commonkit/sdk` `ERROR_CODES` does not list yet) to one plain sentence; a test parses §10 of the spec and fails on any unmapped or extra code. Toasts show the sentence with the raw panic behind a details toggle.
+
+## D-507 — Wallet boundary until the connector is chosen (B17)
+2026-11-09 · accepted
+Decision: `WalletProvider { status, accountId, connect, disconnect, signAndSendTransaction({receiverId, methodName, args, deposit: bigint}), signMessage(NEP-413) }` with an `unavailableWallet` default. Every wallet action renders read-only with the reason; attached deposits are computed from views as bigint. `/me?as=<account>` shows anyone's public cards without a wallet.
