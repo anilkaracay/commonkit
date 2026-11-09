@@ -1,0 +1,29 @@
+{
+  "name": "@commonkit/agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "COMMONKIT asset operations agent: deterministic upkeep rules, escalations, template rationale with optional validated LLM rephrasing",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx src/main.ts --config config.sim.yaml",
+    "start": "tsx src/main.ts",
+    "limits": "tsx src/limits-demo.ts",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@commonkit/sdk": "workspace:*",
+    "yaml": "2.9.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  }
+}

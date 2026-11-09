@@ -173,6 +173,31 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
+  agent:
+    dependencies:
+      '@commonkit/sdk':
+        specifier: workspace:*
+        version: link:../packages/sdk
+      yaml:
+        specifier: 2.9.1
+        version: 2.9.1
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
+    devDependencies:
+      '@types/node':
+        specifier: 24.19.2
+        version: 24.19.2
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.12
+        version: 4.1.12(@types/node@24.19.2)(jsdom@31.0.0(@noble/hashes@2.4.0))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
+
   bridge:
     dependencies:
       '@commonkit/sdk':

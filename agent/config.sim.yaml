@@ -1,0 +1,27 @@
+# Local SIMULATION mode: in-memory fake chain seeded from profiles/, plus a small usage driver.
+# Nothing touches NEAR; every event, log line and evidence line is labelled simulated.
+network: testnet
+agent_account: agent-01.makerlab.testnet
+chain: fake
+poll_seconds: 5
+sync_every_seconds: 10
+listen: { host: 127.0.0.1, port: 8788 }
+cors_origins: ["http://localhost:5173"]
+state_dir: state/sim
+evidence_dir: state/sim/evidence      # sim evidence never goes to the repo's evidence/ folder
+llm: { enabled: true }                # still off unless NEARAI_API_KEY and NEARAI_MODEL are set
+fake: { drive: true, hours_per_tick: 12 }
+assets:
+  - asset_id: printer-01.makerlab.testnet
+    alias: PRINTER
+    profile: ../profiles/printer_3d.json
+    simulated: true
+    supplier_is_team_account: true
+  - asset_id: washer-01.dorm-b.testnet
+    alias: WASHER
+    profile: ../profiles/washer.json
+    simulated: true
+  - asset_id: fridge-01.dorm-b.testnet
+    alias: FRIDGE
+    profile: ../profiles/community_fridge.json
+    simulated: true

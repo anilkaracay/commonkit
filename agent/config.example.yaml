@@ -1,0 +1,20 @@
+# Testnet mode. Copy to config.yaml and fill in the accounts from deployments/testnet.json.
+# Keys come from env (never from this file): AGENT_ACCOUNT_ID, AGENT_KEY_<ALIAS> (function-call
+# key per asset contract). Optional rephrasing: NEARAI_API_KEY, NEARAI_BASE_URL, NEARAI_MODEL.
+network: testnet
+agent_account: agent-01.makerlab.commonkit-sxflo.testnet
+chain: near
+rpc_url: https://rpc.testnet.near.org
+poll_seconds: 30
+sync_every_seconds: 60
+listen: { host: 127.0.0.1, port: 8788 }
+cors_origins: ["http://localhost:5173"]
+state_dir: state/testnet
+evidence_dir: state/testnet/evidence
+llm: { enabled: true }
+assets:
+  - asset_id: printer-01.makerlab.commonkit-sxflo.testnet
+    alias: PRINTER
+    profile: ../profiles/printer_3d.json
+    simulated: true                     # D-013: no printer yet; flip when real hardware runs
+    supplier_is_team_account: true      # supplier.commonkit-sxflo.testnet is a team account
