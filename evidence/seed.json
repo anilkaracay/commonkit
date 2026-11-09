@@ -1,0 +1,167 @@
+[
+  {
+    "at": "2026-11-09T13:34:05.825Z",
+    "label": "makerlab-ck.sputnikv2.testnet#0 set roles for elif, mehmet, ayse, burak",
+    "hash": "EAvUeX8kdkQ2PnU8kqkqJpNe7DvbXGxTwpB761ybgmTq",
+    "signer": "burak.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/EAvUeX8kdkQ2PnU8kqkqJpNe7DvbXGxTwpB761ybgmTq",
+    "events": [
+      "commonkit:roles_set",
+      "commonkit:roles_set",
+      "commonkit:roles_set",
+      "commonkit:roles_set"
+    ]
+  },
+  {
+    "at": "2026-11-09T13:34:18.798Z",
+    "label": "makerlab-ck.sputnikv2.testnet#1 credential kind laser_safety",
+    "hash": "9GxX25kG6Gk8UdgbJnAu4WTQSoX21bCxPeUdXebGdE4c",
+    "signer": "elif.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/9GxX25kG6Gk8UdgbJnAu4WTQSoX21bCxPeUdXebGdE4c",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:34:18.799Z",
+    "label": "makerlab-ck.sputnikv2.testnet#1 credential kind laser_safety",
+    "hash": "69THRVZgKoVZZm8th2ppeyDdEQNMZqkGJUGpMit14qvW",
+    "signer": "elif.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/69THRVZgKoVZZm8th2ppeyDdEQNMZqkGJUGpMit14qvW",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:34:18.799Z",
+    "label": "makerlab-ck.sputnikv2.testnet#1 credential kind laser_safety",
+    "hash": "4xHWTEPxggZdvwXVGGg46BTFbMTVec6eLE8R24ZjwFR5",
+    "signer": "burak.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/4xHWTEPxggZdvwXVGGg46BTFbMTVec6eLE8R24ZjwFR5",
+    "events": [
+      "commonkit:credential_kind_set"
+    ]
+  },
+  {
+    "at": "2026-11-09T13:34:22.493Z",
+    "label": "treasury top-up makerlab-ck.sputnikv2.testnet +0.11 NEAR (plain transfer, research C10)",
+    "hash": "4EvPBSSq2Qgr8ngvSA5UptV2oZWHRgUuj2D3KV7X3Sng",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/4EvPBSSq2Qgr8ngvSA5UptV2oZWHRgUuj2D3KV7X3Sng",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:34:36.311Z",
+    "label": "makerlab-ck.sputnikv2.testnet#2 fund_storage commons.makerlab.commonkit-sxflo.testnet 0.5 NEAR",
+    "hash": "Gh8VdkaumfZN8q4nc6XtMnzMciaRiu1HgDM8knJcXXPa",
+    "signer": "elif.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/Gh8VdkaumfZN8q4nc6XtMnzMciaRiu1HgDM8knJcXXPa",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:34:36.311Z",
+    "label": "makerlab-ck.sputnikv2.testnet#2 fund_storage commons.makerlab.commonkit-sxflo.testnet 0.5 NEAR",
+    "hash": "FJR7Ztr3wcEf8DDCrWRwGyzWdaNu3JeCxnxRkjUHprJD",
+    "signer": "elif.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/FJR7Ztr3wcEf8DDCrWRwGyzWdaNu3JeCxnxRkjUHprJD",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:34:36.311Z",
+    "label": "makerlab-ck.sputnikv2.testnet#2 fund_storage commons.makerlab.commonkit-sxflo.testnet 0.5 NEAR",
+    "hash": "9n9HSgPWKbyvQp3kt32aFh7JXRZCcwNAnhg69wwY5Jzz",
+    "signer": "burak.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/9n9HSgPWKbyvQp3kt32aFh7JXRZCcwNAnhg69wwY5Jzz",
+    "events": [
+      "commonkit:storage_funded"
+    ]
+  },
+  {
+    "at": "2026-11-09T13:34:50.426Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#0 set roles for nil, ozan, ece",
+    "hash": "G615bpZ4MDerSjXddV4pCZX8FVejnTq9P2Nigw34UQSv",
+    "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/G615bpZ4MDerSjXddV4pCZX8FVejnTq9P2Nigw34UQSv",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:34:50.426Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#0 set roles for nil, ozan, ece",
+    "hash": "GU4vPTW3RoT1XN3FLG2tnedEyfcHRX6Hnw9xrKzW1SGc",
+    "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/GU4vPTW3RoT1XN3FLG2tnedEyfcHRX6Hnw9xrKzW1SGc",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:34:50.426Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#0 set roles for nil, ozan, ece",
+    "hash": "HKPy1pemkpAigc5spLqTYGcpec6mKg29o9RLXhcSAseN",
+    "signer": "ozan.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/HKPy1pemkpAigc5spLqTYGcpec6mKg29o9RLXhcSAseN",
+    "events": [
+      "commonkit:roles_set",
+      "commonkit:roles_set",
+      "commonkit:roles_set"
+    ]
+  },
+  {
+    "at": "2026-11-09T13:34:54.829Z",
+    "label": "treasury top-up dorm-b-ck.sputnikv2.testnet +0.11 NEAR (plain transfer, research C10)",
+    "hash": "FErgQJamhNsTMtvc8hSZe93emkaVDLHAWeyo9qGSXfYX",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/FErgQJamhNsTMtvc8hSZe93emkaVDLHAWeyo9qGSXfYX",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:35:09.463Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#1 fund_storage commons.dorm-b.commonkit-sxflo.testnet 0.5 NEAR",
+    "hash": "ER4ZWkksasTeta7BZyWVrf4CemLQjsix2Bwv1Rj4HB69",
+    "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/ER4ZWkksasTeta7BZyWVrf4CemLQjsix2Bwv1Rj4HB69",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:35:09.463Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#1 fund_storage commons.dorm-b.commonkit-sxflo.testnet 0.5 NEAR",
+    "hash": "BY8Gj7wRWmfd3ytE5X15Q1NTZxP3BnvhByMPymhEdVEw",
+    "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/BY8Gj7wRWmfd3ytE5X15Q1NTZxP3BnvhByMPymhEdVEw",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:35:09.463Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#1 fund_storage commons.dorm-b.commonkit-sxflo.testnet 0.5 NEAR",
+    "hash": "7tdjYFVnVERcJ4w2zo8T7JnsnL1dPHXD5rxxKa1wfYEw",
+    "signer": "ozan.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/7tdjYFVnVERcJ4w2zo8T7JnsnL1dPHXD5rxxKa1wfYEw",
+    "events": [
+      "commonkit:storage_funded"
+    ]
+  }
+]

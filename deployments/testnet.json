@@ -1,0 +1,273 @@
+{
+  "schema": 1,
+  "network": "testnet",
+  "root": "commonkit-sxflo.testnet",
+  "factory": "sputnikv2.testnet",
+  "updated_at": "2026-11-09T13:43:30.853Z",
+  "code": {
+    "commons": {
+      "path": "contracts/target/near/commonkit_commons/commonkit_commons.wasm",
+      "bytes": 337044,
+      "sha256": "fe408b7045483ba93026ac686ca4544365c8152c85fbff31492dfce6118cf693",
+      "code_hash": "J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn",
+      "build": "non-reproducible"
+    }
+  },
+  "communities": {
+    "makerlab": {
+      "name": "Makerlab",
+      "root_account": "makerlab.commonkit-sxflo.testnet",
+      "dao_id": "makerlab-ck.sputnikv2.testnet",
+      "dao_council": [
+        "elif.makerlab.commonkit-sxflo.testnet",
+        "burak.makerlab.commonkit-sxflo.testnet",
+        "selin.makerlab.commonkit-sxflo.testnet"
+      ],
+      "commons_id": "commons.makerlab.commonkit-sxflo.testnet",
+      "assets": [],
+      "dao_tx": "FjQhBmLT7oJa7nbNjuoxtQ6rff1jmV7RfVahBUvPmBhb",
+      "commons_tx": "GSpazbSoUiN5UtbStM5cbRc89VdjjXpvH4P2xDk2vuk8"
+    },
+    "dorm-b": {
+      "name": "Dorm B",
+      "root_account": "dorm-b.commonkit-sxflo.testnet",
+      "dao_id": "dorm-b-ck.sputnikv2.testnet",
+      "dao_council": [
+        "nil.dorm-b.commonkit-sxflo.testnet",
+        "ozan.dorm-b.commonkit-sxflo.testnet",
+        "ece.dorm-b.commonkit-sxflo.testnet"
+      ],
+      "commons_id": "commons.dorm-b.commonkit-sxflo.testnet",
+      "assets": [],
+      "dao_tx": "7FEEhTWmfQrhpicfGCz4TiPEKwNNeXDUWegUXxb9HK2D",
+      "commons_tx": "8BqTEpT2NmisQwGUXmmCAF2UCboiiADGqUmKG8Qw7ggw"
+    }
+  },
+  "accounts": {
+    "ck-fund-33duiq-1.testnet": {
+      "role": "funding-helper",
+      "kind": "team",
+      "keyless": false,
+      "label": "faucet helper (throwaway)"
+    },
+    "ck-fund-d6fd26-1.testnet": {
+      "role": "funding-helper",
+      "kind": "team",
+      "keyless": false,
+      "label": "faucet helper (throwaway)"
+    },
+    "ck-fund-d6fd26-2.testnet": {
+      "role": "funding-helper",
+      "kind": "team",
+      "keyless": false,
+      "label": "faucet helper (throwaway)"
+    },
+    "ck-fund-d6fd26-3.testnet": {
+      "role": "funding-helper",
+      "kind": "team",
+      "keyless": false,
+      "label": "faucet helper (throwaway)"
+    },
+    "ck-fund-d6fd26-4.testnet": {
+      "role": "funding-helper",
+      "kind": "team",
+      "keyless": false,
+      "label": "faucet helper (throwaway)"
+    },
+    "ck-fund-d6fd26-5.testnet": {
+      "role": "funding-helper",
+      "kind": "team",
+      "keyless": false,
+      "label": "faucet helper (throwaway)"
+    },
+    "ck-fund-d6fd26-6.testnet": {
+      "role": "funding-helper",
+      "kind": "team",
+      "keyless": false,
+      "label": "faucet helper (throwaway)"
+    },
+    "commonkit-sxflo.testnet": {
+      "role": "root",
+      "kind": "team",
+      "keyless": false,
+      "label": "Team root (D-012), keeps its key"
+    },
+    "bridge.commonkit-sxflo.testnet": {
+      "role": "bridge",
+      "kind": "team",
+      "keyless": false,
+      "label": "Bridge operator (function-call keys per asset)",
+      "created_tx": "HmfN9zjVfRmWZtgJvSrZRMMyvDM5mUHpMygKGiesDxii",
+      "initial_balance": "1000000000000000000000000"
+    },
+    "agent.commonkit-sxflo.testnet": {
+      "role": "agent",
+      "kind": "team",
+      "keyless": false,
+      "label": "Operations agent (function-call keys per asset)",
+      "created_tx": "Avajeo75RHhsoUEGxxESVqqjwEup4E7jsD1LjakfLcgm",
+      "initial_balance": "1000000000000000000000000"
+    },
+    "supplier.commonkit-sxflo.testnet": {
+      "role": "supplier",
+      "kind": "demo-bot",
+      "keyless": false,
+      "label": "Parts supplier paid by DAO escalations (demo)",
+      "created_tx": "3vrVgVDzM3vfYswvb125ksaxH6AXaAnpWfUHhH8SoQ2Q",
+      "initial_balance": "50000000000000000000000"
+    },
+    "makerlab.commonkit-sxflo.testnet": {
+      "role": "community-root",
+      "kind": "team",
+      "keyless": false,
+      "community": "makerlab",
+      "label": "Makerlab community root: creates commons/asset/council sub-accounts, holds no community money (D-105)",
+      "created_tx": "3n1nvdjtL4ns6USsS4EajN3N7QC1prKKeENRp3FQ2EJ8",
+      "initial_balance": "500000000000000000000000"
+    },
+    "elif.makerlab.commonkit-sxflo.testnet": {
+      "role": "council",
+      "kind": "demo-bot",
+      "keyless": false,
+      "community": "makerlab",
+      "label": "Makerlab DAO council (team-controlled demo account)",
+      "created_tx": "opRVhuWngPVJkP51cBLc3vQCrXYZ5X4GrSQuy2hMsou",
+      "initial_balance": "1500000000000000000000000"
+    },
+    "burak.makerlab.commonkit-sxflo.testnet": {
+      "role": "council",
+      "kind": "demo-bot",
+      "keyless": false,
+      "community": "makerlab",
+      "label": "Makerlab DAO council (team-controlled demo account)",
+      "created_tx": "HPscGJiZ32onvZcMFnsizfdvuvzK3jjt8iaaLAQ4pwsg",
+      "initial_balance": "300000000000000000000000"
+    },
+    "selin.makerlab.commonkit-sxflo.testnet": {
+      "role": "council",
+      "kind": "demo-bot",
+      "keyless": false,
+      "community": "makerlab",
+      "label": "Makerlab DAO council, pilot-rep seat (placeholder until the pilot rep has an account)",
+      "created_tx": "2C8TMxMvUQA3ohqrZg337MukfxpJPK4yQN4zunGEEY65",
+      "initial_balance": "300000000000000000000000"
+    },
+    "makerlab-ck.sputnikv2.testnet": {
+      "role": "dao",
+      "kind": "contract",
+      "keyless": true,
+      "community": "makerlab",
+      "label": "Makerlab Sputnik DAO v2 (factory sputnikv2.testnet)",
+      "created_tx": "FjQhBmLT7oJa7nbNjuoxtQ6rff1jmV7RfVahBUvPmBhb",
+      "code_hash": "AA4nA45vauiac3jdVwJTzSdUP3oj2r1fDaPAb2mHdgcH"
+    },
+    "commons.makerlab.commonkit-sxflo.testnet": {
+      "role": "commons",
+      "kind": "contract",
+      "keyless": "pending",
+      "community": "makerlab",
+      "label": "Makerlab commons (roles, credentials, NEP-171 cards)",
+      "created_tx": "GSpazbSoUiN5UtbStM5cbRc89VdjjXpvH4P2xDk2vuk8",
+      "deploy_tx": "GSpazbSoUiN5UtbStM5cbRc89VdjjXpvH4P2xDk2vuk8",
+      "code_hash": "J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn",
+      "initial_balance": "3900000000000000000000000"
+    },
+    "dorm-b.commonkit-sxflo.testnet": {
+      "role": "community-root",
+      "kind": "team",
+      "keyless": false,
+      "community": "dorm-b",
+      "label": "Dorm B community root: creates commons/asset/council sub-accounts, holds no community money (D-105)",
+      "created_tx": "6r3yYG5kHKTYARnfoptHAyGfA2zNp4dqy4qCfpCEU2Vs",
+      "initial_balance": "500000000000000000000000"
+    },
+    "nil.dorm-b.commonkit-sxflo.testnet": {
+      "role": "council",
+      "kind": "demo-bot",
+      "keyless": false,
+      "community": "dorm-b",
+      "label": "Dorm B DAO council (demo account)",
+      "created_tx": "EbLnrmCzCMMceHjpHqi7c4S1WuN6TgZhsWFHBzWPws3a",
+      "initial_balance": "1500000000000000000000000"
+    },
+    "ozan.dorm-b.commonkit-sxflo.testnet": {
+      "role": "council",
+      "kind": "demo-bot",
+      "keyless": false,
+      "community": "dorm-b",
+      "label": "Dorm B DAO council (demo account)",
+      "created_tx": "87APksZHzRaiYUBj1LgJQakqL9gGCwqWJw3ssdqEbv4x",
+      "initial_balance": "300000000000000000000000"
+    },
+    "ece.dorm-b.commonkit-sxflo.testnet": {
+      "role": "council",
+      "kind": "demo-bot",
+      "keyless": false,
+      "community": "dorm-b",
+      "label": "Dorm B DAO council (demo account)",
+      "created_tx": "8kVcumds4SKmBW69vg9jKTr8Qn3csU762kiycauwMtQE",
+      "initial_balance": "300000000000000000000000"
+    },
+    "dorm-b-ck.sputnikv2.testnet": {
+      "role": "dao",
+      "kind": "contract",
+      "keyless": true,
+      "community": "dorm-b",
+      "label": "Dorm B Sputnik DAO v2 (factory sputnikv2.testnet)",
+      "created_tx": "7FEEhTWmfQrhpicfGCz4TiPEKwNNeXDUWegUXxb9HK2D",
+      "code_hash": "AA4nA45vauiac3jdVwJTzSdUP3oj2r1fDaPAb2mHdgcH"
+    },
+    "commons.dorm-b.commonkit-sxflo.testnet": {
+      "role": "commons",
+      "kind": "contract",
+      "keyless": "pending",
+      "community": "dorm-b",
+      "label": "Dorm B commons (roles, credentials, NEP-171 cards)",
+      "created_tx": "8BqTEpT2NmisQwGUXmmCAF2UCboiiADGqUmKG8Qw7ggw",
+      "deploy_tx": "8BqTEpT2NmisQwGUXmmCAF2UCboiiADGqUmKG8Qw7ggw",
+      "code_hash": "J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn",
+      "initial_balance": "3900000000000000000000000"
+    },
+    "ali.commonkit-sxflo.testnet": {
+      "role": "member",
+      "kind": "demo-bot",
+      "keyless": false,
+      "label": "Ali \u2014 reserves the printer (steps 2\u20136), washer user",
+      "created_tx": "DEe2Ex7x7pKGq9n6r4kJvMydbhmyYDdWZUdrFAUR5gqs",
+      "initial_balance": "8000000000000000000000000"
+    },
+    "can.commonkit-sxflo.testnet": {
+      "role": "member",
+      "kind": "demo-bot",
+      "keyless": false,
+      "label": "Can \u2014 no reservation (step 4), dorm-b resident",
+      "created_tx": "3UgMDtnjiue7u7Shu5yaUoWzEntbz8e1UTG2m8n36zmv",
+      "initial_balance": "1000000000000000000000000"
+    },
+    "ayse.commonkit-sxflo.testnet": {
+      "role": "member",
+      "kind": "demo-bot",
+      "keyless": false,
+      "label": "Ay\u015fe \u2014 maintainer and laser trainer",
+      "created_tx": "8uQ6pP7ttzLHMtnbaZLwpLvwBk2qMTczJZrobqBnuxkx",
+      "initial_balance": "5000000000000000000000000"
+    },
+    "mehmet.commonkit-sxflo.testnet": {
+      "role": "member",
+      "kind": "demo-bot",
+      "keyless": false,
+      "label": "Mehmet \u2014 verifier",
+      "created_tx": "4cwNEjVzKFPEdgYivP2G9jb9JYjYUX2R3hviGEwKsWJU",
+      "initial_balance": "500000000000000000000000"
+    },
+    "zeynep.commonkit-sxflo.testnet": {
+      "role": "member",
+      "kind": "demo-bot",
+      "keyless": false,
+      "label": "Zeynep \u2014 laser trainee",
+      "created_tx": "AMRB2ZUfAzyG1iaNZyubUxGzAufs91xHUvTFCgVoYHqt",
+      "initial_balance": "4500000000000000000000000"
+    }
+  },
+  "function_call_keys": []
+}

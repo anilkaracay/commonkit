@@ -5,10 +5,17 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "setup": "tsx setup-testnet.ts",
+    "seed": "tsx seed-testnet.ts",
+    "fund": "tsx fund-testnet.ts",
+    "verify": "tsx verify.ts"
   },
   "dependencies": {
-    "ajv": "^8.17.1"
+    "@commonkit/sdk": "workspace:*",
+    "ajv": "^8.17.1",
+    "near-api-js": "7.4.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

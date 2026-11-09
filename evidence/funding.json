@@ -1,0 +1,72 @@
+[
+  {
+    "at": "2026-11-09T13:28:22.239Z",
+    "label": "faucet helper ck-fund-33duiq-1.testnet → root 9.95 NEAR",
+    "hash": "7S4vW5ysddArP18rDkUHnocNmzBsBrYXSdduFKBfEd33",
+    "signer": "ck-fund-33duiq-1.testnet",
+    "receiver": "commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/7S4vW5ysddArP18rDkUHnocNmzBsBrYXSdduFKBfEd33",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:28:58.545Z",
+    "label": "faucet helper ck-fund-d6fd26-1.testnet → root 9.95 NEAR",
+    "hash": "DpR6cYwUbTrqN8b49yNnQaC9aw1kmWsUTqWqjpmUxcRg",
+    "signer": "ck-fund-d6fd26-1.testnet",
+    "receiver": "commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/DpR6cYwUbTrqN8b49yNnQaC9aw1kmWsUTqWqjpmUxcRg",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:29:02.209Z",
+    "label": "faucet helper ck-fund-d6fd26-2.testnet → root 9.95 NEAR",
+    "hash": "2PkSvxnN5tz8su1biPzBtuZust47Zrha3BDar6JxZqxB",
+    "signer": "ck-fund-d6fd26-2.testnet",
+    "receiver": "commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/2PkSvxnN5tz8su1biPzBtuZust47Zrha3BDar6JxZqxB",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:29:06.420Z",
+    "label": "faucet helper ck-fund-d6fd26-3.testnet → root 9.95 NEAR",
+    "hash": "Er5PtnbKrmjGC3rykNU53iu9UeabgqaG3v2sVtPA7deJ",
+    "signer": "ck-fund-d6fd26-3.testnet",
+    "receiver": "commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/Er5PtnbKrmjGC3rykNU53iu9UeabgqaG3v2sVtPA7deJ",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:29:10.395Z",
+    "label": "faucet helper ck-fund-d6fd26-4.testnet → root 9.95 NEAR",
+    "hash": "DDuD1t6orB8eb2FSjUyJRrfUAKrGdmEY6bqdSEFgKfQD",
+    "signer": "ck-fund-d6fd26-4.testnet",
+    "receiver": "commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/DDuD1t6orB8eb2FSjUyJRrfUAKrGdmEY6bqdSEFgKfQD",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:29:14.353Z",
+    "label": "faucet helper ck-fund-d6fd26-5.testnet → root 9.95 NEAR",
+    "hash": "AuTe6BwkFbGbxzHvrZAvBCu8PNsw3jRPqD9YjtuJvF9D",
+    "signer": "ck-fund-d6fd26-5.testnet",
+    "receiver": "commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/AuTe6BwkFbGbxzHvrZAvBCu8PNsw3jRPqD9YjtuJvF9D",
+    "events": []
+  },
+  {
+    "at": "2026-11-09T13:29:17.996Z",
+    "label": "faucet helper ck-fund-d6fd26-6.testnet → root 9.95 NEAR",
+    "hash": "2JypAZR8evVw75Fr1UsfaJEEA53xBLmFHnbXjxoqiZci",
+    "signer": "ck-fund-d6fd26-6.testnet",
+    "receiver": "commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/2JypAZR8evVw75Fr1UsfaJEEA53xBLmFHnbXjxoqiZci",
+    "events": []
+  }
+]
