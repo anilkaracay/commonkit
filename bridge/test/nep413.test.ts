@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { base64 } from "@scure/base";
 import { serialize } from "borsh";
+import { verifyMessage } from "near-api-js/nep413";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { buildServer } from "../src/http/server.js";
 import { FakeChainClient } from "../src/chain/fake.js";
@@ -73,6 +74,34 @@ describe("NEP-413 payload and signature (fixed vectors)", () => {
       expect(ed25519.verify(base64.decode(c.signature_b64), hash, parsePublicKey(c.public_key).bytes)).toBe(true);
       expect(verifyNep413Signature(payloadOf(c), c.public_key, c.signature_b64)).toBe(true);
     }
+  });
+
+  it("every vector verifies with near-api-js 7.4.0 nep413.verifyMessage (official reference)", async () => {
+    // Stub provider: the key is a FullAccess key of the account (near-api-js requires FullAccess).
+    const provider = { viewAccessKey: async () => ({ permission: "FullAccess" }) } as unknown as Parameters<
+      typeof verifyMessage
+    >[0]["provider"];
+    for (const c of fixture.cases) {
+      await expect(
+        verifyMessage({
+          signerAccountId: c.account_id,
+          signerPublicKey: c.public_key,
+          payload: { message: c.message, nonce: base64.decode(c.nonce_b64), recipient: c.signed_recipient },
+          signature: base64.decode(c.signature_b64),
+          provider,
+        }),
+      ).resolves.toBeUndefined();
+    }
+    const wr = byName("wrong_recipient");
+    await expect(
+      verifyMessage({
+        signerAccountId: wr.account_id,
+        signerPublicKey: wr.public_key,
+        payload: { message: wr.message, nonce: base64.decode(wr.nonce_b64), recipient: fixture.env.recipient as string },
+        signature: base64.decode(wr.signature_b64),
+        provider,
+      }),
+    ).rejects.toThrow(/verification failed/);
   });
 
   it("rejects tampered signature, message, nonce and the wrong recipient", () => {
