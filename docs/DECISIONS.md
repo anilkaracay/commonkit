@@ -96,3 +96,30 @@ Consequences: Asset builds calls from the `*Args` structs; gas constants `GAS_AU
 Context: Asset `sync_roles` ignores `version <= roles_version`. With per-account incremental pushes, a failed or reordered push would be silently skipped by a later version, leaving the asset with stale roles.
 Decision: Every push (`register_asset`, `set_roles`, `resync_roles`) sends the full snapshot of all accounts that ever held a role; removed accounts stay as tombstones with `[]`. Total role accounts are capped (`MAX_ROLE_ACCOUNTS = 100`).
 Consequences: Latest version always fully determines asset roles; payload grows with the community, bounded by the cap.
+
+## D-101 — Asset contract opens Sputnik proposals itself (C8 proven); no fallback
+2026-11-09 · accepted
+Context: RESEARCH C8. On testnet a contract (`ck-r-1nkreg-b.testnet`) called `ck-r-1nkreg.sputnikv2.testnet.add_proposal` with 1 NEAR bond from its own balance (tx `4H1F9AVhVfzwHrSJriuoMVCB8tRKBycSW1CGGre1C6ke`); the callback received the u64 id; `proposer` is the contract; approval paid the receiver and returned the bond to the contract (tx `6Jc9MfR2YK9AiJKi1twW9zUGTGMbP4keNWnELPw2t9Mu`). Default policy role `all` (Everyone) has `*:AddProposal`, so no extra `assets` role is needed.
+Decision: Keep CONTRACT_SPEC §3.5 as designed (asset calls `add_proposal` directly). The "Fallback if C8 fails" (`link_escalation`) is not implemented.
+Consequences: Bond must equal `proposal_bond` exactly (cached by `refresh_dao_policy`, which must also cache `proposal_period`).
+
+## D-102 — Escalation sync handles lazy expiry, deleted (Removed) proposals and returned bonds
+2026-11-09 · accepted
+Context: Sputnik source (`proposals.rs`, `policy.rs`): status `Expired` is only stored after `act_proposal(id,"Finalize")` (council-only permission); before that an expired proposal still reads `InProgress`. A `Removed` proposal is deleted, so `get_proposal` panics `ERR_NO_PROPOSAL`. The bond comes back to the proposer as a plain transfer receipt (no method call) on Approved, Rejected and Expired-finalized; it is lost on Removed.
+Decision (CONTRACT_SPEC §2.6, §3.5 changes):
+1. `refresh_dao_policy` caches `proposal_bond` **and** `proposal_period`.
+2. `on_escalation_synced`: `InProgress` with `submission_time + proposal_period < block_timestamp` → `Expired`; a failed `get_proposal` promise on a `Submitted` escalation whose id exists → `Rejected` (record `bond_lost = true`); `Moved` → `Failed`.
+3. Add ledger bucket `bonds_outstanding` (bond leaves `float_free` into it when sent). When sync first reaches `Approved`/`Rejected`/`Expired`, move `bond_paid` from `bonds_outstanding` back to `float_free` exactly once (flag `bond_settled`); on `Removed` drop it from `bonds_outstanding` (it was spent). `invariant_ok` stays `balance >= obligations`; Sputnik writes `Approved`/`Rejected` and creates the bond-refund receipt in the same receipt, so a sync can at most see a 1–2 block window where the refund is still in flight (documented, not a bug).
+4. Note for the demo: Expired bonds only return after a council `Finalize`; scripts should call it.
+Consequences: Exactly-once bond accounting; no silent untracked balance.
+
+## D-103 — Council vote threshold for 2-of-3 is `[1,2]`
+2026-11-09 · accepted
+Context: `WeightOrRatio::Ratio(n,d).to_weight(total) = min(total*n/d + 1, total)`. For 3 members `[2,3]` → 3 votes, `[1,2]` → 2 votes.
+Decision: Use the factory default policy (`policy: [council...]`) unchanged; its `[1,2]` gives 2-of-3. DAO_INTEGRATION §2 "2/3 threshold" means 2-of-3 → keep `[1,2]`.
+Consequences: Single-member throwaway DAOs approve with one vote; execution happens inside that vote tx (vote tx needs 300 Tgas).
+
+## D-104 — Never use `signer_account_id` for DAO-originated calls
+2026-11-09 · accepted
+Context: C9 testnet tx `5gBzMAGQHmA41TUr3g43PKARdY5YEuvPaRwMsGjQu5ZG`: when a FunctionCall proposal executes, `predecessor == DAO` but `signer == the council member who cast the final vote`.
+Decision: DAO access checks use only `predecessor_account_id() == dao_id`. Multi-action FunctionCall proposals are allowed (they run in one atomic receipt).

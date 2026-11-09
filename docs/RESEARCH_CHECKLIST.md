@@ -47,17 +47,17 @@ Status legend: ☐ not started · ◐ in progress · ✅ verified · ⚠️ diff
 
 | # | Item | Assumption | How to verify | Result |
 | :--- | :--- | :--- | :--- | :--- |
-| C1 | Testnet factory account | `sputnikv2.testnet`; DAOs at `<name>.sputnikv2.testnet` | view `get_dao_list` | ☐ |
-| C2 | Create DAO | Factory `create({name, args: base64(json{config, policy})})` with attached deposit (~5–6 NEAR?) | source code + do it | ☐ |
-| C3 | Default policy | Role "all"/Everyone can `*:AddProposal`; council group `*:*`; vote threshold | read `default_policy` in source; `get_policy` view | ☐ |
-| C4 | Proposal bond | Value of `proposal_bond`; whether it is refunded and when | source + policy view | ☐ |
-| C5 | Proposal kinds | JSON shape for `Transfer {token_id:"", receiver_id, amount, msg}` and `FunctionCall {receiver_id, actions:[{method_name,args(base64),deposit,gas}]}` | source | ☐ |
-| C6 | `add_proposal` return | Returns proposal id (u64) so a contract callback can store it | source | ☐ |
-| C7 | `get_proposal(id)` | Returns status (`InProgress`, `Approved`, `Rejected`, `Removed`, `Expired`, `Moved`, `Failed`) | source | ☐ |
-| C8 | Contract as proposer | A contract account (our asset) can call `add_proposal` with the bond attached in a cross-contract call | sandbox or testnet test | ☐ |
-| C9 | Predecessor on execution | When a `FunctionCall` proposal executes, `predecessor_account_id` in our contract == DAO account | testnet test | ☐ |
-| C10 | Transfer to DAO | A plain NEAR transfer to the DAO account increases its treasury balance (no method needed) | testnet test | ☐ |
-| C11 | Execution gas | Gas limits for multi-action FunctionCall proposals | source | ☐ |
+| C1 | Testnet factory account | `sputnikv2.testnet`; DAOs at `<name>.sputnikv2.testnet` | view `get_dao_list` | ✅ `sputnikv2.testnet`, 5,504 DAOs, `get_daos({from_index,limit})`; RESULTS §2 · rpc.testnet.near.org · 2026-11-09 |
+| C2 | Create DAO | Factory `create({name, args: base64(json{config, policy})})` with attached deposit (~5–6 NEAR?) | source code + do it | ✅ `create({name,args})`, 6 NEAR + 300 Tgas worked; DAO storage 5.40 NEAR; created `ck-r-1nkreg.sputnikv2.testnet` · testnet + github.com/near-daos/sputnik-dao-contract@3d568f9 · 2026-11-09 |
+| C3 | Default policy | Role "all"/Everyone can `*:AddProposal`; council group `*:*`; vote threshold | read `default_policy` in source; `get_policy` view | ✅ `all`(Everyone) `*:AddProposal`; council AddProposal/VoteApprove/VoteReject/VoteRemove/Finalize; threshold [1,2] (=2-of-3, D-103) · `get_policy` + policy.rs · 2026-11-09 |
+| C4 | Proposal bond | Value of `proposal_bond`; whether it is refunded and when | source + policy view | ✅ 1 NEAR, must be exact; returned on Approved/Rejected/Expired-finalized, lost on Removed (D-102) · proposals.rs · 2026-11-09 |
+| C5 | Proposal kinds | JSON shape for `Transfer {token_id:"", receiver_id, amount, msg}` and `FunctionCall {receiver_id, actions:[{method_name,args(base64),deposit,gas}]}` | source | ✅ shapes verified by testnet round trip (RESULTS §3.2); `token_id:""`, `msg:null` for NEAR · 2026-11-09 |
+| C6 | `add_proposal` return | Returns proposal id (u64) so a contract callback can store it | source | ✅ returns bare u64, parsed by contract callback on testnet · 2026-11-09 |
+| C7 | `get_proposal(id)` | Returns status (`InProgress`, `Approved`, `Rejected`, `Removed`, `Expired`, `Moved`, `Failed`) | source | ⚠️ shape as assumed, but Expired is lazy (needs Finalize) and Removed deletes the proposal (D-102) · proposals.rs/policy.rs · 2026-11-09 |
+| C8 | Contract as proposer | A contract account (our asset) can call `add_proposal` with the bond attached in a cross-contract call | sandbox or testnet test | ✅ proven on testnet, tx 4H1F9AVh…, bond returned on approval; no fallback (D-101) · 2026-11-09 |
+| C9 | Predecessor on execution | When a `FunctionCall` proposal executes, `predecessor_account_id` in our contract == DAO account | testnet test | ✅ predecessor == DAO, signer == last voter (D-104), tx 5gBzMAGQ… · 2026-11-09 |
+| C10 | Transfer to DAO | A plain NEAR transfer to the DAO account increases its treasury balance (no method needed) | testnet test | ✅ plain transfer raised `get_available_amount` 0.48 → 0.98 NEAR, tx hCaX43XN… · 2026-11-09 |
+| C11 | Execution gas | Gas limits for multi-action FunctionCall proposals | source | ✅ per-action gas as given + 10 Tgas DAO callback; only the 300 Tgas tx cap; vote with 300 Tgas · proposals.rs + measured · 2026-11-09 |
 | C12 | Sputnik UI | Is there a usable testnet UI to show proposals in the video (e.g. Astro/other)? If none, our web app shows proposals via views | search | ☐ |
 
 **Fallback if C8 fails:** the asset emits a `escalation_requested` event and stores the request; the agent (or any member) creates the Sputnik proposal from its own account with the bond, passing the escalation id in the description; the asset links it with `link_escalation(escalation_id, proposal_id)` and verifies via `get_proposal`. Log the decision.
