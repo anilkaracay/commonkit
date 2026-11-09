@@ -10,6 +10,7 @@ import { ChallengeStore, recipientFor } from "./nep413/challenge.js";
 import type { AssetRuntime } from "./runtime.js";
 import { SessionManager } from "./sessions/manager.js";
 import { CounterStore } from "./telemetry/counters.js";
+import { GaugeTracker } from "./telemetry/gauges.js";
 import { TelemetryLoop } from "./telemetry/loop.js";
 import { systemClock, type LocalClock } from "./util/clock.js";
 import { labelled } from "./util/log.js";
@@ -79,6 +80,7 @@ export class Bridge {
         config: a,
         adapter,
         counters: new CounterStore(a.asset_id, o.config.state_dir),
+        gauges: new GaugeTracker(a.asset_id, o.config.state_dir, a.gauges),
         simulated,
         logger,
         occupancy: null,
@@ -110,6 +112,7 @@ export class Bridge {
     for (const rt of this.assets.values()) {
       await rt.adapter.init();
       await rt.counters.load();
+      await rt.gauges.load();
       try {
         const onChain = await this.chain.getTelemetry(rt.config.asset_id);
         await rt.counters.seedFromChain(onChain.metrics);

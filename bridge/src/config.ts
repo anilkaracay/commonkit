@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { z } from "zod";
 import { verificationTestSchema } from "./adapters/types.js";
+import { gaugesConfigSchema } from "./telemetry/gauges.js";
 import { accountIdSchema } from "./util/near.js";
 
 export const ADAPTER_KINDS = ["simulator", "moonraker", "octoprint", "smart_plug", "manual_qr"] as const;
@@ -31,9 +32,15 @@ export const assetConfigSchema = z
     session_poll_sec: z.number().positive().max(300).default(2),
     /** rule_id -> verification test run after a maintenance submission. */
     verification_tests: z.record(z.string(), verificationTestSchema).default({}),
+    /** gauge name -> derived monotonic counters (D-410). */
+    gauges: gaugesConfigSchema,
     safety: safetySchema,
   })
   .superRefine((a, ctx) => {
+    const derived = Object.values(a.gauges).flatMap((rules) => rules.map((r) => r.counter));
+    if (new Set(derived).size !== derived.length) {
+      ctx.addIssue({ code: "custom", path: ["gauges"], message: "derived counter names must be unique" });
+    }
     if (a.safety.dangerous && a.adapter !== "simulator" && !a.safety.stand_in && !a.safety.human_present_confirmed) {
       ctx.addIssue({
         code: "custom",

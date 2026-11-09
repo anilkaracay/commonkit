@@ -57,6 +57,9 @@ export interface VerificationOutcome {
 /** Cumulative counters, monotonic per metric for a given device lifetime. */
 export type Metrics = Record<string, bigint>;
 
+/** Levels that go up and down (temperature_c, fuel_level). Never sent to the chain raw (D-410). */
+export type Gauges = Record<string, number>;
+
 /** Contract limits for telemetry (CONTRACT_SPEC §3.3). */
 export const MAX_METRICS = 16;
 export const MAX_METRIC_NAME = 32;
@@ -74,6 +77,8 @@ export interface Adapter {
   lock(): Promise<void>;
   unlock(session: SessionContext): Promise<void>;
   readMetrics(): Promise<Metrics>;
+  /** Optional live levels; the bridge turns them into monotonic counters per asset config. */
+  readGauges?(): Promise<Gauges>;
   runVerification(test: VerificationTest): Promise<VerificationOutcome>;
   sessionDone(session: SessionContext): Promise<boolean>;
   close?(): Promise<void>;

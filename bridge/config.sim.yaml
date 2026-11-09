@@ -24,3 +24,10 @@ assets:
     telemetry_interval_sec: 10
     session_timeout_min: 60
     safety: { dangerous: true }      # simulated: nothing is energised
+  - asset_id: fridge-01.street.testnet
+    adapter: simulator
+    adapter_config: { scenario: test/fixtures/scenarios/community_fridge.yaml }
+    telemetry_interval_sec: 10
+    session_timeout_min: 10
+    gauges:                          # gauges never go on chain raw (D-410)
+      temperature_c: [{ derive: samples_above, limit: 8, counter: temp_high_samples }]

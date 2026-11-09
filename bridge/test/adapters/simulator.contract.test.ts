@@ -4,7 +4,7 @@ import { ManualClock } from "../../src/util/clock.js";
 import { describeAdapterContract } from "../adapter.contract.js";
 import { FIXTURES, tempDir } from "../helpers/harness.js";
 
-for (const scenario of ["washer", "printer_3d", "laser_cutter"]) {
+for (const scenario of ["washer", "printer_3d", "laser_cutter", "community_fridge", "tractor"]) {
   describeAdapterContract(`simulator (${scenario})`, async () => {
     const stateDir = await tempDir();
     const clock = new ManualClock();

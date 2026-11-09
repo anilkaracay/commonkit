@@ -1,5 +1,6 @@
 # SIMULATION of the makerlab 3D printer (the real one uses the moonraker adapter).
 # nozzle_seconds starts at 600; one 20-minute print crosses nozzle_clean (pilot threshold 1800).
+# filament_used_mm starts at 318 m; three prints cross a 330 m Restock trigger (D-017).
 scenario: printer_3d
 description: Simulated Klipper printer for CI and judges without hardware.
 simulated: true
@@ -10,6 +11,7 @@ metrics:
   nozzle_seconds: { initial: 600, per_session: 1200, curve: linear }
   jobs_total:     { initial: 12, per_session: 1, curve: step }
   jobs_failed:    { initial: 1, per_session: 0, curve: step }
+  filament_used_mm: { initial: 318000, per_session: 4000, curve: linear }   # ~12 g PLA per print; spool ~330 m
 session:
   duration_sec: 1200
   jitter_pct: 5

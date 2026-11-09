@@ -120,10 +120,39 @@ describe("simulator adapter", () => {
     expect((await second.adapter.readMetrics()).cycles).toBe(28n);
   });
 
+  it("gauges: fridge warms with door openings, cools when idle, scenario spike, clamped", async () => {
+    const { adapter, clock } = await sim("community_fridge");
+    expect((await adapter.readGauges()).temperature_c).toBe(4);
+    expect(await adapter.readMetrics()).not.toHaveProperty("temperature_c");
+    await runSession(adapter, clock, 1);
+    const warmer = (await adapter.readGauges()).temperature_c!;
+    expect(warmer).toBeGreaterThan(4);
+    clock.advance(60_000); // 1 simulated hour at speed 60: cools by 2 C, never below min 3
+    expect((await adapter.readGauges()).temperature_c).toBeCloseTo(Math.max(3, warmer - 2), 1);
+    clock.advance(((7200 - 3600) / 60) * 1000); // simulated 02:00 -> door left ajar
+    expect((await adapter.readGauges()).temperature_c).toBeCloseTo(12, 0);
+  });
+
+  it("gauges: fuel drops per session and a passed verification restores the tank (verification.sets)", async () => {
+    const { adapter, clock } = await sim("tractor");
+    expect((await adapter.readGauges()).fuel_level).toBe(60);
+    await runSession(adapter, clock, 1);
+    await runSession(adapter, clock, 2);
+    const low = (await adapter.readGauges()).fuel_level!;
+    expect(low).toBeLessThan(30);
+    const v = await adapter.runVerification({ type: "simulated" });
+    expect(v.passed).toBe(true);
+    expect(v.details.gauges_restored).toEqual({ fuel_level: 80 });
+    expect((await adapter.readGauges()).fuel_level).toBe(80);
+  });
+
   it("scenario validation: must be simulated, `simulated` metric name is reserved", async () => {
     const text = await readFile(`${FIXTURES}scenarios/washer.yaml`, "utf8");
     expect(() => parseScenario(text.replace("simulated: true", "simulated: false"), "x.yaml")).toThrow(/simulated/);
     expect(() => parseScenario(text.replace("cycles:", "simulated:"), "x.yaml")).toThrow(/metrics\.simulated/);
+    const fridge = await readFile(`${FIXTURES}scenarios/community_fridge.yaml`, "utf8");
+    expect(() => parseScenario(fridge.replace("metric: temperature_c", "metric: uses"), "x.yaml")).toThrow(/not a gauge/);
+    expect(() => parseScenario(fridge.replace("initial: 4,", "initial: 40,"), "x.yaml")).toThrow(/min <= initial <= max/);
     expect(() => parseScenario(JSON.stringify({ scenario: "x", simulated: true, seed: 1, metrics: {}, session: { duration_sec: 1 } }), "x.json")).toThrow(
       /at least one metric/,
     );

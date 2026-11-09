@@ -1,0 +1,24 @@
+# SIMULATION. Community fridge (D-017: upkeep is more than repair: check, clean, report).
+# temperature_c is a gauge: it never goes on chain raw. The bridge derives the monotonic counter
+# temp_high_samples (samples above 8 C) from it via the asset's `gauges` config.
+scenario: community_fridge
+description: Simulated shared fridge; door openings warm it, the compressor cools it back.
+simulated: true
+seed: 8
+speed: 60
+metrics:
+  uses:          { initial: 140, per_session: 1, curve: step }
+  door_opens:    { initial: 410, per_session: 3, curve: step }
+  temperature_c: { type: gauge, initial: 4, per_session: 1.5, idle_per_hour: -2, min: 3, max: 18 }
+session:
+  duration_sec: 120        # someone takes or leaves food
+  jitter_pct: 50
+verification:
+  duration_sec: 600        # 10 min temperature check after cleaning the seal
+  default: pass
+  sets: { temperature_c: 4 }
+failures:
+  - kind: gauge_set        # door left ajar overnight: 12 C at simulated 02:00
+    metric: temperature_c
+    at_sec: 7200
+    value: 12

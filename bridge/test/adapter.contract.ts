@@ -57,6 +57,19 @@ export function describeAdapterContract(name: string, make: () => Promise<Contra
       if (adapter.simulated) expect(m.simulated).toBe(1n);
     });
 
+    it("optional gauges are finite numbers with snake_case names and are not counters", async () => {
+      const { adapter } = await make();
+      await adapter.init();
+      if (!adapter.readGauges) return;
+      const g = await adapter.readGauges();
+      const counters = await adapter.readMetrics();
+      for (const [k, v] of Object.entries(g)) {
+        expect(k).toMatch(/^[a-z][a-z0-9_]*$/);
+        expect(Number.isFinite(v)).toBe(true);
+        expect(k in counters, `${k} is both a gauge and a counter`).toBe(false);
+      }
+    });
+
     it("unlock -> busy and unlocked; sessionDone false until the use completes; lock -> locked", async () => {
       const h = await make();
       await h.adapter.init();

@@ -7,6 +7,7 @@ import {
   type Adapter,
   type AdapterContext,
   type DeviceStatus,
+  type Gauges,
   type Metrics,
   type SessionContext,
   type VerificationOutcome,
@@ -49,6 +50,12 @@ const simStateSchema = z.object({
   verification_runs: z.number().int().nonnegative(),
   active: activeSessionSchema.nullable(),
   locked: z.boolean(),
+  /** Finished sessions in simulated seconds (gauges integrate over them). Last 500 kept. */
+  session_log: z
+    .array(z.object({ start: z.number(), end: z.number(), duration: z.number().positive() }))
+    .default([]),
+  /** Gauge values set at runtime (a passed verification restores e.g. fuel_level). */
+  gauge_sets: z.array(z.object({ metric: z.string(), at_sec: z.number(), value: z.number() })).default([]),
 });
 type SimState = z.infer<typeof simStateSchema>;
 
@@ -107,6 +114,8 @@ export class SimulatorAdapter implements Adapter {
         verification_runs: 0,
         active: null,
         locked: true,
+        session_log: [],
+        gauge_sets: [],
       };
     }
     // Fail closed: a (re)started device is locked unless a session is still running.
@@ -139,7 +148,13 @@ export class SimulatorAdapter implements Adapter {
   async lock(): Promise<void> {
     const active = this.state.active;
     if (active) {
-      const add = this.sessionContribution(active, this.simNowSec(), true);
+      const now = this.simNowSec();
+      const end = Math.min(now, active.start_sim_sec + (active.error_after_sec ?? active.duration_sec));
+      this.state.session_log = [
+        ...this.state.session_log,
+        { start: active.start_sim_sec, end: Math.max(end, active.start_sim_sec), duration: active.duration_sec },
+      ].slice(-500);
+      const add = this.sessionContribution(active, now, true);
       for (const [m, v] of Object.entries(add)) {
         this.state.committed[m] = (this.state.committed[m] ?? 0n) + v;
       }
@@ -185,6 +200,7 @@ export class SimulatorAdapter implements Adapter {
     const running = this.state.active ? this.sessionContribution(this.state.active, t, false) : {};
     const out: Metrics = {};
     for (const [name, curve] of Object.entries(this.scenario.metrics)) {
+      if (curve.type !== "counter") continue;
       out[name] =
         BigInt(curve.initial) +
         BigInt(Math.floor((curve.idle_per_hour * t) / 3600)) +
@@ -192,6 +208,35 @@ export class SimulatorAdapter implements Adapter {
         (running[name] ?? 0n);
     }
     out[SIMULATED_METRIC] = 1n;
+    return out;
+  }
+
+  /**
+   * Gauge value = latest set (scenario gauge_set or a passed verification) or `initial`,
+   * + idle drift since then + per_session spread over session time since then, clamped to [min, max].
+   */
+  async readGauges(): Promise<Gauges> {
+    const t = this.simNowSec();
+    if (this.isOffline(t)) throw new AdapterOfflineError("simulated device offline (scenario failure injection)");
+    const out: Gauges = {};
+    for (const [name, g] of Object.entries(this.scenario.metrics)) {
+      if (g.type !== "gauge") continue;
+      const sets = [
+        ...this.scenario.failures.flatMap((f) => (f.kind === "gauge_set" && f.metric === name ? [f] : [])),
+        ...this.state.gauge_sets.filter((s) => s.metric === name),
+      ].filter((s) => s.at_sec <= t);
+      const last = sets.reduce<{ at_sec: number; value: number } | null>((a, s) => (!a || s.at_sec >= a.at_sec ? s : a), null);
+      const t0 = last?.at_sec ?? 0;
+      let v = (last?.value ?? g.initial) + (g.idle_per_hour * (t - t0)) / 3600;
+      const spans = [...this.state.session_log];
+      const a = this.state.active;
+      if (a) spans.push({ start: a.start_sim_sec, end: Math.min(t, a.start_sim_sec + (a.error_after_sec ?? a.duration_sec)), duration: a.duration_sec });
+      for (const s of spans) {
+        const overlap = Math.max(0, Math.min(s.end, t) - Math.max(s.start, t0));
+        v += g.per_session * (overlap / s.duration);
+      }
+      out[name] = Math.round(Math.min(g.max, Math.max(g.min, v)) * 100) / 100;
+    }
     return out;
   }
 
@@ -216,6 +261,12 @@ export class SimulatorAdapter implements Adapter {
       await this.ctx.clock.sleep((simDuration * 1000) / this.speed);
       const injected = this.scenario.failures.some((f) => f.kind === "verification_fail" && f.run === run);
       const passed = injected ? false : this.scenario.verification.default === "pass";
+      const restored = passed ? this.scenario.verification.sets : {};
+      if (Object.keys(restored).length > 0) {
+        const at = this.simNowSec();
+        this.state.gauge_sets.push(...Object.entries(restored).map(([metric, value]) => ({ metric, at_sec: at, value })));
+        await this.persist();
+      }
       const details: Record<string, unknown> = {
         simulated: true,
         asset_id: this.ctx.assetId,
@@ -226,6 +277,7 @@ export class SimulatorAdapter implements Adapter {
         sim_duration_sec: simDuration,
         passed,
         failure_injected: injected,
+        gauges_restored: restored,
       };
       return { passed, details, detailsHash: sha256Hex(canonicalJson(details)) };
     } finally {
@@ -258,6 +310,7 @@ export class SimulatorAdapter implements Adapter {
     const completed = !errored && elapsed >= s.duration_sec;
     const out: Record<string, bigint> = {};
     for (const [name, curve] of Object.entries(this.scenario.metrics)) {
+      if (curve.type !== "counter") continue;
       const v =
         curve.curve === "linear" ? Math.floor(curve.per_session * fraction) : completed ? curve.per_session : 0;
       out[name] = BigInt(v);

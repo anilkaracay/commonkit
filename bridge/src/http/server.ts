@@ -129,6 +129,8 @@ export async function buildServer(bridge: Bridge): Promise<FastifyInstance> {
             occupancy: rt.occupancy,
             session: session ? { id: session.id, reservation_id: session.reservationId, account_id: session.accountId } : null,
             counters: rt.counters.snapshot(),
+            // Live levels (not on chain raw; derived counters are). Labelled like everything else.
+            gauges: rt.adapter.readGauges ? await rt.adapter.readGauges().catch(() => rt.gauges.liveValues()) : null,
           }),
         ) as unknown;
       }),

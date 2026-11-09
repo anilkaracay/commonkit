@@ -44,7 +44,7 @@ scenario: washer            # id; also the simulator state key
 simulated: true             # required, must be true
 seed: 20261114              # deterministic jitter
 speed: 60                   # simulated seconds per real second (adapter_config.speed overrides)
-metrics:                    # <= 15 metrics; `simulated` is reserved
+metrics:                    # <= 15 counters (+ any gauges); `simulated` is reserved
   cycles:      { initial: 27, per_session: 1, curve: step }      # added when a session completes
   run_seconds: { initial: 97200, per_session: 2700, curve: linear } # grows during the session
   energy_wh:   { initial: 24300, per_session: 700, curve: linear, idle_per_hour: 1 }
@@ -56,7 +56,28 @@ failures:
   - { kind: offline, from_sec: 36000, until_sec: 36900 }   # simulated seconds since first start
 ```
 
-A metric's value at simulated time `t` is `initial + floor(idle_per_hour * t / 3600) + completed sessions + running session (linear only)`.
+Metrics may also be **gauges**, levels that go up and down, such as `temperature_c` or `fuel_level`:
+
+```yaml
+  temperature_c: { type: gauge, initial: 4, per_session: 1.5, idle_per_hour: -2, min: 3, max: 18 }
+failures:
+  - { kind: gauge_set, metric: temperature_c, at_sec: 7200, value: 12 }   # door left ajar
+verification: { sets: { temperature_c: 4 } }   # a passed check finds the gauge restored
+```
+
+The contract accepts only monotonic counters, so a gauge never goes on chain raw. The asset's bridge
+config derives counters from it, sampled on every telemetry tick. The live value appears in
+`telemetry_reported` events and `/assets`.
+
+```yaml
+gauges:
+  temperature_c: [{ derive: samples_above, limit: 8, counter: temp_high_samples }]
+  fuel_level:    [{ derive: decrease_sum, counter: fuel_used_dl, scale: 10 }, { derive: increase_count, min_step: 5, counter: refills }]
+```
+
+Scenario examples: `washer`, `printer_3d` (includes `filament_used_mm`), `laser_cutter`, `community_fridge` (`temperature_c`), `tractor` (`fuel_level`).
+
+A counter's value at simulated time `t` is `initial + floor(idle_per_hour * t / 3600) + completed sessions + running session (linear only)`.
 A session locked early adds its linear share but no step counters. Every report also carries the metric
 `simulated = 1`, so the on-chain telemetry itself says it is simulated.
 

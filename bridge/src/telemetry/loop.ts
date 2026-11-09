@@ -1,4 +1,5 @@
 import { AdapterOfflineError } from "../adapters/types.js";
+import { readCounters } from "./read.js";
 import type { ChainClient } from "../chain/types.js";
 import { ChainError } from "../chain/types.js";
 import type { EventBus } from "../events/bus.js";
@@ -28,26 +29,20 @@ export class TelemetryLoop {
     const emit = (type: string, data: Record<string, unknown>, level: "info" | "warn" | "error" = "info") =>
       this.bus.emit({ type, assetId, simulated: rt.simulated, data, level });
 
-    let raw;
-    try {
-      raw = await rt.adapter.readMetrics();
-    } catch (err) {
-      if (!this.offline.has(assetId)) {
-        emit("telemetry_skipped", { reason: err instanceof AdapterOfflineError ? "offline" : "read_error", error: (err as Error).message }, "warn");
-      }
-      this.offline.add(assetId);
-      return "offline";
-    }
-    if (this.offline.delete(assetId)) emit("device_online", {});
-
     return this.chainMutex.run(assetId, async () => {
       let applied;
       try {
-        applied = await rt.counters.apply(raw);
+        applied = await readCounters(rt, { sample: true });
       } catch (err) {
+        if (err instanceof AdapterOfflineError) {
+          if (!this.offline.has(assetId)) emit("telemetry_skipped", { reason: "offline", error: err.message }, "warn");
+          this.offline.add(assetId);
+          return "offline";
+        }
         emit("telemetry_failed", { error: (err as Error).message }, "error");
         return "failed";
       }
+      if (this.offline.delete(assetId)) emit("device_online", {});
       for (const a of applied.adjustments) {
         emit("counter_offset_applied", { metric: a.metric, raw: a.raw, previous: a.previous, offset: a.newOffset }, "warn");
       }
@@ -55,7 +50,7 @@ export class TelemetryLoop {
       try {
         const { txHash } = await this.chain.reportTelemetry(assetId, applied.metrics, { simulated: rt.simulated });
         await rt.counters.markReported(applied.metrics);
-        emit("telemetry_reported", { metrics: applied.metrics, tx: txHash });
+        emit("telemetry_reported", { metrics: applied.metrics, gauges: applied.gauges, tx: txHash });
         return "reported";
       } catch (err) {
         if (err instanceof ChainError && err.code === "E_TELEMETRY_NOT_MONOTONIC") {

@@ -10,6 +10,7 @@ import type { AssetRuntime } from "../runtime.js";
 import type { LocalClock } from "../util/clock.js";
 import type { KeyedMutex } from "../util/mutex.js";
 import { NS_PER_SEC } from "../util/near.js";
+import { readCounters } from "../telemetry/read.js";
 import { withRetry } from "../util/retry.js";
 import { readStateFile, writeStateFile } from "../util/state-file.js";
 
@@ -310,7 +311,7 @@ export class SessionManager {
 
   private async readMetricsSafe(rt: AssetRuntime): Promise<Metrics | null> {
     try {
-      return (await rt.counters.apply(await rt.adapter.readMetrics())).metrics;
+      return (await readCounters(rt, { sample: false })).metrics;
     } catch {
       return null;
     }
