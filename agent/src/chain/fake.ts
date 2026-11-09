@@ -411,17 +411,26 @@ export class FakeAgentChain implements AgentChain {
       const bond = a.bond ?? 0n;
       let mapped: EscalationStatus;
       if (status === "Removed") {
-        e.bondSettled = true;
+        e.bondSettled = true; // bond lost
         mapped = "Rejected";
       } else if (status === "InProgress") {
         const expired = a.proposalPeriod !== null && e.submittedAt + a.proposalPeriod < this.nowNs;
         mapped = expired ? "Expired" : "Submitted";
       } else if (status === "Failed") {
+        e.bondSettled = true; // bond lost
         mapped = "Failed";
       } else {
         e.bondSettled = true;
         a.ledger.floatFree += bond;
         mapped = status;
+      }
+      // escalations.rs `propagate_expense`: Approved → Paid, DAO rejection → Denied,
+      // Removed / Expired / Failed → NeedsEscalation (may be escalated again).
+      const t = e.taskId === null ? undefined : a.tasks.find((x) => x.id === e.taskId);
+      if (e.kind === "reimbursement" && t && t.expenseState.type === "Escalated" && t.expenseState.escalationId === e.id) {
+        if (mapped === "Approved") t.expenseState = { type: "Paid" };
+        else if (mapped === "Rejected" && status !== "Removed") t.expenseState = { type: "Denied" };
+        else if (mapped !== "Submitted") t.expenseState = { type: "NeedsEscalation" };
       }
       e.status = mapped;
       return {};

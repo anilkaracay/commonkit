@@ -68,7 +68,9 @@ export type ExpenseState =
   | { type: "Reserved" }
   | { type: "NeedsEscalation" }
   | { type: "Escalated"; escalationId: bigint }
-  | { type: "Paid" };
+  | { type: "Paid" }
+  /** The DAO rejected the reimbursement proposal (final). */
+  | { type: "Denied" };
 
 export interface TaskView {
   id: bigint;

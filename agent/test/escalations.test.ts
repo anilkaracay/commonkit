@@ -86,6 +86,24 @@ describe("reimbursement escalations (D-017)", () => {
     expect((await w.chain.getTasks(PRINTER))[Number(taskId)]!.expenseState).toEqual({ type: "Escalated", escalationId: 0n });
   });
 
+  it("re-escalates after the proposal expired, never after the DAO rejected it (Denied)", async () => {
+    const w = world([PRINTER]);
+    const taskId = await restockWithExpense(w, NEAR);
+    await w.agent.tick(); // escalation 0
+    w.chain.advanceHours(8 * 24); // past the 7-day proposal period, still InProgress
+    w.clockMs.now += 60_000;
+    await w.agent.tick(); // sync → Expired → task back to NeedsEscalation
+    await w.agent.tick(); // escalation 1
+    expect(w.calls("escalate").map((c) => c.args["task_id"])).toEqual([taskId.toString(), taskId.toString()]);
+
+    w.chain.setProposalStatus(PRINTER, 1n, "Rejected");
+    w.clockMs.now += 60_000;
+    await w.agent.tick();
+    await w.agent.tick();
+    expect((await w.chain.getTasks(PRINTER))[Number(taskId)]!.expenseState).toEqual({ type: "Denied" });
+    expect(w.calls("escalate")).toHaveLength(2);
+  });
+
   it("never escalates an expense at or below the cap", async () => {
     const w = world([PRINTER]);
     await restockWithExpense(w, 4n * NEAR / 10n);

@@ -69,7 +69,8 @@ export function purchaseNeeds(
 /**
  * D-017: a Restock/Repair expense above `auto_reward_cash_cap` waits at NeedsEscalation; the agent
  * asks the DAO to pay the claimer exactly the expense. The contract re-checks state, receiver and
- * amount; a reimbursement already submitted or approved is never asked again.
+ * amount; a reimbursement already submitted or approved is never asked again, a rejected one
+ * ends at `Denied` on chain and is not asked again either.
  */
 export function reimbursementNeeds(
   tasks: readonly TaskView[],
@@ -79,7 +80,11 @@ export function reimbursementNeeds(
   const needs: EscalationNeed[] = [];
   for (const t of tasks) {
     if (t.expenseState.type !== "NeedsEscalation" || t.claimer === null || t.expense <= 0n) continue;
-    const pending = escalations.some((e) => e.kind === "reimbursement" && e.taskId === t.id && blocksRetry(e) && e.status !== "Rejected");
+    // The contract returns the task to NeedsEscalation after an Expired, Failed or Removed
+    // proposal (a DAO rejection ends at Denied), so only a live or approved one blocks.
+    const pending = escalations.some(
+      (e) => e.kind === "reimbursement" && e.taskId === t.id && ["Submitting", "Submitted", "Approved"].includes(e.status),
+    );
     if (pending) continue;
     needs.push({
       key: `reimbursement:${t.id}`,

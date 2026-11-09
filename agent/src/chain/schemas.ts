@@ -112,7 +112,7 @@ export const ruleStatusSchema = z
 
 const expenseStateSchema = z
   .union([
-    z.enum(["None", "Reserved", "NeedsEscalation", "Paid"]),
+    z.enum(["None", "Reserved", "NeedsEscalation", "Paid", "Denied"]),
     z.object({ Escalated: z.object({ escalation_id: big }) }),
   ])
   .transform((e): ExpenseState => (typeof e === "string" ? { type: e } : { type: "Escalated", escalationId: e.Escalated.escalation_id }));
