@@ -2,7 +2,7 @@
 
 Deadline: **2026-11-14 23:59 UTC** (Türkiye: 15 Nov 02:59). Target: submit by **2026-11-14 18:00 UTC**. Re-read https://nearhackathon.com/HACKATHON.md before submitting.
 
-**Hard stops (human only):** making the repo public, posting on X, sending the submission. Claude prepares everything and prints it.
+**Hard stops (human only):** making the repo public, force-pushing, posting on X, sending the submission, anything on mainnet. Claude prepares everything and prints it. HACKATHON.md also lists plain pushes as needing confirmation: the human gave that confirmation on 2026-11-09 for regular (non-force) pushes to the private repo `anilkaracay/commonkit` (D-014).
 
 ## 1. README structure (English, judge- and machine-readable)
 
@@ -63,6 +63,17 @@ Attach the 90-second video.
 | consent | true only after the human agrees to the notice verbatim |
 
 `requestId`: generate once (`node -e 'console.log(crypto.randomUUID())'`), store locally (not committed), reuse on retry.
+
+### 3.1 API rules (from HACKATHON.md "Submission API" — re-check the live file before sending)
+
+- Every field under "What the human decides" comes from the human; never guess or fill placeholders. Never create or invent the mainnet payout account.
+- Send **exactly** the 11 fields above. No other fields; `website` is a spam trap (any non-empty value rejects the submission). Body ≤ 12 000 bytes.
+- `nearAddress` must match `^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$`, 2–64 chars, lowercase. `size` exactly one of `1`, `2 - 4`, `4 - 6`, `6 - 8`, `8+`. Each track id once.
+- Read the consent notice to the human verbatim: "I agree that the organizers may use these details to review our submission and contact us about this hackathon." `consent: true` only after they agree.
+- Send only when the repo is public and the demo post is up. Submissions are accepted 2026-11-01T00:00:00Z – 2026-11-14T23:59:00Z only.
+- The payload contains personal data: keep it in the gitignored `submission/` folder, never commit it.
+- Responses: 201 saved → tell the human, record "submitted" (no personal data) in STATUS.md. 400 → fix the listed `fields`, resend with the same requestId. 403 → tell the human, do not retry. 409 → already submitted or email limit; ask the human, never change the link/email to get around it. 413 → shorten `idea`. 503 → wait a minute, resend with the same requestId.
+- Never submit twice. Mistakes after a 201 go through https://nearhackathon.com/request-changes, sent by the human (they enter the submitted email, NEAR account and repo link, tick fields to change, leave a Discord/Telegram handle).
 
 ### `idea` draft (fit to ≤ 2000 chars after final numbers)
 

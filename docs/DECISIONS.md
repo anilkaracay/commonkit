@@ -54,3 +54,33 @@ Decision: Rule engine decides; optional NEAR AI Cloud LLM rephrases rationale wi
 ---
 
 <!-- Claude Code: append new decisions below this line -->
+
+## D-011 — Decision-number ranges per workstream
+2026-11-09 · accepted
+Context: Several agents append to this file in parallel.
+Decision: Lead uses D-011–D-099, researcher D-1nn, asset contract D-2nn, commons contract D-3nn, bridge D-4nn, web D-5nn, agent D-6nn, chain-ops D-7nn. Numbers are IDs, not a timeline.
+
+## D-012 — Testnet root account `commonkit-sxflo.testnet`
+2026-11-09 · accepted
+Context: Human chose a fresh root account (research B8: sub-accounts can only be created by their parent).
+Decision: Root `commonkit-sxflo.testnet` (created via faucet, 10 NEAR). Community/contract accounts are its sub-accounts; DAOs live under the Sputnik factory. Key stays in the local NEAR CLI legacy keychain.
+Consequences: More testnet NEAR is needed than one faucet drop (DAO creation, floats, deposits); chain-ops reports the exact amount.
+
+## D-013 — No hardware yet: simulator first
+2026-11-09 · accepted
+Context: Human has no 3D printer or smart plug confirmed yet (E10).
+Decision: Build and demo every flow on the simulator adapter; moonraker/octoprint/smart_plug adapters are built and tested against fake devices so hardware is plug-and-play once known. Scenario status stays "simulation" until real hardware runs; README must not claim otherwise.
+
+## D-014 — Private GitHub repo, regular pushes authorized
+2026-11-09 · accepted
+Context: HACKATHON.md requires the human's confirmation to push.
+Decision: Human confirmed: private repo `anilkaracay/commonkit`, regular non-force pushes. Making it public, force-pushing, posting and submitting remain hard stops.
+
+## D-015 — AI-tool files are not committed
+2026-11-09 · accepted
+Context: The owner's standing rule: no AI attribution in commits/PRs and no AI-tool files (CLAUDE.md, .claude/) added to repositories.
+Decision: CLAUDE.md and .claude/ are gitignored; commit messages carry no AI trailers. AI usage is disclosed in the README "Built with" section as HACKATHON.md Q-005 asks.
+
+## D-016 — Node 24 locally, Node 22 in CI
+2026-11-09 · accepted
+Decision: engines `>=22`; CI pins Node 22 (spec); local machine runs Node 24.21.0. pnpm 12.16.1, Docker 29.8.1 available for reproducible cargo-near builds.
