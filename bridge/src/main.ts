@@ -11,11 +11,20 @@ import { buildServer } from "./http/server.js";
 const { values } = parseArgs({ options: { config: { type: "string", default: process.env.BRIDGE_CONFIG ?? "config.yaml" } } });
 
 const config = await loadConfig(values.config);
-const logger = pino({ base: { service: "commonkit-bridge", network: config.network, chain: config.chain } });
+// With the fake chain everything is simulated, so every log line (HTTP included) carries the label.
+// With the real chain, lines about a simulated asset carry it through the per-asset child logger.
+const logger = pino({
+  base: {
+    service: "commonkit-bridge",
+    network: config.network,
+    chain: config.chain,
+    ...(config.chain === "fake" ? { simulated: true } : {}),
+  },
+});
 
 let chain: ChainClient;
 if (config.chain === "fake") {
-  logger.warn({ simulated: true }, "using the in-memory FAKE chain: nothing is written to NEAR; every event is labelled simulated");
+  logger.warn("using the in-memory FAKE chain: nothing is written to NEAR; every event is labelled simulated");
   chain = new FakeChainClient(BigInt(Date.now()) * 1_000_000n);
 } else {
   // Reads work today; writes need the bridge signer (function-call keys), which is not wired yet.

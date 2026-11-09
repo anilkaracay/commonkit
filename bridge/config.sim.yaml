@@ -1,0 +1,26 @@
+# Local SIMULATION mode: in-memory fake chain + simulated devices. Nothing touches NEAR or hardware.
+# Every event, log line and evidence line is labelled simulated.
+network: testnet
+bridge_account: bridge-01.makerlab.testnet
+chain: fake
+listen: { host: 127.0.0.1, port: 8787 }
+state_dir: state/sim
+evidence_dir: state/sim/evidence     # sim evidence never goes to the repo's evidence/ folder
+cors_origins: ["http://localhost:5173"]
+assets:
+  - asset_id: washer-01.dorm-b.testnet
+    adapter: simulator
+    adapter_config: { scenario: test/fixtures/scenarios/washer.yaml }
+    telemetry_interval_sec: 5
+    session_timeout_min: 120
+  - asset_id: printer-01.makerlab.testnet
+    adapter: simulator
+    adapter_config: { scenario: test/fixtures/scenarios/printer_3d.yaml }
+    telemetry_interval_sec: 10
+    session_timeout_min: 240
+  - asset_id: laser-01.makerlab.testnet
+    adapter: simulator
+    adapter_config: { scenario: test/fixtures/scenarios/laser_cutter.yaml }
+    telemetry_interval_sec: 10
+    session_timeout_min: 60
+    safety: { dangerous: true }      # simulated: nothing is energised

@@ -6,6 +6,7 @@ import type { Bridge } from "../bridge.js";
 import { BridgeError } from "../errors.js";
 import { toJson, type BridgeEvent } from "../events/bus.js";
 import { standIn, type Session } from "../sessions/manager.js";
+import { labelled } from "../util/log.js";
 import { accountIdSchema, nsToIso, u64Schema } from "../util/near.js";
 import type { VerificationRun } from "../verification/runner.js";
 
@@ -82,7 +83,7 @@ function runView(r: VerificationRun): unknown {
 
 /** BRIDGE_AND_ADAPTERS §3. Every body and param is zod-validated; every rejection has a precise reason. */
 export async function buildServer(bridge: Bridge): Promise<FastifyInstance> {
-  const app = Fastify({ loggerInstance: bridge.logger.child({ component: "http" }) as FastifyBaseLogger });
+  const app = Fastify({ loggerInstance: labelled(bridge.logger, bridge.chain.kind === "fake", { component: "http" }) as FastifyBaseLogger });
   await app.register(cors, { origin: bridge.config.cors_origins.length > 0 ? bridge.config.cors_origins : false });
 
   app.setErrorHandler((err, _req, reply) => {

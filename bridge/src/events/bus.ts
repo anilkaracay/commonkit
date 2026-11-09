@@ -1,6 +1,7 @@
 import { appendFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { Logger } from "pino";
+import { simulatedField } from "../util/log.js";
 
 export interface BridgeEvent {
   seq: number;
@@ -89,7 +90,7 @@ export class EventBus {
     if (this.recent.length > this.keep) this.recent.shift();
     this.evidence?.append(event);
     this.logger[input.level ?? "info"](
-      { event: event.type, seq: event.seq, asset_id: event.asset_id, simulated: event.simulated, data: event.data },
+      { event: event.type, seq: event.seq, asset_id: event.asset_id, ...simulatedField(this.logger, event.simulated), data: event.data },
       event.type,
     );
     for (const l of this.listeners) l(event);

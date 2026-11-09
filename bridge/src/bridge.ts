@@ -12,6 +12,7 @@ import { SessionManager } from "./sessions/manager.js";
 import { CounterStore } from "./telemetry/counters.js";
 import { TelemetryLoop } from "./telemetry/loop.js";
 import { systemClock, type LocalClock } from "./util/clock.js";
+import { labelled } from "./util/log.js";
 import { KeyedMutex } from "./util/mutex.js";
 import { VerificationRunner } from "./verification/runner.js";
 
@@ -63,21 +64,23 @@ export class Bridge {
     const factory = o.adapterFactory ?? createAdapter;
 
     for (const a of o.config.assets) {
-      const ctxLogger = o.logger.child({ asset_id: a.asset_id });
+      // Known before construction: the simulator is the only simulated adapter kind.
+      const simulated = a.adapter === "simulator" || fakeChain;
+      const logger = labelled(o.logger, simulated, { asset_id: a.asset_id });
       const adapter: Adapter = factory(a, {
         assetId: a.asset_id,
         stateDir: o.config.state_dir,
         clock: this.clock,
-        logger: ctxLogger.child({ simulated: a.adapter === "simulator" || fakeChain }),
+        logger,
         configDir: o.config.configDir,
       });
-      const simulated = adapter.simulated || fakeChain;
+      if (adapter.simulated && !simulated) throw new Error(`adapter ${adapter.kind} is simulated but was not labelled`);
       this.assets.set(a.asset_id, {
         config: a,
         adapter,
         counters: new CounterStore(a.asset_id, o.config.state_dir),
         simulated,
-        logger: o.logger.child({ asset_id: a.asset_id, simulated }),
+        logger,
         occupancy: null,
       });
     }
@@ -156,7 +159,9 @@ export class Bridge {
       if (this.busy.has(key)) return; // never overlap a slow tick
       this.busy.add(key);
       fn()
-        .catch((err: unknown) => this.logger.error({ err: (err as Error).message, loop: key }, "loop tick failed"))
+        .catch((err: unknown) =>
+          labelled(this.logger, this.chain.kind === "fake").error({ err: (err as Error).message, loop: key }, "loop tick failed"),
+        )
         .finally(() => this.busy.delete(key));
     }, ms);
     t.unref();

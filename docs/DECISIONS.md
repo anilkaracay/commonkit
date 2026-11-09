@@ -129,3 +129,44 @@ Decision: DAO access checks use only `predecessor_account_id() == dao_id`. Multi
 Context: Implementing §4–§5 needed a few choices the spec left open.
 Decision: (1) New error codes `E_INVALID_ARGS` and `E_NOT_FOUND`. (2) `unsuspend_credential` also takes a `reason` (audit trail both ways). (3) Extra views `get_wiring`, `get_asset`, `get_groups`, `get_card`; extra payable `fund_storage` event `storage_funded`. (4) `tokens_by_owner` is `LookupMap<AccountId, Vec<TokenId>>` (cards never move or burn; avoids nested collections). (5) Transfer/approval methods take no args and always panic `E_NON_TRANSFERABLE`; `nft_revoke`/`nft_revoke_all` refused too, `nft_is_approved` false. (6) Token metadata is computed at view time (title from group id / kind id, not from mutable config) so config changes never alter issued cards. (7) `register_asset` on an existing asset re-activates and may move it between groups; issued cards keep their group. (8) Ids/tokens start at 1. (9) Role pushes that do not fit in the remaining gas are not scheduled and emit `role_sync_failed {reason: insufficient_gas}`; push = 20 Tgas + 5 Tgas callback, so a DAO `set_roles` action needs about `10 + 25 × active_assets` Tgas (≤ 250 Tgas per proposal → ~9 assets per push; more → `resync_roles`).
 Consequences: Spec §4, §5, §5.1, §5.2, §9, §10 updated. Gas values are start values until measured in M1c.
+
+## D-401 — Simulator scenario format; simulated data is labelled down to the chain
+2026-11-09 · accepted
+Context: BRIDGE §4.5 asks for metric curves, cycle durations, failure injections and a speed multiplier, deterministic with a seed, labelled simulated.
+Decision: YAML/JSON scenario validated with zod (`bridge/src/adapters/simulator/scenario.ts`, documented in `bridge/README.md`): `simulated: true` (required literal), `seed`, `speed`, per-metric `{initial, per_session, curve: linear|step, idle_per_hour}`, `session {duration_sec, jitter_pct}`, `verification {duration_sec, default}`, `failures: session_error | verification_fail | offline`. Simulator state (committed counters, session and run indexes, simulated epoch) persists in `bridge/state/<asset>.simulator.json`. Every simulated report also includes the metric `simulated = 1`, so on-chain telemetry and `telemetry_reported` events say it themselves. One metric slot (of 16) is spent on it. Examples for the three demo assets: `bridge/test/fixtures/scenarios/`.
+Consequences: Agent rules must not use the metric name `simulated`. The web can show the label from chain data alone.
+
+## D-402 — NEP-413: own borsh plus node:crypto ed25519, cross-checked by independent libraries
+2026-11-09 · accepted
+Context: BRIDGE §3.1. RESEARCH B15 results were not available yet; the implementation follows the NEP text (tag `2^31+413` as u32 LE, then borsh `{message: string, nonce: [u8;32], recipient: string, callbackUrl: Option<string>}`, sha256, ed25519 over the 32-byte hash, signature base64, key `ed25519:<base58>`).
+Decision: About 30 lines of serialization in `bridge/src/nep413/payload.ts` and ed25519 verification with `node:crypto`. Tests check every committed vector against borsh-js (`borsh` 2.0.0) and noble ed25519. Vectors are generated from fixed seeds (`pnpm --filter @commonkit/bridge gen:vectors`) and a test fails if regeneration drifts. Only ed25519 keys are supported (secp256k1 → `UNSUPPORTED_KEY_TYPE`). Full-access and function-call keys are both accepted, as BRIDGE §3.1 says, and the kind is recorded on the session. The NEP says wallets sign with full-access keys, so function-call is the rare case.
+Consequences: If B15 finds a wallet that deviates (for example base58 signatures), we add it as a new vector rather than relaxing the check.
+
+## D-403 — Challenges are action-bound, in memory, consumed on first use, expire in chain time
+2026-11-09 · accepted
+Decision: `/access/challenge` takes `action: access|finish|verify` (default `access`) plus `reservation_id` or `task_id`. The signed human-readable message lists action, asset, account, ids, nonce and expiry. A nonce is marked used on its first submission, even if later checks fail, so a failed attempt cannot be replayed. Expiry (300 s) is measured in chain time. Outstanding nonces live in memory only, so a restart invalidates them (fail closed). Signed requests may carry the optional `recipient` the wallet signed for, so a wrong recipient is reported as `RECIPIENT_MISMATCH` instead of only `BAD_SIGNATURE`. Every rejection emits an `access_rejected` event, which is demo evidence.
+
+## D-404 — The chain records the session start before the device unlocks
+2026-11-09 · accepted (deviates from the ARCHITECTURE §4.3 diagram, which unlocks first)
+Decision: `mark_session_started` (idempotent: a view check before every attempt, never re-sent when the reservation is already `InSession`) runs first, then `unlock`. If the chain write fails, the device was never unlocked. If unlock fails, the reservation stays `InSession`; the member can retry `/access` (resumption is allowed by `can_access`), and the chain-time deadline otherwise closes the session. Device occupancy is claimed synchronously, so two concurrent requests cannot both start, and an asset runs one session or verification at a time (`DEVICE_BUSY`).
+Consequences: Fail-closed device; ARCHITECTURE §4.3 should be read with this order.
+
+## D-405 — Chain time, deadlines and retries in the bridge
+2026-11-09 · accepted
+Decision: `ChainClock` uses the final block's `timestamp_nanosec`, cached for at most 5 s and extrapolated with the local clock. Challenge expiry and the session deadline (`start + session_timeout_min`) use it; the local clock only schedules polls. Chain writes for one asset are serialized (keyed mutex), so `report_telemetry` and `mark_session_finished` never reach the chain out of order. Writes retry with exponential backoff. `mark_session_finished` retries on later watcher passes until it lands, again with a view check so it is sent exactly once.
+
+## D-406 — Monotonic counters: offsets, persistence and the chain as floor
+2026-11-09 · accepted
+Decision: `CounterStore` (`bridge/state/<asset>.counters.json`, atomic writes) keeps the highest value per metric. If a device counter goes backwards (reset, lost simulator state), it raises a per-metric offset and emits `counter_offset_applied`. At startup it seeds the floor from `get_telemetry`. On `E_TELEMETRY_NOT_MONOTONIC` it adopts the chain's values. Adapter metrics pass a zod check (snake_case, ≤ 32 chars, ≤ 16 metrics, 0 ≤ v ≤ 2^53) before reaching the chain. Telemetry is only sent when a value changed.
+
+## D-407 — Verification runs are asynchronous and configured per rule in the bridge
+2026-11-09 · accepted
+Decision: `POST /verification/:asset/:task_id/run` (NEP-413 signed by the claimer, action `verify`) checks on chain that the task is `Submitted`, the signer is the claimer, and no result exists yet. It then returns 202 with a `run_id`; progress arrives over SSE and `GET /verification/runs/:id`. The test comes from the asset's `verification_tests[rule_id]` in the bridge config; simulated assets default to `{type: simulated}`. `details_hash` = sha256 of the canonical JSON of the run details. An adapter error reports nothing on chain (the run can be retried). A reported failure is a real failed test.
+
+## D-408 — Safety gate for dangerous devices lives in the bridge config
+2026-11-09 · accepted
+Decision: `safety: {dangerous, stand_in?, human_present_confirmed}` per asset. A dangerous asset on a real adapter fails config validation unless it has a labelled `stand_in` (copied into unlock events) or `human_present_confirmed: true`. An operator sets that flag only while a person is at the device, and it is never committed. Simulator assets are exempt because nothing is energized.
+
+## D-409 — Fake-chain mode and the NEAR client
+2026-11-09 · accepted
+Decision: `chain: fake` runs an in-memory model of the asset contract rules (windows, states, monotonic telemetry; tx hashes `fake-tx-n`). It labels everything simulated, including HTTP log lines, and its evidence goes to `bridge/state/sim/evidence/`, never `evidence/`. `chain: near` reads through `@commonkit/sdk` `NearRpc` (final finality: `block`, `view_access_key`, `can_access`, `get_reservation`, `get_task`, `get_telemetry`). Writes go through an injected `TxSigner` (function-call key per asset, research B5), and a client without a signer refuses writes. Bridge write gas starts at 30 Tgas (100 for `mark_session_finished`) until measured.

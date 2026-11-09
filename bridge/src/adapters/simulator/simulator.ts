@@ -113,7 +113,7 @@ export class SimulatorAdapter implements Adapter {
     if (!this.state.active) this.state.locked = true;
     await this.persist();
     this.ctx.logger.info(
-      { simulated: true, scenario: this.scenario.scenario, speed: this.speed, seed: this.seed },
+      { scenario: this.scenario.scenario, speed: this.speed, seed: this.seed },
       "simulator adapter ready",
     );
   }
