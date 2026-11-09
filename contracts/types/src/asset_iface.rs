@@ -40,7 +40,10 @@ mod tests {
     fn sync_roles_json_shape() {
         let args = SyncRolesArgs {
             updates: vec![
-                ("alice.testnet".parse().unwrap(), vec!["steward".to_string()]),
+                (
+                    "alice.testnet".parse().unwrap(),
+                    vec!["steward".to_string()],
+                ),
                 ("bob.testnet".parse().unwrap(), vec![]),
             ],
             version: U64(3),
