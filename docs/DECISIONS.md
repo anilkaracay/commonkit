@@ -288,3 +288,15 @@ Decision: `WalletProvider { status, accountId, connect, disconnect, signAndSendT
 Context: D-017 adds three judge-flow steps (printer Restock with capped reimbursement, washer fault → out of service → Repair, fridge Schedule cleaning). `verify.sh` was step 18 and now also checks reimbursement caps and out-of-service periods, which those steps produce.
 Decision: Steps 1–17 keep their numbers. The upkeep steps are 18 (Restock), 19 (washer fault, simulation) and 20 (fridge Schedule, simulation). `verify.sh` moves from 18 to 21 so it runs last and checks the evidence of every step. Step 20 runs on a simulated `fridge-01` with a demo interval of 1 h set by a DAO `set_profile` proposal (testnet time cannot be fast-forwarded); the 168 h interval is covered by the sandbox test `inv_schedule_rule_due_only_after_interval`. DEMO_SCRIPT, TEST_PLAN, TASKS, SUBMISSION, FRONTEND_SPEC and the README skeleton use 21.
 Consequences: chain-ops needs a fourth testnet asset (`fridge-01`, community_fridge profile, simulator adapter) and a pilot/demo override for `weekly_clean`; web `TOTAL_STEPS` / `EXPECTED_STEPS` (now 18) must become 21.
+
+## D-018 — Judge step 20 uses a fourth testnet asset `fridge-01` in dorm-b
+2026-11-09 · accepted
+Context: The human asked for a fridge Schedule-cleaning step (D-017); testnet time cannot be fast-forwarded, and the laser's safety check could stand in but would drop the requested scenario.
+Decision: Deploy `fridge-01` (community_fridge profile, simulator adapter, labelled simulation) in the existing dorm-b community/DAO — a dorm kitchen fridge — so no third DAO is needed. A DAO `set_profile` proposal lowers `weekly_clean` to 1 h for the demo (pilot override, labelled). The full 168 h interval is proven only by the sandbox test `inv_schedule_rule_due_only_after_interval`.
+Consequences: ~+6 testnet NEAR (storage reserve + float); four assets share one code_hash.
+
+## D-019 — Bridge accepts only full-access keys for NEP-413 access requests
+2026-11-09 · accepted (supersedes the function-call-key acceptance in D-402 / BRIDGE §3.1)
+Context: D-108 (research): NEP-413 messages are meant to be signed with a full-access key; a function-call key handed to some dapp should not be able to open a physical device for the account.
+Decision: Bridge check 4 requires the public key to be a FullAccess key on the account. Wallets sign NEP-413 with full-access keys, so members are not affected.
+Consequences: Bridge test vectors and BRIDGE_AND_ADAPTERS §3.1 updated in Wave 3.

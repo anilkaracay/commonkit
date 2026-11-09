@@ -159,7 +159,7 @@ pub struct Ledger {
 **Ledger invariant (checked in tests after every operation, exposed via `get_ledger`):**
 
 ```
-env::account_balance() >= storage_reserve + float_free + deposits_held + rewards_reserved + pending_out
+env::account_balance() >= storage_reserve + float_free + deposits_held + rewards_reserved + pending_in + protocol_fees_owed   // D-201/D-202: pending_out and bonds_outstanding are already debited, so excluded
 ```
 
 (`account_balance` includes storage-staked tokens on NEAR; the `storage_reserve` profile value must be ≥ actual storage usage cost + margin. `get_ledger` also returns `storage_usage` and `env::storage_byte_cost()` so verify.sh can check it.)
@@ -277,7 +277,7 @@ pub struct RewardPeriod { pub started_at: u64, pub rights_minted: u32 }
 pub struct Escalation {
     pub id: u64,
     pub requested_by: AccountId,
-    pub kind: String,                  // "purchase" | "cash_reward" | "other"
+    pub kind: String,                  // "purchase" | "cash_reward" | "reimbursement" (D-017) | "other"
     pub receiver: AccountId,
     pub amount: u128,
     pub reason: String,

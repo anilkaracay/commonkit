@@ -6,7 +6,7 @@
 >
 > Vitrin örneği: *"A 3D printer that pays for its own maintenance — and only prints for the people who keep it alive."*
 
-**Ürün ve geliştirme tanımı · 9 Kasım 2026 · Sürüm 2.2**
+**Ürün ve geliştirme tanımı · 9 Kasım 2026 · Sürüm 2.3**
 
 ### Neden zincir? (tek cümle)
 
@@ -532,7 +532,10 @@ Ek senaryolar (EV şarj, bisiklet, GPU, tarım kooperatifi, okul ekipmanı) READ
 15. Aynı bakım için ikinci ödül talebi → red.
 16. Kendi işini onaylama girişimi → red.
 17. Verilmiş hakkı silme girişimi → red.
-18. Hesap uzlaştırması: DAO hazineleri, varlık kasaları, süpürmeler, depozito yükümlülükleri, hak ve yeterlilik kartları.
+18. Yazıcıda filament yenileme (Restock): fişli masraf tavan dahilinde geri ödenir; tavan üstü masraf reddedilir.
+19. Çamaşır makinesinde arıza bildirimi → servis dışı → ileri rezervasyonlara tam iade → onarım görevi ödüllenir → servise dönüş (simülasyon).
+20. Buzdolabında zamanlı temizlik: aralık dolmadan görev açılamaz, dolunca açılır (simülasyon).
+21. Hesap uzlaştırması: DAO hazineleri, varlık kasaları, süpürmeler, depozito yükümlülükleri, geri ödeme tavanları, servis dışı dönemleri, hak ve yeterlilik kartları.
 
 ## 16. Tamamlanma ölçütleri
 
