@@ -70,7 +70,7 @@ export function ApprovalsPage() {
         <p className="text-sm text-ink-2">Every approval comes from someone other than the person who did the work. The contracts enforce it.</p>
       </div>
       <WalletGate action="Approving" />
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {groups.map((g) => (
           <Section key={g.title} title={g.title} eyebrow={g.who}>
             {g.rows.length === 0 ? <Empty>{g.empty}</Empty> : <ul className="tag divide-y divide-line px-4">{g.rows}</ul>}

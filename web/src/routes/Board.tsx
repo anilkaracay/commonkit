@@ -50,7 +50,8 @@ export function BoardPage() {
           <Section
             key={c.slug}
             id={`community-${c.slug}`}
-            eyebrow={c.dao_id}
+            eyebrow="community"
+            sub={c.dao_id}
             title={c.name}
             action={
               <span className="flex items-center gap-2">
@@ -61,7 +62,7 @@ export function BoardPage() {
               </span>
             }
           >
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {assets.map(({ deployed, snap }) => (
                 <AssetCard key={deployed.asset_id} deployed={deployed} snap={snap} />
               ))}
@@ -72,7 +73,7 @@ export function BoardPage() {
 
       <SameContractStrip assets={all.data.map(({ deployed, snap }) => ({ deployed, codeHash: snap.account.code_hash }))} />
 
-      <div className="grid gap-10 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <Section title="Open tasks" eyebrow="maintenance the machines asked for">
           {openTasks.length === 0 ? (
             <Empty>No open maintenance. The agent opens a task only when telemetry crosses a profile threshold.</Empty>

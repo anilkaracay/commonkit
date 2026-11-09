@@ -38,7 +38,8 @@ export function MaintenanceGauge({
   const c = size / 2;
   const r = c - 9;
   const start = -ARC / 2;
-  const label = p.fraction >= 1 ? 'due now' : `${formatMetric(p.rule.metric, p.remaining)} left`;
+  const unit = p.rule.metric.endsWith('_seconds') ? '' : ` ${metricLabel(p.rule.metric)}`;
+  const label = p.fraction >= 1 ? 'due now' : `${formatMetric(p.rule.metric, p.remaining)}${unit} left`;
   return (
     <figure
       className="relative m-0 shrink-0"

@@ -68,7 +68,7 @@ export function AssetPage() {
     <div className="space-y-10">
       {/* Nameplate */}
       <header className={`tag overflow-hidden ${sim ? 'tag-sim' : ''}`}>
-        <div className="grid gap-6 p-5 md:grid-cols-[1fr_auto] md:items-center">
+        <div className="grid grid-cols-1 gap-6 p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
           <div className="flex items-start gap-4">
             <div className={`grid size-16 shrink-0 place-items-center rounded-2xl border-2 ${sim ? 'border-sim text-sim' : 'border-ink text-ink'}`}>
               <AssetIcon type={s.profile.asset_type} size={36} />
@@ -114,7 +114,7 @@ export function AssetPage() {
 
       {sim && <SimulationPanel />}
 
-      <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr]">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <Section title="Kasa" eyebrow="what this machine holds">
           <div className="tag p-4">
             <KasaBar ledger={s.ledger} floatCap={s.profile.float_cap} />
@@ -131,7 +131,7 @@ export function AssetPage() {
         </Section>
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <Section title="Maintenance rules" eyebrow={`profile v${s.wiring.profile_version}`}>
           <div className="tag p-4">
             <RuleBars rules={s.rules} ruleDefs={s.profile.rules} />
@@ -162,7 +162,7 @@ export function AssetPage() {
         )}
       </Section>
 
-      <div className="grid gap-10 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <Section title="Next slots" eyebrow={`${s.profile.slot_minutes} min each · UTC`}>
           <ol className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
             {(avail.data ?? []).map((holder, i) => {
@@ -210,7 +210,7 @@ export function AssetPage() {
         </Section>
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <Section title="Escalations" eyebrow="payments above the cash cap go to the DAO">
           {s.escalations.length === 0 ? (
             <Empty>No escalations. Purchases above the cap become Sputnik proposals opened by this contract.</Empty>

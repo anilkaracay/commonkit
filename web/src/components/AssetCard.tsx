@@ -14,7 +14,7 @@ export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: A
   const sim = deployed.simulated || snap.profile.adapter === 'simulator';
   const link = useDemoLink();
   return (
-    <article className={`tag relative flex flex-col gap-4 p-4 ${sim ? 'tag-sim' : ''}`} aria-label={snap.meta.display_name}>
+    <article className={`tag relative flex min-w-0 flex-col gap-4 p-4 ${sim ? 'tag-sim' : ''}`} aria-label={snap.meta.display_name}>
       <header className="flex items-start gap-3">
         <div className={`grid size-12 shrink-0 place-items-center rounded-xl border ${sim ? 'border-sim text-sim' : 'border-line-strong text-ink'}`}>
           <AssetIcon type={snap.profile.asset_type} />

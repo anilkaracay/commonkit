@@ -12,7 +12,8 @@ export function KasaBar({ ledger, floatCap, compact = false }: { ledger: LedgerV
   const pending = toYocto(ledger.pending_out);
   const cap = toYocto(floatCap);
   const deposits = toYocto(ledger.deposits_held);
-  const scale = [cap + cap / 4n, float + reserved + pending].reduce((a, b) => (a > b ? a : b));
+  // One scale for both bars so deposits and float compare honestly.
+  const scale = [cap + cap / 4n, float + reserved + pending, deposits].reduce((a, b) => (a > b ? a : b));
   const w = (v: bigint) => `${displayRatio(v, scale) * 100}%`;
   const capPct = displayRatio(cap, scale) * 100;
   const atCap = float >= cap;
@@ -29,16 +30,14 @@ export function KasaBar({ ledger, floatCap, compact = false }: { ledger: LedgerV
             <span className="text-ink-3"> / {formatNear(cap)} NEAR cap</span>
           </span>
         </div>
-        <div className="relative mt-1.5 h-4 rounded-md bg-surface-2">
-          <div className="absolute inset-y-0 left-0 flex overflow-hidden rounded-md">
-            <div className="h-full bg-alive" style={{ width: w(float) }} title="free float" />
-          </div>
-          <div className="absolute inset-y-0 flex" style={{ left: w(float) }}>
-            {reserved > 0n && <div className="h-full bg-due-fill" style={{ width: w(reserved) }} title="reserved for task rewards" />}
-            {pending > 0n && <div className="h-full border border-dashed border-ink-3" style={{ width: w(pending) }} title="in flight" />}
-          </div>
-          <div className="hatch-over absolute inset-y-0 right-0 rounded-r-md" style={{ left: `${capPct}%` }} title="above cap: swept to DAO" />
-          <div className="absolute -inset-y-1 w-0.5 bg-ink" style={{ left: `calc(${capPct}% - 1px)` }} aria-hidden />
+        <div className="relative mt-1.5 h-4 overflow-hidden rounded-md bg-surface-2">
+          <div className="hatch-over absolute inset-y-0 right-0" style={{ left: `${capPct}%` }} title="above cap: swept to DAO" />
+          <div className="absolute inset-y-0 left-0 bg-alive" style={{ width: w(float) }} title="free float" />
+          {reserved > 0n && <div className="absolute inset-y-0 bg-due-fill" style={{ left: w(float), width: w(reserved) }} title="reserved for task rewards" />}
+          {pending > 0n && (
+            <div className="absolute inset-y-0 border border-dashed border-ink-3" style={{ left: w(float + reserved), width: w(pending) }} title="in flight" />
+          )}
+          <div className="absolute inset-y-0 w-0.5 bg-ink" style={{ left: `calc(${capPct}% - 1px)` }} aria-hidden />
         </div>
         {!compact && (
           <div className="mt-1 flex flex-wrap justify-between gap-x-3 text-[11px] text-ink-3">

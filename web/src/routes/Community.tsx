@@ -59,7 +59,7 @@ export function CommunityPage() {
         </dl>
       </header>
 
-      <div className="grid gap-10 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <Section title="Groups" eyebrow="rights are shared inside a group">
           <ul className="tag divide-y divide-line px-4">
             {[...groups].map(([g, ids]) => (

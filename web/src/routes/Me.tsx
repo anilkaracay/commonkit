@@ -69,7 +69,7 @@ export function MePage() {
         ) : cards.data.length === 0 ? (
           <Empty>No cards yet. Maintain a machine or get trained to earn one.</Empty>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {cards.data.map(({ card, community }) => (
               <CardTile key={`${community.slug}-${card.token_id}`} card={card} simulated={simCommunity(community.slug)} communityName={community.name} />
             ))}

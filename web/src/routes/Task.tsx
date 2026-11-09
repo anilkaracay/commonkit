@@ -75,7 +75,7 @@ export function TaskPage() {
         <TxLink hash={ds.rowTx(`task-${alias}-${task.id}`)} label="task_opened tx" />
       </blockquote>
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <Section title="Rule facts" eyebrow="from on-chain telemetry">
           <dl className="tag grid grid-cols-2 gap-4 p-4 text-sm">
             <div><dt className="text-xs text-ink-3">metric</dt><dd className="num">{rule?.metric}</dd></div>
@@ -102,7 +102,7 @@ export function TaskPage() {
 
       {task.minted_right_ids.length > 0 && (
         <Section title="Cards earned" eyebrow="non-transferable, never revocable">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(cards.data ?? []).map((c) => (
               <CardTile key={c.token_id} card={c} simulated={sim} />
             ))}
