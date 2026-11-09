@@ -300,3 +300,18 @@ Consequences: ~+6 testnet NEAR (storage reserve + float); four assets share one 
 Context: D-108 (research): NEP-413 messages are meant to be signed with a full-access key; a function-call key handed to some dapp should not be able to open a physical device for the account.
 Decision: Bridge check 4 requires the public key to be a FullAccess key on the account. Wallets sign NEP-413 with full-access keys, so members are not affected.
 Consequences: Bridge test vectors and BRIDGE_AND_ADAPTERS §3.1 updated in Wave 3.
+
+## D-207 — Reward quota counts rights promised to open tasks
+2026-11-09 · accepted
+Context: Spec §3.3 pre-checks `rights_minted + reward_rights <= quota` at open time only; two tasks opened before either is rewarded could together exceed the quota at mint time.
+Decision: `RewardPeriod.rights_reserved` counts rights of open tasks. Open checks `rights_minted + rights_reserved + reward_rights <= quota` and reserves; mint moves the count from reserved to minted; reject/cancel releases it. A period roll resets only `rights_minted`.
+Consequences: Minted rights per period never exceed the quota, even with concurrent tasks.
+
+## D-208 — `cancel_task` for false alarms
+2026-11-09 · accepted
+Context: Without it, a task opened in error (sensor glitch, council manual task no longer needed) blocks its rule and keeps cash reserved forever; `TaskStatus::Cancelled` had no path.
+Decision: `cancel_task(task_id, reason)` — DAO or ROLE(council), only `Open`/`Claimed`; releases reserved cash and rights, unblocks the rule, event `task_cancelled`. `Submitted` tasks go through `reject_task` (the worker's evidence deserves a verifier decision). `TaskStatus::Expired` stays reserved: timed-out claims return to `Open`.
+
+## D-212 — Asset implementation choices for upkeep (D-017)
+2026-11-09 · accepted
+Decision: (1) Tasks copy `trigger`, `reimbursable_max`, `right_max_slots`, `right_validity_days`, `requires_verification_test`, `claim_timeout_hours` at open time so profile changes never alter an open task (spec §3.1). (2) Schedule baselines default to the contract's `created_at`; a Schedule rule added later by `set_profile` is due immediately if the asset is older than its interval. (3) Only a failed mint sets `RewardState::Failed`; failed CashReward/Reimbursement ops do not block `Rewarded` and are retried with `retry_op` (their amount stays in `rewards_reserved`); `reward_failed` is still emitted for them. (4) A failed `add_proposal` for a reimbursement escalation returns the task to `NeedsEscalation`. (5) `FaultReport.seq` is a global sequence used as the reputation `ref_id`; at most 32 active reports per rule. (6) While out of service any `Confirmed` reservation (even inside its start window) can be cancelled with a full fee + deposit refund, because its session can no longer start. (7) `can_access` checks service state right after the holder check. (8) `get_rule_status` exposes `current`, `baseline`, `due_value` as `U64` (Schedule baselines are ns timestamps) plus `reward_rights`, `reward_cash`, `reimbursable_max`. (9) Extra view `get_last_session_at(account)` for fault-report eligibility in the UI. (10) `set_out_of_service` and `report_fault` hashes must be 64-char hex sha256.
