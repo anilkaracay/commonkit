@@ -20,6 +20,8 @@ mod governance;
 mod ledger_ops;
 mod profile;
 mod reservations;
+mod rewards;
+mod service;
 mod tasks;
 mod telemetry;
 
