@@ -2,9 +2,11 @@
  * Every E_* code in docs/CONTRACT_SPEC.md §10 (ERROR_CODES in @commonkit/sdk) mapped to a plain
  * message. The Record type makes a missing code a compile error; errors.test.ts also checks the spec.
  */
-import { ERROR_CODES, parseErrorCode, type ErrorCode } from '@commonkit/sdk';
+import { type ErrorCode as SdkErrorCode } from '@commonkit/sdk';
 
-export { ERROR_CODES, type ErrorCode };
+/** Codes added to the spec after the sdk list was cut (D-301 era); drop once the sdk has them. */
+type NewerCode = 'E_INVALID_ARGS' | 'E_NOT_FOUND';
+export type ErrorCode = SdkErrorCode | NewerCode;
 
 export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   E_UNAUTHORIZED: 'Your account is not allowed to do this.',
@@ -37,8 +39,19 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   E_RIGHT_EXPIRED: 'This usage right has expired.',
   E_CREDENTIAL_MISSING: 'This machine needs a credential card first. Ask a trainer for the safety training.',
   E_ASSET_NOT_REGISTERED: 'This machine is not registered (or no longer active) in the community.',
+  E_INVALID_ARGS: 'Some of the details sent were malformed or out of range. Nothing was changed.',
+  E_NOT_FOUND: 'That card, training or record does not exist.',
   E_NO_REVOCATION: 'Granted rights can never be taken back, by anyone.',
 };
+
+export const ERROR_CODES = Object.keys(ERROR_MESSAGES) as ErrorCode[];
+
+function parseErrorCode(text: string): ErrorCode | null {
+  for (const m of text.matchAll(/\bE_[A-Z_]+\b/g)) {
+    if (Object.prototype.hasOwnProperty.call(ERROR_MESSAGES, m[0])) return m[0] as ErrorCode;
+  }
+  return null;
+}
 
 export interface HumanError {
   code: ErrorCode | null;
