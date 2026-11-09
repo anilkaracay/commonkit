@@ -21,6 +21,7 @@ interface Rule {
 export const REIMBURSABLE_KINDS = ['Restock', 'Repair'];
 interface ProfileFile {
   profile: {
+    price_per_slot: string;
     deposit: string;
     deposit_trusted: string;
     auto_reward_cash_cap: string;
@@ -39,6 +40,9 @@ export function crossFieldErrors(file: ProfileFile): string[] {
   if (BigInt(p.council_threshold_cash) > BigInt(p.auto_reward_cash_cap))
     errors.push('council_threshold_cash > auto_reward_cash_cap');
   if (p.protocol_fee_bps > PROTOCOL_FEE_MAX_BPS) errors.push('protocol_fee_bps > max');
+  // D-020: free + deposit-free reservations would let anyone drain the storage reserve.
+  if (BigInt(p.price_per_slot) + BigInt(p.deposit_trusted) === 0n)
+    errors.push('price_per_slot + deposit_trusted must be > 0 (anti-spam, D-020)');
   const ids = new Set<string>();
   for (const r of p.rules) {
     if (ids.has(r.rule_id)) errors.push(`duplicate rule_id ${r.rule_id}`);

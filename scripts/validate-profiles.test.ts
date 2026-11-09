@@ -3,6 +3,7 @@ import { crossFieldErrors } from './validate-profiles.js';
 
 const base = () => ({
   profile: {
+    price_per_slot: '0',
     deposit: '10',
     deposit_trusted: '5',
     auto_reward_cash_cap: '100',
@@ -39,6 +40,12 @@ describe('crossFieldErrors', () => {
     expect(crossFieldErrors(p)).toEqual(['rule a: reimbursable_max only allowed for Restock/Repair']);
     p.profile.rules = [{ rule_id: 'a', kind: 'Restock', reward_cash: '0', reimbursable_max: '1' }];
     expect(crossFieldErrors(p)).toEqual([]);
+  });
+  it('rejects free reservations without a deposit (D-020)', () => {
+    const p = base();
+    p.profile.deposit = '0';
+    p.profile.deposit_trusted = '0';
+    expect(crossFieldErrors(p)).toEqual(['price_per_slot + deposit_trusted must be > 0 (anti-spam, D-020)']);
   });
   it('rejects purchase hints for unknown rules', () => {
     const p = base();
