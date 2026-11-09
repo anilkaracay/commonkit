@@ -8,7 +8,12 @@ const base = () => ({
     auto_reward_cash_cap: '100',
     council_threshold_cash: '50',
     protocol_fee_bps: 0,
-    rules: [{ rule_id: 'a', reward_cash: '0' }],
+    rules: [{ rule_id: 'a', reward_cash: '0' }] as {
+      rule_id: string;
+      kind?: string;
+      reward_cash: string;
+      reimbursable_max?: string;
+    }[],
   },
   meta: { purchase_hints: [{ rule_id: 'a' }] },
 });
@@ -27,6 +32,13 @@ describe('crossFieldErrors', () => {
       'duplicate rule_id a',
       'rule a: reward_cash > auto_reward_cash_cap',
     ]);
+  });
+  it('rejects reimbursement on non-Restock/Repair rules', () => {
+    const p = base();
+    p.profile.rules = [{ rule_id: 'a', kind: 'Cleaning', reward_cash: '0', reimbursable_max: '1' }];
+    expect(crossFieldErrors(p)).toEqual(['rule a: reimbursable_max only allowed for Restock/Repair']);
+    p.profile.rules = [{ rule_id: 'a', kind: 'Restock', reward_cash: '0', reimbursable_max: '1' }];
+    expect(crossFieldErrors(p)).toEqual([]);
   });
   it('rejects purchase hints for unknown rules', () => {
     const p = base();

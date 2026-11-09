@@ -26,11 +26,32 @@
     "rules": [
       {
         "rule_id": "oil_change",
-        "metric": "engine_seconds",
-        "threshold": 360000,
+        "kind": "Maintenance",
+        "trigger": {
+          "Metric": {
+            "metric": "engine_seconds",
+            "threshold": 360000
+          }
+        },
         "title": "Change the engine oil",
         "reward_rights": 4,
         "reward_cash": "0",
+        "reimbursable_max": "0",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "pump_filter_clean",
+        "kind": "Cleaning",
+        "trigger": {
+          "Schedule": {
+            "every_hours": 336
+          }
+        },
+        "title": "Clean the irrigation pump filter",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
       }
@@ -44,8 +65,8 @@
     "icon": "tractor",
     "photo": null,
     "status": "profile example only",
-    "scenario_story_en": "A tractor owned by a farming co-op.",
-    "scenario_story_tr": "Tarım kooperatifinin traktörü.",
+    "scenario_story_en": "A tractor and irrigation pump owned by a farming co-op.",
+    "scenario_story_tr": "Tarım kooperatifinin traktörü ve sulama pompası.",
     "pilot_overrides": {},
     "purchase_hints": []
   }

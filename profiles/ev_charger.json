@@ -26,11 +26,17 @@
     "rules": [
       {
         "rule_id": "cable_check",
-        "metric": "sessions",
-        "threshold": 100,
+        "kind": "Inspection",
+        "trigger": {
+          "Metric": {
+            "metric": "sessions",
+            "threshold": 100
+          }
+        },
         "title": "Inspect the cable and connector",
         "reward_rights": 2,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
       }

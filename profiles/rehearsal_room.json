@@ -1,0 +1,88 @@
+{
+  "profile": {
+    "asset_type": "rehearsal_room",
+    "display_name": "Rehearsal room",
+    "group_id": "music-collective",
+    "adapter": "smart_lock",
+    "usage_unit_label": "session",
+    "slot_minutes": 60,
+    "max_slots_per_reservation": 3,
+    "booking_horizon_days": 14,
+    "price_per_slot": "300000000000000000000000",
+    "deposit": "1000000000000000000000000",
+    "deposit_trusted": "500000000000000000000000",
+    "trusted_after": 3,
+    "required_credential": null,
+    "float_cap": "2000000000000000000000000",
+    "storage_reserve": "5000000000000000000000000",
+    "auto_reward_cash_cap": "500000000000000000000000",
+    "council_threshold_cash": "250000000000000000000000",
+    "period_days": 30,
+    "period_reward_quota": 10,
+    "right_max_slots": 2,
+    "right_validity_days": 60,
+    "first_task_needs_council": false,
+    "start_window_minutes": 15,
+    "rules": [
+      {
+        "rule_id": "room_clean",
+        "kind": "Cleaning",
+        "trigger": {
+          "Metric": {
+            "metric": "sessions",
+            "threshold": 10
+          }
+        },
+        "title": "Clean the room and coil the cables",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "reimbursable_max": "0",
+        "requires_verification_test": false,
+        "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "evening_supervision",
+        "kind": "Supervision",
+        "trigger": {
+          "Schedule": {
+            "every_hours": 168
+          }
+        },
+        "title": "Host the weekly open-room evening",
+        "reward_rights": 2,
+        "reward_cash": "0",
+        "reimbursable_max": "0",
+        "requires_verification_test": false,
+        "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "fault_repair",
+        "kind": "Repair",
+        "trigger": {
+          "Report": {
+            "min_reports": 2
+          }
+        },
+        "title": "Diagnose and repair the reported fault",
+        "reward_rights": 3,
+        "reward_cash": "0",
+        "reimbursable_max": "500000000000000000000000",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 96
+      }
+    ],
+    "protocol_fee_bps": 0,
+    "protocol_fee_receiver": null
+  },
+  "meta": {
+    "display_name": "Rehearsal room",
+    "community": "music-collective",
+    "icon": "music",
+    "photo": null,
+    "status": "profile example only",
+    "scenario_story_en": "A music collective's rehearsal room: cleaned every 10 sessions, repaired when two members report a fault.",
+    "scenario_story_tr": "Müzik kolektifinin prova odası: her 10 seansta temizlik, iki üye arıza bildirince onarım.",
+    "pilot_overrides": {},
+    "purchase_hints": []
+  }
+}

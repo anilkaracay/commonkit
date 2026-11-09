@@ -1,0 +1,58 @@
+{
+  "profile": {
+    "asset_type": "tool_library_ladder",
+    "display_name": "Tool library ladder",
+    "group_id": "tool-library",
+    "adapter": "manual_qr",
+    "usage_unit_label": "loan",
+    "slot_minutes": 1440,
+    "max_slots_per_reservation": 3,
+    "booking_horizon_days": 30,
+    "price_per_slot": "50000000000000000000000",
+    "deposit": "1000000000000000000000000",
+    "deposit_trusted": "500000000000000000000000",
+    "trusted_after": 3,
+    "required_credential": null,
+    "float_cap": "1000000000000000000000000",
+    "storage_reserve": "5000000000000000000000000",
+    "auto_reward_cash_cap": "500000000000000000000000",
+    "council_threshold_cash": "250000000000000000000000",
+    "period_days": 30,
+    "period_reward_quota": 6,
+    "right_max_slots": 1,
+    "right_validity_days": 60,
+    "first_task_needs_council": false,
+    "start_window_minutes": 15,
+    "rules": [
+      {
+        "rule_id": "safety_inspection",
+        "kind": "Inspection",
+        "trigger": {
+          "Metric": {
+            "metric": "uses",
+            "threshold": 25
+          }
+        },
+        "title": "Inspect rungs, feet and locks",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "reimbursable_max": "0",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 168
+      }
+    ],
+    "protocol_fee_bps": 0,
+    "protocol_fee_receiver": null
+  },
+  "meta": {
+    "display_name": "Tool library ladder",
+    "community": "tool-library",
+    "icon": "ladder",
+    "photo": null,
+    "status": "profile example only",
+    "scenario_story_en": "A ladder in a neighbourhood tool library, inspected after every 25 loans.",
+    "scenario_story_tr": "Mahalle alet kütüphanesindeki merdiven; her 25 ödünçte bir güvenlik kontrolü.",
+    "pilot_overrides": {},
+    "purchase_hints": []
+  }
+}

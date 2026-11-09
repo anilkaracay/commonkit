@@ -26,23 +26,66 @@
     "rules": [
       {
         "rule_id": "nozzle_clean",
-        "metric": "nozzle_seconds",
-        "threshold": 720000,
+        "kind": "Maintenance",
+        "trigger": {
+          "Metric": {
+            "metric": "nozzle_seconds",
+            "threshold": 720000
+          }
+        },
         "title": "Clean the nozzle and run a calibration print",
         "reward_rights": 2,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
       },
       {
         "rule_id": "bed_level",
-        "metric": "jobs_total",
-        "threshold": 50,
+        "kind": "Maintenance",
+        "trigger": {
+          "Metric": {
+            "metric": "jobs_total",
+            "threshold": 50
+          }
+        },
         "title": "Level the bed",
         "reward_rights": 1,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "filament_spool",
+        "kind": "Restock",
+        "trigger": {
+          "Metric": {
+            "metric": "filament_used_mm",
+            "threshold": 330000
+          }
+        },
+        "title": "Load a new filament spool (receipt for reimbursement)",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "reimbursable_max": "500000000000000000000000",
+        "requires_verification_test": false,
+        "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "fault_repair",
+        "kind": "Repair",
+        "trigger": {
+          "Report": {
+            "min_reports": 1
+          }
+        },
+        "title": "Diagnose and repair the reported fault",
+        "reward_rights": 3,
+        "reward_cash": "0",
+        "reimbursable_max": "500000000000000000000000",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 96
       }
     ],
     "protocol_fee_bps": 0,
@@ -54,10 +97,11 @@
     "icon": "printer",
     "photo": null,
     "status": "real hardware (pending: no printer confirmed yet, D-013)",
-    "scenario_story_en": "A makerspace printer that only prints for an on-chain reservation and pays whoever keeps its nozzle clean.",
-    "scenario_story_tr": "Sadece zincir üstü rezervasyonla basan ve nozülünü temiz tutana kullanım hakkı veren makerspace yazıcısı.",
+    "scenario_story_en": "A makerspace printer that only prints for an on-chain reservation, asks for its own upkeep and pays whoever keeps it alive.",
+    "scenario_story_tr": "Sadece zincir üstü rezervasyonla basan, bakımını kendisi isteyen ve onu yaşatana kullanım hakkı veren makerspace yazıcısı.",
     "pilot_overrides": {
-      "nozzle_clean": 1800
+      "nozzle_clean": 1800,
+      "filament_spool": 5000
     },
     "purchase_hints": [
       {

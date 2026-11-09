@@ -26,23 +26,66 @@
     "rules": [
       {
         "rule_id": "filter_clean",
-        "metric": "cycles",
-        "threshold": 30,
+        "kind": "Cleaning",
+        "trigger": {
+          "Metric": {
+            "metric": "cycles",
+            "threshold": 30
+          }
+        },
         "title": "Clean the lint filter",
         "reward_rights": 3,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
       },
       {
         "rule_id": "descale",
-        "metric": "cycles",
-        "threshold": 120,
+        "kind": "Maintenance",
+        "trigger": {
+          "Metric": {
+            "metric": "cycles",
+            "threshold": 120
+          }
+        },
         "title": "Descale the drum",
         "reward_rights": 5,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "detergent",
+        "kind": "Restock",
+        "trigger": {
+          "Metric": {
+            "metric": "cycles",
+            "threshold": 40
+          }
+        },
+        "title": "Refill the shared detergent (receipt for reimbursement)",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "reimbursable_max": "300000000000000000000000",
+        "requires_verification_test": false,
+        "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "fault_repair",
+        "kind": "Repair",
+        "trigger": {
+          "Report": {
+            "min_reports": 1
+          }
+        },
+        "title": "Diagnose and repair the reported fault",
+        "reward_rights": 3,
+        "reward_cash": "0",
+        "reimbursable_max": "500000000000000000000000",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 96
       }
     ],
     "protocol_fee_bps": 0,

@@ -26,11 +26,32 @@
     "rules": [
       {
         "rule_id": "lens_clean",
-        "metric": "run_seconds",
-        "threshold": 144000,
+        "kind": "Maintenance",
+        "trigger": {
+          "Metric": {
+            "metric": "run_seconds",
+            "threshold": 144000
+          }
+        },
         "title": "Clean the lens and mirrors, check the power profile",
         "reward_rights": 2,
         "reward_cash": "0",
+        "reimbursable_max": "0",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "monthly_safety_check",
+        "kind": "Inspection",
+        "trigger": {
+          "Schedule": {
+            "every_hours": 720
+          }
+        },
+        "title": "Monthly safety check: interlocks, extraction, fire blanket",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
       }
@@ -47,7 +68,8 @@
     "scenario_story_en": "A risky machine: you need a laser_safety credential card to book it; trainers earn rights for training others.",
     "scenario_story_tr": "Riskli makine: rezervasyon için laser_safety yeterlilik kartı gerekir; eğitmenler eğittikleri için hak kazanır.",
     "pilot_overrides": {
-      "lens_clean": 600
+      "lens_clean": 600,
+      "monthly_safety_check": 1
     },
     "purchase_hints": []
   }

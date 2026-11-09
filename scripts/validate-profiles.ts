@@ -8,11 +8,17 @@ import { fileURLToPath } from 'node:url';
 import { Ajv2020 } from 'ajv/dist/2020.js';
 
 export const PROTOCOL_FEE_MAX_BPS = 200;
+export const EXPECTED_PROFILES = 12;
 
 interface Rule {
   rule_id: string;
+  kind?: string;
   reward_cash: string;
+  reimbursable_max?: string;
 }
+
+/** Only these upkeep kinds may carry a reimbursable expense (CONTRACT_SPEC §2.1, D-017). */
+export const REIMBURSABLE_KINDS = ['Restock', 'Repair'];
 interface ProfileFile {
   profile: {
     deposit: string;
@@ -39,6 +45,8 @@ export function crossFieldErrors(file: ProfileFile): string[] {
     ids.add(r.rule_id);
     if (BigInt(r.reward_cash) > BigInt(p.auto_reward_cash_cap))
       errors.push(`rule ${r.rule_id}: reward_cash > auto_reward_cash_cap`);
+    if (BigInt(r.reimbursable_max ?? '0') > 0n && !REIMBURSABLE_KINDS.includes(r.kind ?? ''))
+      errors.push(`rule ${r.rule_id}: reimbursable_max only allowed for Restock/Repair`);
   }
   for (const h of file.meta.purchase_hints)
     if (!ids.has(h.rule_id)) errors.push(`purchase_hint references unknown rule ${h.rule_id}`);
@@ -60,7 +68,7 @@ function main(): void {
     console.log(`${errs.length ? '❌' : '✅'} ${f}${errs.length ? `\n   ${errs.join('\n   ')}` : ''}`);
   }
   console.log(`${files.length - failed}/${files.length} profiles valid`);
-  if (failed || files.length !== 8) process.exit(1);
+  if (failed || files.length !== EXPECTED_PROFILES) process.exit(1);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main();

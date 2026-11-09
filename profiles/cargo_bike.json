@@ -26,22 +26,49 @@
     "rules": [
       {
         "rule_id": "brake_check",
-        "metric": "km",
-        "threshold": 300,
+        "kind": "Inspection",
+        "trigger": {
+          "Metric": {
+            "metric": "km",
+            "threshold": 300
+          }
+        },
         "title": "Check and adjust the brakes",
         "reward_rights": 2,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
       },
       {
         "rule_id": "tire_check",
-        "metric": "km",
-        "threshold": 500,
+        "kind": "Inspection",
+        "trigger": {
+          "Metric": {
+            "metric": "km",
+            "threshold": 500
+          }
+        },
         "title": "Check tires and pressure",
         "reward_rights": 1,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
+        "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "return_home",
+        "kind": "Rebalance",
+        "trigger": {
+          "Report": {
+            "min_reports": 2
+          }
+        },
+        "title": "Bring the bike back to its home spot",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "reimbursable_max": "0",
+        "requires_verification_test": false,
         "claim_timeout_hours": 72
       }
     ],

@@ -26,11 +26,17 @@
     "rules": [
       {
         "rule_id": "clean_inventory",
-        "metric": "uses",
-        "threshold": 20,
+        "kind": "Cleaning",
+        "trigger": {
+          "Metric": {
+            "metric": "uses",
+            "threshold": 20
+          }
+        },
         "title": "Clean optics and check the inventory",
         "reward_rights": 1,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 168
       }

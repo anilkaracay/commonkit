@@ -26,21 +26,32 @@
     "rules": [
       {
         "rule_id": "driver_update",
-        "metric": "days_since_update",
-        "threshold": 30,
+        "kind": "Maintenance",
+        "trigger": {
+          "Schedule": {
+            "every_hours": 720
+          }
+        },
         "title": "Update drivers and pass the test suite",
         "reward_rights": 2,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
       },
       {
         "rule_id": "dust_clean",
-        "metric": "gpu_hours",
-        "threshold": 1000,
+        "kind": "Cleaning",
+        "trigger": {
+          "Metric": {
+            "metric": "gpu_hours",
+            "threshold": 1000
+          }
+        },
         "title": "Clean dust filters and fans",
         "reward_rights": 3,
         "reward_cash": "0",
+        "reimbursable_max": "0",
         "requires_verification_test": true,
         "claim_timeout_hours": 72
       }

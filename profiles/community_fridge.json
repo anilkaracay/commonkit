@@ -1,0 +1,73 @@
+{
+  "profile": {
+    "asset_type": "community_fridge",
+    "display_name": "Neighbourhood community fridge",
+    "group_id": "street-fridge",
+    "adapter": "smart_plug",
+    "usage_unit_label": "visit",
+    "slot_minutes": 15,
+    "max_slots_per_reservation": 1,
+    "booking_horizon_days": 14,
+    "price_per_slot": "0",
+    "deposit": "0",
+    "deposit_trusted": "0",
+    "trusted_after": 0,
+    "required_credential": null,
+    "float_cap": "1000000000000000000000000",
+    "storage_reserve": "5000000000000000000000000",
+    "auto_reward_cash_cap": "500000000000000000000000",
+    "council_threshold_cash": "250000000000000000000000",
+    "period_days": 30,
+    "period_reward_quota": 10,
+    "right_max_slots": 1,
+    "right_validity_days": 60,
+    "first_task_needs_council": false,
+    "start_window_minutes": 15,
+    "rules": [
+      {
+        "rule_id": "weekly_clean",
+        "kind": "Cleaning",
+        "trigger": {
+          "Schedule": {
+            "every_hours": 168
+          }
+        },
+        "title": "Empty, clean and sanitize the fridge",
+        "reward_rights": 2,
+        "reward_cash": "0",
+        "reimbursable_max": "0",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 72
+      },
+      {
+        "rule_id": "temperature_check",
+        "kind": "Inspection",
+        "trigger": {
+          "Metric": {
+            "metric": "minutes_above_8c",
+            "threshold": 60
+          }
+        },
+        "title": "Check the seal and thermostat after a temperature excursion",
+        "reward_rights": 1,
+        "reward_cash": "0",
+        "reimbursable_max": "0",
+        "requires_verification_test": true,
+        "claim_timeout_hours": 72
+      }
+    ],
+    "protocol_fee_bps": 0,
+    "protocol_fee_receiver": null
+  },
+  "meta": {
+    "display_name": "Neighbourhood community fridge",
+    "community": "street-fridge",
+    "icon": "fridge",
+    "photo": null,
+    "status": "profile example only",
+    "scenario_story_en": "A free community fridge that asks for its weekly cleaning and flags temperature problems.",
+    "scenario_story_tr": "Haftalık temizliğini kendisi isteyen ve sıcaklık sorunlarını bildiren mahalle buzdolabı.",
+    "pilot_overrides": {},
+    "purchase_hints": []
+  }
+}
