@@ -20,6 +20,7 @@ mod governance;
 mod ledger_ops;
 mod profile;
 mod reservations;
+mod tasks;
 mod telemetry;
 
 pub const N: u128 = 1_000_000_000_000_000_000_000_000;
@@ -423,4 +424,59 @@ pub fn transfers() -> Vec<(AccountId, u128)> {
             })
         })
         .collect()
+}
+
+impl H {
+    pub fn open(&mut self, rule_id: &str) -> u64 {
+        self.call(&agent(), 0, |c| {
+            c.open_upkeep_task(rule_id.to_string(), "threshold crossed".to_string(), None)
+        })
+        .0
+    }
+
+    pub fn claim(&mut self, task: u64, who: &AccountId) {
+        self.call(who, 0, |c| c.claim_task(U64(task)));
+    }
+
+    pub fn submit(&mut self, task: u64, who: &AccountId, expense: u128) {
+        let (e, r) = if expense > 0 {
+            (Some(U128(expense)), Some(HASH.to_string()))
+        } else {
+            (None, None)
+        };
+        self.call(who, 0, |c| {
+            c.submit_task(U64(task), HASH.to_string(), None, e, r)
+        });
+    }
+
+    pub fn pass_test(&mut self, task: u64) {
+        self.call(&bridge(), 0, |c| {
+            c.submit_verification_result(U64(task), true, HASH.to_string())
+        });
+    }
+
+    /// Open (agent) → claim + submit (alice) for a due rule.
+    pub fn submitted(&mut self, rule_id: &str, expense: u128) -> u64 {
+        let t = self.open(rule_id);
+        self.claim(t, &alice());
+        self.submit(t, &alice(), expense);
+        t
+    }
+
+    pub fn minted(&mut self, task: u64, ids: &[&str]) -> bool {
+        let bytes = serde_json::to_vec(&ids).unwrap();
+        self.callback(PromiseResult::Successful(bytes), |c| {
+            c.on_rights_minted(U64(task))
+        })
+    }
+
+    /// A session start + finish for `who` (makes them eligible to report faults).
+    pub fn session(&mut self, who: &AccountId) -> u64 {
+        let start = self.now_slot() + 1;
+        let id = self.confirmed(who, start, 1);
+        self.now = start * SLOT;
+        self.call(&bridge(), 0, |c| c.mark_session_started(U64(id)));
+        self.call(&bridge(), 0, |c| c.mark_session_finished(U64(id), vec![]));
+        id
+    }
 }

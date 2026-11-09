@@ -124,7 +124,10 @@ fn validate_profile_rejects_zero_min_reports() {
 fn profile_json_uses_serde_default_shapes() {
     let v = serde_json::to_value(profile()).unwrap();
     assert_eq!(v["rules"][2]["kind"], "Restock");
-    assert_eq!(v["rules"][0]["trigger"]["Metric"]["metric"], "nozzle_seconds");
+    assert_eq!(
+        v["rules"][0]["trigger"]["Metric"]["metric"],
+        "nozzle_seconds"
+    );
     assert_eq!(v["rules"][0]["trigger"]["Metric"]["threshold"], 1800);
     assert_eq!(v["rules"][3]["trigger"]["Schedule"]["every_hours"], 168);
     assert_eq!(v["rules"][4]["trigger"]["Report"]["min_reports"], 2);
