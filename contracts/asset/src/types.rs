@@ -16,17 +16,50 @@ pub enum OpStatus {
     Failed,
 }
 
-/// One maintenance rule of a profile (spec §2.1).
+/// Kind of care a rule asks for (D-017).
+#[near(serializers = [borsh, json])]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum UpkeepKind {
+    Maintenance,
+    Restock,
+    Cleaning,
+    Inspection,
+    Repair,
+    Rebalance,
+    Supervision,
+}
+
+impl UpkeepKind {
+    /// Only Restock and Repair tasks may claim a documented expense.
+    pub fn reimbursable(self) -> bool {
+        matches!(self, UpkeepKind::Restock | UpkeepKind::Repair)
+    }
+}
+
+/// When a rule becomes due (D-017).
 #[near(serializers = [borsh, json])]
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct MaintenanceRule {
+pub enum Trigger {
+    /// Due when `telemetry[metric] - baseline >= threshold`.
+    Metric { metric: String, threshold: u64 },
+    /// Due when `now - last_completed_at >= every_hours`.
+    Schedule { every_hours: u32 },
+    /// Due when active fault reports (distinct reporters) `>= min_reports`.
+    Report { min_reports: u8 },
+}
+
+/// One upkeep rule of a profile (spec §2.1).
+#[near(serializers = [borsh, json])]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct UpkeepRule {
     pub rule_id: String,
-    pub metric: String,
-    /// Delta of `metric` since the rule's baseline that makes the rule due.
-    pub threshold: u64,
+    pub kind: UpkeepKind,
+    pub trigger: Trigger,
     pub title: String,
     pub reward_rights: u32,
     pub reward_cash: U128,
+    /// Restock/Repair only: max documented expense the worker may claim.
+    pub reimbursable_max: U128,
     pub requires_verification_test: bool,
     pub claim_timeout_hours: u32,
 }
@@ -58,7 +91,7 @@ pub struct Profile {
     pub right_validity_days: u32,
     pub first_task_needs_council: bool,
     pub start_window_minutes: u32,
-    pub rules: Vec<MaintenanceRule>,
+    pub rules: Vec<UpkeepRule>,
     pub protocol_fee_bps: u16,
     pub protocol_fee_receiver: Option<AccountId>,
 }
@@ -136,6 +169,43 @@ impl Telemetry {
     }
 }
 
+/// An active fault report for a Report-trigger rule (spec §2.4a).
+#[near(serializers = [borsh, json])]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FaultReport {
+    /// Global report sequence number; also the `ref_id` of the reputation record.
+    pub seq: U64,
+    pub reporter: AccountId,
+    pub note_hash: String,
+    pub at: U64,
+}
+
+#[near(serializers = [borsh, json])]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ServiceState {
+    pub in_service: bool,
+    pub since: U64,
+    pub reason_hash: Option<String>,
+}
+
+#[near(serializers = [borsh, json])]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ServiceRestoredBy {
+    RepairRewarded { task_id: U64 },
+    Council { account: AccountId },
+}
+
+#[near(serializers = [borsh, json])]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct OutOfServicePeriod {
+    pub seq: U64,
+    pub started_at: U64,
+    pub started_by: AccountId,
+    pub reason_hash: String,
+    pub ended_at: Option<U64>,
+    pub ended_by: Option<ServiceRestoredBy>,
+}
+
 #[near(serializers = [borsh, json])]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TaskStatus {
@@ -168,22 +238,34 @@ pub enum RewardState {
     Failed { reason: String },
 }
 
+/// Restock/Repair expense lifecycle (spec §2.5). Never paid from deposits.
+#[near(serializers = [borsh, json])]
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ExpenseState {
+    None,
+    Reserved,
+    NeedsEscalation,
+    Escalated { escalation_id: U64 },
+    Paid,
+}
+
 #[near(serializers = [borsh, json])]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Task {
     pub id: U64,
     pub rule_id: String,
-    pub metric: String,
+    pub kind: UpkeepKind,
+    /// Copied from the rule at open time so later profile changes never alter a task.
+    pub trigger: Trigger,
     pub opened_by: AccountId,
-    /// True when a council member opened it without the threshold being crossed.
+    /// True when a council member bypassed the due check.
     pub manual: bool,
     pub rationale: String,
-    pub metric_value_at_open: u64,
-    pub baseline_at_open: u64,
-    pub threshold: u64,
+    /// Metric: delta since baseline; Schedule: hours since last; Report: active reports.
+    pub due_value_at_open: u64,
     pub reward_rights: u32,
     pub reward_cash: U128,
-    /// Copied from the profile at open time so later profile changes never alter a task.
+    pub reimbursable_max: U128,
     pub right_max_slots: u32,
     pub right_validity_days: u32,
     pub requires_verification_test: bool,
@@ -194,13 +276,18 @@ pub struct Task {
     pub claimed_at: Option<U64>,
     pub evidence_hash: Option<String>,
     pub evidence_uri: Option<String>,
+    pub expense: U128,
+    pub receipt_hash: Option<String>,
+    pub expense_state: ExpenseState,
     pub verification: Option<VerificationResult>,
     pub verifier: Option<AccountId>,
     pub council_approver: Option<AccountId>,
+    /// Metric triggers: telemetry value when the task was approved (new baseline).
     pub metric_value_at_approval: Option<u64>,
     pub reward_state: RewardState,
     pub minted_right_ids: Vec<TokenId>,
     pub cash_op_id: Option<U64>,
+    pub reimbursement_op_id: Option<U64>,
     pub created_at: U64,
 }
 
@@ -255,7 +342,8 @@ pub struct Escalation {
     pub submission_time: Option<U64>,
     /// Raw Sputnik status string from the last `sync_escalation`.
     pub dao_status: Option<String>,
-    pub created_at: U64,
+    /// Block time of `escalate` (fallback for expiry when Sputnik's time is unknown).
+    pub submitted_at: U64,
 }
 
 #[near(serializers = [borsh, json])]
@@ -264,6 +352,8 @@ pub enum OpKind {
     Refund,
     Sweep,
     CashReward,
+    /// Restock/Repair expense paid back to the worker (from `rewards_reserved`).
+    Reimbursement,
     Bond,
     ProtocolFee,
     /// `commons.release_right` for a reservation's right (amount 0, D-203).
@@ -293,7 +383,8 @@ pub struct Reputation {
     pub sessions: u32,
     pub clean_returns: u32,
     pub damages: u32,
-    pub maintenances: u32,
+    pub upkeeps: u32,
+    pub fault_reports: u32,
 }
 
 #[near(serializers = [borsh, json])]

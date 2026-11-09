@@ -3,7 +3,7 @@
 use commonkit_types::commons_iface::MAX_MINT_PER_CALL;
 use near_sdk::require;
 
-use crate::types::Profile;
+use crate::types::{Profile, Trigger};
 
 /// Upper bound on `protocol_fee_bps` (2 %).
 pub const PROTOCOL_FEE_MAX_BPS: u16 = 200;
@@ -82,19 +82,36 @@ pub fn validate_profile(p: &Profile) {
     );
     for (i, rule) in p.rules.iter().enumerate() {
         check_id(&rule.rule_id, MAX_ID_LEN);
-        check_id(&rule.metric, MAX_METRIC_NAME_LEN);
         check_title(&rule.title);
+        match &rule.trigger {
+            Trigger::Metric { metric, threshold } => {
+                check_id(metric, MAX_METRIC_NAME_LEN);
+                require!(*threshold > 0, "E_INVALID_PROFILE: threshold must be > 0");
+            }
+            Trigger::Schedule { every_hours } => {
+                require!(
+                    *every_hours > 0,
+                    "E_INVALID_PROFILE: every_hours must be > 0"
+                );
+            }
+            Trigger::Report { min_reports } => {
+                require!(
+                    *min_reports >= 1,
+                    "E_INVALID_PROFILE: min_reports must be >= 1"
+                );
+            }
+        }
         require!(
             p.rules[..i].iter().all(|r| r.rule_id != rule.rule_id),
             "E_INVALID_PROFILE: duplicate rule_id"
         );
         require!(
-            rule.threshold > 0,
-            "E_INVALID_PROFILE: threshold must be > 0"
-        );
-        require!(
             rule.reward_cash.0 <= p.auto_reward_cash_cap.0,
             "E_INVALID_PROFILE: reward_cash above auto_reward_cash_cap"
+        );
+        require!(
+            rule.reimbursable_max.0 == 0 || rule.kind.reimbursable(),
+            "E_INVALID_PROFILE: reimbursable_max only for Restock or Repair rules"
         );
         require!(
             rule.reward_rights <= MAX_MINT_PER_CALL,

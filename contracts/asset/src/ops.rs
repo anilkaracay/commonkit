@@ -9,6 +9,7 @@
 //! | Refund        | deposits_held                          | total_refunded         |
 //! | Sweep         | float_free                             | total_swept            |
 //! | CashReward    | rewards_reserved                       | total_rewards_paid     |
+//! | Reimbursement | rewards_reserved                       | total_reimbursed       |
 //! | ProtocolFee   | protocol_fees_owed                     | total_protocol_fees    |
 //! | Bond          | float_free (escalations.rs)            | total_bonds_paid       |
 //! | RightRelease / RightFinalize | — (amount 0)            | —                      |
@@ -22,7 +23,7 @@ use near_sdk::serde_json::{self, json};
 use near_sdk::{env, near, require, AccountId, NearToken, Promise};
 
 use crate::ledger::{add, sub};
-use crate::types::{OpKind, OpStatus, OutboundOp, RewardState};
+use crate::types::{OpKind, OpStatus, OutboundOp};
 use crate::{promise_succeeded, AssetContract, AssetContractExt, GAS_ON_OP_RESULT};
 
 impl AssetContract {
@@ -89,7 +90,11 @@ impl AssetContract {
             .with_static_gas(GAS_ON_OP_RESULT)
             .on_op_result(U64(op_id));
         let first = match op.kind {
-            OpKind::Refund | OpKind::Sweep | OpKind::CashReward | OpKind::ProtocolFee => {
+            OpKind::Refund
+            | OpKind::Sweep
+            | OpKind::CashReward
+            | OpKind::Reimbursement
+            | OpKind::ProtocolFee => {
                 Promise::new(op.to.clone()).transfer(NearToken::from_yoctonear(op.amount.0))
             }
             OpKind::RightRelease | OpKind::RightFinalize => {
@@ -143,7 +148,7 @@ impl AssetContract {
         match kind {
             OpKind::Refund => l.deposits_held = add(l.deposits_held, amount, "deposits_held"),
             OpKind::Sweep | OpKind::Bond => l.float_free = add(l.float_free, amount, "float_free"),
-            OpKind::CashReward => {
+            OpKind::CashReward | OpKind::Reimbursement => {
                 l.rewards_reserved = add(l.rewards_reserved, amount, "rewards_reserved")
             }
             OpKind::ProtocolFee => {
@@ -165,7 +170,7 @@ impl AssetContract {
                 );
                 l.float_free -= amount;
             }
-            OpKind::CashReward => {
+            OpKind::CashReward | OpKind::Reimbursement => {
                 l.rewards_reserved = sub(l.rewards_reserved, amount, "rewards_reserved")
             }
             OpKind::ProtocolFee => {
@@ -196,14 +201,7 @@ impl AssetContract {
         op.status = OpStatus::Pending;
         op.attempts += 1;
         op.updated_at = U64(Self::now());
-        let kind = op.kind;
-        let ref_id = op.ref_id;
         self.ops.insert(op_id, op);
-        if kind == OpKind::CashReward {
-            if let Some(task_id) = ref_id {
-                self.set_reward_state(task_id.0, RewardState::CashPending);
-            }
-        }
         self.emit("op_retried", json!({ "op_id": op_id.to_string() }));
         self.send_op(op_id);
     }
@@ -291,6 +289,9 @@ impl AssetContract {
                 OpKind::CashReward => {
                     l.total_rewards_paid = add(l.total_rewards_paid, amount, "total")
                 }
+                OpKind::Reimbursement => {
+                    l.total_reimbursed = add(l.total_reimbursed, amount, "total")
+                }
                 OpKind::ProtocolFee => {
                     l.total_protocol_fees = add(l.total_protocol_fees, amount, "total")
                 }
@@ -310,13 +311,9 @@ impl AssetContract {
                 "ref_id": ref_id.map(|r| r.to_string()),
             }),
         );
-        if kind == OpKind::CashReward {
+        if matches!(kind, OpKind::CashReward | OpKind::Reimbursement) {
             if let Some(task_id) = ref_id {
-                if ok {
-                    self.finish_reward(task_id);
-                } else {
-                    self.fail_reward(task_id, "E_CASH_TRANSFER_FAILED");
-                }
+                self.on_task_op_settled(task_id, kind, ok);
             }
         }
         ok

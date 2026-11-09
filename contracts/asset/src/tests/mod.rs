@@ -72,23 +72,56 @@ pub fn feesink() -> AccountId {
     acc("fees.testnet")
 }
 
-pub fn rule(id: &str, metric: &str, threshold: u64, rights: u32, cash: u128) -> MaintenanceRule {
-    MaintenanceRule {
-        rule_id: id.to_string(),
+pub fn metric(metric: &str, threshold: u64) -> Trigger {
+    Trigger::Metric {
         metric: metric.to_string(),
         threshold,
+    }
+}
+
+pub fn rule(id: &str, kind: UpkeepKind, trigger: Trigger, rights: u32, cash: u128) -> UpkeepRule {
+    UpkeepRule {
+        rule_id: id.to_string(),
+        kind,
+        trigger,
         title: format!("Rule {id}"),
         reward_rights: rights,
         reward_cash: U128(cash),
+        reimbursable_max: U128(0),
         requires_verification_test: false,
         claim_timeout_hours: 24,
     }
 }
 
 /// Printer-like profile: 30-min slots, 0.25 N/slot, 2 N deposit (0.5 N after 3 clean returns).
+/// Rules: nozzle_clean (Metric, test required), bed_level (Metric, 0.1 N cash),
+/// filament_spool (Restock, up to 3 N expense), weekly_clean (Schedule 168 h),
+/// fault_repair (Repair on 2 reports, up to 0.4 N expense).
 pub fn profile() -> Profile {
-    let mut nozzle = rule("nozzle_clean", "nozzle_seconds", 1800, 2, 0);
+    let mut nozzle = rule(
+        "nozzle_clean",
+        UpkeepKind::Maintenance,
+        metric("nozzle_seconds", 1800),
+        2,
+        0,
+    );
     nozzle.requires_verification_test = true;
+    let mut spool = rule(
+        "filament_spool",
+        UpkeepKind::Restock,
+        metric("filament_used_mm", 330_000),
+        1,
+        0,
+    );
+    spool.reimbursable_max = U128(3 * N);
+    let mut repair = rule(
+        "fault_repair",
+        UpkeepKind::Repair,
+        Trigger::Report { min_reports: 2 },
+        2,
+        0,
+    );
+    repair.reimbursable_max = U128(2 * N / 5);
     Profile {
         asset_type: "printer_3d".to_string(),
         display_name: "Makerlab 3D printer".to_string(),
@@ -113,7 +146,25 @@ pub fn profile() -> Profile {
         right_validity_days: 90,
         first_task_needs_council: false,
         start_window_minutes: 15,
-        rules: vec![nozzle, rule("bed_level", "jobs_total", 50, 1, N / 10)],
+        rules: vec![
+            nozzle,
+            rule(
+                "bed_level",
+                UpkeepKind::Inspection,
+                metric("jobs_total", 50),
+                1,
+                N / 10,
+            ),
+            spool,
+            rule(
+                "weekly_clean",
+                UpkeepKind::Cleaning,
+                Trigger::Schedule { every_hours: 168 },
+                1,
+                0,
+            ),
+            repair,
+        ],
         protocol_fee_bps: 0,
         protocol_fee_receiver: None,
     }

@@ -11,7 +11,8 @@ use crate::AssetContract;
 pub const REP_SESSION: &str = "session";
 pub const REP_CLEAN_RETURN: &str = "clean_return";
 pub const REP_DAMAGE: &str = "damage";
-pub const REP_MAINTENANCE: &str = "maintenance";
+pub const REP_UPKEEP: &str = "upkeep";
+pub const REP_FAULT_REPORT: &str = "fault_report";
 /// Logged only; no counter in `Reputation` (spec §2.8 fixes the counters).
 pub const REP_NO_SHOW: &str = "no_show";
 
@@ -22,7 +23,8 @@ impl AssetContract {
             REP_SESSION => rep.sessions += 1,
             REP_CLEAN_RETURN => rep.clean_returns += 1,
             REP_DAMAGE => rep.damages += 1,
-            REP_MAINTENANCE => rep.maintenances += 1,
+            REP_UPKEEP => rep.upkeeps += 1,
+            REP_FAULT_REPORT => rep.fault_reports += 1,
             _ => {}
         }
         self.reputation.insert(account.clone(), rep);

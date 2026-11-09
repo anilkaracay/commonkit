@@ -1,8 +1,9 @@
 //! Reward procedure (CONTRACT_SPEC §3.3), exactly once (invariant 4).
 //!
 //! `Approved + NotStarted` → [`RightsPending` → `commons.mint_rights` → `on_rights_minted`] →
-//! [`CashPending` → CashReward op → `on_op_result`] → `Done` (`Rewarded`).
-//! A failed step sets `Failed { reason }`; `retry_reward` restarts from that step only. Each
+//! [`CashPending` → CashReward + Reimbursement ops → `on_op_result`] → `Done` (`Rewarded`).
+//! A failed mint sets `Failed { reason }` and `retry_reward` restarts it; failed transfers
+//! stay retryable with `retry_op` (the claim stays in `rewards_reserved`). Each
 //! callback acts only when the task is in the matching pending state, and `mint_rights` is
 //! idempotent per `(asset, task_id)` in commons, so retries never double mint or double pay.
 
@@ -14,8 +15,10 @@ use near_sdk::serde_json::{self, json};
 use near_sdk::{env, near, require, NearToken, Promise};
 
 use crate::ledger::sub;
-use crate::reputation::REP_MAINTENANCE;
-use crate::types::{OpKind, RewardState, TaskStatus};
+use crate::reputation::REP_UPKEEP;
+use crate::types::{
+    ExpenseState, OpKind, OpStatus, RewardState, ServiceRestoredBy, TaskStatus, Trigger, UpkeepKind,
+};
 use crate::{promise_bytes, AssetContract, AssetContractExt, GAS_ON_MINTED, NS_PER_DAY};
 
 const MAX_MINT_RESULT_LEN: usize = 8192;
@@ -45,7 +48,9 @@ impl AssetContract {
             t.status == TaskStatus::Approved && t.reward_state == RewardState::NotStarted,
             "E_ALREADY_REWARDED: reward already started"
         );
-        t.metric_value_at_approval = Some(self.telemetry.value(&t.metric));
+        if let Trigger::Metric { metric, .. } = &t.trigger {
+            t.metric_value_at_approval = Some(self.telemetry.value(metric));
+        }
         self.tasks.insert(task_id, t);
         self.mint_step(task_id);
     }
@@ -89,26 +94,81 @@ impl AssetContract {
             .detach();
     }
 
+    /// Creates the CashReward op and, for a reserved expense, a separate Reimbursement op.
+    /// The task stays `CashPending` until both resolve; a failed op stays retryable via
+    /// `retry_op` and does not block `Rewarded`.
     fn cash_step(&mut self, task_id: u64) {
         let mut t = self.get_task_or_panic(task_id);
-        let cash = t.reward_cash.0;
-        if cash == 0 {
-            self.finish_reward(task_id);
-            return;
-        }
         let claimer = t
             .claimer
             .clone()
             .unwrap_or_else(|| env::panic_str("E_BAD_STATE: task has no claimer"));
-        self.ledger.rewards_reserved = sub(self.ledger.rewards_reserved, cash, "rewards_reserved");
-        let op_id = self.create_op(OpKind::CashReward, claimer, cash, Some(task_id));
-        t.cash_op_id = Some(U64(op_id));
+        let cash = t.reward_cash.0;
+        let expense = if t.expense_state == ExpenseState::Reserved {
+            t.expense.0
+        } else {
+            0
+        };
+        if cash == 0 && expense == 0 {
+            self.finish_reward(task_id);
+            return;
+        }
+        let mut ops = Vec::new();
+        if cash > 0 {
+            self.ledger.rewards_reserved =
+                sub(self.ledger.rewards_reserved, cash, "rewards_reserved");
+            let op = self.create_op(OpKind::CashReward, claimer.clone(), cash, Some(task_id));
+            t.cash_op_id = Some(U64(op));
+            ops.push(op);
+        }
+        if expense > 0 {
+            self.ledger.rewards_reserved =
+                sub(self.ledger.rewards_reserved, expense, "rewards_reserved");
+            let op = self.create_op(OpKind::Reimbursement, claimer, expense, Some(task_id));
+            t.reimbursement_op_id = Some(U64(op));
+            ops.push(op);
+        }
         t.reward_state = RewardState::CashPending;
         self.tasks.insert(task_id, t);
-        self.send_op(op_id);
+        for op in ops {
+            self.send_op(op);
+        }
     }
 
-    /// Final step: `Done`, `Rewarded`, new baseline, rule unblocked, reputation.
+    /// Called by `on_op_result` for CashReward / Reimbursement ops of a task.
+    pub(crate) fn on_task_op_settled(&mut self, task_id: u64, kind: OpKind, ok: bool) {
+        let Some(mut t) = self.tasks.get(&task_id).cloned() else {
+            return;
+        };
+        if kind == OpKind::Reimbursement && ok {
+            t.expense_state = ExpenseState::Paid;
+            self.tasks.insert(task_id, t.clone());
+        }
+        if !ok {
+            self.emit(
+                "reward_failed",
+                json!({
+                    "task_id": task_id.to_string(),
+                    "reason": "E_TRANSFER_FAILED",
+                    "op_kind": kind,
+                    "retry": "retry_op",
+                }),
+            );
+        }
+        if t.reward_state != RewardState::CashPending {
+            return;
+        }
+        let pending = [t.cash_op_id, t.reimbursement_op_id]
+            .iter()
+            .flatten()
+            .any(|op| self.ops.get(&op.0).map(|o| o.status) == Some(OpStatus::Pending));
+        if !pending {
+            self.finish_reward(task_id);
+        }
+    }
+
+    /// Final step: `Done`, `Rewarded`, baseline reset per trigger, rule unblocked, reputation;
+    /// a Rewarded Repair brings the asset back into service.
     pub(crate) fn finish_reward(&mut self, task_id: u64) {
         let mut t = self.get_task_or_panic(task_id);
         if t.status != TaskStatus::Approved || t.reward_state == RewardState::Done {
@@ -117,8 +177,22 @@ impl AssetContract {
         }
         t.reward_state = RewardState::Done;
         t.status = TaskStatus::Rewarded;
-        let baseline = t.metric_value_at_approval.unwrap_or(t.metric_value_at_open);
-        self.rule_baselines.insert(t.rule_id.clone(), baseline);
+        let new_baseline = match &t.trigger {
+            Trigger::Metric { .. } => {
+                let value = t.metric_value_at_approval.unwrap_or(0);
+                self.rule_baselines.insert(t.rule_id.clone(), value);
+                Some(value)
+            }
+            Trigger::Schedule { .. } => {
+                let now = Self::now();
+                self.rule_baselines.insert(t.rule_id.clone(), now);
+                Some(now)
+            }
+            Trigger::Report { .. } => {
+                self.faults.remove(&t.rule_id);
+                None
+            }
+        };
         if self.open_task_by_rule.get(&t.rule_id) == Some(&task_id) {
             self.open_task_by_rule.remove(&t.rule_id);
         }
@@ -132,14 +206,21 @@ impl AssetContract {
             json!({
                 "task_id": t.id,
                 "rule_id": t.rule_id,
+                "kind": t.kind,
                 "claimer": claimer,
                 "right_ids": t.minted_right_ids,
                 "cash": t.reward_cash,
                 "cash_op_id": t.cash_op_id,
-                "new_baseline": baseline,
+                "expense": t.expense,
+                "expense_state": t.expense_state,
+                "reimbursement_op_id": t.reimbursement_op_id,
+                "new_baseline": new_baseline.map(|b| b.to_string()),
             }),
         );
-        self.record_reputation(&claimer, REP_MAINTENANCE, task_id);
+        self.record_reputation(&claimer, REP_UPKEEP, task_id);
+        if t.kind == UpkeepKind::Repair && !self.service.in_service {
+            self.restore_service(ServiceRestoredBy::RepairRewarded { task_id: t.id });
+        }
     }
 
     pub(crate) fn fail_reward(&mut self, task_id: u64, reason: &str) {
@@ -151,7 +232,7 @@ impl AssetContract {
         );
         self.emit(
             "reward_failed",
-            json!({ "task_id": task_id.to_string(), "reason": reason }),
+            json!({ "task_id": task_id.to_string(), "reason": reason, "retry": "retry_reward" }),
         );
     }
 }
@@ -192,7 +273,8 @@ impl AssetContract {
         }
     }
 
-    /// ANY. Restarts a `Failed` reward from the step that failed (mint or cash transfer).
+    /// ANY. Restarts a reward whose rights mint failed. (Failed cash or reimbursement
+    /// transfers are retried with `retry_op`.)
     pub fn retry_reward(&mut self, task_id: U64) {
         let t = self.get_task_or_panic(task_id.0);
         require!(
@@ -203,9 +285,6 @@ impl AssetContract {
             matches!(t.reward_state, RewardState::Failed { .. }),
             "E_BAD_STATE: reward has not failed"
         );
-        match t.cash_op_id {
-            Some(op_id) => self.resend_failed_op(op_id.0),
-            None => self.mint_step(task_id.0),
-        }
+        self.mint_step(task_id.0);
     }
 }

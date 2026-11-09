@@ -1,6 +1,8 @@
-//! Maintenance tasks (CONTRACT_SPEC §3.3). The agent can open a task only for a rule whose
-//! on-chain telemetry delta crossed its threshold, within the cash cap, the free float and the
-//! period quota (invariant 7). Claimer, agent and bridge can never approve (invariant 3).
+//! Upkeep tasks (CONTRACT_SPEC §3.3, D-017). The agent can open a task only for a rule that is
+//! due per its trigger (Metric delta, Schedule interval, Report count), within the cash cap,
+//! the free float and the period quota (invariant 7). Claimer, agent and bridge can never
+//! approve (invariant 3). Restock/Repair expenses are capped by the rule and paid from the
+//! float only — never from deposits.
 
 use commonkit_types::commons_iface::{ROLE_COUNCIL, ROLE_VERIFIER};
 use near_sdk::json_types::{U128, U64};
@@ -8,12 +10,27 @@ use near_sdk::serde_json::json;
 use near_sdk::{env, near, require, AccountId};
 
 use crate::ledger::{add, sub};
-use crate::types::{RewardState, Task, TaskStatus, VerificationResult};
+use crate::types::{
+    ExpenseState, RewardState, Task, TaskStatus, Trigger, UpkeepRule, VerificationResult,
+};
 use crate::{check_len, is_sha256_hex, AssetContract, AssetContractExt, NS_PER_HOUR};
 
 pub const MAX_RATIONALE_LEN: usize = 1000;
 pub const MAX_NOTE_LEN: usize = 500;
 pub const MAX_URI_LEN: usize = 500;
+
+/// How due a rule is right now (shared by `open_upkeep_task` and `get_rule_status`).
+pub struct DueInfo {
+    /// Metric: counter value; Schedule: hours since last reward; Report: active reports.
+    pub current: u64,
+    /// Metric: counter value at last reward; Schedule: timestamp of last reward; Report: 0.
+    pub baseline: u64,
+    /// Metric: delta since baseline; Schedule: hours since last; Report: active reports.
+    pub due_value: u64,
+    pub due: bool,
+    /// Schedule only: timestamp (ns) at which the rule becomes due.
+    pub next_due: Option<u64>,
+}
 
 impl AssetContract {
     pub(crate) fn get_task_or_panic(&self, id: u64) -> Task {
@@ -21,6 +38,46 @@ impl AssetContract {
             .get(&id)
             .cloned()
             .unwrap_or_else(|| env::panic_str("E_NOT_FOUND: unknown task"))
+    }
+
+    pub(crate) fn rule_due(&self, rule: &UpkeepRule) -> DueInfo {
+        let stored = self.rule_baselines.get(&rule.rule_id).copied();
+        match &rule.trigger {
+            Trigger::Metric { metric, threshold } => {
+                let current = self.telemetry.value(metric);
+                let baseline = stored.unwrap_or(0);
+                let delta = current.saturating_sub(baseline);
+                DueInfo {
+                    current,
+                    baseline,
+                    due_value: delta,
+                    due: delta >= *threshold,
+                    next_due: None,
+                }
+            }
+            Trigger::Schedule { every_hours } => {
+                let baseline = stored.unwrap_or(self.created_at);
+                let elapsed = Self::now().saturating_sub(baseline);
+                let interval = u64::from(*every_hours).saturating_mul(NS_PER_HOUR);
+                DueInfo {
+                    current: elapsed / NS_PER_HOUR,
+                    baseline,
+                    due_value: elapsed / NS_PER_HOUR,
+                    due: elapsed >= interval,
+                    next_due: Some(baseline.saturating_add(interval)),
+                }
+            }
+            Trigger::Report { min_reports } => {
+                let active = self.active_reports(&rule.rule_id) as u64;
+                DueInfo {
+                    current: active,
+                    baseline: 0,
+                    due_value: active,
+                    due: active >= u64::from(*min_reports),
+                    next_due: None,
+                }
+            }
+        }
     }
 
     fn claim_timed_out(t: &Task) -> bool {
@@ -35,9 +92,27 @@ impl AssetContract {
         }
     }
 
-    /// Returns reserved cash to the float and reserved rights to the quota; unblocks the rule.
-    fn release_task_reservations(&mut self, t: &Task) {
-        let cash = t.reward_cash.0;
+    /// Moves an approved expense from the float into `rewards_reserved`.
+    fn reserve_expense(&mut self, t: &mut Task) {
+        let expense = t.expense.0;
+        require!(
+            self.ledger.float_free >= expense,
+            "E_INSUFFICIENT_FLOAT: float cannot cover the expense; the DAO funds the float first"
+        );
+        self.ledger.float_free -= expense;
+        self.ledger.rewards_reserved =
+            add(self.ledger.rewards_reserved, expense, "rewards_reserved");
+        t.expense_state = ExpenseState::Reserved;
+    }
+
+    /// Returns reserved cash and expense to the float and reserved rights to the quota;
+    /// unblocks the rule.
+    fn release_task_reservations(&mut self, t: &mut Task) {
+        let mut cash = t.reward_cash.0;
+        if t.expense_state == ExpenseState::Reserved {
+            cash += t.expense.0;
+            t.expense_state = ExpenseState::None;
+        }
         self.ledger.rewards_reserved = sub(self.ledger.rewards_reserved, cash, "rewards_reserved");
         self.ledger.float_free = add(self.ledger.float_free, cash, "float_free");
         self.period.rights_reserved = self.period.rights_reserved.saturating_sub(t.reward_rights);
@@ -83,8 +158,8 @@ impl AssetContract {
 #[near]
 impl AssetContract {
     /// AGENT or ROLE(council). Opens a task for a due rule and reserves its cash and rights.
-    /// `manual = true` (council only) bypasses the threshold and is recorded on the task.
-    pub fn open_maintenance_task(
+    /// `manual = true` (council only) bypasses the due check and is recorded on the task.
+    pub fn open_upkeep_task(
         &mut self,
         rule_id: String,
         rationale: String,
@@ -107,12 +182,10 @@ impl AssetContract {
             !self.open_task_by_rule.contains_key(&rule_id),
             "E_TASK_ALREADY_OPEN: rule already has an open task"
         );
-        let value = self.telemetry.value(&rule.metric);
-        let baseline = self.rule_baselines.get(&rule_id).copied().unwrap_or(0);
-        let delta = value.saturating_sub(baseline);
+        let due = self.rule_due(&rule);
         require!(
-            manual || delta >= rule.threshold,
-            "E_RULE_NOT_DUE: telemetry delta below the rule threshold"
+            manual || due.due,
+            "E_RULE_NOT_DUE: the rule's trigger has not fired"
         );
         require!(
             !rationale.is_empty(),
@@ -151,15 +224,15 @@ impl AssetContract {
         let task = Task {
             id: U64(id),
             rule_id: rule_id.clone(),
-            metric: rule.metric.clone(),
+            kind: rule.kind,
+            trigger: rule.trigger.clone(),
             opened_by: caller.clone(),
             manual,
             rationale: rationale.clone(),
-            metric_value_at_open: value,
-            baseline_at_open: baseline,
-            threshold: rule.threshold,
+            due_value_at_open: due.due_value,
             reward_rights: rule.reward_rights,
             reward_cash: U128(cash),
+            reimbursable_max: rule.reimbursable_max,
             right_max_slots: self.profile.right_max_slots,
             right_validity_days: self.profile.right_validity_days,
             requires_verification_test: rule.requires_verification_test,
@@ -170,6 +243,9 @@ impl AssetContract {
             claimed_at: None,
             evidence_hash: None,
             evidence_uri: None,
+            expense: U128(0),
+            receipt_hash: None,
+            expense_state: ExpenseState::None,
             verification: None,
             verifier: None,
             council_approver: None,
@@ -177,6 +253,7 @@ impl AssetContract {
             reward_state: RewardState::NotStarted,
             minted_right_ids: Vec::new(),
             cash_op_id: None,
+            reimbursement_op_id: None,
             created_at: U64(Self::now()),
         };
         self.tasks.insert(id, task);
@@ -186,10 +263,11 @@ impl AssetContract {
             json!({
                 "task_id": id.to_string(),
                 "rule_id": rule_id,
-                "metric": rule.metric,
-                "metric_value": value,
-                "baseline": baseline,
-                "threshold": rule.threshold,
+                "kind": rule.kind,
+                "trigger": rule.trigger,
+                "due_value": due.due_value,
+                "current": due.current,
+                "baseline": due.baseline,
                 "manual": manual,
                 "opened_by": caller,
                 "rationale": rationale,
@@ -265,12 +343,15 @@ impl AssetContract {
         self.reopen(t, &caller, true);
     }
 
-    /// Claimer. `Claimed` → `Submitted` with a hex sha256 of the evidence.
+    /// Claimer. `Claimed` → `Submitted` with a hex sha256 of the evidence. Restock/Repair
+    /// tasks may claim a documented `expense <= reimbursable_max` with a receipt hash.
     pub fn submit_task(
         &mut self,
         task_id: U64,
         evidence_hash: String,
         evidence_uri: Option<String>,
+        expense: Option<U128>,
+        receipt_hash: Option<String>,
     ) {
         let caller = env::predecessor_account_id();
         let mut t = self.get_task_or_panic(task_id.0);
@@ -293,10 +374,27 @@ impl AssetContract {
                 "E_INVALID_ARGS: evidence_uri longer than 500 characters",
             );
         }
+        let expense = expense.map(|e| e.0).unwrap_or(0);
+        if expense > 0 {
+            require!(
+                t.kind.reimbursable(),
+                "E_NOT_REIMBURSABLE: only Restock and Repair tasks can claim an expense"
+            );
+            require!(
+                expense <= t.reimbursable_max.0,
+                "E_EXPENSE_CAP: expense above the rule's reimbursable_max"
+            );
+            require!(
+                receipt_hash.as_deref().map(is_sha256_hex).unwrap_or(false),
+                "E_INVALID_ARGS: an expense needs a hex sha256 receipt_hash"
+            );
+        }
         t.status = TaskStatus::Submitted;
         t.evidence_hash = Some(evidence_hash.clone());
         t.evidence_uri = evidence_uri.clone();
-        self.tasks.insert(task_id.0, t);
+        t.expense = U128(expense);
+        t.receipt_hash = if expense > 0 { receipt_hash } else { None };
+        self.tasks.insert(task_id.0, t.clone());
         self.emit(
             "task_submitted",
             json!({
@@ -304,6 +402,8 @@ impl AssetContract {
                 "claimer": caller,
                 "evidence_hash": evidence_hash,
                 "evidence_uri": evidence_uri,
+                "expense": t.expense,
+                "receipt_hash": t.receipt_hash,
             }),
         );
     }
@@ -332,8 +432,8 @@ impl AssetContract {
         );
     }
 
-    /// ROLE(verifier); not the claimer, agent or bridge. Rewards the task, or waits for
-    /// `council_approve_task` when the task needs council or is the claimer's first one.
+    /// ROLE(verifier); not the claimer, agent or bridge. Decides the expense path, then
+    /// rewards the task — or waits for `council_approve_task` when council is needed.
     pub fn approve_task(&mut self, task_id: U64) {
         let caller = env::predecessor_account_id();
         let mut t = self.get_task_or_panic(task_id.0);
@@ -344,33 +444,56 @@ impl AssetContract {
             "E_BAD_STATE: task is not awaiting verifier approval"
         );
         Self::assert_test_passed(&t);
+        let expense = t.expense.0;
+        if expense > 0 && t.expense_state == ExpenseState::None {
+            if expense > self.profile.auto_reward_cash_cap.0 {
+                t.expense_state = ExpenseState::NeedsEscalation;
+            } else if expense > self.profile.council_threshold_cash.0
+                || expense > self.ledger.float_free
+            {
+                t.needs_council = true;
+            } else {
+                self.reserve_expense(&mut t);
+            }
+        }
         let first_task = self.profile.first_task_needs_council
             && t.claimer
                 .as_ref()
                 .and_then(|c| self.reputation.get(c))
-                .map(|r| r.maintenances)
+                .map(|r| r.upkeeps)
                 .unwrap_or(0)
                 == 0;
         t.verifier = Some(caller.clone());
         if t.needs_council || first_task {
             t.needs_council = true;
-            self.tasks.insert(task_id.0, t);
+            self.tasks.insert(task_id.0, t.clone());
             self.emit(
                 "task_approved",
-                json!({ "task_id": task_id, "verifier": caller, "awaiting_council": true }),
+                json!({
+                    "task_id": task_id,
+                    "verifier": caller,
+                    "awaiting_council": true,
+                    "expense_state": t.expense_state,
+                }),
             );
             return;
         }
         t.status = TaskStatus::Approved;
-        self.tasks.insert(task_id.0, t);
+        self.tasks.insert(task_id.0, t.clone());
         self.emit(
             "task_approved",
-            json!({ "task_id": task_id, "verifier": caller, "awaiting_council": false }),
+            json!({
+                "task_id": task_id,
+                "verifier": caller,
+                "awaiting_council": false,
+                "expense_state": t.expense_state,
+            }),
         );
         self.start_reward(task_id.0);
     }
 
-    /// ROLE(council); not the claimer, the verifier, the agent or the bridge.
+    /// ROLE(council); not the claimer, the verifier, the agent or the bridge. Reserves a
+    /// pending expense from the float (`E_INSUFFICIENT_FLOAT` if short), then rewards.
     pub fn council_approve_task(&mut self, task_id: U64) {
         let caller = env::predecessor_account_id();
         let mut t = self.get_task_or_panic(task_id.0);
@@ -385,18 +508,25 @@ impl AssetContract {
             "E_BAD_STATE: task is not awaiting council approval"
         );
         Self::assert_test_passed(&t);
+        if t.expense.0 > 0 && t.expense_state == ExpenseState::None {
+            self.reserve_expense(&mut t);
+        }
         t.status = TaskStatus::Approved;
         t.council_approver = Some(caller.clone());
-        self.tasks.insert(task_id.0, t);
+        self.tasks.insert(task_id.0, t.clone());
         self.emit(
             "task_council_approved",
-            json!({ "task_id": task_id, "council_approver": caller }),
+            json!({
+                "task_id": task_id,
+                "council_approver": caller,
+                "expense_state": t.expense_state,
+            }),
         );
         self.start_reward(task_id.0);
     }
 
     /// ROLE(verifier) or ROLE(council); not the claimer. `Submitted` → `Rejected`; reserved cash
-    /// returns to the float and the rule can be reopened.
+    /// and expense return to the float and the rule can be reopened.
     pub fn reject_task(&mut self, task_id: U64, reason: String) {
         let caller = env::predecessor_account_id();
         let mut t = self.get_task_or_panic(task_id.0);
@@ -417,7 +547,7 @@ impl AssetContract {
             MAX_NOTE_LEN,
             "E_INVALID_ARGS: reason longer than 500 characters",
         );
-        self.release_task_reservations(&t);
+        self.release_task_reservations(&mut t);
         t.status = TaskStatus::Rejected;
         self.tasks.insert(task_id.0, t.clone());
         self.emit(
@@ -445,7 +575,7 @@ impl AssetContract {
             MAX_NOTE_LEN,
             "E_INVALID_ARGS: reason longer than 500 characters",
         );
-        self.release_task_reservations(&t);
+        self.release_task_reservations(&mut t);
         t.status = TaskStatus::Cancelled;
         self.tasks.insert(task_id.0, t.clone());
         self.emit(

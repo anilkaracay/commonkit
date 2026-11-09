@@ -145,6 +145,7 @@ impl AssetContract {
     /// (credential, right). Attach exactly `fee + deposit` (deposit only with a right).
     #[payable]
     pub fn reserve(&mut self, start_slot: U64, slots: u32, right_id: Option<TokenId>) -> U64 {
+        self.assert_in_service();
         let holder = env::predecessor_account_id();
         let attached = env::attached_deposit().as_yoctonear();
         let p = &self.profile;
@@ -304,7 +305,9 @@ impl AssetContract {
     }
 
     /// Holder. Only `Confirmed` and before the start slot. Fee is refunded (net of protocol fee)
-    /// when cancelling at least one slot length before start; the deposit always.
+    /// when cancelling at least one slot length before start; the deposit always. While the
+    /// asset is out of service any `Confirmed` reservation (the session cannot start) is
+    /// cancelled with a full fee and deposit refund (D-017).
     pub fn cancel_reservation(&mut self, id: U64) {
         let mut r = self.get_reservation_or_panic(id.0);
         require!(
@@ -317,8 +320,12 @@ impl AssetContract {
         );
         let now = Self::now();
         let start = self.start_ts(&r);
-        require!(now < start, "E_WINDOW_CLOSED: reservation already started");
-        let fee_refund = if now.saturating_add(self.slot_ns()) <= start {
+        let out_of_service = !self.service.in_service;
+        require!(
+            out_of_service || now < start,
+            "E_WINDOW_CLOSED: reservation already started"
+        );
+        let fee_refund = if out_of_service || now.saturating_add(self.slot_ns()) <= start {
             r.fee_paid.0 - r.protocol_fee.0
         } else {
             0
@@ -346,6 +353,7 @@ impl AssetContract {
                 "deposit_refunded": deposit.to_string(),
                 "refund_op_id": op_id.map(|o| o.to_string()),
                 "right_id": r.right_id,
+                "reason": if out_of_service { "out_of_service" } else { "holder" },
             }),
         );
     }
@@ -353,6 +361,7 @@ impl AssetContract {
     /// BRIDGE. `Confirmed` → `InSession`, only within `[start, start + start_window]`.
     pub fn mark_session_started(&mut self, id: U64) {
         self.assert_bridge();
+        self.assert_in_service();
         let mut r = self.get_reservation_or_panic(id.0);
         require!(
             r.status == ReservationStatus::Confirmed,
@@ -365,6 +374,7 @@ impl AssetContract {
         );
         r.status = ReservationStatus::InSession;
         r.session_started_at = Some(U64(now));
+        self.last_session_at.insert(r.holder.clone(), now);
         self.reservations.insert(id.0, r.clone());
         self.emit(
             "session_started",
@@ -390,6 +400,7 @@ impl AssetContract {
         }
         r.status = ReservationStatus::Finished;
         r.session_finished_at = Some(U64(Self::now()));
+        self.last_session_at.insert(r.holder.clone(), Self::now());
         r.metrics_delta = Some(delta.clone());
         self.reservations.insert(id.0, r.clone());
         if r.right_id.is_some() {

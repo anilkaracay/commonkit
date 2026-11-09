@@ -89,3 +89,44 @@ fn new_rejects_invalid_profile() {
     p.slot_minutes = 0;
     H::with_profile(p);
 }
+
+#[test]
+#[should_panic(expected = "E_INVALID_PROFILE")]
+fn validate_profile_rejects_reimbursable_on_cleaning() {
+    check(|p| p.rules[3].reimbursable_max = U128(1));
+}
+
+#[test]
+#[should_panic(expected = "E_INVALID_PROFILE")]
+fn validate_profile_rejects_zero_metric_threshold() {
+    check(|p| p.rules[0].trigger = metric("nozzle_seconds", 0));
+}
+
+#[test]
+#[should_panic(expected = "E_INVALID_PROFILE")]
+fn validate_profile_rejects_long_metric_name() {
+    check(|p| p.rules[0].trigger = metric(&"m".repeat(33), 1));
+}
+
+#[test]
+#[should_panic(expected = "E_INVALID_PROFILE")]
+fn validate_profile_rejects_zero_schedule() {
+    check(|p| p.rules[3].trigger = Trigger::Schedule { every_hours: 0 });
+}
+
+#[test]
+#[should_panic(expected = "E_INVALID_PROFILE")]
+fn validate_profile_rejects_zero_min_reports() {
+    check(|p| p.rules[4].trigger = Trigger::Report { min_reports: 0 });
+}
+
+#[test]
+fn profile_json_uses_serde_default_shapes() {
+    let v = serde_json::to_value(profile()).unwrap();
+    assert_eq!(v["rules"][2]["kind"], "Restock");
+    assert_eq!(v["rules"][0]["trigger"]["Metric"]["metric"], "nozzle_seconds");
+    assert_eq!(v["rules"][0]["trigger"]["Metric"]["threshold"], 1800);
+    assert_eq!(v["rules"][3]["trigger"]["Schedule"]["every_hours"], 168);
+    assert_eq!(v["rules"][4]["trigger"]["Report"]["min_reports"], 2);
+    assert_eq!(v["rules"][2]["reimbursable_max"], (3 * N).to_string());
+}

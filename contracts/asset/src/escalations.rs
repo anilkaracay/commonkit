@@ -16,7 +16,7 @@ use near_sdk::serde_json::{self, json, Value};
 use near_sdk::{env, near, require, AccountId, NearToken, Promise};
 
 use crate::ledger::{add, sub};
-use crate::types::{Escalation, EscalationStatus, OpKind};
+use crate::types::{Escalation, EscalationStatus, ExpenseState, OpKind};
 use crate::{
     check_len, promise_bytes, promise_succeeded, AssetContract, AssetContractExt, GAS_ADD_PROPOSAL,
     GAS_DAO_VIEW, GAS_ON_DAO_VIEW, GAS_ON_ESCALATION_SUBMITTED,
@@ -24,7 +24,8 @@ use crate::{
 
 pub const MAX_OPEN_ESCALATIONS: u32 = 3;
 pub const MAX_REASON_LEN: usize = 500;
-pub const ESCALATION_KINDS: [&str; 3] = ["purchase", "cash_reward", "other"];
+pub const ESCALATION_KINDS: [&str; 4] = ["purchase", "cash_reward", "reimbursement", "other"];
+pub const KIND_REIMBURSEMENT: &str = "reimbursement";
 const MAX_PROPOSAL_LEN: usize = 32 * 1024;
 const MAX_POLICY_LEN: usize = 64 * 1024;
 
@@ -55,6 +56,14 @@ impl AssetContract {
             .get(&id)
             .cloned()
             .unwrap_or_else(|| env::panic_str("E_NOT_FOUND: unknown escalation"))
+    }
+
+    /// Reimbursement escalations move the task's expense state (D-017).
+    fn set_expense_state(&mut self, task_id: Option<U64>, state: ExpenseState) {
+        if let Some(mut t) = task_id.and_then(|id| self.tasks.get(&id.0).cloned()) {
+            t.expense_state = state;
+            self.tasks.insert(t.id.0, t);
+        }
     }
 
     fn close_escalation(&mut self, mut e: Escalation, status: EscalationStatus) -> Escalation {
@@ -116,7 +125,7 @@ impl AssetContract {
         let (caller, _) = self.assert_agent_or_council();
         require!(
             ESCALATION_KINDS.contains(&kind.as_str()),
-            "E_INVALID_ARGS: kind must be purchase, cash_reward or other"
+            "E_INVALID_ARGS: kind must be purchase, cash_reward, reimbursement or other"
         );
         require!(amount.0 > 0, "E_WRONG_AMOUNT: amount must be > 0");
         require!(
@@ -130,6 +139,23 @@ impl AssetContract {
         );
         if let Some(t) = task_id {
             self.get_task_or_panic(t.0);
+        }
+        if kind == KIND_REIMBURSEMENT {
+            let t = self.get_task_or_panic(
+                task_id
+                    .unwrap_or_else(|| {
+                        env::panic_str("E_INVALID_ARGS: reimbursement needs task_id")
+                    })
+                    .0,
+            );
+            require!(
+                t.expense_state == ExpenseState::NeedsEscalation,
+                "E_BAD_STATE: task expense does not need an escalation"
+            );
+            require!(
+                t.claimer.as_ref() == Some(&receiver) && t.expense == amount,
+                "E_INVALID_ARGS: reimbursement must pay the claimer exactly the expense"
+            );
         }
         require!(
             self.open_escalations < MAX_OPEN_ESCALATIONS,
@@ -164,10 +190,18 @@ impl AssetContract {
             bond_lost: false,
             submission_time: None,
             dao_status: None,
-            created_at: U64(Self::now()),
+            submitted_at: U64(Self::now()),
         };
         self.escalations.insert(id, e.clone());
         self.open_escalations += 1;
+        if kind == KIND_REIMBURSEMENT {
+            self.set_expense_state(
+                task_id,
+                ExpenseState::Escalated {
+                    escalation_id: U64(id),
+                },
+            );
+        }
         self.emit(
             "escalation_created",
             json!({
@@ -219,6 +253,9 @@ impl AssetContract {
             self.close_escalation(e, EscalationStatus::Failed)
         } else {
             e.dao_status = Some("add_proposal failed".to_string());
+            if e.kind == KIND_REIMBURSEMENT {
+                self.set_expense_state(e.task_id, ExpenseState::NeedsEscalation);
+            }
             e.bond_settled = true;
             self.close_escalation(e, EscalationStatus::Failed)
         };

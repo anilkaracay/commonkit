@@ -6,6 +6,7 @@ use near_sdk::serde_json::json;
 use near_sdk::{env, near, require};
 
 use crate::profile::MAX_METRIC_NAME_LEN;
+use crate::types::Trigger;
 use crate::{AssetContract, AssetContractExt};
 
 pub const MAX_METRICS: usize = 16;
@@ -53,8 +54,10 @@ impl AssetContract {
         if reset {
             self.telemetry.reset_pending = false;
             for rule in self.profile.rules.clone() {
-                if decreased.contains(&rule.metric) {
-                    self.rule_baselines.insert(rule.rule_id.clone(), 0);
+                if let Trigger::Metric { metric, .. } = &rule.trigger {
+                    if decreased.contains(metric) {
+                        self.rule_baselines.insert(rule.rule_id.clone(), 0);
+                    }
                 }
             }
         }

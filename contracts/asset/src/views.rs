@@ -40,15 +40,21 @@ pub struct AccessCheck {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RuleStatus {
     pub rule_id: String,
-    pub metric: String,
-    pub value: u64,
-    pub baseline: u64,
-    pub delta: u64,
-    pub threshold: u64,
+    pub kind: UpkeepKind,
+    pub trigger: Trigger,
+    /// Metric: counter value; Schedule: hours since last reward; Report: active reports.
+    pub current: U64,
+    /// Metric: value at last reward; Schedule: timestamp (ns) of last reward; Report: 0.
+    pub baseline: U64,
+    /// Metric: delta since baseline; Schedule: hours since last; Report: active reports.
+    pub due_value: U64,
     pub due: bool,
+    /// Schedule only: timestamp (ns) at which the rule becomes due.
+    pub next_due_estimate: Option<U64>,
     pub open_task: Option<U64>,
     pub reward_rights: u32,
     pub reward_cash: U128,
+    pub reimbursable_max: U128,
 }
 
 #[near(serializers = [json])]
@@ -108,6 +114,7 @@ impl AssetContract {
             total_swept: U128(l.total_swept),
             total_refunded: U128(l.total_refunded),
             total_rewards_paid: U128(l.total_rewards_paid),
+            total_reimbursed: U128(l.total_reimbursed),
             total_bonds_paid: U128(l.total_bonds_paid),
             total_bonds_returned: U128(l.total_bonds_returned),
             total_bonds_lost: U128(l.total_bonds_lost),
@@ -168,7 +175,8 @@ impl AssetContract {
             .collect()
     }
 
-    /// What the bridge checks before unlocking: `Confirmed` within the start window, or
+    /// What the bridge checks before unlocking: asset in service, `Confirmed` within the start
+    /// window, or
     /// `InSession` before the reservation ends, and `holder == account`. A credential, if
     /// required, was checked by commons when the reservation was confirmed.
     pub fn can_access(&self, account: AccountId, reservation_id: U64) -> AccessCheck {
@@ -192,6 +200,9 @@ impl AssetContract {
         };
         if r.holder != account {
             return deny("not_holder", start, window_end);
+        }
+        if !self.service.in_service {
+            return deny("out_of_service", start, window_end);
         }
         match r.status {
             ReservationStatus::Confirmed => {
@@ -236,20 +247,20 @@ impl AssetContract {
             .rules
             .iter()
             .map(|rule| {
-                let value = self.telemetry.value(&rule.metric);
-                let baseline = self.rule_baselines.get(&rule.rule_id).copied().unwrap_or(0);
-                let delta = value.saturating_sub(baseline);
+                let d = self.rule_due(rule);
                 RuleStatus {
                     rule_id: rule.rule_id.clone(),
-                    metric: rule.metric.clone(),
-                    value,
-                    baseline,
-                    delta,
-                    threshold: rule.threshold,
-                    due: delta >= rule.threshold,
+                    kind: rule.kind,
+                    trigger: rule.trigger.clone(),
+                    current: U64(d.current),
+                    baseline: U64(d.baseline),
+                    due_value: U64(d.due_value),
+                    due: d.due,
+                    next_due_estimate: d.next_due.map(U64),
                     open_task: self.open_task_by_rule.get(&rule.rule_id).copied().map(U64),
                     reward_rights: rule.reward_rights,
                     reward_cash: rule.reward_cash,
+                    reimbursable_max: rule.reimbursable_max,
                 }
             })
             .collect()

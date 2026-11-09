@@ -20,6 +20,7 @@ pub mod profile;
 pub mod reputation;
 pub mod reservations;
 pub mod rewards;
+pub mod service;
 pub mod tasks;
 pub mod telemetry;
 pub mod types;
@@ -44,6 +45,9 @@ pub const NS_PER_MINUTE: u64 = 60_000_000_000;
 pub const NS_PER_HOUR: u64 = 60 * NS_PER_MINUTE;
 pub const NS_PER_DAY: u64 = 24 * NS_PER_HOUR;
 
+/// A fault reporter must have had a session within this window (D-017).
+pub const FAULT_REPORT_WINDOW: u64 = 14 * NS_PER_DAY;
+
 #[near(serializers = [borsh])]
 #[derive(BorshStorageKey)]
 pub enum StorageKey {
@@ -58,6 +62,9 @@ pub enum StorageKey {
     Ops,
     Reputation,
     ReputationLog,
+    Faults,
+    LastSessionAt,
+    ServiceLog,
 }
 
 #[near(contract_state)]
@@ -68,6 +75,8 @@ pub struct AssetContract {
     pub(crate) commons_id: AccountId,
     pub(crate) profile: Profile,
     pub(crate) profile_version: u32,
+    /// Block time of `new`; default baseline of Schedule rules.
+    pub(crate) created_at: u64,
 
     // operators (set by DAO)
     pub(crate) bridge_id: Option<AccountId>,
@@ -90,7 +99,14 @@ pub struct AssetContract {
     // maintenance
     pub(crate) next_task_id: u64,
     pub(crate) tasks: LookupMap<u64, Task>,
+    /// Metric: value at last reward. Schedule: timestamp of last reward (default `created_at`).
     pub(crate) rule_baselines: LookupMap<String, u64>,
+    /// Active fault reports of Report-trigger rules; cleared when the rule's task is Rewarded.
+    pub(crate) faults: LookupMap<String, Vec<FaultReport>>,
+    pub(crate) next_fault_seq: u64,
+    pub(crate) last_session_at: LookupMap<AccountId, u64>,
+    pub(crate) service: ServiceState,
+    pub(crate) service_log: Vector<OutOfServicePeriod>,
     pub(crate) open_task_by_rule: LookupMap<String, u64>,
     pub(crate) period: RewardPeriod,
 
@@ -122,6 +138,7 @@ impl AssetContract {
             commons_id,
             profile,
             profile_version: 1,
+            created_at: env::block_timestamp(),
             bridge_id: None,
             agent_id: None,
             roles: LookupMap::new(StorageKey::Roles),
@@ -135,6 +152,15 @@ impl AssetContract {
             next_task_id: 0,
             tasks: LookupMap::new(StorageKey::Tasks),
             rule_baselines: LookupMap::new(StorageKey::RuleBaselines),
+            faults: LookupMap::new(StorageKey::Faults),
+            next_fault_seq: 0,
+            last_session_at: LookupMap::new(StorageKey::LastSessionAt),
+            service: ServiceState {
+                in_service: true,
+                since: U64(env::block_timestamp()),
+                reason_hash: None,
+            },
+            service_log: Vector::new(StorageKey::ServiceLog),
             open_task_by_rule: LookupMap::new(StorageKey::OpenTaskByRule),
             period: RewardPeriod {
                 started_at: U64(env::block_timestamp()),
