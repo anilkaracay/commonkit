@@ -84,3 +84,15 @@ Decision: CLAUDE.md and .claude/ are gitignored; commit messages carry no AI tra
 ## D-016 — Node 24 locally, Node 22 in CI
 2026-11-09 · accepted
 Decision: engines `>=22`; CI pins Node 22 (spec); local machine runs Node 24.21.0. pnpm 12.16.1, Docker 29.8.1 available for reproducible cargo-near builds.
+
+## D-301 — commons↔asset interface details (`commonkit_types::commons_iface`)
+2026-11-09 · accepted
+Context: Spec §5 lists commons methods but not all arguments the asset needs; §7 requires `slots <= card.max_slots` for a right, which only commons can check synchronously.
+Decision: `authorize_reservation` takes an extra `slots: u32` and returns `AuthResult { ok, reason, credential_token_id, locked_right_id }`; a deactivated asset gets `ok=false` (not a panic). `mint_rights` derives the group from the registry (no `group` arg) and accepts `1..=10` cards per call. `release_right`/`finalize_right` return `bool` and are retry-safe (no-op when already in the target state). Shared NEP-297 helper `emit_event` uses `data: [<object>]`.
+Consequences: Asset builds calls from the `*Args` structs; gas constants `GAS_AUTHORIZE/GAS_MINT/...` live next to them until measured.
+
+## D-302 — Role pushes carry the full role snapshot
+2026-11-09 · accepted
+Context: Asset `sync_roles` ignores `version <= roles_version`. With per-account incremental pushes, a failed or reordered push would be silently skipped by a later version, leaving the asset with stale roles.
+Decision: Every push (`register_asset`, `set_roles`, `resync_roles`) sends the full snapshot of all accounts that ever held a role; removed accounts stay as tombstones with `[]`. Total role accounts are capped (`MAX_ROLE_ACCOUNTS = 100`).
+Consequences: Latest version always fully determines asset roles; payload grows with the community, bounded by the cap.
