@@ -1,0 +1,36 @@
+# secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+**/credentials/
+.near-credentials/
+**/*secret*
+evidence/private/
+submission/
+
+# build
+target/
+contracts/target/
+node_modules/
+dist/
+build/
+.turbo/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# runtime state
+bridge/state/
+agent/state/
+*.log
+
+# local
+.DS_Store
+.idea/
+.vscode/
+
+# AI-tool files are kept out of the repository (owner's standing rule)
+CLAUDE.md
+.claude/
