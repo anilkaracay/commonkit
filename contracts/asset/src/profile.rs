@@ -57,6 +57,10 @@ pub fn validate_profile(p: &Profile) {
         "E_INVALID_PROFILE: float_cap must be > 0"
     );
     require!(
+        p.price_per_slot.0.saturating_add(p.deposit_trusted.0) > 0,
+        "E_INVALID_PROFILE: price_per_slot + deposit_trusted must be > 0 (D-020)"
+    );
+    require!(
         p.deposit_trusted.0 <= p.deposit.0,
         "E_INVALID_PROFILE: deposit_trusted must be <= deposit"
     );

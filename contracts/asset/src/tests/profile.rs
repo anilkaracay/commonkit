@@ -133,3 +133,17 @@ fn profile_json_uses_serde_default_shapes() {
     assert_eq!(v["rules"][4]["trigger"]["Report"]["min_reports"], 2);
     assert_eq!(v["rules"][2]["reimbursable_max"], (3 * N).to_string());
 }
+
+#[test]
+#[should_panic(expected = "E_INVALID_PROFILE")]
+fn validate_profile_rejects_free_deposit_free_reservations() {
+    check(|p| {
+        p.price_per_slot = U128(0);
+        p.deposit_trusted = U128(0);
+    });
+}
+
+#[test]
+fn validate_profile_accepts_free_slots_with_deposit() {
+    check(|p| p.price_per_slot = U128(0));
+}

@@ -143,7 +143,7 @@ pub struct UpkeepRule {
 
 JSON shape (near-sdk serde defaults): `"kind": "Restock"`, `"trigger": {"Metric": {"metric": "filament_used_mm", "threshold": 330000}}`, `{"Schedule": {"every_hours": 168}}`, `{"Report": {"min_reports": 1}}`.
 
-Profile validation (`validate_profile`): rules unique ids, `reward_cash <= auto_reward_cash_cap`, `reimbursable_max == 0` unless kind is `Restock` or `Repair`, `deposit_trusted <= deposit`, `protocol_fee_bps <= MAX`, `slot_minutes > 0`, `float_cap > 0`, trigger bounds (`Metric.threshold > 0` and metric id ≤ 32 chars; `Schedule.every_hours > 0`; `Report.min_reports >= 1`), non-empty strings bounded (≤ 64 chars ids, ≤ 200 titles). (`reimbursable_max` may exceed `auto_reward_cash_cap`; such expenses are paid through the DAO, see §3.3 reward procedure.)
+Profile validation (`validate_profile`): rules unique ids, `reward_cash <= auto_reward_cash_cap`, `reimbursable_max == 0` unless kind is `Restock` or `Repair`, `deposit_trusted <= deposit`, `price_per_slot + deposit_trusted > 0` (no free deposit-free reservations, D-020), `protocol_fee_bps <= MAX`, `slot_minutes > 0`, `float_cap > 0`, trigger bounds (`Metric.threshold > 0` and metric id ≤ 32 chars; `Schedule.every_hours > 0`; `Report.min_reports >= 1`), non-empty strings bounded (≤ 64 chars ids, ≤ 200 titles). (`reimbursable_max` may exceed `auto_reward_cash_cap`; such expenses are paid through the DAO, see §3.3 reward procedure.)
 
 ### 2.2 Ledger
 
