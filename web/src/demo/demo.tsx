@@ -1,12 +1,14 @@
 /**
  * Demo mode (FRONTEND_SPEC §5): `?demo=1` hides wallet chrome, enlarges key numbers and shows a
- * "step n/18" overlay driven by the evidence file. `?step=n` picks the step; `[` and `]` move it.
+ * "step n/21" overlay driven by the evidence file. `?step=n` picks the step; `[` and `]` move it.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { useEvidence } from '../data/hooks';
 
-export const TOTAL_STEPS = 18;
+import { JUDGE_FLOW_STEPS as TOTAL_STEPS } from './flow';
+
+export { TOTAL_STEPS };
 
 interface DemoState {
   enabled: boolean;

@@ -81,7 +81,7 @@ describe('every route renders with the mock source', () => {
 
   it('demo mode shows the step overlay and hides wallet chrome', async () => {
     renderAt('/?demo=1&step=7');
-    expect(await screen.findByText('STEP 7/18')).toBeInTheDocument();
+    expect(await screen.findByText('STEP 7/21')).toBeInTheDocument();
     expect(screen.queryByText('Connect wallet')).toBeNull();
   });
 });

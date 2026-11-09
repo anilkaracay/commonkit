@@ -600,6 +600,9 @@ const STEP_TITLES = [
   'simulate.sh washer in dorm-b (SIMULATED)',
   'Agent limits: not due, duplicate, quota, revoked',
   'Double reward, self-approve, revoke attempts fail',
+  'Printer restock: expense cap, receipt, reimbursement',
+  'Washer fault: report, out of service, repair (SIMULATED)',
+  'Fridge weekly cleaning on a schedule (SIMULATED)',
   './scripts/verify.sh',
 ];
 

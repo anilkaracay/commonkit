@@ -1,11 +1,12 @@
 /**
- * The checks of scripts/verify.sh, computed live in the browser from the same sources:
- * 1–9 from docs/TEST_PLAN.md §6, 10–11 added by D-017 (reimbursement caps, out-of-service
- * periods). Order, numbering and pass/fail rules must stay one-to-one with verify.sh.
+ * The eleven checks of scripts/verify.sh (docs/TEST_PLAN.md §6), computed live in the browser
+ * from the same sources. Order, numbering and pass/fail rules stay one-to-one with verify.sh.
  */
 import type { DataSource } from '../data/source';
 import type { Card, Task } from '../data/types';
 import { formatNearUnit, toYocto } from '../lib/near';
+import { formatDateTime } from '../lib/time';
+import { JUDGE_FLOW_STEPS as EXPECTED_STEPS } from '../demo/flow';
 
 export type CheckStatus = 'pass' | 'fail' | 'warn';
 
@@ -29,7 +30,6 @@ export interface ProofCheck {
 const statusOf = (items: ProofItem[], warnIfEmpty = false): CheckStatus =>
   items.length === 0 ? (warnIfEmpty ? 'warn' : 'pass') : items.every((i) => i.ok) ? 'pass' : 'fail';
 
-const EXPECTED_STEPS = 18;
 
 export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
   const dep = await ds.getDeployment();
@@ -163,34 +163,32 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
   }
   checks.push({ id: 8, title: 'Every escalation is a real DAO proposal', status: statusOf(escItems), summary: `${escItems.filter((i) => i.ok).length}/${escItems.length} proposals resolve via get_proposal`, items: escItems });
 
-  // 9. evidence
-  const steps = await ds.getEvidenceSteps();
-  const stepItems: ProofItem[] = Array.from({ length: EXPECTED_STEPS }, (_, i) => {
-    const s = steps.find((x) => x.step === i + 1);
-    const tx = s?.txHashes[0];
-    return { label: `step ${i + 1}${s ? ` · ${s.title}` : ''}`, value: s ? `${s.txHashes.length} tx` : 'missing', ok: !!s && s.txHashes.length > 0, ...(tx ? { tx } : {}) };
-  });
-  checks.push({ id: 9, title: `Evidence has ${EXPECTED_STEPS} steps with tx hashes`, status: statusOf(stepItems), summary: `${stepItems.filter((i) => i.ok).length}/${EXPECTED_STEPS} steps recorded`, items: stepItems });
-
-  // 10. reimbursements (D-017)
+  // 9. reimbursements (D-017): every Reimbursement op within its rule's cap, on a Restock/Repair task with a receipt
   const reimbItems: ProofItem[] = [];
   for (const { a, profile, tasks, ops } of assetData) {
-    for (const t of tasks.filter((x) => toYocto(x.expense) > 0n)) {
-      const rule = profile.rules.find((r) => r.rule_id === t.rule_id);
+    for (const op of ops.filter((o) => o.kind === 'Reimbursement')) {
+      const t = tasks.find((x) => x.id === op.ref_id);
+      const rule = t ? profile.rules.find((r) => r.rule_id === t.rule_id) : undefined;
       const cap = rule ? toYocto(rule.reimbursable_max) : 0n;
-      const paid = ops.filter((o) => o.kind === 'Reimbursement' && o.ref_id === t.id && o.status === 'Succeeded').reduce((s, o) => s + toYocto(o.amount), 0n);
-      const ok = (t.kind === 'Restock' || t.kind === 'Repair') && toYocto(t.expense) <= cap && paid <= toYocto(t.expense);
-      reimbItems.push({ label: `${a.alias} task #${t.id} (${t.kind})`, value: `expense ${formatNearUnit(t.expense)} ≤ cap ${formatNearUnit(cap)} · paid ${formatNearUnit(paid)}`, ok, account: a.asset_id });
+      const ok = !!t && (t.kind === 'Restock' || t.kind === 'Repair') && !!t.receipt_hash && toYocto(op.amount) <= cap;
+      reimbItems.push({
+        label: `${a.alias} op #${op.id} → task #${op.ref_id ?? '—'}${t ? ` (${t.kind})` : ''}`,
+        value: `${formatNearUnit(op.amount)} ≤ reimbursable_max ${formatNearUnit(cap)}${t?.receipt_hash ? ' · receipt' : ' · no receipt'}`,
+        ok,
+        account: a.asset_id,
+      });
     }
   }
-  checks.push({ id: 10, title: 'Reimbursements stay within their caps', status: statusOf(reimbItems), summary: `${reimbItems.length} expense claim(s), only on Restock/Repair, each ≤ reimbursable_max, never paid twice`, items: reimbItems });
+  checks.push({ id: 9, title: 'Reimbursements stay within their caps', status: statusOf(reimbItems), summary: `${reimbItems.length} Reimbursement op(s), each on a Restock/Repair task with a receipt and ≤ reimbursable_max`, items: reimbItems });
 
-  // 11. out-of-service periods (D-017)
+  // 10. out-of-service periods (D-017)
   const oosItems: ProofItem[] = [];
   for (const { a, tasks, serviceLog } of assetData) {
+    const service = await ds.asset(a.asset_id).get_service_status();
     for (const p of serviceLog) {
       if (!p.ended_by) {
-        oosItems.push({ label: `${a.alias} period #${p.seq}`, value: 'still out of service', ok: true, account: a.asset_id });
+        // An open period is not a failure, but it must match the live service status.
+        oosItems.push({ label: `${a.alias} period #${p.seq}`, value: `open since ${formatDateTime(p.started_at)}`, ok: !service.in_service, account: a.asset_id });
         continue;
       }
       if ('RepairRewarded' in p.ended_by) {
@@ -200,11 +198,21 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
       } else {
         const who = p.ended_by.Council.account;
         const roles = await ds.asset(a.asset_id).get_roles(who);
-        oosItems.push({ label: `${a.alias} period #${p.seq}`, value: `ended by council member ${who}`, ok: roles.includes('council'), account: a.asset_id });
+        const isDao = who === wirings.find((_, i) => dep.assets[i]?.asset_id === a.asset_id)?.dao_id;
+        oosItems.push({ label: `${a.alias} period #${p.seq}`, value: `ended by ${isDao ? 'the DAO' : `council member ${who}`}`, ok: isDao || roles.includes('council'), account: a.asset_id });
       }
     }
   }
-  checks.push({ id: 11, title: 'Every out-of-service period ended properly', status: statusOf(oosItems), summary: 'closed only by a rewarded Repair task or a council member', items: oosItems });
+  checks.push({ id: 10, title: 'Every out-of-service period ended properly', status: statusOf(oosItems), summary: 'closed only by a rewarded Repair task or a council member', items: oosItems });
+
+  // 9. evidence
+  const steps = await ds.getEvidenceSteps();
+  const stepItems: ProofItem[] = Array.from({ length: EXPECTED_STEPS }, (_, i) => {
+    const s = steps.find((x) => x.step === i + 1);
+    const tx = s?.txHashes[0];
+    return { label: `step ${i + 1}${s ? ` · ${s.title}` : ''}`, value: s ? `${s.txHashes.length} tx` : 'missing', ok: !!s && s.txHashes.length > 0, ...(tx ? { tx } : {}) };
+  });
+  checks.push({ id: 11, title: `Evidence has ${EXPECTED_STEPS} steps with tx hashes`, status: statusOf(stepItems), summary: `${stepItems.filter((i) => i.ok).length}/${EXPECTED_STEPS} steps recorded`, items: stepItems });
 
   return checks;
 }

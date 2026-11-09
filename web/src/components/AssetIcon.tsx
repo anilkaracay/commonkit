@@ -8,6 +8,10 @@ const paths: Record<string, string> = {
   gpu_server: 'M3 5h18v6H3zM3 13h18v6H3zM7 8h.01M7 16h.01M11 8h6M11 16h6',
   tractor: 'M7 18a3 3 0 1 0 0-.01M18 18a2 2 0 1 0 0-.01M4 15V9h7l2 5h7v3M11 9V5h-4v4M14 14V8h3',
   microscope: 'M6 21h12M9 21v-3h6M10 3l4 2-4 8-4-2zM12 10a5 5 0 0 1 4 8M8 16h4',
+  community_fridge: 'M6 2h12v20H6zM6 10h12M9 5v2M9 13v3',
+  tool_library_ladder: 'M7 2 4 22M17 2l3 20M6.4 7h11.2M5.7 12h12.6M5 17h14',
+  rehearsal_room: 'M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z',
+  emergency_generator: 'M3 7h18v12H3zM7 19v2M17 19v2M13 9l-3 5h4l-3 5M3 11h3M18 11h3',
 };
 
 export function AssetIcon({ type, size = 28, className = '' }: { type: string; size?: number; className?: string }) {

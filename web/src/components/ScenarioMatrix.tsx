@@ -24,15 +24,23 @@ export function ScenarioMatrix({ catalog }: { catalog: CatalogEntry[] }) {
     }
   }
   return (
-    <div className="space-y-5">
+    <div className="space-y-2">
       {[...byKind].map(([kind, rows]) => (
-        <div key={kind}>
-          <h3 className="mb-2 flex items-center gap-2 text-base font-bold">
+        <details key={kind} className="group tag overflow-hidden">
+          <summary className="flex cursor-pointer list-none items-center gap-2 p-3 [&::-webkit-details-marker]:hidden">
             <KindIcon kind={kind} size={16} />
-            {KIND_LABEL[kind]}
-            <span className="text-xs font-normal text-ink-3">{rows.length} profile{rows.length === 1 ? '' : 's'}</span>
-          </h3>
-          <div className="tag overflow-hidden">
+            <h3 className="text-base font-bold">{KIND_LABEL[kind]}</h3>
+            <span className="text-xs text-ink-3">{rows.length} profile{rows.length === 1 ? '' : 's'}</span>
+            <span className="ml-auto flex min-w-0 items-center gap-1 overflow-hidden text-ink-2">
+              {rows.map(({ entry }) => (
+                <span key={entry.file} title={entry.meta.display_name} className={entry.meta.status.startsWith('simulation') ? 'text-sim' : ''}>
+                  <AssetIcon type={entry.profile.asset_type} size={16} />
+                </span>
+              ))}
+            </span>
+            <span aria-hidden className="text-ink-3 transition-transform group-open:rotate-90">›</span>
+          </summary>
+          <div className="border-t border-line">
             <table className="w-full table-fixed text-sm">
               <thead className="hidden sm:table-header-group">
                 <tr className="text-left text-xs text-ink-3">
@@ -66,7 +74,7 @@ export function ScenarioMatrix({ catalog }: { catalog: CatalogEntry[] }) {
               </tbody>
             </table>
           </div>
-        </div>
+        </details>
       ))}
     </div>
   );
