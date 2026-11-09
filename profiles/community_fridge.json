@@ -44,8 +44,8 @@
         "kind": "Inspection",
         "trigger": {
           "Metric": {
-            "metric": "minutes_above_8c",
-            "threshold": 60
+            "metric": "temp_high_samples",
+            "threshold": 6
           }
         },
         "title": "Check the seal and thermostat after a temperature excursion",

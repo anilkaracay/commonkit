@@ -44,8 +44,8 @@
         "kind": "Restock",
         "trigger": {
           "Metric": {
-            "metric": "fuel_used_l",
-            "threshold": 20
+            "metric": "fuel_used_dl",
+            "threshold": 200
           }
         },
         "title": "Refill fuel (receipt for reimbursement)",
