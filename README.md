@@ -5,6 +5,8 @@
 Fix it, refill it, clean it, check it, teach it — every kind of care that keeps a shared thing alive earns access to it.
 
 > Today a shared machine's money and rules live in one admin's spreadsheet. On COMMONKIT they live in the machine's own keyless NEAR account: no one can drain it, and no one can take back what you earned.
+>
+> *Precisely:* no method deletes, downgrades or transfers a usage-right card once granted. The DAO can still make a card unusable in practice — by deactivating the asset, moving it to another group, or adding a credential requirement — and that limit is listed under "Security model and honest limits".
 
 Built at NEAR HACKATHON 2026 · Track: **Social Money** · Testnet only.
 
