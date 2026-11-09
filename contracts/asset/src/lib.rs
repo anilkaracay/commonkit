@@ -33,9 +33,20 @@ use ledger::Ledger;
 use types::*;
 
 /// Gas for our own callbacks (spec §8). Starting values; measured values go to DECISIONS.
-pub const GAS_ON_AUTHORIZED: Gas = Gas::from_tgas(50);
-pub const GAS_ON_OP_RESULT: Gas = Gas::from_tgas(15);
-pub const GAS_ON_MINTED: Gas = Gas::from_tgas(30);
+/// `on_op_result` may finish a reward (events, reputation, service restore).
+pub const GAS_ON_OP_RESULT: Gas = Gas::from_tgas(25);
+/// `on_authorized` may create two ops (refund + right release, or protocol fee + sweep).
+pub const GAS_ON_AUTHORIZED: Gas = Gas::from_tgas(2 * 25 + 25);
+/// `on_rights_minted` may create two ops (cash + reimbursement): 2 × GAS_ON_OP_RESULT + 20.
+pub const GAS_ON_MINTED: Gas = Gas::from_tgas(2 * 25 + 20);
+/// Prepaid gas required by methods that start a reward (mint + callback + own work).
+pub const MIN_GAS_REWARD: Gas = Gas::from_tgas(30 + 70 + 25);
+/// A mint that has not called back after this long may be retried (mint is idempotent).
+pub const REWARD_RETRY_AFTER: u64 = 10 * NS_PER_MINUTE;
+/// Minimum deposit for a reservation that uses a right (storage anti-spam, verifier #1).
+pub const MIN_RESERVATION_STORAGE_DEPOSIT: u128 = 10_000_000_000_000_000_000_000;
+/// After a reservation's end plus this grace the DAO may force-close a stuck session.
+pub const FORCE_CLOSE_GRACE: u64 = NS_PER_HOUR;
 pub const GAS_ADD_PROPOSAL: Gas = Gas::from_tgas(30);
 pub const GAS_ON_ESCALATION_SUBMITTED: Gas = Gas::from_tgas(15);
 pub const GAS_DAO_VIEW: Gas = Gas::from_tgas(15);
@@ -253,6 +264,14 @@ impl AssetContract {
 
     pub(crate) fn now() -> u64 {
         env::block_timestamp()
+    }
+
+    /// Requires enough prepaid gas for a reward to complete (verifier #2).
+    pub(crate) fn assert_reward_gas() {
+        require!(
+            env::prepaid_gas() >= MIN_GAS_REWARD,
+            "E_INVALID_ARGS: attach at least 125 Tgas to start a reward"
+        );
     }
 
     pub(crate) fn emit(&self, event: &str, data: Value) {

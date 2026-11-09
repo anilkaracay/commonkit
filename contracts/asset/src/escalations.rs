@@ -16,7 +16,7 @@ use near_sdk::serde_json::{self, json, Value};
 use near_sdk::{env, near, require, AccountId, NearToken, Promise};
 
 use crate::ledger::{add, sub};
-use crate::types::{Escalation, EscalationStatus, ExpenseState, OpKind};
+use crate::types::{Escalation, EscalationStatus, ExpenseState, OpKind, TaskStatus};
 use crate::{
     check_len, promise_bytes, promise_succeeded, AssetContract, AssetContractExt, GAS_ADD_PROPOSAL,
     GAS_DAO_VIEW, GAS_ON_DAO_VIEW, GAS_ON_ESCALATION_SUBMITTED,
@@ -64,6 +64,45 @@ impl AssetContract {
             t.expense_state = state;
             self.tasks.insert(t.id.0, t);
         }
+    }
+
+    /// Reimbursement escalations decide the task's expense (verifier #4): Approved → Paid,
+    /// Rejected by vote → Denied (terminal), Expired / Failed / Moved / Removed →
+    /// NeedsEscalation (can be escalated again). Only the escalation the task points to counts.
+    fn propagate_expense(&mut self, e: &Escalation, dao_status: &str) {
+        if e.kind != KIND_REIMBURSEMENT {
+            return;
+        }
+        let Some(mut t) = e.task_id.and_then(|id| self.tasks.get(&id.0).cloned()) else {
+            return;
+        };
+        if t.expense_state
+            != (ExpenseState::Escalated {
+                escalation_id: e.id,
+            })
+        {
+            return;
+        }
+        let next = match e.status {
+            EscalationStatus::Approved => ExpenseState::Paid,
+            EscalationStatus::Rejected if dao_status != "Removed" => ExpenseState::Denied,
+            EscalationStatus::Rejected | EscalationStatus::Expired | EscalationStatus::Failed => {
+                ExpenseState::NeedsEscalation
+            }
+            _ => return,
+        };
+        t.expense_state = next.clone();
+        self.tasks.insert(t.id.0, t.clone());
+        self.emit(
+            "expense_state_changed",
+            json!({
+                "task_id": t.id,
+                "escalation_id": e.id,
+                "expense_state": next,
+                "dao_status": dao_status,
+                "reason": format!("DAO proposal {dao_status}"),
+            }),
+        );
     }
 
     fn close_escalation(&mut self, mut e: Escalation, status: EscalationStatus) -> Escalation {
@@ -147,6 +186,10 @@ impl AssetContract {
                         env::panic_str("E_INVALID_ARGS: reimbursement needs task_id")
                     })
                     .0,
+            );
+            require!(
+                matches!(t.status, TaskStatus::Approved | TaskStatus::Rewarded),
+                "E_BAD_STATE: task is not approved"
             );
             require!(
                 t.expense_state == ExpenseState::NeedsEscalation,
@@ -357,13 +400,19 @@ impl AssetContract {
                 l.float_free = add(l.float_free, bond, "float_free");
                 l.total_bonds_returned = add(l.total_bonds_returned, bond, "total");
             }
-            if status == "Moved" {
-                env::log_str("on_escalation_synced: proposal Moved, mapped to Failed");
+            if matches!(status.as_str(), "Failed" | "Moved") {
+                // Sputnik keeps the bond while Failed; settle it as spent. A later refund or
+                // policy difference arrives as untracked balance and is reconciled (D-204).
+                e.bond_settled = true;
+                let l = &mut self.ledger;
+                l.bonds_outstanding = sub(l.bonds_outstanding, bond, "bonds_outstanding");
+                l.total_bonds_lost = add(l.total_bonds_lost, bond, "total");
             }
             (status, mapped)
         };
         e.dao_status = Some(dao_status.clone());
         let e = self.close_escalation(e, mapped);
+        self.propagate_expense(&e, &dao_status);
         self.emit(
             "escalation_synced",
             json!({

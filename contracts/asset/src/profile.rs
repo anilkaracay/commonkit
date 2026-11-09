@@ -11,6 +11,8 @@ pub const MAX_ID_LEN: usize = 64;
 pub const MAX_TITLE_LEN: usize = 200;
 pub const MAX_METRIC_NAME_LEN: usize = 32;
 pub const MAX_RULES: usize = 16;
+/// Same bound as commons (`MAX_VALIDITY_DAYS`).
+pub const MAX_VALIDITY_DAYS: u32 = 3650;
 
 fn check_id(value: &str, max: usize) {
     require!(
@@ -67,6 +69,10 @@ pub fn validate_profile(p: &Profile) {
     require!(
         p.period_days > 0,
         "E_INVALID_PROFILE: period_days must be > 0"
+    );
+    require!(
+        p.right_validity_days <= MAX_VALIDITY_DAYS,
+        "E_INVALID_PROFILE: right_validity_days above 3650"
     );
     require!(
         p.right_max_slots > 0,

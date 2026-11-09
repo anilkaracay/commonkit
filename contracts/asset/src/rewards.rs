@@ -19,7 +19,9 @@ use crate::reputation::REP_UPKEEP;
 use crate::types::{
     ExpenseState, OpKind, OpStatus, RewardState, ServiceRestoredBy, TaskStatus, Trigger, UpkeepKind,
 };
-use crate::{promise_bytes, AssetContract, AssetContractExt, GAS_ON_MINTED, NS_PER_DAY};
+use crate::{
+    promise_bytes, AssetContract, AssetContractExt, GAS_ON_MINTED, NS_PER_DAY, REWARD_RETRY_AFTER,
+};
 
 const MAX_MINT_RESULT_LEN: usize = 8192;
 
@@ -66,6 +68,7 @@ impl AssetContract {
             .clone()
             .unwrap_or_else(|| env::panic_str("E_BAD_STATE: task has no claimer"));
         t.reward_state = RewardState::RightsPending;
+        t.reward_started_at = Some(U64(Self::now()));
         let args = MintRightsArgs {
             holder,
             count: t.reward_rights,
@@ -273,16 +276,22 @@ impl AssetContract {
         }
     }
 
-    /// ANY. Restarts a reward whose rights mint failed. (Failed cash or reimbursement
-    /// transfers are retried with `retry_op`.)
+    /// ANY. Restarts a reward whose rights mint failed, or whose mint has not called back for
+    /// `REWARD_RETRY_AFTER` (the callback ran out of gas; mint is idempotent). Failed cash or
+    /// reimbursement transfers are retried with `retry_op`.
     pub fn retry_reward(&mut self, task_id: U64) {
         let t = self.get_task_or_panic(task_id.0);
         require!(
             t.status == TaskStatus::Approved,
             "E_ALREADY_REWARDED: task is not in the reward flow"
         );
+        Self::assert_reward_gas();
+        let stuck = t.reward_state == RewardState::RightsPending
+            && t.reward_started_at
+                .map(|at| Self::now() >= at.0.saturating_add(REWARD_RETRY_AFTER))
+                .unwrap_or(false);
         require!(
-            matches!(t.reward_state, RewardState::Failed { .. }),
+            matches!(t.reward_state, RewardState::Failed { .. }) || stuck,
             "E_BAD_STATE: reward has not failed"
         );
         self.mint_step(task_id.0);

@@ -177,3 +177,29 @@ fn sync_roles_rejects_oversized_snapshot() {
         .collect();
     h.call(&commons(), 0, |c| c.sync_roles(updates, U64(1)));
 }
+
+#[test]
+fn set_profile_resets_baseline_when_trigger_kind_changes() {
+    let mut h = H::wired(0);
+    h.telemetry(&[("nozzle_seconds", 5000)]);
+    h.c.rule_baselines.insert("nozzle_clean".to_string(), 100);
+    h.c.rule_baselines.insert("bed_level".to_string(), 7);
+    h.now += HOUR;
+    let mut p = profile();
+    p.rules[0].trigger = Trigger::Schedule { every_hours: 24 };
+    p.rules[1].trigger = metric("jobs_total", 99); // same metric: baseline kept
+    h.call(&dao(), 0, |c| c.set_profile(p));
+    assert_eq!(h.c.rule_baselines.get("nozzle_clean"), Some(&h.now));
+    assert_eq!(h.c.rule_baselines.get("bed_level"), Some(&7));
+}
+
+#[test]
+fn set_profile_resets_baseline_when_metric_changes() {
+    let mut h = H::wired(0);
+    h.telemetry(&[("nozzle_seconds", 5000), ("hotend_seconds", 42)]);
+    h.c.rule_baselines.insert("nozzle_clean".to_string(), 100);
+    let mut p = profile();
+    p.rules[0].trigger = metric("hotend_seconds", 10);
+    h.call(&dao(), 0, |c| c.set_profile(p));
+    assert_eq!(h.c.rule_baselines.get("nozzle_clean"), Some(&42));
+}

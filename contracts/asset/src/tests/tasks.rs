@@ -681,3 +681,132 @@ fn reject_task_releases_reserved_expense() {
     assert_eq!(h.c.ledger.float_free, N);
     assert_eq!(h.c.ledger.rewards_reserved, 0);
 }
+
+// ---- verifier fixes (D-213) ----
+
+#[test]
+#[should_panic(expected = "E_INVALID_ARGS")]
+fn approve_task_requires_reward_gas() {
+    let mut h = due_printer(N);
+    let t = h.submitted("bed_level", 0);
+    h.gas_tgas = 100;
+    h.call(&verifier(), 0, |c| c.approve_task(U64(t)));
+}
+
+#[test]
+#[should_panic(expected = "E_INVALID_ARGS")]
+fn council_approve_task_requires_reward_gas() {
+    let mut h = due_printer(N);
+    h.c.profile.first_task_needs_council = true;
+    let t = h.submitted("bed_level", 0);
+    h.call(&verifier(), 0, |c| c.approve_task(U64(t)));
+    h.gas_tgas = 100;
+    h.call(&council(), 0, |c| c.council_approve_task(U64(t)));
+}
+
+#[test]
+#[should_panic(expected = "E_BAD_STATE")]
+fn submit_verification_result_rejects_after_verifier_approval() {
+    let mut h = due_printer(N);
+    h.c.profile.first_task_needs_council = true;
+    let t = h.submitted("bed_level", 0);
+    h.call(&verifier(), 0, |c| c.approve_task(U64(t)));
+    h.pass_test(t);
+}
+
+#[test]
+fn cancel_task_false_alarm_resets_baseline_and_faults() {
+    let mut h = due_printer(0);
+    let t = h.open("nozzle_clean");
+    h.call(&council(), 0, |c| {
+        c.cancel_task(U64(t), "sensor glitch".to_string())
+    });
+    assert_eq!(h.c.rule_baselines.get("nozzle_clean"), Some(&2000));
+    let again = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| h.open("nozzle_clean")));
+    assert!(again.is_err(), "not due again right after a false alarm");
+    // Report rule: faults cleared
+    h.session(&bob());
+    h.session(&alice());
+    for who in [alice(), bob()] {
+        h.call(&who, 0, |c| c.report_fault(None, HASH.to_string()));
+    }
+    let t = h.open("fault_repair");
+    h.call(&dao(), 0, |c| {
+        c.cancel_task(U64(t), "duplicate".to_string())
+    });
+    assert!(h.c.faults.get("fault_repair").is_none());
+}
+
+#[test]
+fn reject_task_keeps_baseline() {
+    let mut h = due_printer(0);
+    let t = h.submitted("filament_spool", 0);
+    h.call(&verifier(), 0, |c| {
+        c.reject_task(U64(t), "no spool".to_string())
+    });
+    assert!(h.c.rule_baselines.get("filament_spool").is_none());
+    h.open("filament_spool");
+}
+
+#[test]
+fn reject_task_resets_needs_escalation() {
+    let mut h = due_printer(3 * N);
+    h.c.profile.first_task_needs_council = true;
+    let t = h.submitted("filament_spool", 2 * N);
+    h.call(&verifier(), 0, |c| c.approve_task(U64(t)));
+    assert_eq!(h.task(t).expense_state, ExpenseState::NeedsEscalation);
+    assert_eq!(h.task(t).status, TaskStatus::Submitted);
+    h.c.dao_proposal_bond = Some(N);
+    let early = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        h.call(&agent(), 0, |c| {
+            c.escalate(
+                "reimbursement".to_string(),
+                alice(),
+                U128(2 * N),
+                "x".to_string(),
+                Some(U64(t)),
+            )
+        })
+    }));
+    assert!(early.is_err(), "escalation needs an approved task");
+    h.call(&council(), 0, |c| {
+        c.reject_task(U64(t), "no receipt".to_string())
+    });
+    assert_eq!(h.task(t).expense_state, ExpenseState::None);
+}
+
+#[test]
+fn close_failed_reward_releases_reservations() {
+    let mut h = due_printer(N);
+    let t = h.submitted("bed_level", 0);
+    h.call(&verifier(), 0, |c| c.approve_task(U64(t)));
+    h.callback(PromiseResult::Failed, |c| c.on_rights_minted(U64(t)));
+    h.call(&dao(), 0, |c| {
+        c.close_failed_reward(U64(t), "asset left commons".to_string())
+    });
+    assert_eq!(h.task(t).status, TaskStatus::Cancelled);
+    assert_eq!(h.c.ledger.rewards_reserved, 0);
+    assert_eq!(h.c.ledger.float_free, N);
+    assert_eq!(h.c.period.rights_reserved, 0);
+    assert!(h.c.open_task_by_rule.get("bed_level").is_none());
+}
+
+#[test]
+#[should_panic(expected = "E_BAD_STATE")]
+fn close_failed_reward_rejects_pending_reward() {
+    let mut h = due_printer(N);
+    let t = h.submitted("bed_level", 0);
+    h.call(&verifier(), 0, |c| c.approve_task(U64(t)));
+    h.call(&dao(), 0, |c| {
+        c.close_failed_reward(U64(t), "x".to_string())
+    });
+}
+
+#[test]
+#[should_panic(expected = "E_NOT_DAO")]
+fn close_failed_reward_rejects_non_dao() {
+    let mut h = due_printer(N);
+    h.call(&council(), 0, |c| {
+        c.close_failed_reward(U64(0), "x".to_string())
+    });
+}

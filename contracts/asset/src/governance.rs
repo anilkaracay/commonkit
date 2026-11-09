@@ -7,8 +7,18 @@ use near_sdk::serde_json::json;
 use near_sdk::{env, near, require, AccountId};
 
 use crate::profile::validate_profile;
-use crate::types::Profile;
+use crate::types::{Profile, Trigger};
 use crate::{AssetContract, AssetContractExt};
+
+/// Same trigger kind and, for Metric, the same metric: the stored baseline stays meaningful.
+fn same_trigger_basis(a: &Trigger, b: &Trigger) -> bool {
+    match (a, b) {
+        (Trigger::Metric { metric: m1, .. }, Trigger::Metric { metric: m2, .. }) => m1 == m2,
+        (Trigger::Schedule { .. }, Trigger::Schedule { .. }) => true,
+        (Trigger::Report { .. }, Trigger::Report { .. }) => true,
+        _ => false,
+    }
+}
 
 #[near]
 impl AssetContract {
@@ -17,6 +27,19 @@ impl AssetContract {
     pub fn set_profile(&mut self, profile: Profile) {
         self.assert_dao();
         validate_profile(&profile);
+        // A rule whose trigger changed kind (or metric) restarts its baseline (verifier #7).
+        for rule in profile.rules.iter() {
+            let changed = self
+                .profile
+                .rules
+                .iter()
+                .find(|old| old.rule_id == rule.rule_id)
+                .map(|old| !same_trigger_basis(&old.trigger, &rule.trigger))
+                .unwrap_or(false);
+            if changed {
+                self.reset_rule_baseline(&rule.rule_id, &rule.trigger);
+            }
+        }
         self.profile = profile;
         self.profile_version += 1;
         self.emit(

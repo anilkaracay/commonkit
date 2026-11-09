@@ -322,14 +322,30 @@ fn sync_escalation_removed_proposal_loses_bond() {
 }
 
 #[test]
-fn sync_escalation_failed_keeps_bond_outstanding() {
+fn sync_escalation_failed_settles_bond_as_spent() {
     let mut h = with_policy(3 * N);
     let id = submitted(&mut h);
     sync(&mut h, id, proposal("Failed", T0));
     let e = h.c.escalations.get(&id).cloned().unwrap();
     assert_eq!(e.status, EscalationStatus::Failed);
-    assert!(!e.bond_settled);
-    assert_eq!(h.c.ledger.bonds_outstanding, BOND);
+    assert!(e.bond_settled);
+    assert_eq!(h.c.ledger.bonds_outstanding, 0);
+    assert_eq!(h.c.ledger.total_bonds_lost, BOND);
+    assert_eq!(h.c.ledger.float_free, 2 * N);
+    // a later bond refund is plain untracked balance, reconciled into the float (D-204)
+    h.balance += BOND;
+    h.call(&bob(), 0, |c| c.sweep());
+    assert_eq!(h.c.ledger.float_free, 3 * N);
+    assert!(h.invariant_ok());
+}
+
+#[test]
+fn sync_escalation_moved_settles_bond_as_spent() {
+    let mut h = with_policy(3 * N);
+    let id = submitted(&mut h);
+    sync(&mut h, id, proposal("Moved", T0));
+    assert!(h.c.escalations.get(&id).unwrap().bond_settled);
+    assert_eq!(h.c.ledger.bonds_outstanding, 0);
 }
 
 #[test]

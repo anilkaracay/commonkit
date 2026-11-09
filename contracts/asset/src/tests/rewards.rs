@@ -277,3 +277,99 @@ fn escalate_reimbursement_rejects_task_without_pending_expense() {
         )
     });
 }
+
+#[test]
+fn retry_reward_recovers_a_stuck_mint_after_timeout() {
+    let mut h = printer(0);
+    let t = approved(&mut h, "nozzle_clean", 0);
+    assert_eq!(h.task(t).reward_state, RewardState::RightsPending);
+    let early = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        h.call(&bob(), 0, |c| c.retry_reward(U64(t)))
+    }));
+    assert!(early.is_err(), "too early to call it stuck");
+    h.now += 10 * MIN;
+    h.call(&bob(), 0, |c| c.retry_reward(U64(t)));
+    assert!(calls().iter().any(|c| c.method == "mint_rights"));
+    assert!(h.minted(t, &["right-1", "right-2"]));
+    assert!(
+        !h.minted(t, &["right-1", "right-2"]),
+        "the late first callback is ignored"
+    );
+    assert_eq!(h.c.period.rights_minted, 2);
+}
+
+#[test]
+#[should_panic(expected = "E_INVALID_ARGS")]
+fn retry_reward_requires_reward_gas() {
+    let mut h = printer(0);
+    let t = approved(&mut h, "nozzle_clean", 0);
+    h.callback(PromiseResult::Failed, |c| c.on_rights_minted(U64(t)));
+    h.gas_tgas = 50;
+    h.call(&bob(), 0, |c| c.retry_reward(U64(t)));
+}
+
+fn reimbursement_escalated(h: &mut H) -> (u64, u64) {
+    h.c.dao_proposal_bond = Some(N);
+    h.c.dao_proposal_period = Some(7 * DAY);
+    let t = approved(h, "filament_spool", 2 * N);
+    let e = h
+        .call(&agent(), 0, |c| {
+            c.escalate(
+                "reimbursement".to_string(),
+                alice(),
+                U128(2 * N),
+                "receipt".to_string(),
+                Some(U64(t)),
+            )
+        })
+        .0;
+    h.callback(PromiseResult::Successful(b"4".to_vec()), |c| {
+        c.on_escalation_submitted(U64(e))
+    });
+    (t, e)
+}
+
+fn sync_status(h: &mut H, e: u64, result: PromiseResult) {
+    h.call(&bob(), 0, |c| c.sync_escalation(U64(e)));
+    h.callback(result, |c| c.on_escalation_synced(U64(e)));
+}
+
+fn dao_proposal(status: &str) -> PromiseResult {
+    PromiseResult::Successful(
+        format!(r#"{{"id":4,"status":"{status}","submission_time":"{T0}"}}"#).into_bytes(),
+    )
+}
+
+#[test]
+fn reimbursement_escalation_approved_marks_paid() {
+    let mut h = printer(3 * N);
+    let (t, e) = reimbursement_escalated(&mut h);
+    sync_status(&mut h, e, dao_proposal("Approved"));
+    assert_eq!(h.task(t).expense_state, ExpenseState::Paid);
+    assert_eq!(events("expense_state_changed")[0]["expense_state"], "Paid");
+}
+
+#[test]
+fn reimbursement_escalation_rejected_marks_denied() {
+    let mut h = printer(3 * N);
+    let (t, e) = reimbursement_escalated(&mut h);
+    sync_status(&mut h, e, dao_proposal("Rejected"));
+    assert_eq!(h.task(t).expense_state, ExpenseState::Denied);
+}
+
+#[test]
+fn reimbursement_escalation_removed_can_escalate_again() {
+    let mut h = printer(3 * N);
+    let (t, e) = reimbursement_escalated(&mut h);
+    sync_status(&mut h, e, PromiseResult::Failed);
+    assert_eq!(h.task(t).expense_state, ExpenseState::NeedsEscalation);
+}
+
+#[test]
+fn reimbursement_escalation_lazily_expired_can_escalate_again() {
+    let mut h = printer(3 * N);
+    let (t, e) = reimbursement_escalated(&mut h);
+    h.now = T0 + 7 * DAY + 1;
+    sync_status(&mut h, e, dao_proposal("InProgress"));
+    assert_eq!(h.task(t).expense_state, ExpenseState::NeedsEscalation);
+}

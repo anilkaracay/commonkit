@@ -226,7 +226,7 @@ Decision: `set_telemetry_epoch(epoch)` (DAO, strictly increasing, else `E_INVALI
 
 ## D-209 — Asset storage layout and extra stored fields
 2026-11-09 · accepted
-Decision: Reservations, tasks, escalations and ops use `LookupMap<u64, _>` with dense ids from 0 (records are never removed), so pagination is by id range — cheaper than `IterableMap`. Extra index `holder_reservations: LookupMap<AccountId, Vec<u64>>`. Extra stored fields: `Reservation.{protocol_fee, right_op_id}`, `Escalation.{bond_op_id, bond_settled, bond_lost, submission_time, dao_status, created_at}`, `OutboundOp.{created_at, updated_at}`. `sync_roles` returns `bool`, drops unknown role names and accepts at most 100 accounts (`E_INVALID_ARGS`). Unknown ids → `E_NOT_FOUND`, malformed args → `E_INVALID_ARGS` (D-303).
+Decision: Reservations, tasks, escalations and ops use `LookupMap<u64, _>` with dense ids from 0 (records are never removed), so pagination is by id range — cheaper than `IterableMap`. Extra index `holder_reservations: LookupMap<AccountId, Vec<u64>>`. Extra stored fields: `Reservation.{protocol_fee, right_op_id}`, `Escalation.{bond_op_id, bond_settled, bond_lost, submission_time, dao_status}` (plus `submitted_at`, spec §2.6), `OutboundOp.{created_at, updated_at}`. `sync_roles` returns `bool`, drops unknown role names and accepts at most 100 accounts (`E_INVALID_ARGS`). Unknown ids → `E_NOT_FOUND`, malformed args → `E_INVALID_ARGS` (D-303).
 
 ## D-210 — Asset side of D-102 (escalation bonds)
 2026-11-09 · accepted
@@ -319,7 +319,7 @@ Decision: (1) Tasks copy `trigger`, `reimbursable_max`, `right_max_slots`, `righ
 ## D-020 — No free, deposit-free reservations (storage-drain guard)
 2026-11-09 · accepted
 Context: Asset review (M1a report): with price 0 and deposit 0 anyone can create reservations whose storage is paid from the asset's storage reserve.
-Decision: Profiles must have `price_per_slot + deposit_trusted > 0` (checked by scripts/validate-profiles.ts now; to be enforced in the contract's `validate_profile` with `E_INVALID_PROFILE` in M1c). community_fridge gets a 0.1 NEAR refundable deposit.
+Decision: Profiles must have `price_per_slot + deposit_trusted > 0` (checked by scripts/validate-profiles.ts now; enforced in `contracts/asset/src/profile.rs` `validate_profile` with `E_INVALID_PROFILE` since M1c). community_fridge gets a 0.1 NEAR refundable deposit.
 
 ## D-601 — Agent idempotency: read before write, E_* is final, unknown outcomes are held
 2026-11-09 · accepted
@@ -342,3 +342,48 @@ Decision: A purchase hint `{rule_id, after_n}` yields one need per completed cyc
 ## D-605 — Agent feed, simulation driver and limits-demo outputs
 2026-11-09 · accepted
 Decision: The agent's SSE (`GET /events`, port 8788) and JSONL log use the bridge's event shape (`seq, at, chain_time_ns, type, asset_id, simulated, data`); every event about a simulated asset or produced against the fake chain has `simulated: true`. Event types: `task_opened`, `task_annotated`, `escalation_requested`, `escalation_synced`, `dao_policy_refreshed`, `agent_waiting {reason}` (emitted once per change of reason), `write_rejected`, `write_ambiguous`, `write_failed`, `agent_error`, `llm_status`, `agent_started`, and `sim_task_completed` (fake driver only). `config.sim.yaml` runs a fake chain with a usage driver for local feeds; its evidence stays in `agent/state/`. `limits-demo.ts --chain fake` writes `agent/state/agent-limits.fake.json`; only the testnet run writes `evidence/agent-limits.json`. An attempt whose on-chain precondition is missing (e.g. the DAO has not revoked the agent yet) is `skipped` and never counts as passed; expected codes may include protocol refusals of function-call keys (`PROTOCOL:DepositWithFunctionCall`, `PROTOCOL:MethodNameMismatch` for `approve_task` if the key's method list excludes it).
+
+## D-701 — Testnet topology and account names
+2026-11-09 · accepted (chain-ops, M2)
+Decision: Under root `commonkit-sxflo.testnet`: community roots `makerlab.` and `dorm-b.` (keys kept, no community money, D-105) each create `commons.<community>` , the asset accounts (`printer-01`, `laser-01` / `washer-01`, `fridge-01`) and three DAO council accounts (`elif`, `burak`, `selin` / `nil`, `ozan`, `ece`). DAOs `makerlab-ck.sputnikv2.testnet` and `dorm-b-ck.sputnikv2.testnet` with the factory default policy (2 of 3, D-103). The demo cast (`ali`, `can`, `ayse`, `mehmet`, `zeynep`) and the operators `bridge`, `agent`, `supplier` are direct sub-accounts of the root. All council and cast accounts are team-controlled and recorded as `kind: demo-bot`; `selin` holds the pilot-rep seat until the pilot rep has an account (then a ChangePolicy proposal). Commons roles: makerlab steward+council `elif`, council `burak`, verifier `mehmet`, trainer `ayse`; dorm-b steward `nil`, verifier `ozan`, council `ece`. One bridge and one agent account serve all assets with one function-call key per (operator, asset): receiver = the asset, exact CONTRACT_SPEC method lists, 1 NEAR gas allowance each. Single source: `scripts/lib/topology.ts`.
+
+## D-702 — Contract accounts: create + deploy + init in one tx, keyless "pending" until M1c sign-off
+2026-11-09 · accepted (chain-ops, M2)
+Decision: The community root signs one transaction per contract account: CreateAccount, Transfer, AddKey (temporary full access, saved in the legacy keychain), DeployContract, FunctionCall `new`. `deployments/testnet.json` marks the account `keyless: "pending"`. `setup-testnet.ts --finalize-keyless` deletes the keys only after every planned account exists (D-105), `get_wiring` matches the plan and the code_hash matches the recorded build, then requires an empty `view_access_key_list` before writing `keyless: true`. DAO accounts are recorded `keyless: true` only after their (factory-created) key list was read empty. `verify.sh` fails on `pending` unless `--allow-pending` is passed.
+Consequences: Until the lead confirms M1c, the commons accounts still hold a key; no README/UI claim of keylessness before `--finalize-keyless` ran.
+
+## D-703 — No NEAR global contract (NEP-591) for the asset code
+2026-11-09 · accepted (chain-ops, M2)
+Context: Lead asked to evaluate deploying the 456 KB asset WASM once as a global contract to save ~4.6 NEAR of storage per asset account.
+Decision: Deploy normally. nearcore `near-parameters` 0.38.0 (`res/runtime_configs/77.yaml`) sets `global_contract_storage_amount_per_byte` = 0.0001 NEAR, 10× the regular 10^19 yocto/byte, and that amount is burned: ~45.6 NEAR for one global deploy vs 4 × 4.56 = 18.2 NEAR staked (and still owned by the asset accounts) for four normal deploys. near-cli-rs 0.31.1 has `contract deploy-as-global` and near-api-js 7.4.0 has the actions, but this was not run on testnet, and the code_hash reporting for accounts using a global contract was not checked. Revisit only if the asset count grows past ~10.
+
+## D-704 — Funding: faucet helper accounts swept to the root; council and operator balances
+2026-11-09 · accepted (chain-ops, M2)
+Decision: `scripts/fund-testnet.ts --target <NEAR>` creates throwaway `ck-fund-<tag>-<n>.testnet` accounts with `near account create-account sponsor-by-faucet-service` (10 NEAR each, research B7) and transfers all but 0.05 NEAR to the root (helpers are kept, not deleted). The faucet refused the 7th account in one burst on 2026-11-09. Council proposers hold 2 NEAR (1 NEAR bond, returned) and voters 1 NEAR: a 300 Tgas vote reserves ~0.3 NEAR of prepaid gas up front, so 0.3 NEAR voters were rejected (`NotEnoughBalance`). `setup-testnet.ts` tops spendable accounts back up to their planned balance on every run. Seed tops a DAO treasury up from the root (plain transfer, research C10) only when a proposal's attached deposit exceeds `get_available_amount`.
+
+## D-705 — Asset `storage_reserve` must be ≥ 7 NEAR for the current WASM
+2026-11-09 · proposed (chain-ops → profile owner)
+Context: The asset WASM is 455,955 bytes (4.56 NEAR of storage at 10^19 yocto/byte). All profiles use `storage_reserve` = 5 NEAR, so code alone uses 91% of the reserve; CONTRACT_SPEC §8 / verify.sh fail above 80%, and only ~44 kB of state would fit.
+Decision: `setup-testnet.ts` refuses to deploy an asset whose profile reserve cannot hold WASM + 100 kB state at ≤ 80% (`recommendedStorageReserve` = 7 NEAR for this WASM) unless `--allow-tight-reserve` is passed. The four testnet profiles (printer_3d, laser_cutter, washer, community_fridge) need `storage_reserve` ≥ 7 NEAR before asset deployment. The funding plan already budgets 7 NEAR per asset.
+
+## D-706 — Seeding scope; printer-01 is left to judge step 1
+2026-11-09 · accepted (chain-ops, M2)
+Decision: `seed-testnet.ts` passes, each through a DAO proposal voted by the council: `set_roles` (≤ 4 actions per proposal, atomic), `set_credential_kind` (`laser_safety`: 365 days, reward group `makerlab-fab`, 1 trainer right, 2 slots, 60 days), `fund_storage` 0.5 NEAR per commons, and per deployed asset `set_operators`, `register_asset` and `fund_float`. It also calls `refresh_dao_policy` directly (an ANY method, not governance). `printer-01` gets operators and the policy cache, but its registration and float are judge step 1 (DEMO_SCRIPT §2). Planned initial floats: printer 2 NEAR (below its 3 NEAR cap so step 2's fee does not sweep at once; DEMO_SCRIPT step 1 still says 3 — lead to align), laser 1, washer 1, fridge 0.5. A rerun resumes an identical InProgress proposal instead of opening a duplicate.
+
+## D-213 — Asset fixes from the M1a/M1b verifier review
+2026-11-09 · accepted (coordinator decisions on verifier findings)
+Decision:
+1. **Right reservations pay a minimum deposit.** With `right_id` the fee is 0; the deposit is `max(deposit_for(holder), MIN_RESERVATION_STORAGE_DEPOSIT = 0.01 NEAR)`, refunded like any deposit. `reserve` measures the storage its records add (`storage_usage` delta after flushing, × byte cost) into `Reservation.storage_cost`; a **Rejected** reservation keeps that amount in `float_free` and refunds the rest (applies to every rejection; ~0.004 NEAR for a 1–2 slot booking).
+2. **Rewards cannot get stuck for lack of gas.** `GAS_ON_OP_RESULT = 25`, `GAS_ON_MINTED = 2×25+20 = 70`, `GAS_ON_AUTHORIZED = 75` Tgas. `approve_task`, `council_approve_task`, `retry_reward` require prepaid gas ≥ `MIN_GAS_REWARD = 125 Tgas` (`E_INVALID_ARGS`). `retry_reward` also restarts a mint still `RightsPending` 10 minutes after it was sent (`Task.reward_started_at`; mint is idempotent and a late first callback is ignored).
+3. `escalate(kind="reimbursement")` requires the task `Approved` or `Rewarded`; `reject_task`/`cancel_task`/`close_failed_reward` reset `NeedsEscalation` → `None`.
+4. Reimbursement escalation outcomes flow back to the task (only for the escalation the task points to): Approved → `Paid`; Rejected by vote → new terminal `ExpenseState::Denied`; Expired (stored or lazy) / Failed / Moved / Removed → `NeedsEscalation` (can be escalated again). Event `expense_state_changed {task_id, escalation_id, expense_state, dao_status, reason}`.
+5. Out of service, `cancel_reservation` and `mark_no_show` always refund the deposit and also the fee; if `float_free` cannot cover the fee it is recorded as `Reservation.fee_refund_owed` (ledger total `fee_refunds_owed`, not part of the invariant because it is owed, not held) and paid by `claim_fee_refund(id)` (ANY) once the float allows. An out-of-service no-show writes no `no_show` reputation record.
+6. `cancel_task` (false alarm) clears the rule's fault reports and restarts its baseline (Metric → current value, Schedule → now); `reject_task` keeps them.
+7. `set_profile` restarts a rule's baseline when its trigger kind (or Metric metric) changes for the same `rule_id`.
+8. `validate_profile` caps `right_validity_days <= 3650`. New DAO-only `close_failed_reward(task_id, reason)`: an `Approved` task whose mint `Failed` and that holds no minted rights → `Cancelled`, releases reserved cash/expense/`rights_reserved`, unblocks the rule, event `reward_closed`. It never touches minted rights.
+9. Bonds of proposals that end `Failed`/`Moved` are settled as spent (`bonds_outstanding -= bond`, `total_bonds_lost += bond`); any later refund or bond-policy difference arrives as untracked balance and is reconciled into the float (D-204).
+10. DAO-only `force_close_session(id)` after `end_ts + 1 h`: `InSession` → `Finished` without telemetry (deposit/right flows continue when the bridge was cleared mid-session); event `session_finished {forced_by_dao: true}`.
+11. `submit_verification_result` only while the task awaits its verifier (`Submitted` and `verifier == None`).
+12. v1 limits documented: commons `MAX_ROLE_ACCOUNTS = 100` counts tombstones forever; `holder_reservations` keeps one growing `Vec<u64>` per holder (fine for v1 volumes; views paginate).
+13. Error codes used but missing from §10 added: `E_LEDGER` (internal ledger underflow — a bug, aborts), `E_MINT_FAILED`, `E_TRANSFER_FAILED` (reason strings in `reward_failed`).
+Consequences: Spec §2.1–§3.6, §8, §9, §10 updated. Unit tests cover every item; sandbox tests cover 1, 2, 4, 5.

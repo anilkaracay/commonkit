@@ -32,6 +32,9 @@ pub struct Ledger {
     pub rewards_reserved: u128,
     pub pending_in: u128,
     pub protocol_fees_owed: u128,
+    /// Out-of-service fee refunds the float could not cover yet (D-213). Owed, not held:
+    /// not part of the invariant.
+    pub fee_refunds_owed: u128,
     pub pending_out: u128,
     pub bonds_outstanding: u128,
     pub total_fees_in: u128,
@@ -95,6 +98,7 @@ pub struct LedgerView {
     pub rewards_reserved: U128,
     pub pending_in: U128,
     pub protocol_fees_owed: U128,
+    pub fee_refunds_owed: U128,
     pub pending_out: U128,
     pub bonds_outstanding: U128,
     pub total_fees_in: U128,

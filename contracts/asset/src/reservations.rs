@@ -18,7 +18,8 @@ use crate::reputation::{REP_CLEAN_RETURN, REP_DAMAGE, REP_NO_SHOW, REP_SESSION};
 use crate::types::{OpKind, Reservation, ReservationStatus, ReturnResult};
 use crate::{
     is_sha256_hex, promise_bytes, promise_succeeded, AssetContract, AssetContractExt,
-    GAS_ON_AUTHORIZED, NS_PER_DAY, NS_PER_MINUTE,
+    FORCE_CLOSE_GRACE, GAS_ON_AUTHORIZED, MIN_RESERVATION_STORAGE_DEPOSIT, NS_PER_DAY,
+    NS_PER_MINUTE,
 };
 
 /// Max length of an `AuthResult` we are willing to read.
@@ -116,13 +117,32 @@ impl AssetContract {
         self.maybe_sweep();
     }
 
+    /// Rejected: slots released; the measured storage cost of the stored records stays in the
+    /// float (D-213), the rest of the attached amount is refunded.
+    /// Fee refund while out of service: paid from the float now when it can be, otherwise
+    /// recorded as owed on the reservation and paid by `claim_fee_refund` later (D-213).
+    fn out_of_service_fee_refund(&mut self, r: &mut Reservation) -> u128 {
+        let fee = r.fee_paid.0 - r.protocol_fee.0;
+        if self.ledger.float_free >= fee {
+            self.ledger.float_free -= fee;
+            fee
+        } else {
+            r.fee_refund_owed = U128(fee);
+            self.ledger.fee_refunds_owed =
+                add(self.ledger.fee_refunds_owed, fee, "fee_refunds_owed");
+            0
+        }
+    }
+
     fn reject(&mut self, mut r: Reservation, reason: String, release_right: bool) {
         let attached = r.fee_paid.0 + r.deposit_paid.0;
+        let retained = r.storage_cost.0.min(attached);
+        self.ledger.float_free = add(self.ledger.float_free, retained, "float_free");
         self.release_slots(&r);
         r.status = ReservationStatus::Rejected;
         let id = r.id.0;
         self.reservations.insert(id, r.clone());
-        let op_id = self.refund_holder(&r, attached);
+        let op_id = self.refund_holder(&r, attached - retained);
         if release_right && r.right_id.is_some() {
             self.sync_right(id, OpKind::RightRelease);
         }
@@ -132,7 +152,8 @@ impl AssetContract {
                 "reservation_id": r.id,
                 "holder": r.holder,
                 "reason": reason,
-                "refund": attached.to_string(),
+                "refund": (attached - retained).to_string(),
+                "storage_retained": retained.to_string(),
                 "refund_op_id": op_id.map(|o| o.to_string()),
             }),
         );
@@ -146,6 +167,7 @@ impl AssetContract {
     #[payable]
     pub fn reserve(&mut self, start_slot: U64, slots: u32, right_id: Option<TokenId>) -> U64 {
         self.assert_in_service();
+        let storage_before = env::storage_usage();
         let holder = env::predecessor_account_id();
         let attached = env::attached_deposit().as_yoctonear();
         let p = &self.profile;
@@ -174,7 +196,12 @@ impl AssetContract {
                 .checked_mul(u128::from(slots))
                 .unwrap_or_else(|| env::panic_str("E_WRONG_AMOUNT: fee overflow"))
         };
-        let deposit = self.deposit_for(&holder);
+        let mut deposit = self.deposit_for(&holder);
+        if right_id.is_some() {
+            // A right makes the fee 0; a minimum refundable deposit pays for the records if the
+            // right turns out invalid (verifier #1, D-213).
+            deposit = deposit.max(MIN_RESERVATION_STORAGE_DEPOSIT);
+        }
         let expected = fee
             .checked_add(deposit)
             .unwrap_or_else(|| env::panic_str("E_WRONG_AMOUNT: amount overflow"));
@@ -212,6 +239,8 @@ impl AssetContract {
             metrics_delta: None,
             return_result: None,
             right_op_id: None,
+            storage_cost: U128(0),
+            fee_refund_owed: U128(0),
         };
         self.reservations.insert(id, reservation);
         let mut list = self
@@ -222,6 +251,15 @@ impl AssetContract {
         list.push(id);
         self.holder_reservations.insert(holder.clone(), list);
         self.ledger.pending_in = add(self.ledger.pending_in, attached, "pending_in");
+        // Measure what the new records cost in storage; a rejection keeps that much.
+        self.reservations.flush();
+        self.slot_index.flush();
+        self.holder_reservations.flush();
+        let bytes = env::storage_usage().saturating_sub(storage_before);
+        let storage_cost = u128::from(bytes) * env::storage_byte_cost().as_yoctonear();
+        if let Some(r) = self.reservations.get_mut(&id) {
+            r.storage_cost = U128(storage_cost);
+        }
 
         self.emit(
             "reservation_pending",
@@ -325,17 +363,22 @@ impl AssetContract {
             out_of_service || now < start,
             "E_WINDOW_CLOSED: reservation already started"
         );
-        let fee_refund = if out_of_service || now.saturating_add(self.slot_ns()) <= start {
-            r.fee_paid.0 - r.protocol_fee.0
+        let fee_refund = if out_of_service {
+            self.out_of_service_fee_refund(&mut r)
         } else {
-            0
+            let refund = if now.saturating_add(self.slot_ns()) <= start {
+                r.fee_paid.0 - r.protocol_fee.0
+            } else {
+                0
+            };
+            require!(
+                self.ledger.float_free >= refund,
+                "E_INSUFFICIENT_FLOAT: float cannot cover the fee refund now"
+            );
+            self.ledger.float_free -= refund;
+            refund
         };
-        require!(
-            self.ledger.float_free >= fee_refund,
-            "E_INSUFFICIENT_FLOAT: float cannot cover the fee refund now"
-        );
         let deposit = r.deposit_paid.0;
-        self.ledger.float_free -= fee_refund;
         self.ledger.deposits_held = sub(self.ledger.deposits_held, deposit, "deposits_held");
         self.release_slots(&r);
         r.status = ReservationStatus::Cancelled;
@@ -350,6 +393,7 @@ impl AssetContract {
                 "reservation_id": id,
                 "holder": r.holder,
                 "fee_refunded": fee_refund.to_string(),
+                "fee_refund_owed": r.fee_refund_owed,
                 "deposit_refunded": deposit.to_string(),
                 "refund_op_id": op_id.map(|o| o.to_string()),
                 "right_id": r.right_id,
@@ -430,12 +474,19 @@ impl AssetContract {
             Self::now() > self.window_end_ts(&r),
             "E_WINDOW_CLOSED: start window still open"
         );
+        // Out of service the session could not start: the fee is refunded too (verifier #5).
+        let out_of_service = !self.service.in_service;
+        let fee_refund = if out_of_service {
+            self.out_of_service_fee_refund(&mut r)
+        } else {
+            0
+        };
         let deposit = r.deposit_paid.0;
         self.ledger.deposits_held = sub(self.ledger.deposits_held, deposit, "deposits_held");
         self.release_slots(&r);
         r.status = ReservationStatus::NoShow;
         self.reservations.insert(id.0, r.clone());
-        let op_id = self.refund_holder(&r, deposit);
+        let op_id = self.refund_holder(&r, deposit + fee_refund);
         if r.right_id.is_some() {
             self.sync_right(id.0, OpKind::RightRelease);
         }
@@ -445,11 +496,16 @@ impl AssetContract {
                 "reservation_id": id,
                 "holder": r.holder,
                 "deposit_refunded": deposit.to_string(),
+                "fee_refunded": fee_refund.to_string(),
+                "fee_refund_owed": r.fee_refund_owed,
+                "out_of_service": out_of_service,
                 "refund_op_id": op_id.map(|o| o.to_string()),
                 "right_id": r.right_id,
             }),
         );
-        self.record_reputation(&r.holder, REP_NO_SHOW, id.0);
+        if !out_of_service {
+            self.record_reputation(&r.holder, REP_NO_SHOW, id.0);
+        }
     }
 
     /// ROLE(steward), not the holder. `Finished` → Clean: deposit refunded, `Closed`;
@@ -516,6 +572,66 @@ impl AssetContract {
                 );
             }
         }
+    }
+
+    /// ANY. Pays a fee refund that was owed because the float was short when an
+    /// out-of-service reservation was cancelled or marked no-show (D-213).
+    pub fn claim_fee_refund(&mut self, id: U64) {
+        let mut r = self.get_reservation_or_panic(id.0);
+        let owed = r.fee_refund_owed.0;
+        require!(owed > 0, "E_BAD_STATE: no fee refund owed");
+        require!(
+            self.ledger.float_free >= owed,
+            "E_INSUFFICIENT_FLOAT: float cannot cover the owed fee yet"
+        );
+        self.ledger.float_free -= owed;
+        self.ledger.fee_refunds_owed = sub(self.ledger.fee_refunds_owed, owed, "fee_refunds_owed");
+        r.fee_refund_owed = U128(0);
+        self.reservations.insert(id.0, r.clone());
+        let op_id = self.refund_holder(&r, owed);
+        self.emit(
+            "fee_refund_paid",
+            json!({
+                "reservation_id": id,
+                "holder": r.holder,
+                "amount": owed.to_string(),
+                "refund_op_id": op_id.map(|o| o.to_string()),
+            }),
+        );
+    }
+
+    /// DAO. A session the bridge never finished (e.g. the bridge was cleared mid-session) is
+    /// closed after its end plus `FORCE_CLOSE_GRACE`, so the deposit and right flows continue
+    /// (verifier #10, D-213). No telemetry is applied.
+    pub fn force_close_session(&mut self, id: U64) {
+        self.assert_dao();
+        let mut r = self.get_reservation_or_panic(id.0);
+        require!(
+            r.status == ReservationStatus::InSession,
+            "E_BAD_STATE: reservation is not InSession"
+        );
+        require!(
+            Self::now() >= self.end_ts(&r).saturating_add(FORCE_CLOSE_GRACE),
+            "E_WINDOW_CLOSED: the session may still be running"
+        );
+        r.status = ReservationStatus::Finished;
+        r.session_finished_at = Some(U64(Self::now()));
+        r.metrics_delta = Some(Vec::new());
+        self.reservations.insert(id.0, r.clone());
+        if r.right_id.is_some() {
+            self.sync_right(id.0, OpKind::RightFinalize);
+        }
+        self.emit(
+            "session_finished",
+            json!({
+                "reservation_id": id,
+                "holder": r.holder,
+                "metrics_delta": [],
+                "right_id": r.right_id,
+                "forced_by_dao": true,
+            }),
+        );
+        self.record_reputation(&r.holder, REP_SESSION, id.0);
     }
 
     /// DAO. `Disputed` → `Closed`. `deduct <= deposit` goes to float; the rest is refunded.

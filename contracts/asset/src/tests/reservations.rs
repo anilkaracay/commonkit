@@ -235,16 +235,20 @@ fn on_authorized_rejection_releases_slots_and_refunds() {
     assert!(h.c.slot_index.get(&(start + 1)).is_none());
     let e = &events("reservation_rejected")[0];
     assert_eq!(e["reason"], "E_CREDENTIAL_MISSING");
+    // the measured storage cost of the records stays in the float (D-213)
+    let retained = r.storage_cost.0;
+    assert!(retained > 0 && retained < N / 100, "retained {retained}");
+    assert_eq!(e["storage_retained"], retained.to_string());
     let op = h.last_op();
     assert_eq!(
         (op.kind, op.to.clone(), op.amount.0),
-        (OpKind::Refund, alice(), FEE2 + DEP)
+        (OpKind::Refund, alice(), FEE2 + DEP - retained)
     );
-    assert_eq!(transfers(), vec![(alice(), FEE2 + DEP)]);
+    assert_eq!(transfers(), vec![(alice(), FEE2 + DEP - retained)]);
     assert_eq!(h.c.ledger.pending_in, 0);
-    assert_eq!(h.c.ledger.float_free, 0);
+    assert_eq!(h.c.ledger.float_free, retained);
     h.settle_all();
-    assert_eq!(h.c.ledger.total_refunded, FEE2 + DEP);
+    assert_eq!(h.c.ledger.total_refunded, FEE2 + DEP - retained);
     assert!(h.invariant_ok());
     // the slots can be booked again
     h.reserve(&bob(), start, 2);
@@ -261,7 +265,8 @@ fn on_authorized_failed_call_rejects_and_refunds() {
         .as_str()
         .unwrap()
         .contains("call failed"));
-    assert_eq!(h.last_op().amount.0, N / 4 + DEP);
+    let retained = h.res(id).storage_cost.0;
+    assert_eq!(h.last_op().amount.0, N / 4 + DEP - retained);
     assert!(h.c.slot_index.get(&start).is_none());
 }
 
@@ -705,4 +710,141 @@ fn resolve_dispute_rejects_not_disputed() {
     h.call(&dao(), 0, |c| {
         c.resolve_dispute(U64(id), U128(0), HASH.to_string())
     });
+}
+
+// ---- verifier fixes (D-213) ----
+
+#[test]
+fn reserve_with_right_requires_minimum_deposit() {
+    let mut p = profile();
+    p.deposit = U128(0);
+    p.deposit_trusted = U128(0);
+    let mut h = H::with_profile(p);
+    let start = h.now_slot() + 1;
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        h.call(&alice(), 0, |c| {
+            c.reserve(U64(start), 1, Some("right-1".to_string()))
+        })
+    }));
+    assert!(
+        r.is_err(),
+        "a right reservation without the minimum deposit is refused"
+    );
+    let min = crate::MIN_RESERVATION_STORAGE_DEPOSIT;
+    let id = h.call(&alice(), min, |c| {
+        c.reserve(U64(start), 1, Some("right-1".to_string()))
+    });
+    assert_eq!(h.res(id.0).deposit_paid, U128(min));
+}
+
+#[test]
+fn rejected_right_reservation_keeps_storage_cost() {
+    let mut p = profile();
+    p.deposit = U128(0);
+    p.deposit_trusted = U128(0);
+    let mut h = H::with_profile(p);
+    let start = h.now_slot() + 1;
+    let min = crate::MIN_RESERVATION_STORAGE_DEPOSIT;
+    let id = h
+        .call(&alice(), min, |c| {
+            c.reserve(U64(start), 1, Some("right-1".to_string()))
+        })
+        .0;
+    h.authorize(id, false, Some("E_RIGHT_NOT_ACTIVE"));
+    let retained = h.res(id).storage_cost.0;
+    assert!(retained > 0 && retained < min);
+    assert_eq!(h.c.ledger.float_free, retained);
+    assert_eq!(h.last_op().amount.0, min - retained);
+}
+
+fn out_of_service(h: &mut H) {
+    h.call(&steward(), 0, |c| {
+        c.set_out_of_service(true, HASH.to_string())
+    });
+}
+
+#[test]
+fn cancel_reservation_out_of_service_owes_fee_when_float_is_short() {
+    let mut h = H::wired(0);
+    let start = h.now_slot() + 4;
+    let id = h.confirmed(&alice(), start, 2);
+    h.c.ledger.float_free = 0; // spent meanwhile (e.g. paid out as a reward)
+    h.balance -= FEE2;
+    out_of_service(&mut h);
+    h.call(&alice(), 0, |c| c.cancel_reservation(U64(id)));
+    assert_eq!(transfers(), vec![(alice(), DEP)], "deposit always refunded");
+    assert_eq!(h.res(id).fee_refund_owed, U128(FEE2));
+    assert_eq!(h.c.ledger.fee_refunds_owed, FEE2);
+    let early = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        h.call(&bob(), 0, |c| c.claim_fee_refund(U64(id)))
+    }));
+    assert!(early.is_err());
+    h.settle_all();
+    h.call(&dao(), N, |c| c.fund_float());
+    h.call(&bob(), 0, |c| c.claim_fee_refund(U64(id)));
+    assert!(transfers().contains(&(alice(), FEE2)));
+    assert_eq!(h.res(id).fee_refund_owed, U128(0));
+    assert_eq!(h.c.ledger.fee_refunds_owed, 0);
+    h.settle_all();
+    assert!(h.invariant_ok());
+}
+
+#[test]
+#[should_panic(expected = "E_BAD_STATE")]
+fn claim_fee_refund_rejects_when_nothing_owed() {
+    let mut h = H::wired(0);
+    let id = h.confirmed(&alice(), h.now_slot() + 4, 1);
+    h.call(&bob(), 0, |c| c.claim_fee_refund(U64(id)));
+}
+
+#[test]
+fn mark_no_show_out_of_service_refunds_fee_too() {
+    let mut h = H::wired(0);
+    let start = h.now_slot() + 1;
+    let id = h.confirmed(&alice(), start, 2);
+    out_of_service(&mut h);
+    h.now = start * SLOT + 16 * MIN;
+    h.call(&bob(), 0, |c| c.mark_no_show(U64(id)));
+    assert_eq!(transfers(), vec![(alice(), DEP + FEE2)]);
+    assert!(
+        events("reputation_recorded").is_empty(),
+        "no no-show record"
+    );
+}
+
+#[test]
+fn force_close_session_after_grace() {
+    let mut h = H::wired(0);
+    let start = h.now_slot() + 1;
+    let id = h.confirmed(&alice(), start, 1);
+    h.now = start * SLOT;
+    h.call(&bridge(), 0, |c| c.mark_session_started(U64(id)));
+    h.call(&dao(), 0, |c| c.set_operators(None, Some(agent())));
+    h.now = (start + 1) * SLOT + HOUR;
+    h.call(&dao(), 0, |c| c.force_close_session(U64(id)));
+    assert_eq!(h.res(id).status, ReservationStatus::Finished);
+    assert_eq!(events("session_finished")[0]["forced_by_dao"], true);
+    h.call(&steward(), 0, |c| {
+        c.confirm_return(U64(id), ReturnResult::Clean)
+    });
+    assert_eq!(transfers(), vec![(alice(), DEP)]);
+}
+
+#[test]
+#[should_panic(expected = "E_WINDOW_CLOSED")]
+fn force_close_session_rejects_before_grace() {
+    let mut h = H::wired(0);
+    let start = h.now_slot() + 1;
+    let id = h.confirmed(&alice(), start, 1);
+    h.now = start * SLOT;
+    h.call(&bridge(), 0, |c| c.mark_session_started(U64(id)));
+    h.now = (start + 1) * SLOT + HOUR - 1;
+    h.call(&dao(), 0, |c| c.force_close_session(U64(id)));
+}
+
+#[test]
+#[should_panic(expected = "E_NOT_DAO")]
+fn force_close_session_rejects_non_dao() {
+    let mut h = H::wired(0);
+    h.call(&council(), 0, |c| c.force_close_session(U64(0)));
 }

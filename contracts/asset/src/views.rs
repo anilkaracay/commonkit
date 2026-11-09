@@ -108,6 +108,7 @@ impl AssetContract {
             rewards_reserved: U128(l.rewards_reserved),
             pending_in: U128(l.pending_in),
             protocol_fees_owed: U128(l.protocol_fees_owed),
+            fee_refunds_owed: U128(l.fee_refunds_owed),
             pending_out: U128(l.pending_out),
             bonds_outstanding: U128(l.bonds_outstanding),
             total_fees_in: U128(l.total_fees_in),

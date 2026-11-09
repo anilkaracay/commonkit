@@ -113,12 +113,45 @@ impl AssetContract {
             cash += t.expense.0;
             t.expense_state = ExpenseState::None;
         }
+        if t.expense_state == ExpenseState::NeedsEscalation {
+            t.expense_state = ExpenseState::None;
+        }
         self.ledger.rewards_reserved = sub(self.ledger.rewards_reserved, cash, "rewards_reserved");
         self.ledger.float_free = add(self.ledger.float_free, cash, "float_free");
         self.period.rights_reserved = self.period.rights_reserved.saturating_sub(t.reward_rights);
         if self.open_task_by_rule.get(&t.rule_id) == Some(&t.id.0) {
             self.open_task_by_rule.remove(&t.rule_id);
         }
+    }
+
+    /// Restarts a rule's due computation: Metric → current counter, Schedule → now,
+    /// Report → active reports cleared.
+    pub(crate) fn reset_rule_baseline(&mut self, rule_id: &str, trigger: &Trigger) {
+        match trigger {
+            Trigger::Metric { metric, .. } => {
+                let value = self.telemetry.value(metric);
+                self.rule_baselines.insert(rule_id.to_string(), value);
+            }
+            Trigger::Schedule { .. } => {
+                self.rule_baselines.insert(rule_id.to_string(), Self::now());
+            }
+            Trigger::Report { .. } => {
+                self.faults.remove(rule_id);
+            }
+        }
+    }
+
+    fn reset_rule_after_false_alarm(&mut self, rule_id: &str) {
+        if let Some(rule) = self
+            .profile
+            .rules
+            .iter()
+            .find(|r| r.rule_id == rule_id)
+            .cloned()
+        {
+            self.reset_rule_baseline(rule_id, &rule.trigger);
+        }
+        self.faults.remove(rule_id);
     }
 
     fn reopen(&mut self, mut t: Task, by: &AccountId, timed_out: bool) {
@@ -254,6 +287,7 @@ impl AssetContract {
             minted_right_ids: Vec::new(),
             cash_op_id: None,
             reimbursement_op_id: None,
+            reward_started_at: None,
             created_at: U64(Self::now()),
         };
         self.tasks.insert(id, task);
@@ -413,8 +447,8 @@ impl AssetContract {
         self.assert_bridge();
         let mut t = self.get_task_or_panic(task_id.0);
         require!(
-            t.status == TaskStatus::Submitted,
-            "E_BAD_STATE: task is not Submitted"
+            t.status == TaskStatus::Submitted && t.verifier.is_none(),
+            "E_BAD_STATE: task is not awaiting verification"
         );
         require!(
             is_sha256_hex(&details_hash),
@@ -435,6 +469,7 @@ impl AssetContract {
     /// ROLE(verifier); not the claimer, agent or bridge. Decides the expense path, then
     /// rewards the task — or waits for `council_approve_task` when council is needed.
     pub fn approve_task(&mut self, task_id: U64) {
+        Self::assert_reward_gas();
         let caller = env::predecessor_account_id();
         let mut t = self.get_task_or_panic(task_id.0);
         self.assert_independent(&t, &caller);
@@ -495,6 +530,7 @@ impl AssetContract {
     /// ROLE(council); not the claimer, the verifier, the agent or the bridge. Reserves a
     /// pending expense from the float (`E_INSUFFICIENT_FLOAT` if short), then rewards.
     pub fn council_approve_task(&mut self, task_id: U64) {
+        Self::assert_reward_gas();
         let caller = env::predecessor_account_id();
         let mut t = self.get_task_or_panic(task_id.0);
         self.assert_independent(&t, &caller);
@@ -557,8 +593,38 @@ impl AssetContract {
         self.maybe_sweep();
     }
 
+    /// DAO. Closes a reward that can never mint (e.g. the asset left commons): only an
+    /// `Approved` task whose mint `Failed` and that holds no minted rights. Releases its
+    /// reserved cash, expense and rights quota, unblocks the rule; task → `Cancelled`.
+    /// Never touches minted rights (verifier #8, D-213).
+    pub fn close_failed_reward(&mut self, task_id: U64, reason: String) {
+        self.assert_dao();
+        let mut t = self.get_task_or_panic(task_id.0);
+        require!(
+            t.status == TaskStatus::Approved
+                && matches!(t.reward_state, RewardState::Failed { .. })
+                && t.minted_right_ids.is_empty(),
+            "E_BAD_STATE: only a failed, unminted reward can be closed"
+        );
+        check_len(
+            &reason,
+            MAX_NOTE_LEN,
+            "E_INVALID_ARGS: reason longer than 500 characters",
+        );
+        self.release_task_reservations(&mut t);
+        t.status = TaskStatus::Cancelled;
+        self.tasks.insert(task_id.0, t.clone());
+        self.emit(
+            "reward_closed",
+            json!({ "task_id": task_id, "reason": reason, "rule_id": t.rule_id }),
+        );
+        self.maybe_sweep();
+    }
+
     /// DAO or ROLE(council). Cancels an `Open` or `Claimed` task (e.g. a false alarm) and
-    /// releases its reserved cash and rights (D-208).
+    /// releases its reserved cash and rights (D-208). As a false alarm it also clears the
+    /// rule's fault reports and restarts its baseline (Metric → current value, Schedule →
+    /// now), so the agent cannot reopen it at once (verifier #6). `reject_task` keeps them.
     pub fn cancel_task(&mut self, task_id: U64, reason: String) {
         let caller = env::predecessor_account_id();
         require!(
@@ -576,6 +642,7 @@ impl AssetContract {
             "E_INVALID_ARGS: reason longer than 500 characters",
         );
         self.release_task_reservations(&mut t);
+        self.reset_rule_after_false_alarm(&t.rule_id);
         t.status = TaskStatus::Cancelled;
         self.tasks.insert(task_id.0, t.clone());
         self.emit(

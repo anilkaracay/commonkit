@@ -147,3 +147,9 @@ fn validate_profile_rejects_free_deposit_free_reservations() {
 fn validate_profile_accepts_free_slots_with_deposit() {
     check(|p| p.price_per_slot = U128(0));
 }
+
+#[test]
+#[should_panic(expected = "E_INVALID_PROFILE")]
+fn validate_profile_rejects_right_validity_above_cap() {
+    check(|p| p.right_validity_days = 3651);
+}

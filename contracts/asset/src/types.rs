@@ -144,6 +144,11 @@ pub struct Reservation {
     pub return_result: Option<ReturnResult>,
     /// Latest `RightRelease`/`RightFinalize` op for `right_id` (D-203).
     pub right_op_id: Option<U64>,
+    /// Measured storage cost of this reservation's records; kept if it is Rejected (D-213).
+    pub storage_cost: U128,
+    /// Fee refund owed after an out-of-service cancel/no-show while the float was short
+    /// (D-213); paid by `claim_fee_refund` once the float allows.
+    pub fee_refund_owed: U128,
 }
 
 #[near(serializers = [borsh, json])]
@@ -245,8 +250,12 @@ pub enum ExpenseState {
     None,
     Reserved,
     NeedsEscalation,
-    Escalated { escalation_id: U64 },
+    Escalated {
+        escalation_id: U64,
+    },
     Paid,
+    /// The DAO voted not to pay a reimbursement escalation (terminal).
+    Denied,
 }
 
 #[near(serializers = [borsh, json])]
@@ -288,6 +297,8 @@ pub struct Task {
     pub minted_right_ids: Vec<TokenId>,
     pub cash_op_id: Option<U64>,
     pub reimbursement_op_id: Option<U64>,
+    /// When the latest mint call was sent (for the stuck-mint retry).
+    pub reward_started_at: Option<U64>,
     pub created_at: U64,
 }
 

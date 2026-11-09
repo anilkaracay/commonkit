@@ -175,6 +175,8 @@ pub struct H {
     pub c: AssetContract,
     pub now: u64,
     pub balance: u128,
+    /// Prepaid gas of `call` (default 300 Tgas).
+    pub gas_tgas: u64,
 }
 
 fn context(
@@ -183,6 +185,16 @@ fn context(
     balance: u128,
     now: u64,
 ) -> near_sdk::VMContext {
+    context_gas(predecessor, attached, balance, now, 300)
+}
+
+fn context_gas(
+    predecessor: &AccountId,
+    attached: u128,
+    balance: u128,
+    now: u64,
+    tgas: u64,
+) -> near_sdk::VMContext {
     VMContextBuilder::new()
         .current_account_id(asset())
         .signer_account_id(predecessor.clone())
@@ -190,7 +202,7 @@ fn context(
         .attached_deposit(NearToken::from_yoctonear(attached))
         .account_balance(NearToken::from_yoctonear(balance))
         .block_timestamp(now)
-        .prepaid_gas(Gas::from_tgas(300))
+        .prepaid_gas(Gas::from_tgas(tgas))
         .build()
 }
 
@@ -207,6 +219,7 @@ impl H {
             c,
             now: T0,
             balance: STORAGE_RESERVE,
+            gas_tgas: 300,
         }
     }
 
@@ -248,7 +261,13 @@ impl H {
         f: impl FnOnce(&mut AssetContract) -> R,
     ) -> R {
         // The mocked VM credits the attached deposit to the account balance itself.
-        testing_env!(context(who, attached, self.balance, self.now));
+        testing_env!(context_gas(
+            who,
+            attached,
+            self.balance,
+            self.now,
+            self.gas_tgas
+        ));
         let r = f(&mut self.c);
         self.balance = env::account_balance().as_yoctonear();
         r
