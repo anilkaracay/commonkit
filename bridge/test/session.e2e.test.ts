@@ -131,13 +131,45 @@ describe("simulated washer: full session against the fake chain", () => {
 
   it("mark_session_started failure: device stays locked, nothing is held, error is precise", async () => {
     h.chain.failNext("markSessionStarted", new ChainError("E_WINDOW_CLOSED: x", "E_WINDOW_CLOSED"));
-    h.chain.failNext("markSessionStarted", new ChainError("E_WINDOW_CLOSED: x", "E_WINDOW_CLOSED"));
     const res = await access();
     expect(res.statusCode).toBe(502);
     expect(res.body).toMatchObject({ reason: "CHAIN_WRITE_FAILED" });
     const st = (await app.inject({ method: "GET", url: "/assets" })).json()[0];
     expect(st.status.locked).toBe(true);
     expect(st.occupancy).toBeNull();
+  });
+
+  it("out of service (D-017): can_access reason out_of_service -> 403 OUT_OF_SERVICE, nothing unlocked", async () => {
+    h.chain.setInService(WASHER, false);
+    const res = await access();
+    expect(res.statusCode).toBe(403);
+    expect(res.body).toMatchObject({ ok: false, reason: "OUT_OF_SERVICE" });
+    expect(h.chain.calls).toHaveLength(0);
+    const rejected = h.bridge.bus.history().find((e) => e.type === "access_rejected");
+    expect(rejected?.data).toMatchObject({ reason: "OUT_OF_SERVICE" });
+    h.chain.setInService(WASHER, true);
+    expect((await access()).statusCode).toBe(200);
+  });
+
+  it("out of service between can_access and mark_session_started: E_OUT_OF_SERVICE -> 403, device stays locked, no retry", async () => {
+    // Steward flips the asset out of service after the view check (race).
+    const original = h.chain.canAccess.bind(h.chain);
+    h.chain.canAccess = async (...args) => {
+      const r = await original(...args);
+      h.chain.setInService(WASHER, false);
+      return r;
+    };
+    const res = await access();
+    expect(res.statusCode).toBe(403);
+    expect(res.body).toMatchObject({ reason: "OUT_OF_SERVICE" });
+    const st = (await app.inject({ method: "GET", url: "/assets" })).json()[0];
+    expect(st.status.locked).toBe(true);
+    expect(st.occupancy).toBeNull();
+    expect(h.chain.reservation(WASHER, 7n)?.status).toBe("Confirmed");
+    const failed = h.bridge.bus.history().filter((e) => e.type === "session_start_failed");
+    expect(failed).toHaveLength(1);
+    expect(failed[0]?.data).toMatchObject({ code: "E_OUT_OF_SERVICE" });
+    expect(h.bridge.bus.history().some((e) => e.type === "device_unlocked")).toBe(false);
   });
 
   it("mark_session_finished failure is retried by the watcher and sent exactly once", async () => {

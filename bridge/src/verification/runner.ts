@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { VerificationOutcome, VerificationTest } from "../adapters/types.js";
-import type { ChainClient } from "../chain/types.js";
+import { isRetryableChainError, type ChainClient } from "../chain/types.js";
 import { BridgeError } from "../errors.js";
 import type { EventBus } from "../events/bus.js";
 import type { AssetRuntime } from "../runtime.js";
@@ -121,7 +121,7 @@ export class VerificationRunner {
               })
             ).txHash;
           },
-          { ...this.retry, clock: this.clock },
+          { ...this.retry, clock: this.clock, retryable: isRetryableChainError },
         ),
       );
       run.status = "reported";

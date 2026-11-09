@@ -8,6 +8,9 @@ import type { Challenge, ChallengeAction, ChallengeStore } from "../nep413/chall
 import { parsePublicKey, verifyNep413Signature } from "../nep413/payload.js";
 import { accountIdSchema, u64Schema } from "../util/near.js";
 
+/** `can_access` reason while the asset is out of service (CONTRACT_SPEC §3.3, D-017). */
+export const OUT_OF_SERVICE_REASON = "out_of_service";
+
 /** Body of every NEP-413-signed request (/access, /sessions/:id/finish, /verification/...). */
 export const signedRequestSchema = z.object({
   asset_id: accountIdSchema,
@@ -116,6 +119,9 @@ export class AccessVerifier {
         check = await this.chain.canAccess(c.assetId, c.accountId, c.reservationId);
       } catch (err) {
         return reject("CHAIN_UNAVAILABLE", `can_access failed: ${(err as Error).message}`, 503);
+      }
+      if (!check.ok && check.reason === OUT_OF_SERVICE_REASON) {
+        return reject("OUT_OF_SERVICE", "the asset is out of service (can_access)");
       }
       if (!check.ok) return reject("RESERVATION_NOT_ACCESSIBLE", check.reason ?? "can_access returned ok=false");
     }

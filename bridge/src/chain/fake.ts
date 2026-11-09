@@ -46,6 +46,7 @@ export interface FakeCall {
 type WriteMethod = "markSessionStarted" | "markSessionFinished" | "reportTelemetry" | "submitVerificationResult";
 
 interface AssetState {
+  inService: boolean;
   reservations: Map<bigint, FakeReservation>;
   tasks: Map<bigint, FakeTask>;
   telemetry: TelemetryView;
@@ -87,6 +88,10 @@ export class FakeChainClient implements ChainClient {
   addTask(assetId: string, t: FakeTask): void {
     this.asset(assetId).tasks.set(t.id, { ...t });
   }
+  /** Models `set_out_of_service` (D-017): blocks can_access and mark_session_started. */
+  setInService(assetId: string, inService: boolean): void {
+    this.asset(assetId).inService = inService;
+  }
   /** The next call to `method` throws `err` (queue; one per call). */
   failNext(method: WriteMethod | "getChainTime" | "viewAccessKey", err: Error = new ChainError("injected", null)): void {
     const q = this.failures.get(method) ?? [];
@@ -119,6 +124,7 @@ export class FakeChainClient implements ChainClient {
       windowStart: r?.windowStart ?? 0n,
       windowEnd: r?.windowEnd ?? 0n,
     });
+    if (!this.asset(assetId).inService) return deny("out_of_service");
     if (!r) return deny("reservation not found");
     if (r.holder !== accountId) return deny("account is not the reservation holder");
     if (r.status === "InSession") return { ok: true, reason: null, windowStart: r.windowStart, windowEnd: r.windowEnd };
@@ -158,6 +164,7 @@ export class FakeChainClient implements ChainClient {
     this.maybeFail("markSessionStarted");
     const r = this.mustReservation(assetId, reservationId);
     if (r.status !== "Confirmed") throw new ChainError(`E_BAD_STATE: reservation is ${r.status}`, "E_BAD_STATE");
+    if (!this.asset(assetId).inService) throw new ChainError("E_OUT_OF_SERVICE: asset is out of service", "E_OUT_OF_SERVICE");
     if (this.nowNs < r.windowStart || this.nowNs > r.windowEnd) {
       throw new ChainError("E_WINDOW_CLOSED: outside start window", "E_WINDOW_CLOSED");
     }
@@ -201,7 +208,7 @@ export class FakeChainClient implements ChainClient {
   private asset(id: string): AssetState {
     let a = this.assets.get(id);
     if (!a) {
-      a = { reservations: new Map(), tasks: new Map(), telemetry: { metrics: {}, updatedAt: 0n, reports: 0n } };
+      a = { inService: true, reservations: new Map(), tasks: new Map(), telemetry: { metrics: {}, updatedAt: 0n, reports: 0n } };
       this.assets.set(id, a);
     }
     return a;

@@ -98,6 +98,19 @@ export class ChainError extends Error {
   }
 }
 
+/**
+ * A contract panic with an E_* code is deterministic: retrying the same call gives the same answer.
+ * RPC/network failures (code null) are worth retrying.
+ */
+export function isRetryableChainError(err: unknown): boolean {
+  return !(err instanceof ChainError && err.code !== null);
+}
+
+/** First E_* code in a message; falls back to any E_* token so new spec codes are not lost. */
+export function extractErrorCode(text: string, known: (t: string) => string | null): string | null {
+  return known(text) ?? /\b(E_[A-Z][A-Z_]+)\b/.exec(text)?.[1] ?? null;
+}
+
 /** Metrics as sorted (name, value) pairs, the order the contract receives them. */
 export function metricsToPairs(m: Metrics): Array<[string, bigint]> {
   return Object.keys(m)

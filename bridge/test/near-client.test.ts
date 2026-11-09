@@ -1,7 +1,7 @@
 import { NearRpc } from "@commonkit/sdk";
 import { describe, expect, it } from "vitest";
 import { NearChainClient } from "../src/chain/near.js";
-import { ChainError } from "../src/chain/types.js";
+import { ChainError, isRetryableChainError } from "../src/chain/types.js";
 
 type Handler = (method: string, params: Record<string, unknown>) => unknown;
 
@@ -60,6 +60,20 @@ describe("NearChainClient (reads via @commonkit/sdk NearRpc)", () => {
     expect(await c.getReservation("w.testnet", 7n)).toMatchObject({ id: 7n, status: "InSession", startSlot: 99n, sessionStartedAt: 5n });
     expect(await c.getTask("w.testnet", 3n)).toMatchObject({ id: 3n, ruleId: "filter_clean", claimer: "alice.testnet", verification: null });
     expect((await c.getTelemetry("w.testnet")).metrics).toEqual({ cycles: 31n, simulated: 1n });
+  });
+
+  it("keeps E_* codes the sdk does not know yet (E_OUT_OF_SERVICE) and marks them non-retryable", async () => {
+    const { rpc } = rpcWith(() => ({}));
+    const c = new NearChainClient(rpc, {
+      functionCall: async () => {
+        throw new Error("Smart contract panicked: E_OUT_OF_SERVICE: asset is out of service");
+      },
+    });
+    const err = await c.markSessionStarted("w.testnet", 1n, { simulated: false }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ChainError);
+    expect((err as ChainError).code).toBe("E_OUT_OF_SERVICE");
+    expect(isRetryableChainError(err)).toBe(false);
+    expect(isRetryableChainError(new ChainError("RPC HTTP 503", null))).toBe(true);
   });
 
   it("refuses writes without a signer instead of pretending", async () => {

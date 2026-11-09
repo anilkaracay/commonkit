@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { Metrics } from "../adapters/types.js";
 import {
   ChainError,
+  extractErrorCode,
   metricsToPairs,
   type AccessCheck,
   type AccessKeyPermission,
@@ -218,5 +219,5 @@ function isUnknownKey(err: unknown): boolean {
 function toChainError(err: unknown): ChainError {
   if (err instanceof ChainError) return err;
   const text = err instanceof RpcError ? `${err.message} ${JSON.stringify(err.data)}` : String(err);
-  return new ChainError(text, parseErrorCode(text));
+  return new ChainError(text, extractErrorCode(text, parseErrorCode));
 }

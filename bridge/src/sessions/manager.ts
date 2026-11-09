@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { z } from "zod";
 import type { Metrics, SessionContext } from "../adapters/types.js";
 import type { ChainClock } from "../chain/clock.js";
-import type { AccessKeyPermission, ChainClient } from "../chain/types.js";
+import { ChainError, isRetryableChainError, type AccessKeyPermission, type ChainClient } from "../chain/types.js";
 import { BridgeError } from "../errors.js";
 import type { EventBus } from "../events/bus.js";
 import type { AssetRuntime } from "../runtime.js";
@@ -164,7 +164,11 @@ export class SessionManager {
     try {
       session.startTx = await this.chainStart(rt, session);
     } catch (err) {
-      this.emit(rt, "session_start_failed", { reservation_id: req.reservationId, error: (err as Error).message }, "error");
+      const code = err instanceof ChainError ? err.code : null;
+      this.emit(rt, "session_start_failed", { reservation_id: req.reservationId, code, error: (err as Error).message }, "error");
+      if (code === "E_OUT_OF_SERVICE") {
+        throw new BridgeError(403, "OUT_OF_SERVICE", "the asset went out of service; the device stays locked");
+      }
       throw new BridgeError(502, "CHAIN_WRITE_FAILED", `mark_session_started failed: ${(err as Error).message}`);
     }
     session.metricsAtStart = await this.readMetricsSafe(rt);
@@ -247,7 +251,7 @@ export class SessionManager {
             return (await this.d.chain.markSessionFinished(s.assetId, s.reservationId, metrics, { simulated: rt.simulated }))
               .txHash;
           },
-          { ...this.retry, clock: this.d.localClock },
+          { ...this.retry, clock: this.d.localClock, retryable: isRetryableChainError },
         ),
       );
       await rt.counters.markReported(metrics);
@@ -285,6 +289,7 @@ export class SessionManager {
         {
           ...this.retry,
           clock: this.d.localClock,
+          retryable: isRetryableChainError,
           onError: (err, attempt) =>
             rt.logger.warn({ err: (err as Error).message, attempt }, "mark_session_started attempt failed"),
         },
