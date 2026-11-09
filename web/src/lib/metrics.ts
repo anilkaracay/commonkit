@@ -1,5 +1,5 @@
-/** Human formatting for telemetry counters (u64 as strings). */
-import type { RuleStatus } from '../data/types';
+/** Human formatting for telemetry counters and upkeep rule progress (per trigger, D-017). */
+import type { RuleStatus, Trigger, U64Num } from '../data/types';
 
 function groupInt(v: bigint): string {
   return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -12,7 +12,7 @@ export function metricLabel(metric: string): string {
 }
 
 /** Seconds counters render as hours/minutes, everything else as a grouped integer. */
-export function formatMetric(metric: string, value: string | bigint): string {
+export function formatMetric(metric: string, value: U64Num | bigint): string {
   const v = BigInt(value);
   if (metric.endsWith('_seconds')) {
     if (v < 3600n) return `${v / 60n} min`;
@@ -22,21 +22,64 @@ export function formatMetric(metric: string, value: string | bigint): string {
   return groupInt(v);
 }
 
+function formatHours(h: bigint): string {
+  if (h >= 48n) return `${h / 24n} d${h % 24n ? ` ${h % 24n} h` : ''}`;
+  return `${h} h`;
+}
+
+export type TriggerKind = 'Metric' | 'Schedule' | 'Report';
+
+export function triggerKind(t: Trigger): TriggerKind {
+  return 'Metric' in t ? 'Metric' : 'Schedule' in t ? 'Schedule' : 'Report';
+}
+
+/** Short trigger description: "nozzle time ≥ 30 min", "every 7 d", "1 fault report". */
+export function describeTrigger(t: Trigger): string {
+  if ('Metric' in t) return `${metricLabel(t.Metric.metric)} ≥ ${formatMetric(t.Metric.metric, t.Metric.threshold)}`;
+  if ('Schedule' in t) return `every ${formatHours(BigInt(t.Schedule.every_hours))}`;
+  return `${t.Report.min_reports} fault report${t.Report.min_reports === 1 ? '' : 's'}`;
+}
+
 export interface RuleProgress {
   rule: RuleStatus;
   used: bigint;
   threshold: bigint;
   remaining: bigint;
-  /** used / threshold for display only, may exceed 1. */
+  /** used / threshold, display only, may exceed 1. */
   fraction: number;
+  /** Formats a quantity of this rule's unit ("18 min", "3 d", "2 reports", "41 cycles"). */
+  format(v: bigint): string;
+  /** "nozzle time since last upkeep" etc. */
+  caption: string;
 }
 
 export function ruleProgress(rule: RuleStatus): RuleProgress {
-  const used = BigInt(rule.value) - BigInt(rule.baseline);
-  const threshold = BigInt(rule.threshold);
+  const t = rule.trigger;
+  let used: bigint;
+  let threshold: bigint;
+  let format: (v: bigint) => string;
+  let caption: string;
+  if ('Metric' in t) {
+    used = BigInt(rule.current) - BigInt(rule.baseline);
+    threshold = BigInt(t.Metric.threshold);
+    const m = t.Metric.metric;
+    format = (v) => (m.endsWith('_seconds') ? formatMetric(m, v) : `${formatMetric(m, v)} ${metricLabel(m)}`);
+    caption = `${metricLabel(m)} since last upkeep`;
+  } else if ('Schedule' in t) {
+    used = BigInt(rule.current);
+    threshold = BigInt(t.Schedule.every_hours);
+    format = formatHours;
+    caption = 'time since last done';
+  } else {
+    used = BigInt(rule.current);
+    threshold = BigInt(t.Report.min_reports);
+    format = (v) => `${v} report${v === 1n ? '' : 's'}`;
+    caption = 'active fault reports';
+  }
+  if (used < 0n) used = 0n;
   const remaining = threshold > used ? threshold - used : 0n;
   const fraction = threshold === 0n ? 1 : Number((used * 10_000n) / threshold) / 10_000;
-  return { rule, used, threshold, remaining, fraction };
+  return { rule, used, threshold, remaining, fraction, format, caption };
 }
 
 /** The rule closest to (or furthest past) its threshold: what the gauge shows. */

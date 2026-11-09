@@ -15,7 +15,7 @@ export function ProofPage() {
         <p className="eyebrow">proof</p>
         <h1 className="text-3xl font-extrabold">Don't trust this page. Check it.</h1>
         <p className="mt-2 text-sm text-ink-2">
-          These are the same nine checks <span className="num">scripts/verify.sh</span> runs, in the same order, read live without a wallet. Run
+          These are the checks <span className="num">scripts/verify.sh</span> runs, in the same order, read live without a wallet. Run
           it yourself from a clean clone:
         </p>
         <code className="mt-2 block rounded-md bg-ink px-3 py-2 font-mono text-xs text-paper">./scripts/verify.sh</code>

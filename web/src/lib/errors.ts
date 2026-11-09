@@ -4,8 +4,15 @@
  */
 import { type ErrorCode as SdkErrorCode } from '@commonkit/sdk';
 
-/** Codes added to the spec after the sdk list was cut (D-301 era); drop once the sdk has them. */
-type NewerCode = 'E_INVALID_ARGS' | 'E_NOT_FOUND';
+/** Codes added to the spec after the sdk list was cut (D-301, D-017); drop once the sdk has them. */
+type NewerCode =
+  | 'E_INVALID_ARGS'
+  | 'E_NOT_FOUND'
+  | 'E_OUT_OF_SERVICE'
+  | 'E_NO_RECENT_SESSION'
+  | 'E_ALREADY_REPORTED'
+  | 'E_NOT_REIMBURSABLE'
+  | 'E_EXPENSE_CAP';
 export type ErrorCode = SdkErrorCode | NewerCode;
 
 export const ERROR_MESSAGES: Record<ErrorCode, string> = {
@@ -41,6 +48,11 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   E_ASSET_NOT_REGISTERED: 'This machine is not registered (or no longer active) in the community.',
   E_INVALID_ARGS: 'Some of the details sent were malformed or out of range. Nothing was changed.',
   E_NOT_FOUND: 'That card, training or record does not exist.',
+  E_OUT_OF_SERVICE: 'This machine is out of service right now. Upcoming reservations can be cancelled for a full refund.',
+  E_NO_RECENT_SESSION: 'Only someone who used this machine in the last 14 days can report a fault.',
+  E_ALREADY_REPORTED: 'You already reported this fault. One active report per person is enough.',
+  E_NOT_REIMBURSABLE: 'This kind of task does not pay back expenses. Only restock and repair tasks do.',
+  E_EXPENSE_CAP: 'That expense is above what this task can reimburse.',
   E_NO_REVOCATION: 'Granted rights can never be taken back, by anyone.',
 };
 

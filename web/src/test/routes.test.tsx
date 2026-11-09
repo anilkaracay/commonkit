@@ -47,15 +47,30 @@ describe('every route renders with the mock source', () => {
     expect(screen.getByText('3 accounts · 1 code_hash')).toBeInTheDocument();
   });
 
+  it('out-of-service washer shows the band, a disabled Reserve and a Report a fault button', async () => {
+    renderAt(`/a/${A.washer}`);
+    expect((await screen.findAllByText('OUT OF SERVICE')).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'Report a fault' })).toBeDisabled();
+    expect(screen.queryByRole('link', { name: 'Reserve' })).toBeNull();
+  });
+
+  it('board groups open tasks by upkeep kind and shows the scenario matrix', async () => {
+    renderAt('/');
+    expect(await screen.findByRole('heading', { name: /Same contract, different commons/ })).toBeInTheDocument();
+    const open = screen.getByRole('heading', { name: 'Open tasks' }).closest('section') as HTMLElement;
+    for (const kind of ['Maintenance', 'Restock', 'Repair']) expect(within(open).getByRole('heading', { name: kind })).toBeInTheDocument();
+    expect(screen.getAllByText(/expense 1\.2 NEAR/).length).toBeGreaterThan(0);
+  });
+
   it('simulated asset page carries the SIMULATED badge and the simulate.sh command', async () => {
     renderAt(`/a/${A.washer}`);
     expect((await screen.findAllByText('SIMULATED')).length).toBeGreaterThan(0);
     expect(screen.getByText('./scripts/simulate.sh washer')).toBeInTheDocument();
   });
 
-  it('proof page lists nine checks', async () => {
+  it('proof page lists every verify.sh check', async () => {
     renderAt('/proof');
-    expect(await screen.findByText(/9 pass/)).toBeInTheDocument();
+    expect(await screen.findByText(/11 pass/)).toBeInTheDocument();
   });
 
   it('task page shows minted cards as non-transferable', async () => {

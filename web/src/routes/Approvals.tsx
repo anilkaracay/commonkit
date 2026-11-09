@@ -5,6 +5,7 @@ import { SimulatedBadge } from '../components/Badges';
 import { WalletGate } from '../components/WalletGate';
 import { Account } from '../components/TxLink';
 import { useDemoLink } from '../demo/demo';
+import { formatNear, toYocto } from '../lib/near';
 
 /** `/approvals` — stewards confirm returns, verifiers approve work, council gives second approvals. */
 export function ApprovalsPage() {
@@ -37,7 +38,8 @@ export function ApprovalsPage() {
       empty: 'No submitted maintenance waiting for a verifier.',
       rows: toVerify.map(({ deployed, snap, t }) => (
         <li key={`${deployed.alias}-${t.id}`} className="py-2.5 text-sm">
-          <Link to={link(`/t/${deployed.asset_id}/${t.id}`)} className="hover:underline">{snap.profile.rules.find((r) => r.rule_id === t.rule_id)?.title}</Link> · {deployed.alias} · by <Account id={t.claimer} />
+          <Link to={link(`/t/${deployed.asset_id}/${t.id}`)} className="hover:underline">{snap.profile.rules.find((r) => r.rule_id === t.rule_id)?.title}</Link> · {t.kind} · {deployed.alias} · by <Account id={t.claimer} />
+          {toYocto(t.expense) > 0n && <span className="num text-xs text-ink-2"> · expense {formatNear(t.expense)} NEAR with receipt</span>}
         </li>
       )),
     },

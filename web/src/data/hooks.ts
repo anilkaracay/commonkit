@@ -17,7 +17,7 @@ export function useDeployment() {
 
 export async function loadAssetSnapshot(ds: DataSource, assetId: AccountId) {
   const a = ds.asset(assetId);
-  const [profile, wiring, ledger, rules, telemetry, tasks, reservations, escalations, ops, reputationLog, period, meta, account] =
+  const [profile, wiring, ledger, rules, telemetry, tasks, reservations, escalations, ops, reputationLog, period, meta, account, service, faults, serviceLog] =
     await Promise.all([
       a.get_profile(),
       a.get_wiring(),
@@ -32,8 +32,11 @@ export async function loadAssetSnapshot(ds: DataSource, assetId: AccountId) {
       a.get_period(),
       ds.getProfileMeta(assetId),
       ds.viewAccount(assetId),
+      a.get_service_status(),
+      a.get_faults(),
+      a.get_service_log(0, PAGE),
     ]);
-  return { assetId, profile, wiring, ledger, rules, telemetry, tasks, reservations, escalations, ops, reputationLog, period, meta, account };
+  return { assetId, profile, wiring, ledger, rules, telemetry, tasks, reservations, escalations, ops, reputationLog, period, meta, account, service, faults, serviceLog };
 }
 export type AssetSnapshot = Awaited<ReturnType<typeof loadAssetSnapshot>>;
 
@@ -102,6 +105,11 @@ export function useCardsFor(account: AccountId | null) {
       return lists.flatMap((cards, i) => cards.map((card) => ({ card, community: comms[i] as DeployedCommunity })));
     },
   });
+}
+
+export function useCatalog() {
+  const ds = useDataSource();
+  return useQuery({ queryKey: ['catalog', ds.kind], queryFn: () => ds.getProfileCatalog(), staleTime: Infinity });
 }
 
 export function useEvidence() {

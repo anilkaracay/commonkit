@@ -78,12 +78,12 @@ export function MePage() {
       </Section>
       <Section title="Reservations and reputation" eyebrow="per machine">
         <ul className="tag divide-y divide-line px-4">
-          {(perAsset.data ?? []).filter((x) => x.reservations.length > 0 || x.reputation.sessions > 0 || x.reputation.maintenances > 0).map(({ a, reservations, reputation }) => (
+          {(perAsset.data ?? []).filter((x) => x.reservations.length > 0 || x.reputation.sessions > 0 || x.reputation.upkeeps > 0).map(({ a, reservations, reputation }) => (
             <li key={a.asset_id} className="py-3 text-sm">
               <p className="font-medium">
                 <Link to={link(`/a/${a.asset_id}`)} className="hover:underline">{a.alias}</Link>{' '}
                 <span className="text-xs text-ink-3">
-                  {reputation.sessions} sessions · {reputation.clean_returns} clean · {reputation.maintenances} maintenances
+                  {reputation.sessions} sessions · {reputation.clean_returns} clean · {reputation.upkeeps} upkeep · {reputation.fault_reports} fault reports
                 </span>
               </p>
               <p className="mt-1 flex flex-wrap gap-1">

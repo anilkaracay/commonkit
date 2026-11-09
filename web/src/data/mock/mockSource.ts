@@ -2,6 +2,7 @@
 import type { AssetViews, CommonsViews, DaoViews, DataSource } from '../source';
 import type { AccessKeyInfo, AccountState, Deployment } from '../offchain';
 import type { AccountId } from '../types';
+import { loadCatalog } from '../catalog';
 import {
   MOCK_NOW_MS,
   agentLimits,
@@ -53,6 +54,7 @@ function assetViews(a: MockAsset, nowMs: number): AssetViews {
       const base = { window_start: windowStart.toString(), window_end: windowEnd.toString() };
       if (!r) return { ok: false, reason: 'no valid reservation', ...base };
       if (r.holder !== account) return { ok: false, reason: 'no valid reservation', ...base };
+      if (!a.service.in_service) return { ok: false, reason: 'out_of_service', ...base };
       if (r.status === 'InSession') return { ok: true, reason: 'session active', ...base };
       if (r.status !== 'Confirmed') return { ok: false, reason: `reservation is ${r.status}`, ...base };
       const now = BigInt(nowMs) * 1_000_000n;
@@ -61,6 +63,9 @@ function assetViews(a: MockAsset, nowMs: number): AssetViews {
     },
     get_telemetry: async () => clone(a.telemetry),
     get_rule_status: async () => clone(a.rules),
+    get_faults: async (ruleId) => clone(ruleId ? a.faults.filter((f) => f.rule_id === ruleId) : a.faults),
+    get_service_status: async () => clone(a.service),
+    get_service_log: async (from, limit) => clone(page(a.serviceLog, from, limit)),
     get_task: async (id) => clone(a.tasks.find((t) => t.id === id) ?? null),
     get_tasks: async (from, limit, status) =>
       clone(page(status ? a.tasks.filter((t) => t.status === status) : a.tasks, from, limit)),
@@ -68,7 +73,7 @@ function assetViews(a: MockAsset, nowMs: number): AssetViews {
     get_ops: async (from, limit, status) =>
       clone(page(status ? a.ops.filter((o) => o.status === status) : a.ops, from, limit)),
     get_reputation: async (account) =>
-      clone(a.reputation[account] ?? { sessions: 0, clean_returns: 0, damages: 0, maintenances: 0 }),
+      clone(a.reputation[account] ?? { sessions: 0, clean_returns: 0, damages: 0, upkeeps: 0, fault_reports: 0 }),
     get_reputation_log: async (from, limit) => clone(page(a.reputationLog, from, limit)),
     get_period: async () => clone(a.period),
     get_roles: async (account) => clone(a.roles[account] ?? []),
@@ -142,6 +147,7 @@ export function createMockSource(opts: MockSourceOptions = {}): DataSource {
     }),
     viewAccessKeyList: async (id) => clone(opts.accessKeys?.[id] ?? []),
     getDeployment: async () => clone(dep),
+    getProfileCatalog: async () => loadCatalog(),
     getProfileMeta: async (id) => clone(need(profileMeta[id], `profile meta ${id}`)),
     getEvidenceSteps: async () => clone(evidenceSteps),
     getAgentLimits: async () => clone(agentLimits),

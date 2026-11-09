@@ -4,9 +4,19 @@ import type { DeployedAsset } from '../data/offchain';
 import { AssetIcon } from './AssetIcon';
 import { Pill, SimulatedBadge } from './Badges';
 import { KasaBar } from './KasaBar';
-import { MaintenanceGauge } from './MaintenanceGauge';
+import { UpkeepGauge } from './UpkeepGauge';
 import { assetStatus } from './assetStatus';
 import { useDemoLink } from '../demo/demo';
+
+/** Shown on the nameplate while get_service_status().in_service is false. */
+export function OutOfServiceBand({ detail }: { detail?: string }) {
+  return (
+    <div role="status" className="rounded-tag-sm border-2 border-danger bg-danger-soft px-3 py-2 text-danger">
+      <p className="font-mono text-xs font-bold tracking-[0.14em]">OUT OF SERVICE</p>
+      <p className="text-xs text-ink-2">{detail ?? 'No new reservations or sessions until a Repair task is rewarded or the council restores it.'}</p>
+    </div>
+  );
+}
 
 /** The machine nameplate used on the board: name, account, status, dial, cash box. */
 export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: AssetSnapshot }) {
@@ -33,7 +43,7 @@ export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: A
       </header>
 
       <div className="flex items-center gap-4">
-        <MaintenanceGauge rules={snap.rules} ruleDefs={snap.profile.rules} size={118} />
+        <UpkeepGauge rules={snap.rules} ruleDefs={snap.profile.rules} size={118} />
         <div className="min-w-0 flex-1 space-y-2 text-sm">
           <Pill tone={status.tone}>{status.label}</Pill>
           <p className="text-ink-2">
@@ -46,6 +56,8 @@ export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: A
           )}
         </div>
       </div>
+
+      {!snap.service.in_service && <OutOfServiceBand />}
 
       <KasaBar ledger={snap.ledger} floatCap={snap.profile.float_cap} compact />
     </article>

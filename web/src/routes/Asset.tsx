@@ -7,7 +7,10 @@ import { AssetIcon } from '../components/AssetIcon';
 import { Pill, SimulatedBadge, type Tone } from '../components/Badges';
 import { KasaBar } from '../components/KasaBar';
 import { KeepersList } from '../components/KeepersList';
-import { MaintenanceGauge, RuleBars } from '../components/MaintenanceGauge';
+import { UpkeepGauge, RuleBars } from '../components/UpkeepGauge';
+import { OutOfServiceBand } from '../components/AssetCard';
+import { useWallet } from '../wallet/wallet';
+import { useToast } from '../components/Toast';
 import { Empty, LoadError, Loading, Section } from '../components/Section';
 import { TaskRow } from '../components/TaskRow';
 import { Account, TxLink } from '../components/TxLink';
@@ -35,6 +38,8 @@ export function AssetPage() {
   const q = useAssetSnapshot(assetId);
   const comms = useCommunities();
   const link = useDemoLink();
+  const wallet = useWallet();
+  const toast = useToast();
   const now = ds.now();
 
   const slotMinutes = q.data?.profile.slot_minutes ?? 60;
@@ -55,12 +60,13 @@ export function AssetPage() {
   const community = comms.data?.find((c) => c.community.slug === deployed.community);
   const trainings = community?.trainings.filter((t) => t.kind === s.profile.required_credential) ?? [];
 
-  const rep = new Map<string, { sessions: number; clean: number; maint: number }>();
+  const rep = new Map<string, { sessions: number; clean: number; maint: number; faults: number }>();
   for (const r of s.reputationLog) {
-    const e = rep.get(r.account) ?? { sessions: 0, clean: 0, maint: 0 };
+    const e = rep.get(r.account) ?? { sessions: 0, clean: 0, maint: 0, faults: 0 };
     if (r.kind === 'session') e.sessions += 1;
     if (r.kind === 'clean_return') e.clean += 1;
-    if (r.kind === 'maintenance') e.maint += 1;
+    if (r.kind === 'upkeep') e.maint += 1;
+    if (r.kind === 'fault_report') e.faults += 1;
     rep.set(r.account, e);
   }
 
@@ -92,13 +98,37 @@ export function AssetPage() {
             </div>
           </div>
           <div className="flex justify-center">
-            <MaintenanceGauge rules={s.rules} ruleDefs={s.profile.rules} size={176} />
+            <UpkeepGauge rules={s.rules} ruleDefs={s.profile.rules} size={176} />
           </div>
         </div>
+        {!s.service.in_service && (
+          <div className="px-5 pb-4">
+            <OutOfServiceBand detail={`Since ${formatDateTime(s.service.since)}. Reservations and sessions are refused (E_OUT_OF_SERVICE); upcoming reservations can be cancelled for a full refund.`} />
+          </div>
+        )}
         <div className="flex flex-wrap items-center gap-3 border-t border-line bg-surface/60 px-5 py-3">
-          <Link to={link(`/a/${assetId}/reserve`)} className="rounded-full bg-ink px-4 py-1.5 text-sm font-medium text-paper">
-            Reserve
-          </Link>
+          {s.service.in_service ? (
+            <Link to={link(`/a/${assetId}/reserve`)} className="rounded-full bg-ink px-4 py-1.5 text-sm font-medium text-paper">
+              Reserve
+            </Link>
+          ) : (
+            <span aria-disabled className="cursor-not-allowed rounded-full bg-surface-2 px-4 py-1.5 text-sm font-medium text-ink-3">
+              Reserve
+            </span>
+          )}
+          <button
+            type="button"
+            disabled={wallet.status !== 'connected'}
+            title={wallet.status === 'connected' ? 'Report a fault (needs a session in the last 14 days)' : (wallet.unavailableReason ?? 'Connect a wallet to report a fault')}
+            onClick={() =>
+              void wallet
+                .signAndSendTransaction({ receiverId: assetId, methodName: 'report_fault', args: { rule_id: null, note_hash: '' }, deposit: 0n })
+                .catch((e: unknown) => toast.showError(e))
+            }
+            className="rounded-full border border-danger px-4 py-1.5 text-sm font-medium text-danger disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Report a fault
+          </button>
           <span className="text-sm text-ink-2">
             <span className="num font-semibold text-ink">{formatNear(s.profile.price_per_slot)} NEAR</span> per {s.profile.slot_minutes} min
             {toYocto(s.profile.deposit) > 0n && (
@@ -132,7 +162,7 @@ export function AssetPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <Section title="Maintenance rules" eyebrow={`profile v${s.wiring.profile_version}`}>
+        <Section title="Upkeep rules" eyebrow={`profile v${s.wiring.profile_version}`}>
           <div className="tag p-4">
             <RuleBars rules={s.rules} ruleDefs={s.profile.rules} />
           </div>
@@ -150,9 +180,41 @@ export function AssetPage() {
         </Section>
       </div>
 
-      <Section title="Tasks" eyebrow="opened by the operations agent">
+      {(s.faults.some((f) => f.reports.length > 0) || s.serviceLog.length > 0) && (
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+          <Section title="Fault reports" eyebrow="from members who used it in the last 14 days">
+            <ul className="tag divide-y divide-line px-4">
+              {s.faults.flatMap((f) =>
+                f.reports.map((r) => (
+                  <li key={`${f.rule_id}-${r.reporter}`} className="py-2.5 text-sm">
+                    <Account id={r.reporter} /> <span className="text-xs text-ink-3">· {f.rule_id} · {formatAgo(r.at, now)}</span>
+                    <p className="num text-[11px] break-all text-ink-3">note sha256 {r.note_hash}</p>
+                  </li>
+                )),
+              )}
+            </ul>
+          </Section>
+          <Section title="Service log" eyebrow="out-of-service periods">
+            <ul className="tag divide-y divide-line px-4">
+              {s.serviceLog.map((p) => (
+                <li key={p.seq} className="py-2.5 text-sm">
+                  <p>
+                    {formatDateTime(p.started_at)} → {p.ended_at ? formatDateTime(p.ended_at) : <span className="font-medium text-danger">still out</span>}
+                  </p>
+                  <p className="text-xs text-ink-3">
+                    by <Account id={p.started_by} />
+                    {p.ended_by && ('RepairRewarded' in p.ended_by ? ` · restored by repair task #${p.ended_by.RepairRewarded.task_id}` : ' · restored by council')}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        </div>
+      )}
+
+      <Section title="Tasks" eyebrow="upkeep opened by the operations agent">
         {s.tasks.length === 0 ? (
-          <Empty>No maintenance tasks yet. One opens when a rule above crosses its threshold.</Empty>
+          <Empty>No upkeep tasks yet. One opens when a rule above is due.</Empty>
         ) : (
           <ul className="tag divide-y divide-line px-4">
             {[...s.tasks].reverse().map((t) => (
@@ -243,7 +305,8 @@ export function AssetPage() {
                   <th className="p-3 font-normal">member</th>
                   <th className="p-3 text-right font-normal">sessions</th>
                   <th className="p-3 text-right font-normal">clean</th>
-                  <th className="p-3 text-right font-normal">maint.</th>
+                  <th className="p-3 text-right font-normal">faults</th>
+                  <th className="p-3 text-right font-normal">upkeep</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -252,6 +315,7 @@ export function AssetPage() {
                     <td className="p-3"><Account id={acc} /></td>
                     <td className="num p-3 text-right">{e.sessions}</td>
                     <td className="num p-3 text-right">{e.clean}</td>
+                    <td className="num p-3 text-right">{e.faults}</td>
                     <td className="num p-3 text-right font-semibold text-alive">{e.maint}</td>
                   </tr>
                 ))}

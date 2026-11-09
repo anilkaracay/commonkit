@@ -8,6 +8,7 @@ export interface AssetStatus {
 
 /** Character status for the nameplate, from chain data only. */
 export function assetStatus(snap: AssetSnapshot): AssetStatus {
+  if (!snap.service.in_service) return { label: 'out of service', tone: 'danger' };
   const inSession = snap.reservations.find((r) => r.status === 'InSession');
   const openTask = snap.rules.find((r) => r.open_task !== null);
   const dueNoTask = snap.rules.find((r) => r.due && r.open_task === null);

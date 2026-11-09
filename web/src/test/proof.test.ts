@@ -5,9 +5,9 @@ import { deployment } from '../data/mock/fixtures';
 import { runProofChecks } from '../proof/checks';
 
 describe('proof checks mirror verify.sh', () => {
-  it('runs the nine checks in verify.sh order and passes on the consistent mock world', async () => {
+  it('runs the verify.sh checks in order and passes on the consistent mock world', async () => {
     const checks = await runProofChecks(createMockSource());
-    expect(checks.map((c) => c.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(checks.map((c) => c.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
     for (const c of checks) expect(c.status, `${c.id} ${c.title}: ${JSON.stringify(c.items.filter((i) => !i.ok))}`).toBe('pass');
   });
 

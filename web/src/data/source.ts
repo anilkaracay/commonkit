@@ -21,6 +21,9 @@ import type {
   RewardPeriod,
   Role,
   RuleStatus,
+  RuleFaults,
+  ServiceState,
+  OutOfServicePeriod,
   Task,
   TaskStatus,
   Telemetry,
@@ -37,6 +40,7 @@ import type {
   EvidenceStep,
   Policy,
   ProfileMeta,
+  CatalogEntry,
   Proposal,
 } from './offchain';
 
@@ -53,6 +57,9 @@ export interface AssetViews {
   can_access(account: AccountId, reservation_id: U64): Promise<AccessCheck>;
   get_telemetry(): Promise<Telemetry>;
   get_rule_status(): Promise<RuleStatus[]>;
+  get_faults(rule_id?: string): Promise<RuleFaults[]>;
+  get_service_status(): Promise<ServiceState>;
+  get_service_log(from_index: number, limit: number): Promise<OutOfServicePeriod[]>;
   get_task(id: U64): Promise<Task | null>;
   get_tasks(from_index: number, limit: number, status?: TaskStatus): Promise<Task[]>;
   get_escalations(from_index: number, limit: number): Promise<Escalation[]>;
@@ -102,6 +109,8 @@ export interface DataSource {
   viewAccessKeyList(accountId: AccountId): Promise<AccessKeyInfo[]>;
   /** deployments/testnet.json */
   getDeployment(): Promise<Deployment>;
+  /** Every profile in profiles/*.json with its meta (scenario matrix). */
+  getProfileCatalog(): Promise<CatalogEntry[]>;
   /** profiles/<file>.json `meta` block */
   getProfileMeta(assetId: AccountId): Promise<ProfileMeta>;
   /** evidence/steps.json */

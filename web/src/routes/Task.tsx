@@ -11,9 +11,17 @@ import { WalletGate } from '../components/WalletGate';
 import { Account, TxLink } from '../components/TxLink';
 import { useDemoLink } from '../demo/demo';
 import { rewardStateLabel } from '../lib/enums';
-import { formatMetric, metricLabel } from '../lib/metrics';
+import { describeTrigger, ruleProgress } from '../lib/metrics';
+import { formatNear, toYocto } from '../lib/near';
+import { KindChip } from '../components/UpkeepKind';
+import type { ExpenseState } from '../data/types';
 import { formatDateTime } from '../lib/time';
 import { NotFoundPage } from './NotFound';
+
+function expenseLabel(e: ExpenseState): string {
+  if (typeof e !== 'string') return `escalated to the DAO (#${e.Escalated.escalation_id})`;
+  return { None: 'awaiting approval', Reserved: 'reserved from float', NeedsEscalation: 'needs a DAO proposal', Paid: 'paid' }[e];
+}
 
 async function sha256Hex(file: File): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
@@ -45,12 +53,14 @@ export function TaskPage() {
   const rule = s.profile.rules.find((r) => r.rule_id === task.rule_id);
   const status = s.rules.find((r) => r.rule_id === task.rule_id);
   const sim = s.profile.adapter === 'simulator';
+  const progress = status ? ruleProgress(status) : null;
   const alias = dep.data?.assets.find((a) => a.asset_id === assetId)?.alias ?? assetId;
 
   const timeline: [string, boolean, ReactNode][] = [
     ['Opened by the agent', true, <><Account id={task.opened_by} /> · {formatDateTime(task.created_at)}</>],
     ['Claimed', !!task.claimer, task.claimer ? <><Account id={task.claimer} />{task.claimed_at && ` · ${formatDateTime(task.claimed_at)}`}</> : 'waiting for a member'],
     ['Evidence submitted', !!task.evidence_hash, task.evidence_hash ? <span className="num break-all">sha256 {task.evidence_hash}</span> : 'photo hash, computed in the browser'],
+    ...(task.receipt_hash ? [['Receipt attached', true, <span key="r" className="num break-all">sha256 {task.receipt_hash}</span>] as [string, boolean, ReactNode]] : []),
     ['Verification test', !!task.verification, rule?.requires_verification_test ? (task.verification ? `${task.verification.passed ? 'passed' : 'failed'} · bridge report` : 'bridge runs it after submission') : 'not required by this rule'],
     ['Approved by an independent verifier', !!task.verifier, task.verifier ? <Account id={task.verifier} /> : 'verifier ≠ claimer, agent or bridge'],
     ...(task.needs_council || task.council_approver ? [['Council second approval', !!task.council_approver, task.council_approver ? <Account id={task.council_approver} /> : 'needed'] as [string, boolean, ReactNode]] : []),
@@ -76,13 +86,39 @@ export function TaskPage() {
       </blockquote>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <Section title="Rule facts" eyebrow="from on-chain telemetry">
+        <Section title="Rule facts" eyebrow="why it was due">
           <dl className="tag grid grid-cols-2 gap-4 p-4 text-sm">
-            <div><dt className="text-xs text-ink-3">metric</dt><dd className="num">{rule?.metric}</dd></div>
-            <div><dt className="text-xs text-ink-3">threshold</dt><dd className="num">{rule && formatMetric(rule.metric, rule.threshold)}</dd></div>
-            <div><dt className="text-xs text-ink-3">{rule && metricLabel(rule.metric)} at open</dt><dd className="num">{rule && formatMetric(rule.metric, task.metric_value_at_open)}</dd></div>
-            <div><dt className="text-xs text-ink-3">baseline now</dt><dd className="num">{rule && status && formatMetric(rule.metric, status.baseline)}</dd></div>
-            <div className="col-span-2"><dt className="text-xs text-ink-3">reward</dt><dd>{task.reward_rights} usage right(s) in <span className="num">{s.profile.group_id}</span></dd></div>
+            <div>
+              <dt className="text-xs text-ink-3">kind</dt>
+              <dd><KindChip kind={task.kind} /></dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-3">trigger</dt>
+              <dd className="num text-xs">{rule ? describeTrigger(rule.trigger) : task.rule_id}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-3">due value at open</dt>
+              <dd className="num">{progress ? progress.format(BigInt(task.due_value_at_open)) : String(task.due_value_at_open)}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-3">opened</dt>
+              <dd className="text-xs">{task.manual ? 'manually by the council (due check bypassed, recorded)' : 'by the agent, due check passed'}</dd>
+            </div>
+            <div className="col-span-2">
+              <dt className="text-xs text-ink-3">reward</dt>
+              <dd>
+                {task.reward_rights} usage right(s) in <span className="num">{s.profile.group_id}</span>
+                {rule && toYocto(rule.reimbursable_max) > 0n && <span className="text-ink-2"> · documented expense reimbursable up to {formatNear(rule.reimbursable_max)} NEAR</span>}
+              </dd>
+            </div>
+            {toYocto(task.expense) > 0n && (
+              <div className="col-span-2 rounded-tag-sm bg-surface-2 p-3">
+                <dt className="text-xs text-ink-3">expense claimed</dt>
+                <dd className="num font-semibold">{formatNear(task.expense)} NEAR <span className="font-normal text-ink-3">· {expenseLabel(task.expense_state)}</span></dd>
+                {task.receipt_hash && <dd className="num mt-1 text-[11px] break-all text-ink-2">receipt sha256 {task.receipt_hash}</dd>}
+                <dd className="mt-1 text-[11px] text-ink-3">Paid from the float only, never from deposits; above the cash cap it goes through a DAO proposal.</dd>
+              </div>
+            )}
           </dl>
         </Section>
         <Section title="Progress" eyebrow="no one approves their own work">

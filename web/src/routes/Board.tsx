@@ -1,5 +1,8 @@
 import { Link } from 'react-router';
-import { useAllAssets, useCommunities, useDeployment } from '../data/hooks';
+import { useAllAssets, useCatalog, useCommunities, useDeployment } from '../data/hooks';
+import { ScenarioMatrix } from '../components/ScenarioMatrix';
+import { KIND_LABEL, KindIcon } from '../components/UpkeepKind';
+import { UPKEEP_KINDS } from '../data/types';
 import { useDataSource } from '../data/source';
 import { AssetCard } from '../components/AssetCard';
 import { Pill, SimulatedBadge } from '../components/Badges';
@@ -17,6 +20,7 @@ export function BoardPage() {
   const dep = useDeployment();
   const all = useAllAssets();
   const comms = useCommunities();
+  const catalog = useCatalog();
   const link = useDemoLink();
   const now = ds.now();
   const rowTx = (key: string) => ds.rowTx(key);
@@ -74,12 +78,17 @@ export function BoardPage() {
       <SameContractStrip assets={all.data.map(({ deployed, snap }) => ({ deployed, codeHash: snap.account.code_hash }))} />
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <Section title="Open tasks" eyebrow="maintenance the machines asked for">
+        <Section title="Open tasks" eyebrow="upkeep the machines asked for">
           {openTasks.length === 0 ? (
-            <Empty>No open maintenance. The agent opens a task only when telemetry crosses a profile threshold.</Empty>
+            <Empty>No open upkeep. The agent opens a task only when a profile rule is due.</Empty>
           ) : (
+            UPKEEP_KINDS.filter((k) => openTasks.some((o) => o.task.kind === k)).map((kind) => (
+            <div key={kind} className="space-y-1.5">
+            <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
+              <KindIcon kind={kind} /> {KIND_LABEL[kind]}
+            </h3>
             <ul className="tag divide-y divide-line px-4">
-              {openTasks.map(({ deployed, snap, task }) => (
+              {openTasks.filter((o) => o.task.kind === kind).map(({ deployed, snap, task }) => (
                 <TaskRow
                   key={`${deployed.asset_id}-${task.id}`}
                   task={task}
@@ -92,6 +101,8 @@ export function BoardPage() {
                 />
               ))}
             </ul>
+            </div>
+            ))
           )}
         </Section>
 
@@ -124,6 +135,10 @@ export function BoardPage() {
           )}
         </Section>
       </div>
+
+      <Section title="Same contract, different commons" eyebrow="every profile in profiles/, by kind of upkeep">
+        {catalog.data ? <ScenarioMatrix catalog={catalog.data} /> : <Loading what="profiles" />}
+      </Section>
 
       <Section title="Latest proposals" eyebrow="Sputnik DAO governance">
         {proposals.length === 0 ? (

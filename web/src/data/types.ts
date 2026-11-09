@@ -5,24 +5,37 @@
  *  - u32 / u16 are numbers,
  *  - unit enum variants are strings, data-carrying variants are `{ Variant: {...} }`,
  *  - Rust tuples are JSON arrays.
+ * u64 values the spec shows as JSON numbers (trigger thresholds, rule status counters) are typed
+ * `U64Num` (string | number) and always read through BigInt().
  * When packages/sdk publishes its types (M7), these must be replaced by re-exports from it.
  */
 
 export type U128 = string;
 export type U64 = string;
+export type U64Num = string | number;
 export type AccountId = string;
 export type GroupId = string;
 export type CredentialKind = string;
 export type Role = 'steward' | 'verifier' | 'trainer' | 'council';
 
-// ---------- asset §2.1 ----------
-export interface MaintenanceRule {
+// ---------- asset §2.1 (D-017: maintenance → upkeep) ----------
+export const UPKEEP_KINDS = ['Maintenance', 'Restock', 'Cleaning', 'Inspection', 'Repair', 'Rebalance', 'Supervision'] as const;
+export type UpkeepKind = (typeof UPKEEP_KINDS)[number];
+
+export type Trigger =
+  | { Metric: { metric: string; threshold: U64Num } }
+  | { Schedule: { every_hours: number } }
+  | { Report: { min_reports: number } };
+
+export interface UpkeepRule {
   rule_id: string;
-  metric: string;
-  threshold: U64;
+  kind: UpkeepKind;
+  trigger: Trigger;
   title: string;
   reward_rights: number;
   reward_cash: U128;
+  /** Restock/Repair only: max documented expense the worker may claim. */
+  reimbursable_max: U128;
   requires_verification_test: boolean;
   claim_timeout_hours: number;
 }
@@ -51,7 +64,7 @@ export interface Profile {
   right_validity_days: number;
   first_task_needs_council: boolean;
   start_window_minutes: number;
-  rules: MaintenanceRule[];
+  rules: UpkeepRule[];
   protocol_fee_bps: number;
   protocol_fee_receiver: AccountId | null;
 }
@@ -134,15 +147,49 @@ export interface Telemetry {
   reports: U64;
 }
 
-/** One element of `get_rule_status()`. */
+/**
+ * One element of `get_rule_status()`. `current`: Metric value / hours since last reward /
+ * active fault reports. `next_due_estimate`: Schedule only, ns timestamp.
+ */
 export interface RuleStatus {
   rule_id: string;
-  metric: string;
-  value: U64;
-  baseline: U64;
-  threshold: U64;
+  kind: UpkeepKind;
+  trigger: Trigger;
+  current: U64Num;
+  baseline: U64Num;
   due: boolean;
+  next_due_estimate: U64 | null;
   open_task: U64 | null;
+}
+
+// ---------- asset §2.4a ----------
+export interface FaultReport {
+  reporter: AccountId;
+  note_hash: string;
+  at: U64;
+}
+
+/** One element of `get_faults(rule_id?)`. */
+export interface RuleFaults {
+  rule_id: string;
+  reports: FaultReport[];
+}
+
+export interface ServiceState {
+  in_service: boolean;
+  since: U64;
+  reason_hash: string | null;
+}
+
+export type ServiceRestoredBy = { RepairRewarded: { task_id: U64 } } | { Council: { account: AccountId } };
+
+export interface OutOfServicePeriod {
+  seq: U64;
+  started_at: U64;
+  started_by: AccountId;
+  reason_hash: string;
+  ended_at: U64 | null;
+  ended_by: ServiceRestoredBy | null;
 }
 
 // ---------- asset §2.5 ----------
@@ -169,12 +216,17 @@ export type RewardState =
   | 'Done'
   | { Failed: { reason: string } };
 
+export type ExpenseState = 'None' | 'Reserved' | 'NeedsEscalation' | { Escalated: { escalation_id: U64 } } | 'Paid';
+
 export interface Task {
   id: U64;
   rule_id: string;
+  kind: UpkeepKind;
   opened_by: AccountId;
   rationale: string;
-  metric_value_at_open: U64;
+  /** Metric: delta since baseline; Schedule: hours since last; Report: active reports. */
+  due_value_at_open: U64Num;
+  manual: boolean;
   reward_rights: number;
   reward_cash: U128;
   needs_council: boolean;
@@ -183,6 +235,9 @@ export interface Task {
   claimed_at: U64 | null;
   evidence_hash: string | null;
   evidence_uri: string | null;
+  expense: U128;
+  receipt_hash: string | null;
+  expense_state: ExpenseState;
   verification: VerificationResult | null;
   verifier: AccountId | null;
   council_approver: AccountId | null;
@@ -202,7 +257,7 @@ export type EscalationStatus = 'Submitting' | 'Submitted' | 'Approved' | 'Reject
 export interface Escalation {
   id: U64;
   requested_by: AccountId;
-  kind: 'purchase' | 'cash_reward' | 'other';
+  kind: 'purchase' | 'cash_reward' | 'reimbursement' | 'other';
   receiver: AccountId;
   amount: U128;
   reason: string;
@@ -213,7 +268,7 @@ export interface Escalation {
 }
 
 // ---------- asset §2.7 ----------
-export type OpKind = 'Refund' | 'Sweep' | 'CashReward' | 'Bond' | 'ProtocolFee';
+export type OpKind = 'Refund' | 'Sweep' | 'CashReward' | 'Reimbursement' | 'Bond' | 'ProtocolFee';
 export type OpStatus = 'Pending' | 'Succeeded' | 'Failed';
 
 export interface OutboundOp {
@@ -231,7 +286,8 @@ export interface Reputation {
   sessions: number;
   clean_returns: number;
   damages: number;
-  maintenances: number;
+  upkeeps: number;
+  fault_reports: number;
 }
 
 export interface ReputationRecord {

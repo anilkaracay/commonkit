@@ -58,7 +58,16 @@ export interface ProfileMeta {
   display_name: string;
   community: string;
   icon: string;
+  /** "real hardware …" | "simulation" | "profile example only" */
+  status: string;
   scenario_story_en: string;
+}
+
+/** One profiles/*.json file. */
+export interface CatalogEntry {
+  file: string;
+  profile: import('./types').Profile;
+  meta: ProfileMeta;
 }
 
 /** NEAR RPC `view_account`. */

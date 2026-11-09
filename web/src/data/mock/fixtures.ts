@@ -24,6 +24,12 @@ import type {
   Training,
   Wiring,
   RewardPeriod,
+  UpkeepKind,
+  Trigger,
+  UpkeepRule,
+  ServiceState,
+  OutOfServicePeriod,
+  RuleFaults,
 } from '../types';
 import type {
   AgentLimitAttempt,
@@ -120,6 +126,25 @@ export const deployment: Deployment = {
 };
 
 // ---------- profiles ----------
+const rule = (
+  rule_id: string,
+  kind: UpkeepKind,
+  trigger: Trigger,
+  title: string,
+  reward_rights: number,
+  o: { test?: boolean; reimburse?: string } = {},
+): UpkeepRule => ({
+  rule_id,
+  kind,
+  trigger,
+  title,
+  reward_rights,
+  reward_cash: '0',
+  reimbursable_max: o.reimburse ? n(o.reimburse) : '0',
+  requires_verification_test: o.test ?? false,
+  claim_timeout_hours: 48,
+});
+
 const baseProfile = {
   max_slots_per_reservation: 4,
   booking_horizon_days: 14,
@@ -151,8 +176,9 @@ const printerProfile: Profile = {
   float_cap: n('3'),
   first_task_needs_council: true,
   rules: [
-    { rule_id: 'nozzle_clean', metric: 'nozzle_seconds', threshold: '1800', title: 'Nozzle cleaning', reward_rights: 2, reward_cash: '0', requires_verification_test: true, claim_timeout_hours: 24 },
-    { rule_id: 'bed_level', metric: 'jobs_total', threshold: '50', title: 'Bed levelling', reward_rights: 1, reward_cash: '0', requires_verification_test: false, claim_timeout_hours: 24 },
+    rule('nozzle_clean', 'Maintenance', { Metric: { metric: 'nozzle_seconds', threshold: 1800 } }, 'Nozzle cleaning', 2, { test: true }),
+    rule('bed_level', 'Maintenance', { Metric: { metric: 'jobs_total', threshold: 50 } }, 'Bed levelling', 1),
+    rule('filament_spool', 'Restock', { Metric: { metric: 'filament_mm', threshold: 330000 } }, 'Replace the filament spool', 1, { reimburse: '1.5' }),
   ],
 };
 
@@ -172,7 +198,8 @@ const laserProfile: Profile = {
   float_cap: n('3'),
   first_task_needs_council: true,
   rules: [
-    { rule_id: 'lens_clean', metric: 'run_seconds', threshold: '600', title: 'Lens cleaning', reward_rights: 2, reward_cash: '0', requires_verification_test: true, claim_timeout_hours: 24 },
+    rule('lens_clean', 'Cleaning', { Metric: { metric: 'run_seconds', threshold: 600 } }, 'Lens cleaning', 2, { test: true }),
+    rule('safety_check', 'Inspection', { Schedule: { every_hours: 168 } }, 'Weekly extraction and interlock check', 1),
   ],
 };
 
@@ -192,18 +219,27 @@ const washerProfile: Profile = {
   float_cap: n('1'),
   first_task_needs_council: false,
   rules: [
-    { rule_id: 'filter_clean', metric: 'cycles', threshold: '30', title: 'Filter cleaning', reward_rights: 3, reward_cash: '0', requires_verification_test: false, claim_timeout_hours: 48 },
-    { rule_id: 'descale', metric: 'cycles', threshold: '120', title: 'Descaling', reward_rights: 5, reward_cash: '0', requires_verification_test: false, claim_timeout_hours: 72 },
+    rule('filter_clean', 'Cleaning', { Metric: { metric: 'cycles', threshold: 30 } }, 'Filter cleaning', 3),
+    rule('descale', 'Maintenance', { Metric: { metric: 'cycles', threshold: 120 } }, 'Descaling', 5),
+    rule('fault_repair', 'Repair', { Report: { min_reports: 2 } }, 'Fix the reported fault', 4, { reimburse: '2' }),
   ],
 };
 
 export const profileMeta: Record<AccountId, ProfileMeta> = {
-  [A.printer]: { display_name: 'Prusa MK4', community: 'makerlab', icon: 'printer_3d', scenario_story_en: 'The makerspace printer. Pays for its own nozzles; whoever cleans it prints for free.' },
-  [A.laser]: { display_name: 'CO₂ laser cutter', community: 'makerlab', icon: 'laser_cutter', scenario_story_en: 'Needs a laser_safety credential. Trainers earn access by training others.' },
-  [A.washer]: { display_name: 'Dorm washer', community: 'dorm-b', icon: 'washer', scenario_story_en: 'Simulated washer in a student dorm. Same contract, different commons.' },
+  [A.printer]: { display_name: 'Prusa MK4', community: 'makerlab', icon: 'printer_3d', status: 'real hardware', scenario_story_en: 'The makerspace printer. Pays for its own nozzles; whoever cleans it prints for free.' },
+  [A.laser]: { display_name: 'CO₂ laser cutter', community: 'makerlab', icon: 'laser_cutter', status: 'real hardware', scenario_story_en: 'Needs a laser_safety credential. Trainers earn access by training others.' },
+  [A.washer]: { display_name: 'Dorm washer', community: 'dorm-b', icon: 'washer', status: 'simulation', scenario_story_en: 'Simulated washer in a student dorm. Same contract, different commons.' },
 };
 
 // ---------- per-asset state ----------
+function status(p: Profile, rule_id: string, current: number, baseline: number, due: boolean, open_task: string | null): RuleStatus {
+  const r = p.rules.find((x) => x.rule_id === rule_id);
+  if (!r) throw new Error(`mock: no rule ${rule_id}`);
+  return { rule_id, kind: r.kind, trigger: r.trigger, current, baseline, due, next_due_estimate: null, open_task };
+}
+
+const inService: ServiceState = { in_service: true, since: t('2026-11-09T12:00:00Z'), reason_hash: null };
+
 export interface MockAsset {
   profile: Profile;
   wiring: Wiring;
@@ -211,6 +247,9 @@ export interface MockAsset {
   reservations: Reservation[];
   telemetry: Telemetry;
   rules: RuleStatus[];
+  faults: RuleFaults[];
+  service: ServiceState;
+  serviceLog: OutOfServicePeriod[];
   tasks: Task[];
   escalations: Escalation[];
   ops: OutboundOp[];
@@ -277,16 +316,20 @@ const printer: MockAsset = {
     res({ id: '4', holder: A.ali, start_slot: slot('2026-11-12T09:30:00Z', 30), slots: 2, fee_paid: n('0.5'), deposit_paid: n('2'), status: 'InSession', created_at: t('2026-11-12T08:05:00Z'), session_started_at: t('2026-11-12T09:31:00Z') }),
     res({ id: '5', holder: A.zeynep, start_slot: slot('2026-11-12T15:00:00Z', 30), slots: 1, fee_paid: n('0.25'), deposit_paid: n('2'), status: 'Confirmed', created_at: t('2026-11-12T09:12:00Z') }),
   ],
-  telemetry: { metrics: [['nozzle_seconds', '2950'], ['jobs_total', '58'], ['filament_mm', '184220']], updated_at: t('2026-11-12T09:58:00Z'), reports: '41' },
+  telemetry: { metrics: [['nozzle_seconds', '2950'], ['jobs_total', '58'], ['filament_mm', '341500']], updated_at: t('2026-11-12T09:58:00Z'), reports: '41' },
   rules: [
-    { rule_id: 'nozzle_clean', metric: 'nozzle_seconds', value: '2950', baseline: '1830', threshold: '1800', due: false, open_task: null },
-    { rule_id: 'bed_level', metric: 'jobs_total', value: '58', baseline: '0', threshold: '50', due: true, open_task: '2' },
+    status(printerProfile, 'nozzle_clean', 2950, 1830, false, null),
+    status(printerProfile, 'bed_level', 58, 0, true, '2'),
+    status(printerProfile, 'filament_spool', 341500, 0, true, '3'),
   ],
+  faults: [],
+  service: inService,
+  serviceLog: [],
   tasks: [
     {
       id: '1', rule_id: 'nozzle_clean', opened_by: A.makerAgent,
       rationale: 'Nozzle time since last cleaning: 30.3 min (threshold 30 min, pilot value). 9 prints since then, 1 failed (11%). Opening "Nozzle cleaning" with reward: 2 usage rights.',
-      metric_value_at_open: '1820', reward_rights: 2, reward_cash: '0', needs_council: false, status: 'Rewarded',
+      kind: 'Maintenance', due_value_at_open: 1820, manual: false, expense: '0', receipt_hash: null, expense_state: 'None', reward_rights: 2, reward_cash: '0', needs_council: false, status: 'Rewarded',
       claimer: A.ayse, claimed_at: t('2026-11-11T08:20:00Z'), evidence_hash: hex('3fa9c1'), evidence_uri: null,
       verification: { passed: true, details_hash: hex('b07e'), reported_at: t('2026-11-11T09:05:00Z') },
       verifier: A.mehmet, council_approver: A.hakan, reward_state: 'Done', minted_right_ids: ['right-1', 'right-2'], created_at: t('2026-11-11T08:00:00Z'),
@@ -294,9 +337,17 @@ const printer: MockAsset = {
     {
       id: '2', rule_id: 'bed_level', opened_by: A.makerAgent,
       rationale: 'Jobs since last bed levelling: 58 (threshold 50). Last two prints reported first-layer adhesion warnings. Opening "Bed levelling" with reward: 1 usage right.',
-      metric_value_at_open: '52', reward_rights: 1, reward_cash: '0', needs_council: false, status: 'Open',
+      kind: 'Maintenance', due_value_at_open: 52, manual: false, expense: '0', receipt_hash: null, expense_state: 'None', reward_rights: 1, reward_cash: '0', needs_council: false, status: 'Open',
       claimer: null, claimed_at: null, evidence_hash: null, evidence_uri: null, verification: null,
       verifier: null, council_approver: null, reward_state: 'NotStarted', minted_right_ids: [], created_at: t('2026-11-12T07:40:00Z'),
+    },
+    {
+      id: '3', rule_id: 'filament_spool', kind: 'Restock', opened_by: A.makerAgent,
+      rationale: 'Filament used since the last spool change: 341,500 mm (threshold 330,000 mm). Opening "Replace the filament spool" with reward: 1 usage right; documented cost reimbursable up to 1.5 NEAR.',
+      due_value_at_open: 330400, manual: false, reward_rights: 1, reward_cash: '0', needs_council: false, status: 'Submitted',
+      claimer: A.ali, claimed_at: t('2026-11-12T06:30:00Z'), evidence_hash: hex('c4f1'), evidence_uri: null,
+      expense: n('1.2'), receipt_hash: hex('e7a0'), expense_state: 'None', verification: null,
+      verifier: null, council_approver: null, reward_state: 'NotStarted', minted_right_ids: [], created_at: t('2026-11-12T06:00:00Z'),
     },
   ],
   escalations: [
@@ -313,15 +364,15 @@ const printer: MockAsset = {
     { id: '8', kind: 'Bond', to: A.makerDao, amount: n('0.1'), ref_id: '1', status: 'Succeeded', attempts: 1 },
   ],
   reputation: {
-    [A.ali]: { sessions: 3, clean_returns: 2, damages: 0, maintenances: 0 },
-    [A.ayse]: { sessions: 1, clean_returns: 1, damages: 0, maintenances: 1 },
+    [A.ali]: { sessions: 3, clean_returns: 2, damages: 0, upkeeps: 0, fault_reports: 0 },
+    [A.ayse]: { sessions: 1, clean_returns: 1, damages: 0, upkeeps: 1, fault_reports: 0 },
   },
   reputationLog: [
     { seq: '1', account: A.ali, kind: 'session', ref_id: '1', at: t('2026-11-10T09:58:00Z') },
     { seq: '2', account: A.ali, kind: 'clean_return', ref_id: '1', at: t('2026-11-10T10:10:00Z') },
     { seq: '3', account: A.ali, kind: 'session', ref_id: '2', at: t('2026-11-10T14:55:00Z') },
     { seq: '4', account: A.ali, kind: 'clean_return', ref_id: '2', at: t('2026-11-10T15:02:00Z') },
-    { seq: '5', account: A.ayse, kind: 'maintenance', ref_id: '1', at: t('2026-11-11T09:40:00Z') },
+    { seq: '5', account: A.ayse, kind: 'upkeep', ref_id: '1', at: t('2026-11-11T09:40:00Z') },
     { seq: '6', account: A.ayse, kind: 'session', ref_id: '3', at: t('2026-11-11T16:50:00Z') },
     { seq: '7', account: A.ayse, kind: 'clean_return', ref_id: '3', at: t('2026-11-11T17:00:00Z') },
   ],
@@ -346,14 +397,20 @@ const laser: MockAsset = {
     res({ id: '3', holder: A.ayse, start_slot: slot('2026-11-12T11:00:00Z', 15), slots: 2, deposit_paid: n('3'), right_id: 'right-2', status: 'Confirmed', created_at: t('2026-11-12T09:40:00Z') }),
   ],
   telemetry: { metrics: [['run_seconds', '420'], ['energy_wh', '312']], updated_at: t('2026-11-11T15:28:00Z'), reports: '6' },
-  rules: [{ rule_id: 'lens_clean', metric: 'run_seconds', value: '420', baseline: '0', threshold: '600', due: false, open_task: null }],
+  rules: [
+    status(laserProfile, 'lens_clean', 420, 0, false, null),
+    { ...status(laserProfile, 'safety_check', 47, 0, false, null), next_due_estimate: t('2026-11-17T11:00:00Z') },
+  ],
+  faults: [],
+  service: inService,
+  serviceLog: [],
   tasks: [],
   escalations: [],
   ops: [
     { id: '1', kind: 'Refund', to: A.zeynep, amount: n('3.1'), ref_id: '1', status: 'Succeeded', attempts: 1 },
     { id: '2', kind: 'Refund', to: A.zeynep, amount: n('3'), ref_id: '2', status: 'Succeeded', attempts: 1 },
   ],
-  reputation: { [A.zeynep]: { sessions: 1, clean_returns: 1, damages: 0, maintenances: 0 } },
+  reputation: { [A.zeynep]: { sessions: 1, clean_returns: 1, damages: 0, upkeeps: 0, fault_reports: 0 } },
   reputationLog: [
     { seq: '1', account: A.zeynep, kind: 'session', ref_id: '2', at: t('2026-11-11T15:28:00Z') },
     { seq: '2', account: A.zeynep, kind: 'clean_return', ref_id: '2', at: t('2026-11-11T15:40:00Z') },
@@ -375,20 +432,40 @@ const washer: MockAsset = {
   }),
   reservations: [
     res({ id: '40', holder: A.deniz, start_slot: slot('2026-11-12T07:00:00Z', 60), slots: 1, fee_paid: n('0.2'), status: 'Closed', created_at: t('2026-11-12T06:30:00Z'), session_started_at: t('2026-11-12T07:00:00Z'), session_finished_at: t('2026-11-12T07:52:00Z'), metrics_delta: [['cycles', '1']], return_result: 'Clean' }),
-    res({ id: '41', holder: A.ozan, start_slot: slot('2026-11-12T09:00:00Z', 60), slots: 1, fee_paid: n('0.2'), status: 'InSession', created_at: t('2026-11-12T08:40:00Z'), session_started_at: t('2026-11-12T09:01:00Z') }),
+    res({ id: '41', holder: A.ozan, start_slot: slot('2026-11-12T06:00:00Z', 60), slots: 1, fee_paid: n('0.2'), status: 'Closed', created_at: t('2026-11-12T05:40:00Z'), session_started_at: t('2026-11-12T06:01:00Z'), session_finished_at: t('2026-11-12T06:50:00Z'), metrics_delta: [['cycles', '1']], return_result: 'Clean' }),
+    res({ id: '42', holder: A.deniz, start_slot: slot('2026-11-12T18:00:00Z', 60), slots: 1, fee_paid: n('0.2'), status: 'Confirmed', created_at: t('2026-11-12T07:30:00Z') }),
   ],
   telemetry: { metrics: [['cycles', '41'], ['energy_wh', '30750']], updated_at: t('2026-11-12T09:55:00Z'), reports: '82' },
   rules: [
-    { rule_id: 'filter_clean', metric: 'cycles', value: '41', baseline: '31', threshold: '30', due: false, open_task: null },
-    { rule_id: 'descale', metric: 'cycles', value: '41', baseline: '0', threshold: '120', due: false, open_task: null },
+    status(washerProfile, 'filter_clean', 41, 31, false, null),
+    status(washerProfile, 'descale', 41, 0, false, null),
+    status(washerProfile, 'fault_repair', 2, 0, true, '2'),
   ],
+  faults: [
+    {
+      rule_id: 'fault_repair',
+      reports: [
+        { reporter: A.ozan, note_hash: hex('0a1b'), at: t('2026-11-12T07:58:00Z') },
+        { reporter: A.deniz, note_hash: hex('2c3d'), at: t('2026-11-12T08:05:00Z') },
+      ],
+    },
+  ],
+  service: { in_service: false, since: t('2026-11-12T08:15:00Z'), reason_hash: hex('5e6f') },
+  serviceLog: [{ seq: '1', started_at: t('2026-11-12T08:15:00Z'), started_by: A.elif, reason_hash: hex('5e6f'), ended_at: null, ended_by: null }],
   tasks: [
     {
       id: '1', rule_id: 'filter_clean', opened_by: A.dormAgent,
       rationale: 'Cycles since last filter cleaning: 30 (threshold 30). Simulated scenario washer.yaml. Opening "Filter cleaning" with reward: 3 usage rights.',
-      metric_value_at_open: '30', reward_rights: 3, reward_cash: '0', needs_council: false, status: 'Rewarded',
+      kind: 'Cleaning', due_value_at_open: 30, manual: false, expense: '0', receipt_hash: null, expense_state: 'None', reward_rights: 3, reward_cash: '0', needs_council: false, status: 'Rewarded',
       claimer: A.deniz, claimed_at: t('2026-11-11T19:10:00Z'), evidence_hash: hex('9d2e'), evidence_uri: null, verification: null,
       verifier: A.elif, council_approver: null, reward_state: 'Done', minted_right_ids: ['right-1', 'right-2', 'right-3'], created_at: t('2026-11-11T19:00:00Z'),
+    },
+    {
+      id: '2', rule_id: 'fault_repair', kind: 'Repair', opened_by: A.dormAgent,
+      rationale: 'Active fault reports: 2 from 2 recent users (threshold 2). The washer was taken out of service by a steward. Opening "Fix the reported fault" with reward: 4 usage rights; parts reimbursable up to 2 NEAR. Simulated scenario.',
+      due_value_at_open: 2, manual: false, reward_rights: 4, reward_cash: '0', needs_council: false, status: 'Open',
+      claimer: null, claimed_at: null, evidence_hash: null, evidence_uri: null, expense: '0', receipt_hash: null, expense_state: 'None', verification: null,
+      verifier: null, council_approver: null, reward_state: 'NotStarted', minted_right_ids: [], created_at: t('2026-11-12T08:20:00Z'),
     },
   ],
   escalations: [],
@@ -396,12 +473,14 @@ const washer: MockAsset = {
     { id: '1', kind: 'Sweep', to: A.dormDao, amount: n('7.9'), ref_id: null, status: 'Succeeded', attempts: 1 },
   ],
   reputation: {
-    [A.deniz]: { sessions: 22, clean_returns: 22, damages: 0, maintenances: 1 },
-    [A.ozan]: { sessions: 19, clean_returns: 18, damages: 0, maintenances: 0 },
+    [A.deniz]: { sessions: 22, clean_returns: 22, damages: 0, upkeeps: 1, fault_reports: 1 },
+    [A.ozan]: { sessions: 19, clean_returns: 18, damages: 0, upkeeps: 0, fault_reports: 1 },
   },
   reputationLog: [
-    { seq: '80', account: A.deniz, kind: 'maintenance', ref_id: '1', at: t('2026-11-11T19:40:00Z') },
+    { seq: '80', account: A.deniz, kind: 'upkeep', ref_id: '1', at: t('2026-11-11T19:40:00Z') },
     { seq: '81', account: A.deniz, kind: 'session', ref_id: '40', at: t('2026-11-12T07:52:00Z') },
+    { seq: '82', account: A.ozan, kind: 'fault_report', ref_id: '0', at: t('2026-11-12T07:58:00Z') },
+    { seq: '83', account: A.deniz, kind: 'fault_report', ref_id: '0', at: t('2026-11-12T08:05:00Z') },
   ],
   period: { started_at: t('2026-11-09T12:00:00Z'), rights_minted: 3 },
   roles: dormRoles,

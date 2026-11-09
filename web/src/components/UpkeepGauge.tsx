@@ -1,5 +1,7 @@
-import type { MaintenanceRule, RuleStatus } from '../data/types';
-import { formatMetric, metricLabel, mostDueRule, ruleProgress } from '../lib/metrics';
+import type { RuleStatus, UpkeepRule } from '../data/types';
+import { describeTrigger, mostDueRule, ruleProgress } from '../lib/metrics';
+import { KindIcon } from './UpkeepKind';
+import { formatDateTime } from '../lib/time';
 
 const ARC = 270; // degrees of the dial
 
@@ -17,16 +19,16 @@ function toneFor(fraction: number, open: boolean): { stroke: string; text: strin
 }
 
 /**
- * One-glance maintenance dial: the rule closest to its threshold, remaining usage in the
- * middle, open task called out. Fraction is display-only; values stay u64 strings.
+ * One-glance upkeep dial: the rule closest to its trigger, what is left in the middle, open task
+ * called out. Works for Metric, Schedule and Report triggers. Fraction is display-only.
  */
-export function MaintenanceGauge({
+export function UpkeepGauge({
   rules,
   ruleDefs,
   size = 132,
 }: {
   rules: RuleStatus[];
-  ruleDefs: MaintenanceRule[];
+  ruleDefs: UpkeepRule[];
   size?: number;
 }) {
   const p = mostDueRule(rules);
@@ -38,13 +40,12 @@ export function MaintenanceGauge({
   const c = size / 2;
   const r = c - 9;
   const start = -ARC / 2;
-  const unit = p.rule.metric.endsWith('_seconds') ? '' : ` ${metricLabel(p.rule.metric)}`;
-  const label = p.fraction >= 1 ? 'due now' : `${formatMetric(p.rule.metric, p.remaining)}${unit} left`;
+  const label = p.fraction >= 1 ? 'due now' : `${p.format(p.remaining)} left`;
   return (
     <figure
       className="relative m-0 shrink-0"
       style={{ width: size, height: size }}
-      aria-label={`${title}: ${formatMetric(p.rule.metric, p.used)} of ${formatMetric(p.rule.metric, p.threshold)} ${metricLabel(p.rule.metric)} used${open ? `, task #${p.rule.open_task} open` : ''}`}
+      aria-label={`${title}: ${p.format(p.used)} of ${p.format(p.threshold)}${open ? `, task #${p.rule.open_task} open` : ''}`}
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
         <path d={arcPath(c, c, r, start, start + ARC)} stroke="var(--ck-line)" strokeWidth="9" fill="none" strokeLinecap="round" />
@@ -73,14 +74,17 @@ export function MaintenanceGauge({
           {Math.round(p.fraction * 100)}%
         </span>
         <span className="mt-1 text-[11px] leading-tight text-ink-2">{label}</span>
-        <span className="text-[11px] leading-tight font-medium text-ink">{title}</span>
+        <span className="flex items-center gap-1 text-[11px] leading-tight font-medium text-ink">
+          <KindIcon kind={p.rule.kind} size={11} />
+          {title}
+        </span>
       </figcaption>
     </figure>
   );
 }
 
 /** Per-rule due bars for the asset page. */
-export function RuleBars({ rules, ruleDefs }: { rules: RuleStatus[]; ruleDefs: MaintenanceRule[] }) {
+export function RuleBars({ rules, ruleDefs }: { rules: RuleStatus[]; ruleDefs: UpkeepRule[] }) {
   return (
     <ul className="space-y-3">
       {rules.map((rule) => {
@@ -90,18 +94,29 @@ export function RuleBars({ rules, ruleDefs }: { rules: RuleStatus[]; ruleDefs: M
         return (
           <li key={rule.rule_id}>
             <div className="flex items-baseline justify-between gap-2 text-sm">
-              <span className="font-medium">{def?.title ?? rule.rule_id}</span>
-              <span className="num text-xs text-ink-2">
-                {formatMetric(rule.metric, p.used)} / {formatMetric(rule.metric, p.threshold)}
+              <span className="flex min-w-0 items-center gap-1.5 font-medium">
+                <KindIcon kind={rule.kind} />
+                {def?.title ?? rule.rule_id}
+              </span>
+              <span className="num shrink-0 text-xs text-ink-2">
+                {p.format(p.used)} / {p.format(p.threshold)}
               </span>
             </div>
             <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(100, Math.round(p.fraction * 100))} aria-label={`${def?.title ?? rule.rule_id} progress`}>
               <div className="h-full rounded-full" style={{ width: `${Math.min(100, p.fraction * 100)}%`, background: tone.stroke }} />
             </div>
-            <div className="mt-1 flex justify-between text-[11px] text-ink-3">
-              <span>{metricLabel(rule.metric)} since last approved maintenance</span>
+            <div className="mt-1 flex justify-between gap-2 text-[11px] text-ink-3">
+              <span>
+                {rule.kind} · {describeTrigger(rule.trigger)}
+              </span>
               <span className={tone.text}>
-                {rule.open_task ? `task #${rule.open_task} open` : rule.due ? 'due' : `${def?.reward_rights ?? 0} right(s) on completion`}
+                {rule.open_task
+                  ? `task #${rule.open_task} open`
+                  : rule.due
+                    ? 'due'
+                    : rule.next_due_estimate
+                      ? `next ${formatDateTime(rule.next_due_estimate)}`
+                      : `${def?.reward_rights ?? 0} right(s) on completion`}
               </span>
             </div>
           </li>
