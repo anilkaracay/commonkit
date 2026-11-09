@@ -46,3 +46,5 @@ jobs:
       - run: cargo clippy --manifest-path contracts/Cargo.toml -p commonkit-asset -p commonkit-commons --target wasm32-unknown-unknown -- -D warnings
       - run: cargo test --manifest-path contracts/Cargo.toml --workspace --exclude commonkit-integration-tests
       - run: bash scripts/build-contracts.sh
+      # TEST_PLAN §3: every ABI method must have tests in contracts/tests/COVERAGE.md
+      - run: cargo test --manifest-path contracts/Cargo.toml -p commonkit-integration-tests --test coverage

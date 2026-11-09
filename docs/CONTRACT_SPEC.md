@@ -545,7 +545,22 @@ Stored ids/timestamps that are exposed in JSON are `U64` (strings). JSON tags: `
 
 ## 8. Gas & deposits
 
-- Name constants: `GAS_AUTHORIZE`, `GAS_ON_AUTHORIZED`, `GAS_MINT`, `GAS_ON_MINTED`, `GAS_ADD_PROPOSAL`, `GAS_TRANSFER_CB`, etc. Start generous (e.g. 20–50 Tgas), measure on testnet, record final values in DECISIONS.
+- Named constants (final, measured in the sandbox against the real Sputnik WASM — D-214). Static gas that is not burnt is refunded, so the constants keep ≥ 5× headroom over the measured burn:
+
+  | Constant | Value | Burnt (measured) | Used for |
+  | :--- | ---: | ---: | :--- |
+  | `GAS_AUTHORIZE` (commons_iface) | 15 Tgas | 1.7 | `commons.authorize_reservation` |
+  | `GAS_ON_AUTHORIZED` | 75 Tgas | 3.3 | callback; may create 2 ops (refund + right release, or protocol fee + sweep) |
+  | `GAS_MINT` (commons_iface) | 30 Tgas | 2.8 (2 cards) | `commons.mint_rights` |
+  | `GAS_ON_MINTED` | 70 Tgas | 4.1 | callback; may create CashReward + Reimbursement ops (2 × 25 + 20) |
+  | `GAS_ON_OP_RESULT` | 25 Tgas | 2.1–3.4 | every op callback; may finish a reward |
+  | `GAS_RELEASE_RIGHT` / `GAS_FINALIZE_RIGHT` (commons_iface) | 10 Tgas | 1.9 | right sync ops |
+  | `GAS_ADD_PROPOSAL` | 30 Tgas | 2.1 | `dao.add_proposal` |
+  | `GAS_ON_ESCALATION_SUBMITTED` | 15 Tgas | 2.5 | callback |
+  | `GAS_DAO_VIEW` / `GAS_ON_DAO_VIEW` | 15 / 20 Tgas | 1.8 / 2.3 | `get_policy`, `get_proposal` + callbacks |
+  | commons `GAS_SYNC_ROLES` / `GAS_ON_ROLES_SYNCED` | 20 / 5 Tgas | 3.0 / 1.5 | role push per asset |
+
+- Recommended attached gas for callers (scripts, bridge, agent, web): `reserve` 120 Tgas; `cancel_reservation`, `mark_no_show`, `confirm_return`, `resolve_dispute`, `claim_fee_refund`, `retry_op`, `fund_float`, `sweep`, `reject_task`, `cancel_task` 60 Tgas; `approve_task`, `council_approve_task`, `retry_reward` ≥ 125 Tgas (enforced, `E_INVALID_ARGS`); `escalate` 60 Tgas; `sync_escalation`, `refresh_dao_policy` 50 Tgas; other methods 30 Tgas. A DAO `set_roles` action needs `10 + 25 × active_assets` Tgas (D-303); vote with 300 Tgas.
 - Storage for new records is paid from the asset's `storage_reserve` (profile) — the reserve must be sized after measuring (research B10). `get_ledger` reports `storage_usage * byte_cost` vs `storage_reserve`; verify.sh fails if usage exceeds 80% of reserve.
 - `commons` storage: paid by its own balance funded at deployment by the DAO (`fund_storage()` payable).
 
