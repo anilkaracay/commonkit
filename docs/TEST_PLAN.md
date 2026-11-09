@@ -8,7 +8,7 @@ Three layers. Each layer must be runnable by a judge from a clean clone with one
 | Contract integration | `near-workspaces` sandbox | `pnpm test:contracts:int` | `contracts/tests/` |
 | TS unit | vitest | `pnpm test` | `packages/sdk`, `bridge`, `agent`, `web` |
 | Testnet e2e | scripts | `pnpm demo:all` then `./scripts/verify.sh` | `scripts/` |
-| Simulation e2e | bridge simulator + agent + testnet | `./scripts/simulate.sh washer` | `scripts/`, `scenarios/` |
+| Simulation e2e | bridge simulator + agent + testnet | `./scripts/simulate.sh washer` (any of the 12 `asset_type`s, PROFILES.md) | `scripts/`, `scenarios/` |
 
 ## 1. Sandbox setup
 
@@ -34,6 +34,10 @@ Three layers. Each layer must be runnable by a judge from a clean clone with one
 | `inv_rights_group_scope` | right from group A rejected on asset in group B |
 | `inv_non_transferable` | nft_transfer / nft_transfer_call / nft_approve panic |
 | `inv_credential_required` | reservation on laser without credential → Rejected + refund |
+| `inv_restock_expense_capped_and_not_from_deposits` | `submit_task` with `expense > reimbursable_max` → `E_EXPENSE_CAP`; `expense > 0` on a non-Restock/Repair rule → `E_NOT_REIMBURSABLE`; expense without `receipt_hash` rejected; an accepted expense is reserved from `float_free` only (above `council_threshold_cash` or when the float is short → council approval; above `auto_reward_cash_cap` → `NeedsEscalation`, paid only via `escalate(kind="reimbursement")`); with `float_free` short and deposits held, `deposits_held` is unchanged before and after the Reimbursement op; the Reimbursement op is created once even with `retry_reward` / `retry_op` |
+| `inv_out_of_service_blocks_access_and_refunds` | after `set_out_of_service(true)`: `reserve` and `mark_session_started` → `E_OUT_OF_SERVICE`, `can_access` → `ok=false, reason="out_of_service"`; a future `Confirmed` reservation cancels with full fee + deposit refund and right release; only a council call or a Rewarded Repair task restores service (a steward `out=false` → access error; a Rewarded non-Repair task leaves it out of service); each period is recorded in `get_service_log` with `ended_by` |
+| `inv_fault_report_requires_recent_session` | `report_fault` from an account without a session in the last 14 days → `E_NO_RECENT_SESSION` (also after 14 days pass); a second active report by the same account for the same rule → `E_ALREADY_REPORTED`; agent and bridge cannot report; a Report rule becomes due only at `min_reports` distinct reporters; reports clear when the rule's task is Rewarded |
+| `inv_schedule_rule_due_only_after_interval` | a Schedule rule opened before `every_hours` since the last reward (or since `new` for the first time) → `E_RULE_NOT_DUE` for the agent; due after the interval (sandbox fast-forward); the baseline resets to the reward time; the agent can never pass `manual=true`, and a council `manual=true` task is recorded as manual |
 
 ## 3. Method matrix
 
@@ -54,7 +58,7 @@ One script per judge-flow step (DEMO_SCRIPT §2), each:
 3. Asserts expected state via views (and expected failure code for negative steps).
 4. Appends `{step, title, txHashes, explorerLinks, assertions, timestamp}` to `evidence/steps.json` and regenerates `evidence/EVIDENCE.md`.
 
-`pnpm demo:all` runs steps 1–18 in order (hardware steps use the simulator unless `HARDWARE=1`).
+`pnpm demo:all` runs steps 1–21 in order (step 21 is `verify.sh`, DEMO_SCRIPT §2) (hardware steps use the simulator unless `HARDWARE=1`).
 
 ## 6. `scripts/verify.sh` (read-only, no keys)
 
@@ -67,7 +71,9 @@ Checks, each printing ✅/❌ with the evidence:
 6. Sum of `total_swept` per asset equals the sum of sweep transfers seen in evidence (best effort; warn if explorer unavailable).
 7. Every right card's source task exists and is `Rewarded`; every Rewarded task's `minted_right_ids` exist in commons with the right owner (no orphan, no duplicate).
 8. Every escalation with a proposal id resolves via `get_proposal`.
-9. `evidence/steps.json` has 18 steps with tx hashes.
+9. No `Reimbursement` op on any asset has an `amount` above its task's rule `reimbursable_max` (rule read from `get_profile`; task via `ref_id`), and every Reimbursement op belongs to a Restock or Repair task with a `receipt_hash`.
+10. Every closed out-of-service period in `get_service_log` has `ended_by` = `RepairRewarded{task_id}` where that task is a `Rewarded` task of kind `Repair`, or `Council{account}` where the account held the council role (or the call came from the DAO). A period still open is printed as "open since <time>" (not a failure) and matches `get_service_status().in_service == false`.
+11. `evidence/steps.json` has 21 steps with tx hashes.
 
 Exit code non-zero on any ❌.
 

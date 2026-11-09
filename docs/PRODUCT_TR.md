@@ -70,6 +70,21 @@ Bu cümle README'nin ilk paragrafında ve videonun ilk 10 saniyesinde yer alır.
 | "Neden zincir?" dağınıktı | Tek cümle; belgenin, README'nin ve videonun başında | Üst bölüm |
 | Jüri sorularına hazırlık yoktu | **Jüri soruları ve cevapları** + track uyum tablosu | 17, 19 |
 
+### 2.2 → 2.3: bakımdan özene (upkeep)
+
+> *"Fix it, refill it, clean it, check it, teach it — every kind of care that keeps a shared thing alive earns access to it."*
+> Onar, doldur, temizle, kontrol et, öğret: ortak bir şeyi yaşatan her özen, ona erişim kazandırır.
+
+| Sürüm 2.2 | Sürüm 2.3 | Neden |
+| :--- | :--- | :--- |
+| Yalnız bakım görevi (`MaintenanceRule`) | **Özen kuralı** (`UpkeepRule`): tür (bakım, ikmal, temizlik, kontrol, onarım, yerine getirme, gözetim) × tetik (ölçüm eşiği, takvim, arıza bildirimi) | Gerçek ortak varlıkların çoğu bakımdan çok ikmal, temizlik ve kontrol ister |
+| Görev yalnız telemetri eşiğiyle açılır | Ölçüm eşiği (`Metric`), takvim (`Schedule every_hours`) veya arıza bildirimi (`Report min_reports`) | Telemetrisi olmayan veya takvimle bakılan varlıklar da katılır |
+| Sarf malzemesi parası tanımsızdı | İkmal ve onarımda fişle, tavanlı (`reimbursable_max`) geri ödeme; yalnız serbest kasadan, depozitodan asla; eşiğin üstü konsey, otomatik tavanın üstü DAO önerisi | Malzemeyi cebinden alan üye zarar etmez; para kuralı zincirde kalır |
+| Arıza bildirimi yoktu | Son 14 günde varlığı kullanmış üye arıza bildirir; sorumlu/konsey varlığı **hizmet dışı** yapar (rezervasyon ve erişim durur, ileri rezervasyonlar tam iadeyle iptal edilir); ödüllendirilmiş onarım görevi veya konsey kararı hizmete döndürür | Bozuk makineye rezervasyon satılmaz; dönüş izlenebilir |
+| 8 profil, 18 adımlık jüri akışı | 12 profil (4 yeni "yalnız profil örneği" + simülatör senaryosu), 21 adım | Genellik daha geniş gösterilir; vitrin hikâyesi (yazıcı nozul bakımı) değişmez |
+
+Kaynak: `docs/DECISIONS.md` D-017, `docs/CONTRACT_SPEC.md` §2.1, §2.4a, §3.3.
+
 ---
 
 ## 1. Ürün bir cümlede
@@ -97,22 +112,26 @@ Bu döngü makerspace'teki yazıcıda, yurttaki çamaşır makinesinde, apartman
 
 ## 3. Gerçek dünya senaryoları
 
-Her senaryo aynı döngüyü kullanır: **kullan → öde → varlık bakımını finanse eder → varlık bakım ister → üye bakar → doğrulanır → hak kazanır → kullanır.** Değişen yalnız varlık profili ve adaptördür.
+Her senaryo aynı döngüyü kullanır: **kullan → öde → varlık özenini finanse eder → varlık özen ister (bakım, ikmal, temizlik, kontrol, onarım…) → üye yapar → doğrulanır → hak kazanır → kullanır.** Değişen yalnız varlık profili ve adaptördür. Özen türleri ve tetikler `profiles/*.json` dosyalarından alınmıştır (ayrıntı: `docs/PROFILES.md`).
 
-| # | Senaryo | Topluluk | Varlık | Kullanım birimi | Erişim kilidi | Telemetri | Bakım ve emek | Özel kural |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | **Makerspace yazıcısı** (vitrin) | Üniversite maker kulübü, hackerspace | 3D yazıcı | Baskı işi / saat | Moonraker / OctoPrint API | Baskı saati, nozul saati, hata oranı | Nozul temizliği, yatak kalibrasyonu | Kalibrasyon baskısı doğrulamaya eklenir |
-| 2 | **Riskli atölye makinesi** | Makerspace, okul atölyesi | Lazer kesici, CNC | Oturum | Akıllı priz / röle | Çalışma saati, enerji | Lens ve filtre temizliği; **yeni üyeleri eğitmek** | Yeterlilik kartı olmadan erişim yok |
-| 3 | **Yurt / apartman çamaşırhanesi** | Öğrenci yurdu, site yönetimi | Çamaşır makinesi, kurutucu | Yıkama döngüsü | Akıllı priz | Enerji profilinden döngü sayısı | Filtre temizliği, kireç sökme | Haklar varlık grubunda geçer |
-| 4 | **Ortak EV şarj noktası** | Site, kooperatif ofis | Şarj noktası | kWh | OCPP uzaktan başlatma | kWh, oturum, hata kodları | Kablo ve soket kontrolü | Bakım fonu elektrik maliyetinden ayrı |
-| 5 | **Topluluk bisikleti** | Mahalle girişimi, kampüs | E-bisiklet, kargo bisikleti | Km / saat | Akıllı kilit | Km, batarya çevrimi | Fren, lastik, zincir bakımı | Depozito, sorunsuz iade geçmişine göre düşer |
-| 6 | **Ortak GPU / sunucu** | Araştırma grubu, hackerspace, açık kaynak topluluğu | GPU sunucusu | GPU saati | API anahtarı ağ geçidi | GPU saati, sıcaklık, disk | Sürücü güncelleme, **dijital bakım görevleri** | Dijital görevler otomatik testle doğrulanır |
-| 7 | **Tarım kooperatifi** | Köy kooperatifi, üretici birliği | Traktör, değirmen, soğuk hava deposu | Saat / ton / gün | Akıllı röle veya manuel QR | Saat sayacı, sıcaklık | Yağ değişimi, filtre | Mevsimsel öncelik kuralı |
-| 8 | **Okul / kütüphane ekipmanı** | Okul kulübü, halk kütüphanesi | Mikroskop, kamera, ses kayıt seti | Ödünç alma | Manuel QR teslim | Yok (kullanım sayısı) | Temizlik, envanter kontrolü | Telemetrisiz varlıklar da katılır |
+| # | Senaryo | Topluluk | Varlık | Kullanım birimi | Erişim kilidi | Telemetri | Özen işleri (tür: tetik) | Özel kural | Durum |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | **Makerspace yazıcısı** (vitrin) | Üniversite maker kulübü, hackerspace | 3D yazıcı | Baskı işi | Moonraker / OctoPrint API | Baskı süresi, iş sayısı, kullanılan filament (mm) | Bakım: nozul temizliği (baskı süresi), yatak kalibrasyonu (iş sayısı) · İkmal: filament makarası (filament mm; fişle en çok 0,5 NEAR) · Onarım: arıza bildirimi | Kalibrasyon baskısı doğrulamaya eklenir | gerçek donanım (beklemede) |
+| 2 | **Riskli atölye makinesi** | Makerspace, okul atölyesi | Lazer kesici, CNC | Oturum | Akıllı priz / röle | Çalışma süresi, enerji | Bakım: lens ve ayna temizliği (çalışma süresi) · Kontrol: aylık güvenlik kontrolü (takvim) · **yeni üyeleri eğitmek** (yeterlilik akışı) | Yeterlilik kartı olmadan erişim yok | gerçek donanım (beklemede; etiketli yedek cihaz olabilir) |
+| 3 | **Yurt / apartman çamaşırhanesi** | Öğrenci yurdu, site yönetimi | Çamaşır makinesi | Yıkama döngüsü | Simülatör (hedef: akıllı priz) | Döngü sayısı | Temizlik: filtre (30 döngü) · Bakım: kireç sökme (120 döngü) · İkmal: ortak deterjan (40 döngü; fişle en çok 0,3 NEAR) · Onarım: arıza bildirimi | Arıza bildirilince hizmet dışı; onarım ödüllenince hizmete döner | simülasyon |
+| 4 | **Ortak EV şarj noktası** | Site, kooperatif ofis | Şarj noktası | kWh (v1'de dilim başına ücret) | OCPP uzaktan başlatma | Oturum sayısı | Kontrol: kablo ve soket (100 oturum) | Bakım fonu elektrik maliyetinden ayrı | yalnız profil örneği |
+| 5 | **Topluluk bisikleti** | Mahalle girişimi, kampüs | Kargo bisikleti | Km (v1'de dilim başına ücret) | Akıllı kilit | Km | Kontrol: fren (300 km), lastik (500 km) · Yerine getirme: iki üye bildirince bisikleti yerine götürmek | Depozito, sorunsuz iade geçmişine göre düşer | yalnız profil örneği |
+| 6 | **Ortak GPU / sunucu** | Araştırma grubu, hackerspace, açık kaynak topluluğu | GPU sunucusu | GPU saati | API anahtarı ağ geçidi | GPU saati | Bakım: sürücü güncelleme (30 günde bir, takvim) · Temizlik: toz filtresi ve fanlar (1000 GPU saati) | Dijital görevler otomatik testle doğrulanır; `gpu_basics` yeterliliği | yalnız profil örneği |
+| 7 | **Tarım kooperatifi** | Köy kooperatifi, üretici birliği | Traktör ve sulama pompası | Saat | Akıllı röle | Motor süresi | Bakım: yağ değişimi (100 motor saati) · Temizlik: pompa filtresi (14 günde bir, takvim) | `tractor_operator` yeterliliği | yalnız profil örneği |
+| 8 | **Okul / kütüphane ekipmanı** | Okul kulübü, halk kütüphanesi | Mikroskop | Ödünç alma | Manuel QR teslim | Yok (kullanım sayısı) | Temizlik: optik temizliği ve envanter (20 ödünç) | Telemetrisiz varlıklar da katılır | yalnız profil örneği |
+| 9 | **Mahalle buzdolabı** | Mahalle dayanışma ağı | Ortak buzdolabı | Ziyaret (ücretsiz) | Akıllı priz (izleme) | Sıcaklık (zincire 8 °C üstü örnek sayısı olarak gider) | Temizlik: haftalık temizlik (168 saatte bir, takvim) · Kontrol: sıcaklık sapmasında conta ve termostat | Ücret ve depozito yok; özen tek katkı yolu | yalnız profil örneği |
+| 10 | **Acil durum jeneratörü** | Apartman bloğu, afet gönüllüleri | Jeneratör | Saat | Akıllı priz / röle | Yakıt seviyesi (zincire kullanılan yakıt olarak gider) | Kontrol: aylık yük altında test (takvim) · İkmal: yakıt (20 l; fişle en çok 1 NEAR) | `generator_operator` yeterliliği | yalnız profil örneği |
+| 11 | **Prova odası** | Müzik kolektifi | Prova odası | Seans | Akıllı kilit | Seans sayısı | Temizlik: oda ve kablolar (10 seans) · Gözetim: haftalık açık oda akşamı (takvim) · Onarım: iki üye arıza bildirince | Arıza için iki bağımsız bildirim | yalnız profil örneği |
+| 12 | **Alet kütüphanesi** | Mahalle alet kütüphanesi | Merdiven | Ödünç alma | Manuel QR teslim | Kullanım sayısı | Kontrol: basamak, ayak ve kilitler (25 ödünç) | Güvenlik kontrolü ödünç sayısına bağlı | yalnız profil örneği |
 
 Demoda yalnız 15. bölümde belirtilen senaryolar çalışır halde gösterilir. Diğerleri README'de "yalnız profil örneği" olarak etiketlenir ve tamamlanmış özellik olarak iddia edilmez.
 
-Bu senaryolar birbirini tamamlar: farklı kullanım birimleri, farklı entegrasyon seviyeleri, farklı emek türleri (fiziksel bakım, eğitim, dijital bakım), farklı topluluklar ve kampüsten kırsala farklı coğrafyalar.
+Bu senaryolar birbirini tamamlar: farklı kullanım birimleri, farklı entegrasyon seviyeleri, farklı özen türleri (bakım, ikmal, temizlik, kontrol, onarım, yerine getirme, gözetim, eğitim, dijital bakım), farklı tetikler (ölçüm eşiği, takvim, arıza bildirimi), farklı topluluklar ve kampüsten kırsala farklı coğrafyalar.
 
 ## 4. Ana döngü
 
@@ -123,16 +142,16 @@ flowchart LR
     C --> D[Ücret işletme kasasına girer]
     D --> D2[Kasa tavanını aşan kısım DAO hazinesine döner]
     C --> E[Telemetri: kullanım ve aşınma ölçüleri]
-    E --> F[Eşik aşılınca ajan bakım görevi açar]
-    F --> G[Üye bakımı yapar]
+    E --> F["Kuralın vadesi gelince (ölçüm eşiği, takvim veya arıza bildirimi) ajan özen görevi açar"]
+    F --> G["Üye işi yapar: bakım, ikmal, temizlik, kontrol, onarım"]
     G --> H[Doğrulama testi + bağımsız onay]
-    H --> I[Bakım yapana kullanım hakkı üretilir]
+    H --> I["İşi yapana kullanım hakkı üretilir, varsa fişli masraf kasadan ödenir"]
     I --> B
     J[Eğitmen yeni üyeyi eğitir] --> K[Yeni üyeye yeterlilik kartı, eğitmene kullanım hakkı]
     K --> B
 ```
 
-Bir bakım görevinin karşılığı, görev açılırken bellidir. Görevin açılması, tamamlanması, doğrulanması ve hakkın üretilmesi ayrı durumlar olarak izlenir.
+Bir özen görevinin karşılığı, görev açılırken bellidir. Görevin açılması, tamamlanması, doğrulanması ve hakkın üretilmesi ayrı durumlar olarak izlenir.
 
 ## 5. Varlık profili
 

@@ -34,7 +34,7 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 - [ ] Tooling: rustfmt, clippy, eslint, prettier, vitest, GitHub Actions CI.
 - [ ] `.gitignore` covers `.env*`, keys, `target/`, `node_modules/`, `bridge/state/`.
 - [ ] `LICENSE` (MIT), `docs/STATUS.md`, `docs/DECISIONS.md` initialized.
-- [ ] 8 profile JSONs in `profiles/` (printer_3d, laser_cutter, washer, ev_charger, cargo_bike, gpu_server, tractor, microscope) validated by a JSON schema shared with the contract's `validate_profile` rules.
+- [ ] 12 profile JSONs in `profiles/` (printer_3d, laser_cutter, washer, ev_charger, cargo_bike, gpu_server, tractor, microscope, community_fridge, emergency_generator, rehearsal_room, tool_library_ladder; D-017) validated by a JSON schema shared with the contract's `validate_profile` rules.
 
 **Accept:** CI green on an empty build; research results committed.
 
@@ -44,6 +44,9 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 - [ ] Reservations (incl. async authorize + callback), cancel, sessions, no-show, return, dispute.
 - [ ] Ledger, ops, sweep, retry.
 - [ ] Telemetry, rules, tasks, reward procedure, quota/period.
+- [ ] Upkeep (D-017): `UpkeepRule {kind, trigger, reimbursable_max}` validation; `open_upkeep_task` with due check per trigger (Metric / Schedule / Report) and council-only `manual`; baseline reset per trigger on reward.
+- [ ] Reimbursement: `submit_task` expense + receipt hash (`E_NOT_REIMBURSABLE`, `E_EXPENSE_CAP`); reserve from `float_free` only; council above `council_threshold_cash`; `NeedsEscalation` above `auto_reward_cash_cap` → `escalate(kind="reimbursement")`; Reimbursement op.
+- [ ] Faults and service: `report_fault` (14-day session check, one active report per account per rule), `set_out_of_service`, full-refund cancellation, restore by Rewarded Repair or council; views `get_faults`, `get_service_status`, `get_service_log`; reputation `upkeeps`, `fault_reports`.
 - [ ] Escalations (with research C8 result or fallback).
 - [ ] Reputation + log.
 - [ ] Events, views, error codes.
@@ -60,7 +63,7 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 ## M1c — sandbox integration + invariants
 
 - [ ] Sandbox harness with real Sputnik WASM (or mock + log).
-- [ ] All `inv_*` tests from TEST_PLAN §2.
+- [ ] All `inv_*` tests from TEST_PLAN §2 (incl. the four D-017 tests: `inv_restock_expense_capped_and_not_from_deposits`, `inv_out_of_service_blocks_access_and_refunds`, `inv_fault_report_requires_recent_session`, `inv_schedule_rule_due_only_after_interval`).
 - [ ] Coverage map `contracts/tests/COVERAGE.md`.
 - [ ] Gas measurements → constants → DECISIONS.
 
@@ -84,22 +87,25 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 ## M4 — agent
 
 - [ ] Loop, rule evaluation, template rationale, optional NEAR AI Cloud polish with validation.
-- [ ] Escalation hints, sync, limits demo script.
+- [ ] Upkeep: all trigger types via `get_rule_status`, `open_upkeep_task` (never `manual`), one rationale template per `UpkeepKind` (AGENT_SPEC §3).
+- [ ] Escalation hints, sync, reimbursement escalation for `NeedsEscalation` tasks, limits demo script (incl. `E_RULE_NOT_DUE` on a Schedule rule).
 - [ ] Tests.
 
 ## M5 — web skeleton + design (parallel from M0)
 
 - [ ] Design direction, tokens, components (asset card, gauge, ledger bar, task row, card tile, proof row, SIMULATED badge).
 - [ ] Routes with mocked sdk data.
+- [ ] Upkeep UI (FRONTEND_SPEC): kind icon + label on tasks, board tasks grouped by kind, expense + receipt hash on Restock/Repair, "Report a fault" button, OUT OF SERVICE state, scenario matrix by kind with Status column.
 
 ## M6 — testnet e2e + evidence
 
-- [ ] `scripts/demo/step-01..18.ts` per DEMO_SCRIPT, simulator for hardware steps.
+- [ ] `scripts/demo/step-01..21.ts` per DEMO_SCRIPT, simulator for hardware steps (step 21 = `verify.sh`).
+- [ ] Upkeep steps 18–20: printer Restock with capped reimbursement (+ `E_EXPENSE_CAP`), washer fault → out of service → refund → Repair → back in service (+ `E_NO_RECENT_SESSION`), fridge Schedule cleaning (+ `E_RULE_NOT_DUE`).
 - [ ] `pnpm demo:all` green; `evidence/steps.json` + `EVIDENCE.md`.
-- [ ] `scripts/simulate.sh washer|printer|laser`.
-- [ ] verify.sh full version green.
+- [ ] `scripts/simulate.sh <asset_type>` for all 12 profiles with `scenarios/<asset_type>.yaml`, labelled simulation.
+- [ ] verify.sh full version green (incl. reimbursement caps and out-of-service periods, TEST_PLAN §6).
 
-**Accept:** all 18 steps with tx hashes; verify.sh green.
+**Accept:** all 21 steps with tx hashes; verify.sh green.
 
 ## M7 — web wired to testnet + hosting
 
@@ -111,7 +117,7 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 
 - [ ] Printer via moonraker/octoprint: reserve → access → print → finish → telemetry.
 - [ ] Smart plug device (soldering station or lamp stand-in for the laser if needed — label it).
-- [ ] Pilot per `docs/PILOT.md`: ≥ 5 real members, ≥ 10 sessions, ≥ 1 maintenance, ≥ 1 training; evidence and consent recorded.
+- [ ] Pilot per `docs/PILOT.md`: ≥ 5 real members, ≥ 10 sessions, ≥ 1 maintenance (upkeep) task, ≥ 1 training; evidence and consent recorded.
 - [ ] Video footage per DEMO_SCRIPT §1.
 
 ## M9 — README, submission prep
@@ -126,7 +132,7 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 - [ ] All CLAUDE.md §4 invariants have passing tests.
 - [ ] `pnpm test:contracts && pnpm test` green on a clean clone.
 - [ ] verify.sh green on testnet.
-- [ ] 18/18 evidence steps with tx hashes.
+- [ ] 21/21 evidence steps with tx hashes.
 - [ ] Three demo assets live on the hosted web app; simulator clearly labelled.
 - [ ] Real printer run on video; pilot numbers in README (whatever they really are).
 - [ ] README reviewed by `verifier` agent: every claim has a link or test name.

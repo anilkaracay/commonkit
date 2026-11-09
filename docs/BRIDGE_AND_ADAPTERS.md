@@ -6,10 +6,10 @@ The bridge is a small TypeScript service that runs next to the devices (Raspberr
 
 1. Verify member access requests (NEP-413 signed messages).
 2. Ask the asset contract `can_access(account, reservation_id)` (view).
-3. Unlock / start the device through its adapter; call `mark_session_started`.
+3. Call `mark_session_started` first, then unlock / start the device through its adapter (D-404: if the chain write fails, the device was never unlocked).
 4. Watch the session; lock the device at the end or at timeout; call `mark_session_finished(metrics)`.
 5. Periodically read device metrics and call `report_telemetry`.
-6. Run the profile's verification test after maintenance submission; call `submit_verification_result`.
+6. Run the rule's verification test after an upkeep task is submitted (rules with `requires_verification_test`); call `submit_verification_result`.
 7. Log everything (structured JSON logs + `evidence/bridge-<date>.jsonl`).
 
 ## 2. Configuration (`bridge/config.yaml` + `.env`)
@@ -36,6 +36,8 @@ assets:
     telemetry_interval_sec: 5
 ```
 
+Per-asset keys added by the bridge decisions: `verification_tests: {<rule_id>: {type, ...}}` (D-407; simulator assets default to `{type: simulated}`), `safety: {dangerous, stand_in?, human_present_confirmed}` (D-408), and `gauges` (D-410, §4.6). `chain: near | fake` selects the real NEAR client or an in-memory model of the asset contract whose output is labelled simulated and never written to `evidence/` (D-409).
+
 **One bridge account, one function-call key per asset contract** (a NEAR function-call key is bound to one receiver contract). The bridge keeps a key per asset in env (`BRIDGE_KEY_<ASSET_ALIAS>`), all for the same bridge account. Allowed methods: `mark_session_started, mark_session_finished, report_telemetry, submit_verification_result`.
 
 ## 3. HTTP API (Fastify, zod-validated)
@@ -44,21 +46,21 @@ assets:
 | :--- | :--- | :--- | :--- |
 | GET | `/health` | — | adapters status |
 | GET | `/assets` | — | configured assets + live device state |
-| POST | `/access/challenge` | `{asset_id, reservation_id, account_id}` | `{nonce (32 bytes b64), message, recipient: "commonkit-bridge:<bridge_account>", expires_at}` |
+| POST | `/access/challenge` | `{asset_id, account_id, action: access\|finish\|verify (default access), reservation_id \| task_id}` (D-403) | `{nonce (32 bytes b64), message, recipient: "commonkit-bridge:<bridge_account>", expires_at}` |
 | POST | `/access` | `{asset_id, reservation_id, account_id, public_key, signature, nonce, message}` + optional multipart job file | `{ok, session_id, reason?}` |
 | POST | `/sessions/:id/finish` | signed like `/access` (holder can end early) | `{ok}` |
-| POST | `/verification/:asset/:task_id/run` | signed by the task claimer | runs verification test, reports result |
+| POST | `/verification/:asset/:task_id/run` | signed by the task claimer (action `verify`) | checks on chain: task `Submitted`, signer is the claimer, no result yet; returns 202 `{run_id}`; progress over SSE and `GET /verification/runs/:id` (D-407) |
 | GET | `/events` | — | Server-Sent Events of bridge actions (for the live demo screen) |
 
 ### 3.1 NEP-413 verification (must all pass)
 
-1. `nonce` was issued by `/access/challenge`, unused, not expired (5 min); mark used.
+1. `nonce` was issued by `/access/challenge` for this action, unused, not expired (300 s, chain time); it is marked used on its first submission even if later checks fail. Nonces live in memory, so a restart invalidates them (D-403).
 2. `recipient` equals our recipient string; `message` equals the issued message (contains asset, reservation id, nonce, expiry).
 3. Signature valid for the NEP-413 payload (borsh-serialized per the NEP — use a vetted library or implement exactly per spec; add test vectors).
 4. `public_key` is a current access key of `account_id` (RPC `view_access_key`). Full-access or function-call key both accepted (record which).
-5. `can_access(account_id, reservation_id).ok == true`.
+5. `can_access(account_id, reservation_id).ok == true`. While the asset is out of service (CONTRACT_SPEC §3.3) `can_access` returns `ok=false, reason="out_of_service"`; the bridge answers 403 `OUT_OF_SERVICE` and the device stays locked. `E_OUT_OF_SERVICE` from `mark_session_started` (service changed between view and write) gives the same 403, and because the chain write comes first the device was never unlocked (D-404, D-410).
 
-Any failure → 403 with the precise reason; log it (these rejections are demo evidence: "no reservation → printer does not print").
+Any failure → 403 with the precise reason; log it and emit `access_rejected` (these rejections are demo evidence: "no reservation → printer does not print").
 
 ## 4. Adapter interface
 
@@ -70,6 +72,7 @@ export interface Adapter {
   lock(): Promise<void>;                       // make device unusable
   unlock(session: SessionContext): Promise<void>;   // allow use / start job
   readMetrics(): Promise<Record<string, bigint>>;   // cumulative counters, monotonic
+  readGauges?(): Promise<Record<string, number>>;   // optional levels (temperature_c, fuel_level); never sent on chain raw (§4.6)
   runVerification(test: VerificationTest): Promise<VerificationOutcome>; // { passed, details, detailsHash }
   sessionDone(session: SessionContext): Promise<boolean>; // poll: has the use finished?
 }
@@ -81,7 +84,7 @@ Every adapter has unit tests with a fake HTTP server (msw or nock) and one contr
 
 - `unlock(session)`: upload job file with print=true (`POST /server/files/upload`, research E1). If no file (interactive session), just mark ready.
 - `lock()`: printers are "locked" by the fact that only the bridge holds the API key and member-facing UIs are disabled or password-protected (research E5). Document exactly how in README.
-- `readMetrics()`: from `GET /server/history/totals` and `print_stats` → `print_seconds`, `jobs_total`, `jobs_failed`; `nozzle_seconds` = print_seconds since last nozzle change (we track the nozzle epoch locally and in-chain via baselines; simplest: `nozzle_seconds = print_seconds`, the rule baseline handles resets).
+- `readMetrics()`: from `GET /server/history/totals` → `job_totals {total_jobs, total_print_time, total_filament_used}` in seconds and mm (research E3) → `jobs_total`, `print_seconds`, `filament_used_mm` (the Restock rule `filament_spool`); `jobs_failed` from job history / `print_stats.state == error` (E2). `nozzle_seconds` = print_seconds since last nozzle change (simplest: `nozzle_seconds = print_seconds`; the on-chain rule baseline handles resets). E3 is from the Moonraker docs, not yet run against a printer (research §3.8).
 - `runVerification({type: "calibration_print", file: "verify/calibration_cube.gcode", max_minutes})`: run print, wait for `complete` state without errors → passed. `detailsHash` = sha256 of the job record JSON.
 - `sessionDone`: `print_stats.state in {complete, cancelled, error}`.
 
@@ -96,7 +99,8 @@ Same contract using OctoPrint REST (research E6).
 - `readMetrics()` → `energy_wh` (cumulative), `run_seconds` (seconds with power > `active_watts_threshold`), `cycles` (count of active→idle transitions lasting > `min_cycle_seconds`). Cycle detection runs in the bridge on a 1–5 s poll loop; persisted to `bridge/state/<asset>.json` so restarts keep counters monotonic.
 - `sessionDone`: session timer elapsed, or (for cycle devices) a cycle ended.
 - `runVerification({type: "power_profile", expect: {min_watts, max_watts, seconds}})` → passed if observed profile within bounds.
-- **Safety:** a laser cutter is powered on only when a human is present; the demo can use a soldering station or lamp as the stand-in and must label it.
+- Optional `temperature_c` gauge (community_fridge `temperature_check`) when the device exposes a temperature sensor. Research E7 verified only switch, power and energy fields, so no plug temperature read is claimed; without a sensor the simulator provides the gauge, labelled simulation.
+- **Safety:** a laser cutter is powered on only when a human is present; the demo can use a soldering station or lamp as the stand-in and must label it. Enforced in config (D-408): a `dangerous` asset on a real adapter fails validation unless it has a labelled `stand_in` (copied into unlock events) or `human_present_confirmed: true`, which an operator sets only while a person is at the device and never commits.
 
 ### 4.4 `manual_qr` (no electronics)
 
@@ -105,9 +109,13 @@ Same contract using OctoPrint REST (research E6).
 
 ### 4.5 `simulator` (judges, CI, scenario 3+)
 
-- Reads `scenarios/<name>.yaml`: metric curves, cycle durations, failure injections, and a time `speed` multiplier.
-- Deterministic with a seed. Every simulated metric report carries `simulated: true` in the bridge log, and the asset profile `adapter` is `simulator` so the web UI labels it.
-- `scripts/simulate.sh <scenario>` runs: start bridge in sim mode → reserve → access → session → telemetry crosses threshold → agent opens task → claim → submit → verification → approve → rights → use right. Prints a summary with tx links.
+- Reads `scenarios/<asset_type>.yaml` (format D-401, zod-validated, `simulated: true` required): per-metric counter curves (`linear | step`, `idle_per_hour`), `type: gauge` metrics (D-410), session durations, verification defaults, failure injections (`session_error`, `verification_fail`, `offline`, `gauge_set`), and a time `speed` multiplier.
+- Deterministic with a seed. Every simulated report also sends the metric `simulated = 1`, so on-chain telemetry and `telemetry_reported` events carry the label themselves (D-401); the bridge log says simulated too.
+- `scripts/simulate.sh <asset_type>` runs, for any of the 12 profiles (PROFILES.md): start bridge in sim mode → reserve → access → session → a rule becomes due (Metric threshold crossed, Schedule interval passed, or a `report_fault` for Report rules) → agent opens the upkeep task → claim → submit (with expense + receipt hash for Restock/Repair) → verification → approve → rights → use right. Prints a summary with tx links, every line labelled simulation.
+
+### 4.6 Gauges become counters (D-410)
+
+`report_telemetry` accepts only monotonic counters (`E_TELEMETRY_NOT_MONOTONIC`). Levels that go up and down (`temperature_c`, `fuel_level`) come from `readGauges()` and are never sent raw. Per asset, config `gauges` derives counters on every telemetry tick: `samples_above` / `samples_below` a limit (× `telemetry_interval_sec` ≈ time out of range), `decrease_sum` (× `scale`) and `increase_count` (rises ≥ `min_step`, e.g. refills). The profiles use the derived names: community_fridge `temp_high_samples ≥ 6`, emergency_generator `fuel_used_dl ≥ 200`. Derived counters get the normal monotonic protection (D-406); state in `bridge/state/<asset>.gauges.json`. Live gauge values appear in bridge events and `/assets` only, so a live temperature display reads the bridge, not the chain.
 
 ## 5. Device-side lock assumptions (honest limits)
 
@@ -117,5 +125,6 @@ Same contract using OctoPrint REST (research E6).
 ## 6. Ops
 
 - `pnpm dev:bridge` (local), `pnpm start:bridge` (Pi). Systemd unit example in `bridge/deploy/`.
-- Clock: bridge uses chain time from the latest block for window checks, not the local clock.
-- Retries: on RPC errors, exponential backoff; never re-send `mark_session_started` for the same reservation (idempotency check via view first).
+- Clock: bridge uses chain time (final block `timestamp_nanosec`, cached ≤ 5 s) for challenge expiry and session deadlines, not the local clock (D-405).
+- Retries: on RPC errors, exponential backoff; contract panics with an `E_*` code are not retried, they are deterministic (D-410). Never re-send `mark_session_started` or `mark_session_finished` for the same reservation (view check first). Chain writes for one asset are serialized (D-405).
+- Counters: `bridge/state/<asset>.counters.json` keeps the highest value per metric, applies an offset when a device counter goes backwards, and seeds its floor from `get_telemetry` at start (D-406).

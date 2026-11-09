@@ -4,8 +4,9 @@ Vite + React + TypeScript + Tailwind. Static build, hosted (Vercel or GitHub Pag
 
 ## 1. Design direction (from PRODUCT_TR §12)
 
-- **The asset is a character.** Each asset page opens like a "machine card": name, account id, live status, maintenance gauge, "who keeps me alive" list.
-- **One-glance maintenance gauge:** remaining usage until next due rule, float in the kasa (vs cap), open task.
+- **The asset is a character.** Each asset page opens like a "machine card": name, account id, live status (in service / **OUT OF SERVICE**), upkeep gauge, "who keeps me alive" list.
+- **One-glance upkeep gauge:** per rule, progress to due in the rule's own terms (Metric: delta vs threshold; Schedule: time since last vs `every_hours`, with `next_due_estimate`; Report: active reports vs `min_reports`), float in the kasa (vs cap), open task.
+- **Upkeep kinds are visible:** every task row and task page shows an icon + label for its `UpkeepKind` (Maintenance, Restock, Cleaning, Inspection, Repair, Rebalance, Supervision — `web/src/components/UpkeepKind.tsx`), and the trigger type.
 - **Chain visible, not noisy:** a small "tx" link on each important row; full detail in "Proof".
 - **Simulation is visibly different:** a "SIMULATED" badge and a muted/hatched style for simulator assets.
 - No marketing hero. The home page *is* the board.
@@ -16,15 +17,15 @@ Vite + React + TypeScript + Tailwind. Static build, hosted (Vercel or GitHub Pag
 
 | Route | Wallet? | Content |
 | :--- | :--- | :--- |
-| `/` | no | **Board**: communities → assets (cards with status + gauge), open tasks across assets, latest rights minted, latest proposals. "Same contract" strip showing all asset accounts with identical `code_hash`. |
+| `/` | no | **Board**: communities → assets (cards with status + gauge; an out-of-service asset shows an **OUT OF SERVICE** state with since-time and reason hash), open tasks across assets **grouped by upkeep kind**, latest rights minted, latest proposals. "Same contract" strip showing all asset accounts with identical `code_hash`. **Scenario matrix**: the 12 profiles (PROFILES.md) grouped by upkeep kind, each with a Status column read from `meta.status` (real hardware / simulation / profile example only; "pending" while a real-hardware asset has no session tx). |
 | `/c/:community` | no | Community: DAO id + council + treasury, commons contract, groups, credential kinds, roles, governance panel (recent proposals) |
-| `/a/:assetId` | no | Asset card: live status (bridge SSE if reachable, else chain), telemetry, rules status (due bars), kasa (float/cap, deposits held, reserved rewards, swept total), availability calendar, reservations, tasks, escalations, reputation leaderboard, profile |
+| `/a/:assetId` | no | Asset card: live status (bridge SSE if reachable, else chain) incl. service state (`get_service_status`) and service log (`get_service_log`), telemetry, rules status (due bars per trigger, `get_rule_status`), active fault reports per rule (`get_faults`, counts only), kasa (float/cap, deposits held, reserved rewards, swept total, reimbursements paid), availability calendar (reservations disabled while out of service), reservations, tasks, escalations, reputation leaderboard (`upkeeps`, `fault_reports`), profile. **"Report a fault"** button (wallet): enabled only for accounts with a session in the last 14 days; the note is hashed in the browser and only the hash goes on chain; `E_NO_RECENT_SESSION` / `E_ALREADY_REPORTED` shown as plain messages. Stewards/council see "Set out of service"; council sees "Return to service". |
 | `/a/:assetId/reserve` | yes | Pick slots → shows fee/deposit or "use a right" → sign `reserve` |
 | `/a/:assetId/access/:reservationId` | yes | "Start" → NEP-413 sign → POST to bridge → show result (printer starts / plug on) |
-| `/t/:assetId/:taskId` | partly | Task detail: rationale (agent), rule facts, claim / submit evidence (hash computed in browser from a photo; photo never uploaded on-chain), verification result, approvals, reward cards with links |
+| `/t/:assetId/:taskId` | partly | Task detail: kind icon + label, trigger and due value at open, rationale (agent; "manual" badge if a council member bypassed the due check), rule facts, claim / submit evidence (hash computed in browser from a photo; photo never uploaded on-chain). Restock/Repair tasks also take an **expense** (NEAR, capped by `reimbursable_max`, shown next to the field) and a **receipt hash** (computed in the browser from a receipt photo/PDF, never uploaded); the page shows `expense_state` (Reserved / needs council / NeedsEscalation → proposal link / Paid → Reimbursement op tx). Verification result, approvals, reward cards with links |
 | `/me` | yes | My cards (rights + credentials), reservations, tasks, reputation |
 | `/train` | yes | Trainers propose credentials; verifiers approve |
-| `/approvals` | yes | Stewards: confirm returns; verifiers: approve tasks/credentials; council: second approvals |
+| `/approvals` | yes | Stewards: confirm returns; verifiers: approve tasks/credentials (expense and receipt hash shown on Restock/Repair tasks); council: second approvals (incl. expenses above `council_threshold_cash`), service restore |
 | `/proof` | no | Everything verify.sh checks, live: keyless accounts, code hashes, ledger invariants, DAO proposal links, evidence tx list per demo step |
 | `/agent` | no | Agent feed: actions with rationale, limits-demo results |
 
@@ -43,7 +44,7 @@ Vite + React + TypeScript + Tailwind. Static build, hosted (Vercel or GitHub Pag
 
 ## 5. Demo mode
 
-- `?demo=1` hides wallet chrome, enlarges key numbers, and shows a small "step n/18" overlay driven by `evidence/index.json` — useful for recording.
+- `?demo=1` hides wallet chrome, enlarges key numbers, and shows a small "step n/21" overlay driven by `evidence/index.json` — useful for recording.
 - A "Run simulation" button on simulator assets triggers nothing on-chain by itself; it links to the README command (judges run `simulate.sh`) and shows the latest simulated run's evidence.
 
 ## 6. Acceptance

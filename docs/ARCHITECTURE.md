@@ -47,9 +47,9 @@ flowchart TB
 | :--- | :--- | :--- |
 | **Sputnik DAO** (unmodified) | Treasury, council, all governance decisions | — |
 | **commons** contract (1 per community) | Role registry (mirrors DAO decisions), asset registry + groups, credential kinds, credential cards, usage-right cards (NEP-171, non-transferable), training flow | Holds community money (only storage balance) |
-| **asset** contract (1 per asset, same WASM) | Profile, reservations, sessions, fees, deposits, float, sweeps, telemetry, maintenance tasks, escalations, per-asset reputation, ledger | Mints rights itself (asks commons), stores roles of its own (receives push from commons) |
+| **asset** contract (1 per asset, same WASM) | Profile, reservations, sessions, fees, deposits, float, sweeps, telemetry, upkeep tasks (all `UpkeepKind`s) and capped reimbursements, fault reports, service state, escalations, per-asset reputation, ledger | Mints rights itself (asks commons), stores roles of its own (receives push from commons) |
 | **bridge** | NEP-413 request verification, on-chain access check, device lock/unlock through adapters, telemetry reporting, verification tests | Holds money, approves tasks |
-| **agent** | Reads telemetry, opens rule-based maintenance tasks, escalates purchases, writes rationale | Approves, pays, changes profiles |
+| **agent** | Reads rule status (Metric, Schedule, Report triggers), opens rule-based upkeep tasks, escalates purchases and over-cap reimbursements, writes rationale | Approves, pays, changes profiles |
 | **web** | Read-only public views (no wallet), member actions via wallet, public board | Custody, private keys |
 | **sdk** | Typed client, event decoder, shared types | — |
 
@@ -91,15 +91,15 @@ sequenceDiagram
     M->>B: POST /access {reservation_id, job file?} + NEP-413 signature
     B->>B: verify signature, nonce, recipient; RPC view_access_key(account, pubkey)
     B->>A: view can_access(account, reservation_id)
-    A-->>B: {ok, reason}
-    B->>D: unlock / start job
-    B->>A: mark_session_started(reservation_id)   (function-call key)
+    A-->>B: {ok, reason}   (reason "out_of_service" → 403, device stays locked)
+    B->>A: mark_session_started(reservation_id)   (function-call key; chain first, D-404)
+    B->>D: unlock / start job   (only after the chain write succeeded)
     D-->>B: job done / session timeout
     B->>D: lock
     B->>A: mark_session_finished(reservation_id, metrics)
 ```
 
-### 4.4 Maintenance loop
+### 4.4 Upkeep loop
 
 ```mermaid
 sequenceDiagram
@@ -111,15 +111,18 @@ sequenceDiagram
     participant C as commons
     B->>A: report_telemetry(cumulative metrics)
     G->>A: view get_rule_status()
-    G->>A: open_maintenance_task(rule_id, rationale)  (only if delta >= threshold, caps & quota ok)
+    G->>A: open_upkeep_task(rule_id, rationale)  (only if the rule is due per its trigger, caps & quota ok)
     W->>A: claim_task(task_id)
-    W->>A: submit_task(task_id, evidence_hash, evidence_uri)
+    W->>A: submit_task(task_id, evidence_hash, evidence_uri, expense?, receipt_hash?)  (expense: Restock/Repair only, <= reimbursable_max)
     B->>A: submit_verification_result(task_id, passed, details_hash)
     V->>A: approve_task(task_id)  (V ≠ W, V has verifier role)
     A->>C: mint_rights(holder=W, group, count, source=task)
     C-->>A: minted token ids
-    A->>A: callback: Rewarded (exactly once), reset rule baseline, reputation record + event
+    A->>A: callback: Rewarded (exactly once), reset rule baseline per trigger, reputation record + event
+    A->>W: Reimbursement op (if an expense was reserved from free float; never from deposits)
 ```
+
+Triggers (CONTRACT_SPEC §2.1, §3.3): **Metric** — telemetry delta since the last reward ≥ threshold; **Schedule** — `every_hours` since the last reward; **Report** — active fault reports from distinct members ≥ `min_reports`. Expenses above `council_threshold_cash` need a council second approval; above `auto_reward_cash_cap` they are paid only through a DAO proposal (`escalate(kind="reimbursement")`).
 
 ### 4.5 Sweep and escalation
 
@@ -129,6 +132,10 @@ sequenceDiagram
 ### 4.6 Training and credentials
 
 All in `commons`: trainer `propose_credential(trainee, kind)` → verifier `approve_credential(id)` (≠ trainer, ≠ trainee) → mint credential card to trainee + mint `trainer_reward_rights` usage-right cards to trainer for the kind's group.
+
+### 4.7 Faults and out of service
+
+A member with a session on the asset in the last 14 days calls `report_fault(rule_id?, note_hash)` (one active report per member per rule; otherwise `E_NO_RECENT_SESSION` / `E_ALREADY_REPORTED`). Reports make a `Report`-trigger rule due, and the agent opens a Repair (or Rebalance) task. A steward or council member can call `set_out_of_service(true, reason_hash)`: `reserve` and `mark_session_started` then fail with `E_OUT_OF_SERVICE`, `can_access` returns `out_of_service`, and future reservations can be cancelled with a full refund. The asset returns to service when a Repair task is Rewarded or when the council (or DAO) calls `set_out_of_service(false, …)`. Each period is kept in `get_service_log` with who ended it; `verify.sh` checks every closed period (TEST_PLAN §6).
 
 ## 5. Trust boundaries
 
