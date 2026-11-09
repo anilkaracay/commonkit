@@ -15,9 +15,12 @@ use near_sdk::{env, testing_env, AccountId, Gas, NearToken, PromiseResult, Runti
 use crate::types::*;
 use crate::AssetContract;
 
+mod escalations;
 mod governance;
+mod ledger_ops;
 mod profile;
 mod reservations;
+mod telemetry;
 
 pub const N: u128 = 1_000_000_000_000_000_000_000_000;
 pub const MIN: u64 = 60_000_000_000;
