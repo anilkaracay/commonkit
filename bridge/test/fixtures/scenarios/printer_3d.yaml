@@ -1,0 +1,25 @@
+# SIMULATION of the makerlab 3D printer (the real one uses the moonraker adapter).
+# nozzle_seconds starts at 600; one 20-minute print crosses nozzle_clean (pilot threshold 1800).
+scenario: printer_3d
+description: Simulated Klipper printer for CI and judges without hardware.
+simulated: true
+seed: 413
+speed: 120
+metrics:
+  print_seconds:  { initial: 600, per_session: 1200, curve: linear }
+  nozzle_seconds: { initial: 600, per_session: 1200, curve: linear }
+  jobs_total:     { initial: 12, per_session: 1, curve: step }
+  jobs_failed:    { initial: 1, per_session: 0, curve: step }
+session:
+  duration_sec: 1200
+  jitter_pct: 5
+verification:
+  duration_sec: 900       # calibration cube
+  default: pass
+failures:
+  - kind: session_error   # 3rd print fails half-way (spaghetti)
+    session: 3
+    at_fraction: 0.5
+    add: { jobs_failed: 1 }
+  - kind: verification_fail
+    run: 2

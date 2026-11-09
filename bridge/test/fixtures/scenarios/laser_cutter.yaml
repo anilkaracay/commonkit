@@ -1,0 +1,18 @@
+# SIMULATION of the makerlab laser cutter (the real one uses smart_plug with a labelled stand-in).
+# run_seconds starts at 300; one 10-minute job crosses lens_clean (pilot threshold 600).
+scenario: laser_cutter
+description: Simulated laser cutter power profile; never energises anything.
+simulated: true
+seed: 31
+speed: 60
+metrics:
+  run_seconds: { initial: 300, per_session: 480, curve: linear }
+  energy_wh:   { initial: 150, per_session: 240, curve: linear, idle_per_hour: 2 }
+  cycles:      { initial: 1, per_session: 1, curve: step }
+session:
+  duration_sec: 600
+  jitter_pct: 0
+verification:
+  duration_sec: 120       # power profile test
+  default: pass
+failures: []

@@ -1,0 +1,21 @@
+# SIMULATION. Dorm-B washing machine (profile washer.json, adapter simulator).
+# Starts at 27 cycles so the 3rd simulated cycle crosses filter_clean (cycles >= 30).
+scenario: washer
+description: Simulated dorm washing machine; one session = one wash cycle.
+simulated: true
+seed: 20261114
+speed: 60                 # 1 real second = 1 simulated minute
+metrics:
+  cycles:      { initial: 27, per_session: 1, curve: step }
+  run_seconds: { initial: 97200, per_session: 2700, curve: linear }
+  energy_wh:   { initial: 24300, per_session: 700, curve: linear, idle_per_hour: 1 }
+session:
+  duration_sec: 2700      # 45-minute cycle
+  jitter_pct: 10
+verification:
+  duration_sec: 300       # simulated test spin after filter cleaning
+  default: pass
+failures:
+  - kind: offline         # Wi-Fi drop on day 1, 10:00-10:15 simulated time
+    from_sec: 36000
+    until_sec: 36900
