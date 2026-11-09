@@ -1,6 +1,3 @@
-// Harness helpers are shared by test files that land in later commits.
-#![allow(dead_code)]
-
 //! Unit tests for the asset contract. Each file covers one area; COVERAGE.md maps methods to
 //! test names. The harness keeps one contract instance and a simulated account balance across
 //! calls (transfers are debited by the mocked VM; failed transfers are credited back by the
@@ -24,6 +21,7 @@ mod rewards;
 mod service;
 mod tasks;
 mod telemetry;
+mod views;
 
 pub const N: u128 = 1_000_000_000_000_000_000_000_000;
 pub const MIN: u64 = 60_000_000_000;
