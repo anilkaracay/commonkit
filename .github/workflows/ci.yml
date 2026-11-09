@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ts:
+    name: TypeScript (lint, typecheck, tests, profiles)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm validate:profiles
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+  contracts:
+    name: Contracts (fmt, clippy, unit tests, wasm build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: contracts
+      - name: Install cargo-near
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/near/cargo-near/releases/latest/download/cargo-near-installer.sh | sh
+      - run: cargo fmt --manifest-path contracts/Cargo.toml --all -- --check
+      - run: cargo clippy --manifest-path contracts/Cargo.toml --workspace --all-targets -- -D warnings
+      - run: cargo test --manifest-path contracts/Cargo.toml --workspace --exclude commonkit-integration-tests
+      - run: bash scripts/build-contracts.sh

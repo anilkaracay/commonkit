@@ -4,5 +4,5 @@ packages:
   - agent
   - web
   - scripts
-onlyBuiltDependencies:
-  - esbuild
+allowBuilds:
+  esbuild: true
