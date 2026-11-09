@@ -170,3 +170,24 @@ Decision: `safety: {dangerous, stand_in?, human_present_confirmed}` per asset. A
 ## D-409 — Fake-chain mode and the NEAR client
 2026-11-09 · accepted
 Decision: `chain: fake` runs an in-memory model of the asset contract rules (windows, states, monotonic telemetry; tx hashes `fake-tx-n`). It labels everything simulated, including HTTP log lines, and its evidence goes to `bridge/state/sim/evidence/`, never `evidence/`. `chain: near` reads through `@commonkit/sdk` `NearRpc` (final finality: `block`, `view_access_key`, `can_access`, `get_reservation`, `get_task`, `get_telemetry`). Writes go through an injected `TxSigner` (function-call key per asset, research B5), and a client without a signer refuses writes. Bridge write gas starts at 30 Tgas (100 for `mark_session_finished`) until measured.
+
+## D-105 — Account naming: keep a key-holding community root; create sub-accounts before deleting keys
+2026-11-09 · accepted (proposal for chain-ops; root account name still undecided by the human)
+Context: RESEARCH B8 — only the parent can create `x.parent` (verified on testnet). A keyless account can never create sub-accounts again.
+Decision: Per community, a team-held root (e.g. `makerlab-ck.testnet`, keys kept, never holds community money) creates `commons.<root>` and `printer-01.<root>`, `laser-01.<root>`, … Contracts are deployed and their keys deleted only after all sibling/child accounts exist. Do not make an asset a sub-account of the keyless commons account. Names ≤ 64 chars.
+Consequences: Adding an asset later needs the root key (team) — acceptable; the asset itself is still keyless and DAO-wired.
+
+## D-106 — Pins: near-sdk 5.30.1, near-workspaces 0.24.0, cargo-near 0.23.0, near-api-js 7.4.0, near-connect 0.12.0
+2026-11-09 · accepted
+Context: RESEARCH §1. All were exercised (testnet deploy + cross-contract, sandbox with real Sputnik WASM, script tx, NEP-413). Testnet protocol 88 allows 1,000 Tgas per tx; we still budget ≤ 300 Tgas per tx.
+Decision: Workspace `near-sdk = "=5.30.1"`; dev-deps `near-workspaces = "0.24.0"`. Rust toolchain pin `1.98.1` recommended for `contracts/rust-toolchain.toml` (owner: contract-engineer). Release WASM built with `cargo near build reproducible-wasm` using image `sourcescan/cargo-near:0.22.0-rust-1.99.1@sha256:c9655eaf…43b5bb`; if that fails for workspace members, ship `non-reproducible-wasm` and do not claim reproducibility in README. JS: `near-api-js@7.4.0` (not `@near-js/*` 2.5.1), wallet `@hot-labs/near-connect@0.12.0`. RPC: FastNEAR testnet primary, `rpc.testnet.near.org` fallback.
+
+## D-107 — NEAR AI Cloud: model id from `/v1/models`, template rationale is the default
+2026-11-09 · accepted
+Context: RESEARCH F1. API = `https://cloud-api.near.ai/v1` (OpenAI-compatible, Bearer key). The docs' example model `zai-org/GLM-5.1-FP8` is not in the live public `/v1/models` list. No API key exists in the repo (`.env.example` only), so no live completion was run.
+Decision: `NEARAI_MODEL` must be a live id (suggest `z-ai/glm-5.3-flash`); agent checks `/v1/models` at start and falls back to the template rationale on any error or missing key. Never claim LLM rationale in README unless a logged completion exists.
+
+## D-108 — Bridge NEP-413 check requires a FullAccess key of the account
+2026-11-09 · accepted
+Context: RESEARCH B15. `near-api-js/nep413.verifyMessage` rejects keys that are not FullAccess keys of the claimed account (`view_access_key`). Wallet `signMessage` signs with a full-access key.
+Decision: Bridge verifies signature over the NEP-413 hash, `recipient == bridge id`, unused nonce, fresh timestamp in `message`, and `view_access_key(account, pk).permission == "FullAccess"`; then `can_access` on the asset.
