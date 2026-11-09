@@ -191,3 +191,48 @@ Decision: `NEARAI_MODEL` must be a live id (suggest `z-ai/glm-5.3-flash`); agent
 2026-11-09 · accepted
 Context: RESEARCH B15. `near-api-js/nep413.verifyMessage` rejects keys that are not FullAccess keys of the claimed account (`view_access_key`). Wallet `signMessage` signs with a full-access key.
 Decision: Bridge verifies signature over the NEP-413 hash, `recipient == bridge id`, unused nonce, fresh timestamp in `message`, and `view_access_key(account, pk).permission == "FullAccess"`; then `can_access` on the asset.
+
+## D-201 — Ledger invariant excludes in-flight money
+2026-11-09 · accepted
+Context: Spec §2.2 puts `pending_out` on the right-hand side of the invariant. NEAR debits a transfer (or a function-call deposit) from the account balance when the outgoing receipt is created, so with the spec formula every in-flight refund or sweep would make `invariant_ok` false.
+Decision: `invariant_ok = balance >= storage_reserve + float_free + deposits_held + rewards_reserved + pending_in + protocol_fees_owed`. `pending_out` (already debited) and `bonds_outstanding` (money held by the DAO, D-102) are excluded. A failed transfer's refund receipt and our `on_op_result` callback can land in either order; if the callback runs first, `invariant_ok` is false for that one block (documented, not a bug).
+Consequences: Tests and verify.sh check the invariant after receipts settle.
+
+## D-202 — Extra ledger buckets `pending_in` and `protocol_fees_owed`; source bucket per op kind
+2026-11-09 · accepted
+Context: Money attached to a reservation awaiting authorization belonged to no bucket; a failed protocol-fee payout had no bucket that is neither sweepable nor a user liability.
+Decision: `pending_in` holds attached amounts while `PendingAuthorization`; `protocol_fees_owed` holds failed protocol fees. A failed op's amount returns to: Refund → `deposits_held` (also for a failed fee refund, it is the user's money), CashReward → `rewards_reserved`, Sweep/Bond → `float_free`, ProtocolFee → `protocol_fees_owed`. `retry_op` takes it out again; a Sweep retry needs `float_free >= amount`. Bond ops are not retryable (a new escalation is the retry). Fee refunds on cancel are net of the protocol fee already paid out and require `float_free >= refund` (`E_INSUFFICIENT_FLOAT`).
+Consequences: Ledger and LedgerView gain these fields plus `bonds_outstanding`, `total_bonds_returned`, `total_bonds_lost`.
+
+## D-203 — Right release/finalize calls are OutboundOps
+2026-11-09 · accepted
+Context: `release_right`/`finalize_right` are cross-contract calls that can fail; a stuck `Locked` right would hurt its holder.
+Decision: Two op kinds `RightRelease`/`RightFinalize` (amount 0, `to = commons`, `ref_id = reservation`), tracked Pending/Succeeded/Failed and retried by `retry_op` like transfers. `Reservation.right_op_id` points to the latest one. If `authorize_reservation` succeeded but its result is unreadable, the asset rejects, refunds and also sends `release_right` (commons treats releasing an already-Active right as a no-op, D-301).
+Consequences: One retry path for every outbound effect.
+
+## D-204 — Unaccounted balance is reconciled into the float
+2026-11-09 · accepted
+Context: The account receives NEAR without a method call (direct transfers, gas rewards) and `fund_float` must also top up the storage reserve (DAO_INTEGRATION §3 funds "initial float + storage reserve" in one deposit).
+Decision: `reconcile()` (run by `fund_float` and every `maybe_sweep`) moves `balance − held buckets − storage_reserve − pending_out − bonds_outstanding` (if positive) into `float_free`; anything above `float_cap` is then swept to the DAO. `fund_float` reports `to_float` / `to_storage_reserve`. In-flight amounts and outstanding bonds are subtracted so a bounced transfer or returned bond is never counted twice.
+Consequences: The asset never accumulates untracked money above its storage reserve.
+
+## D-205 — Reservation policy details
+2026-11-09 · accepted
+Decision: (1) Cancel: only `Confirmed` and before the start slot; full fee refund iff `now + slot_length <= start`. (2) `resolve_dispute` records a `damage` only when `deduct > 0`. (3) `mark_no_show` writes a `no_show` reputation log record (no counter; §2.8 counters unchanged). (4) Damage `note_hash`, evidence and verification hashes must be 64-char hex sha256 (`E_INVALID_ARGS`). (5) `can_access` for `InSession` is ok until the reservation's last slot ends. (6) `authorize_reservation` is called with `slots` (D-301).
+
+## D-206 — Telemetry epoch reset semantics
+2026-11-09 · accepted
+Decision: `set_telemetry_epoch(epoch)` (DAO, strictly increasing, else `E_INVALID_ARGS`) allows exactly the next report (from `report_telemetry` or `mark_session_finished`) to decrease counters; baselines of rules on decreased metrics restart at 0. `Telemetry` gains `epoch` and `reset_pending`.
+
+## D-209 — Asset storage layout and extra stored fields
+2026-11-09 · accepted
+Decision: Reservations, tasks, escalations and ops use `LookupMap<u64, _>` with dense ids from 0 (records are never removed), so pagination is by id range — cheaper than `IterableMap`. Extra index `holder_reservations: LookupMap<AccountId, Vec<u64>>`. Extra stored fields: `Reservation.{protocol_fee, right_op_id}`, `Escalation.{bond_op_id, bond_settled, bond_lost, submission_time, dao_status, created_at}`, `OutboundOp.{created_at, updated_at}`. `sync_roles` returns `bool`, drops unknown role names and accepts at most 100 accounts (`E_INVALID_ARGS`). Unknown ids → `E_NOT_FOUND`, malformed args → `E_INVALID_ARGS` (D-303).
+
+## D-210 — Asset side of D-102 (escalation bonds)
+2026-11-09 · accepted
+Decision: `add_proposal` success → Bond op Succeeded, bond moves to `bonds_outstanding`. Success with an unreadable id → escalation `Failed`, bond written off (`bond_lost`, `total_bonds_lost`). Failure → op Failed, bond back to `float_free`. `sync_escalation` is allowed while a proposal id exists and the bond is unsettled; stored `Approved`/`Rejected`/`Expired` credit the bond back to `float_free` once (`total_bonds_returned`); a failed `get_proposal` (Removed) → `Rejected`, bond lost; lazily expired `InProgress` → `Expired` with the bond still outstanding until a council `Finalize` stores `Expired`. `refresh_dao_policy` caches `proposal_bond` and `proposal_period`.
+
+## D-211 — `#[private]` checks are covered by sandbox tests
+2026-11-09 · accepted
+Context: near-sdk unit tests call methods directly, bypassing the generated wasm wrapper that enforces `#[private]`.
+Decision: Callback privacy is asserted in the M1c sandbox suite; unit tests exercise callback logic with mocked promise results.

@@ -17,6 +17,7 @@ use crate::AssetContract;
 
 mod governance;
 mod profile;
+mod reservations;
 
 pub const N: u128 = 1_000_000_000_000_000_000_000_000;
 pub const MIN: u64 = 60_000_000_000;
@@ -316,5 +317,56 @@ pub fn events(name: &str) -> Vec<Value> {
         .filter_map(|j| serde_json::from_str::<Value>(j).ok())
         .filter(|v| v["standard"] == "commonkit" && v["version"] == "1.0.0" && v["event"] == name)
         .map(|v| v["data"][0].clone())
+        .collect()
+}
+
+/// One outgoing function call of the latest contract call.
+#[derive(Debug)]
+pub struct Call {
+    pub receiver: AccountId,
+    pub method: String,
+    pub args: Value,
+    pub deposit: u128,
+}
+
+/// Function calls scheduled by the latest contract call (including our own callbacks).
+pub fn calls() -> Vec<Call> {
+    use near_sdk::mock::MockAction;
+    near_sdk::test_utils::get_created_receipts()
+        .into_iter()
+        .flat_map(|r| {
+            let receiver = r.receiver_id.clone();
+            r.actions.into_iter().filter_map(move |a| match a {
+                MockAction::FunctionCallWeight {
+                    method_name,
+                    args,
+                    attached_deposit,
+                    ..
+                } => Some(Call {
+                    receiver: receiver.clone(),
+                    method: String::from_utf8(method_name).unwrap(),
+                    args: serde_json::from_slice(&args).unwrap_or(Value::Null),
+                    deposit: attached_deposit.as_yoctonear(),
+                }),
+                _ => None,
+            })
+        })
+        .collect()
+}
+
+/// Plain transfers scheduled by the latest contract call: (receiver, amount).
+pub fn transfers() -> Vec<(AccountId, u128)> {
+    use near_sdk::mock::MockAction;
+    near_sdk::test_utils::get_created_receipts()
+        .into_iter()
+        .flat_map(|r| {
+            let receiver = r.receiver_id.clone();
+            r.actions.into_iter().filter_map(move |a| match a {
+                MockAction::Transfer { deposit, .. } => {
+                    Some((receiver.clone(), deposit.as_yoctonear()))
+                }
+                _ => None,
+            })
+        })
         .collect()
 }
