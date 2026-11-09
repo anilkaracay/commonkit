@@ -13,6 +13,13 @@ const rpcEnvelope = z.object({
   error: z.unknown().optional(),
 });
 
+/** Browser- and Node-safe base64 of a UTF-8 string (no Buffer). */
+export function utf8ToBase64(text: string): string {
+  let bin = '';
+  for (const b of new TextEncoder().encode(text)) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
 export class RpcError extends Error {
   constructor(
     message: string,
@@ -50,9 +57,9 @@ export class NearRpc {
       finality: 'final',
       account_id: accountId,
       method_name: methodName,
-      args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
+      args_base64: utf8ToBase64(JSON.stringify(args)),
     });
-    return JSON.parse(Buffer.from(r.result).toString('utf8')) as T;
+    return JSON.parse(new TextDecoder().decode(Uint8Array.from(r.result))) as T;
   }
 
   async viewAccount(accountId: string): Promise<{ amount: string; code_hash: string; storage_usage: number }> {

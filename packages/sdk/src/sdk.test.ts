@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { decodeEvents, NearRpc, nearToYocto, parseErrorCode, yoctoToNear } from './index.js';
+import {
+  decodeEvents,
+  NearRpc,
+  nearToYocto,
+  parseErrorCode,
+  utf8ToBase64,
+  yoctoToNear,
+} from './index.js';
 
 describe('units', () => {
   it('round-trips NEAR <-> yocto without floats', () => {
@@ -38,6 +45,9 @@ describe('errors', () => {
 });
 
 describe('NearRpc', () => {
+  it('encodes args without Buffer (browser-safe)', () => {
+    expect(utf8ToBase64('{"a":"ş"}')).toBe(Buffer.from('{"a":"ş"}').toString('base64'));
+  });
   it('decodes view results and surfaces contract errors', async () => {
     const ok = new NearRpc('http://x', async () =>
       new Response(JSON.stringify({ result: { result: [...Buffer.from('{"a":1}')] } })),
