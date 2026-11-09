@@ -123,3 +123,9 @@ Consequences: Single-member throwaway DAOs approve with one vote; execution happ
 2026-11-09 · accepted
 Context: C9 testnet tx `5gBzMAGQHmA41TUr3g43PKARdY5YEuvPaRwMsGjQu5ZG`: when a FunctionCall proposal executes, `predecessor == DAO` but `signer == the council member who cast the final vote`.
 Decision: DAO access checks use only `predecessor_account_id() == dao_id`. Multi-action FunctionCall proposals are allowed (they run in one atomic receipt).
+
+## D-303 — commons surface details beyond the spec
+2026-11-09 · accepted
+Context: Implementing §4–§5 needed a few choices the spec left open.
+Decision: (1) New error codes `E_INVALID_ARGS` and `E_NOT_FOUND`. (2) `unsuspend_credential` also takes a `reason` (audit trail both ways). (3) Extra views `get_wiring`, `get_asset`, `get_groups`, `get_card`; extra payable `fund_storage` event `storage_funded`. (4) `tokens_by_owner` is `LookupMap<AccountId, Vec<TokenId>>` (cards never move or burn; avoids nested collections). (5) Transfer/approval methods take no args and always panic `E_NON_TRANSFERABLE`; `nft_revoke`/`nft_revoke_all` refused too, `nft_is_approved` false. (6) Token metadata is computed at view time (title from group id / kind id, not from mutable config) so config changes never alter issued cards. (7) `register_asset` on an existing asset re-activates and may move it between groups; issued cards keep their group. (8) Ids/tokens start at 1. (9) Role pushes that do not fit in the remaining gas are not scheduled and emit `role_sync_failed {reason: insufficient_gas}`; push = 20 Tgas + 5 Tgas callback, so a DAO `set_roles` action needs about `10 + 25 × active_assets` Tgas (≤ 250 Tgas per proposal → ~9 assets per push; more → `resync_roles`).
+Consequences: Spec §4, §5, §5.1, §5.2, §9, §10 updated. Gas values are start values until measured in M1c.

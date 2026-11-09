@@ -93,8 +93,14 @@ impl RightSource {
 #[serde(tag = "state")]
 pub enum RightStatus {
     Active,
-    Locked { asset: AccountId, reservation_id: U64 },
-    Consumed { asset: AccountId, reservation_id: U64 },
+    Locked {
+        asset: AccountId,
+        reservation_id: U64,
+    },
+    Consumed {
+        asset: AccountId,
+        reservation_id: U64,
+    },
 }
 
 /// Args of `commons.authorize_reservation`.

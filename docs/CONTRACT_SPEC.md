@@ -363,13 +363,13 @@ pub struct CommonsContract {
     trainings: IterableMap<u64, Training>,
     next_training_id: u64,
     tokens: IterableMap<String /*token_id*/, Card>,
-    tokens_by_owner: LookupMap<AccountId, IterableSet<String>>,
+    tokens_by_owner: LookupMap<AccountId, Vec<String>>,   // cards are never moved or burned (D-303)
     mint_receipts: LookupMap<String /*"asset:task_id" or "training:id"*/, Vec<String>>,  // idempotency
     next_token_seq: u64,
     metadata: NftContractMetadata,                // NEP-177
 }
 
-pub struct AssetEntry { pub group_id: GroupId, pub active: bool, pub registered_at: u64 }
+pub struct AssetEntry { pub group_id: GroupId, pub active: bool, pub registered_at: U64 }
 
 pub struct CredentialKindConfig {
     pub kind: CredentialKind,
@@ -383,55 +383,60 @@ pub struct CredentialKindConfig {
 
 pub enum CardKind {
     UsageRight { group_id: GroupId, max_slots: u32, source: RightSource, status: RightStatus },
-    Credential { kind: CredentialKind, issued_by_training: u64, suspended: bool },
+    Credential { kind: CredentialKind, issued_by_training: U64, suspended: bool },
 }
-pub enum RightSource { Maintenance { asset: AccountId, task_id: u64 }, Training { training_id: u64 } }
-pub enum RightStatus { Active, Locked { asset: AccountId, reservation_id: u64 }, Consumed { asset: AccountId, reservation_id: u64 } }
+pub enum RightSource { Maintenance { asset: AccountId, task_id: U64 }, Training { training_id: U64 } }
+pub enum RightStatus { Active, Locked { asset: AccountId, reservation_id: U64 }, Consumed { asset: AccountId, reservation_id: U64 } }
 
 pub struct Card {
     pub token_id: String,                  // "right-<seq>" | "cred-<seq>"
     pub owner_id: AccountId,
     pub kind: CardKind,
-    pub issued_at: u64,
-    pub expires_at: Option<u64>,
+    pub issued_at: U64,
+    pub expires_at: Option<U64>,
 }
 
 pub struct Training {
-    pub id: u64, pub trainer: AccountId, pub trainee: AccountId, pub kind: CredentialKind,
+    pub id: U64, pub trainer: AccountId, pub trainee: AccountId, pub kind: CredentialKind,
     pub notes_hash: Option<String>, pub status: TrainingStatus, pub approver: Option<AccountId>,
-    pub minted: Vec<String>, pub created_at: u64,
+    pub minted: Vec<String>, pub created_at: U64,
 }
 pub enum TrainingStatus { Proposed, Approved, Rejected }
 ```
+
+Stored ids/timestamps that are exposed in JSON are `U64` (strings). JSON tags: `CardKind` → `{"type":"UsageRight"|"Credential", ...}`, `RightSource` → `{"type":"Maintenance"|"Training", ...}`, `RightStatus` → `{"state":"Active"|"Locked"|"Consumed", ...}` (types in `commonkit_types::commons_iface`, D-301). Limits: `MAX_ROLE_ACCOUNTS = 100`, ids `[a-z0-9_-]{1,64}`, titles ≤ 200, reasons ≤ 500, hashes hex ≤ 128, validity ≤ 3650 days.
 
 ## 5. `commons` — methods
 
 | Method | Access | Behavior |
 | :--- | :--- | :--- |
 | `new(dao_id, name, metadata)` | init | — |
-| `register_asset(asset_id, group_id)` | DAO | Add to group; then push current full role set to the new asset via `sync_roles`. Event. |
+| `register_asset(asset_id, group_id)` | DAO | Add to group (re-registering an existing asset re-activates it and may move it to another group; issued cards keep their group); then push current full role set to the new asset via `sync_roles`. Event. |
 | `deactivate_asset(asset_id)` | DAO | New reservations/mints rejected; existing rights untouched. |
 | `set_roles(account, roles)` | DAO | Validate role names; `roles_version += 1`; push `sync_roles(<full snapshot>, version)` to **every active asset** (fire-and-forget + callback logging failures as `role_sync_failed` events; `resync_roles(asset)` ANY re-pushes the full set). The snapshot lists every account that ever held a role (removed accounts with `[]`), so an asset that ignores `version <= roles_version` never loses an update (D-302). |
 | `set_credential_kind(config)` | DAO | Upsert. Changing config never alters issued cards. |
-| `suspend_credential(token_id, reason)` / `unsuspend_credential` | DAO | Forward-looking only; event with reason. |
+| `suspend_credential(token_id, reason)` / `unsuspend_credential(token_id, reason)` | DAO | Forward-looking only; event with reason. On a usage right → `E_NO_REVOCATION`. |
+| `resync_roles(asset_id)` | ANY | Re-push the current full snapshot to an active asset. |
+| `on_roles_synced(asset_id, version)` | private | Failure → event `role_sync_failed`. Pushes that do not fit in the remaining gas emit `role_sync_failed {reason: insufficient_gas}` instead of being scheduled. |
+| `fund_storage()` | ANY, payable | Adds to the commons balance (storage). Event `storage_funded`. |
 | `authorize_reservation(holder, asset, credential?, right_id?, reservation_id, slots)` | registered asset == predecessor == `asset` | Returns `AuthResult { ok, reason, credential_token_id, locked_right_id }` (does **not** panic on business failures — returns `ok=false` so the asset can refund cleanly; a deactivated asset gets `ok=false, E_ASSET_NOT_REGISTERED`). Checks credential card held, not suspended, not expired. If `right_id`: owner == holder, UsageRight, `Active`, not expired, group contains asset, `slots <= max_slots` → `Locked{asset, reservation_id}` (D-301). |
 | `release_right(token_id, reservation_id)` | asset that locked it | Locked{caller, reservation_id} → Active; returns `true`. Already `Active` → no-op, returns `false` (safe retry). Anything else → `E_BAD_STATE`. |
 | `finalize_right(token_id, reservation_id)` | asset that locked it | Locked{caller, reservation_id} → Consumed; returns `true`. Already `Consumed{caller, reservation_id}` → no-op, returns `false`. Anything else → `E_BAD_STATE`. |
 | `mint_rights(holder, count, max_slots, validity_days, source)` | registered active asset == `source.asset` | **Idempotent** on `mint_receipts[asset:task_id]`: if present, return the stored ids. Else mint `count` (1..=10) UsageRight cards in the group the asset is registered in (commons is the source of truth; any `group` arg is ignored — D-301); event `nft_mint` (NEP-171 format) + `rights_minted`. |
-| `propose_credential(trainee, kind, notes_hash?)` | ROLE(trainer); trainer ≠ trainee | Creates Training. Event. |
-| `approve_credential(training_id)` | ROLE(verifier); ≠ trainer; ≠ trainee | Mint credential card to trainee + `trainer_reward_rights` UsageRight cards to trainer (group = kind.reward_group), idempotent by `training:id`. Events. |
-| `reject_credential(training_id, reason)` | ROLE(verifier); ≠ trainer | — |
+| `propose_credential(trainee, kind, notes_hash?)` | ROLE(trainer); trainer ≠ trainee | Kind must exist. Creates Training; returns its id. Event. |
+| `approve_credential(training_id)` | ROLE(verifier); ≠ trainer; ≠ trainee | Mint credential card to trainee + `trainer_reward_rights` UsageRight cards to trainer (group = kind.reward_group), idempotent by `training:id` (a repeat returns the stored ids). Returns all minted ids. Events. |
+| `reject_credential(training_id, reason)` | ROLE(verifier); ≠ trainer | Proposed → Rejected. Event with reason. |
 
 ### 5.1 NEP-171 / 177 / 181 surface (non-transferable)
 
 - `nft_token(token_id)`, `nft_tokens(from_index, limit)`, `nft_supply_for_owner`, `nft_tokens_for_owner(account_id, from_index, limit)`, `nft_total_supply`, `nft_metadata()`.
-- `nft_transfer`, `nft_transfer_call`, `nft_approve` → `env::panic_str("E_NON_TRANSFERABLE: COMMONKIT cards cannot be transferred")`.
-- Token metadata: title (`"Makerlab · 3D printer access"`, `"Laser safety credential"`), description incl. source, `media` = small inline SVG data URI (verify size/wallet support in research B14), `extra` = JSON of status.
+- `nft_transfer`, `nft_transfer_call`, `nft_approve`, `nft_revoke`, `nft_revoke_all` → `env::panic_str("E_NON_TRANSFERABLE: COMMONKIT cards cannot be transferred")`. They take no arguments (any args are ignored) so the panic is the same whatever a wallet sends. `nft_is_approved` → `false`; `approved_account_ids` is always `{}`.
+- Token metadata (computed at view time, never stored): title (`"<name> · <group_id> access"`, `"Laser safety credential"` from the kind id), description incl. source, `media` = base64 SVG data URI (< 2 KB; status colour), `issued_at`/`expires_at` in ms, `copies = 1`, `extra` = JSON of status (`kind`, `status`/`suspended`, `expired`).
 - Mint events in NEP-171 `nft_mint` format so explorers/wallets index them.
 
 ### 5.2 Views
 
-`get_assets`, `get_group(group_id)`, `get_roles(account)`, `get_all_roles(from, limit)`, `get_credential_kinds`, `get_training(id)`, `get_trainings(from, limit)`, `has_credential(account, kind) -> bool`, `get_cards_for_owner(account)` (typed, richer than NEP-171), `get_mint_receipt(key)`, `version()`.
+`get_wiring()`, `get_assets(from?, limit?)`, `get_asset(asset_id)`, `get_group(group_id)`, `get_groups()`, `get_roles(account)`, `get_all_roles(from, limit)` (includes `[]` tombstones), `get_credential_kinds`, `get_training(id)`, `get_trainings(from, limit)`, `has_credential(account, kind) -> bool`, `get_cards_for_owner(account)` / `get_card(token_id)` (typed, richer than NEP-171; card fields flattened + `expired`), `get_mint_receipt(key)`, `version()`.
 
 ---
 
@@ -453,13 +458,13 @@ pub enum TrainingStatus { Proposed, Approved, Rejected }
 
 `asset`: `profile_updated`, `operators_updated`, `roles_synced`, `float_funded`, `reservation_pending`, `reservation_confirmed`, `reservation_rejected`, `reservation_cancelled`, `session_started`, `session_finished`, `no_show`, `return_confirmed`, `dispute_opened`, `dispute_resolved`, `telemetry_reported`, `task_opened`, `task_annotated`, `task_claimed`, `task_unclaimed`, `task_submitted`, `verification_reported`, `task_approved`, `task_council_approved`, `task_rejected`, `task_rewarded`, `reward_failed`, `op_created`, `op_result`, `swept`, `escalation_created`, `escalation_submitted`, `escalation_synced`, `reputation_recorded`.
 
-`commons`: `asset_registered`, `asset_deactivated`, `roles_set`, `role_sync_failed`, `credential_kind_set`, `training_proposed`, `training_approved`, `training_rejected`, `credential_suspended`, `credential_unsuspended`, `right_locked`, `right_released`, `right_consumed`, `rights_minted`, plus NEP-171 `nft_mint` (standard `nep171`).
+`commons`: `asset_registered`, `asset_deactivated`, `roles_set`, `role_sync_failed`, `credential_kind_set`, `training_proposed`, `training_approved`, `training_rejected`, `credential_suspended`, `credential_unsuspended`, `right_locked`, `right_released`, `right_consumed`, `rights_minted`, `storage_funded`, plus NEP-171 `nft_mint` (standard `nep171`, version `1.0.0`, `memo` = mint receipt key).
 
 Each event `data` includes the ids needed to link it (reservation_id, task_id, token_ids, op_id, proposal_id, account).
 
 ## 10. Error codes
 
-`E_UNAUTHORIZED`, `E_NOT_DAO`, `E_NOT_COMMONS`, `E_NOT_BRIDGE`, `E_NOT_AGENT`, `E_MISSING_ROLE`, `E_SELF_VERIFY`, `E_INVALID_PROFILE`, `E_WRONG_AMOUNT`, `E_SLOT_TAKEN`, `E_SLOT_OUT_OF_RANGE`, `E_TOO_MANY_SLOTS`, `E_BAD_STATE`, `E_WINDOW_CLOSED`, `E_TELEMETRY_NOT_MONOTONIC`, `E_RULE_NOT_FOUND`, `E_RULE_NOT_DUE`, `E_TASK_ALREADY_OPEN`, `E_QUOTA_EXCEEDED`, `E_CASH_CAP_EXCEEDED`, `E_INSUFFICIENT_FLOAT`, `E_TOO_MANY_ESCALATIONS`, `E_OP_NOT_RETRYABLE`, `E_ALREADY_REWARDED`, `E_NON_TRANSFERABLE`, `E_RIGHT_NOT_ACTIVE`, `E_RIGHT_WRONG_GROUP`, `E_RIGHT_EXPIRED`, `E_CREDENTIAL_MISSING`, `E_ASSET_NOT_REGISTERED`, `E_NO_REVOCATION` (any attempt path that would revoke a right — there must be **no method** that does it; this code is used by guard functions).
+`E_UNAUTHORIZED`, `E_NOT_DAO`, `E_NOT_COMMONS`, `E_NOT_BRIDGE`, `E_NOT_AGENT`, `E_MISSING_ROLE`, `E_SELF_VERIFY`, `E_INVALID_PROFILE`, `E_WRONG_AMOUNT`, `E_SLOT_TAKEN`, `E_SLOT_OUT_OF_RANGE`, `E_TOO_MANY_SLOTS`, `E_BAD_STATE`, `E_WINDOW_CLOSED`, `E_TELEMETRY_NOT_MONOTONIC`, `E_RULE_NOT_FOUND`, `E_RULE_NOT_DUE`, `E_TASK_ALREADY_OPEN`, `E_QUOTA_EXCEEDED`, `E_CASH_CAP_EXCEEDED`, `E_INSUFFICIENT_FLOAT`, `E_TOO_MANY_ESCALATIONS`, `E_OP_NOT_RETRYABLE`, `E_ALREADY_REWARDED`, `E_NON_TRANSFERABLE`, `E_RIGHT_NOT_ACTIVE`, `E_RIGHT_WRONG_GROUP`, `E_RIGHT_EXPIRED`, `E_CREDENTIAL_MISSING`, `E_ASSET_NOT_REGISTERED`, `E_INVALID_ARGS` (malformed or out-of-bounds argument), `E_NOT_FOUND` (unknown token/training id), `E_NO_REVOCATION` (any attempt path that would revoke a right — there must be **no method** that does it; this code is used by guard functions).
 
 ## 11. Deployment & keylessness
 
