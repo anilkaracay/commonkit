@@ -55,10 +55,14 @@ pub struct AssetContract {
     // telemetry
     telemetry: Telemetry,
 
-    // maintenance
+    // upkeep (D-017)
     next_task_id: u64,
     tasks: IterableMap<u64, Task>,
-    rule_baselines: LookupMap<String /*rule_id*/, u64 /*metric value at last approved maintenance*/>,
+    rule_baselines: LookupMap<String /*rule_id*/, u64 /*Metric: metric value at last reward; Schedule: timestamp of last reward (init = `new` time)*/>,
+    faults: LookupMap<String /*rule_id*/, Vec<FaultReport>>,   // active reports for Report-trigger rules; cleared when the rule's task is Rewarded
+    last_session_at: LookupMap<AccountId, u64>,               // for the fault-report anti-spam check
+    service: ServiceState,
+    service_log: Vector<OutOfServicePeriod>,
     open_task_by_rule: LookupMap<String, u64>,
     period: RewardPeriod,
 
@@ -103,24 +107,36 @@ pub struct Profile {
     pub right_validity_days: u32,
     pub first_task_needs_council: bool,
     pub start_window_minutes: u32,     // session must start within this window after slot start
-    pub rules: Vec<MaintenanceRule>,
+    pub rules: Vec<UpkeepRule>,
     pub protocol_fee_bps: u16,         // must be <= PROTOCOL_FEE_MAX_BPS (e.g. 200); 0 in pilot
     pub protocol_fee_receiver: Option<AccountId>,
 }
 
-pub struct MaintenanceRule {
-    pub rule_id: String,               // "nozzle_clean"
-    pub metric: String,                // "nozzle_seconds"
-    pub threshold: u64,                // delta since baseline
+// "Upkeep" generalizes maintenance (D-017): every kind of care that keeps a shared thing alive.
+pub enum UpkeepKind { Maintenance, Restock, Cleaning, Inspection, Repair, Rebalance, Supervision }
+
+pub enum Trigger {
+    Metric { metric: String, threshold: u64 },   // due when telemetry[metric] - baseline >= threshold
+    Schedule { every_hours: u32 },               // due when now - last_completed_at >= every_hours
+    Report { min_reports: u8 },                  // due when active fault reports (distinct reporters) >= min_reports
+}
+
+pub struct UpkeepRule {
+    pub rule_id: String,               // "nozzle_clean", "filament_spool", "fault_repair"
+    pub kind: UpkeepKind,
+    pub trigger: Trigger,
     pub title: String,
     pub reward_rights: u32,            // usage-right cards for the worker
     pub reward_cash: U128,             // optional cash from free float (<= auto_reward_cash_cap)
+    pub reimbursable_max: U128,        // Restock/Repair only: max documented expense the worker may claim
     pub requires_verification_test: bool,
     pub claim_timeout_hours: u32,
 }
 ```
 
-Profile validation (`validate_profile`): rules unique ids, `reward_cash <= auto_reward_cash_cap`, `deposit_trusted <= deposit`, `protocol_fee_bps <= MAX`, `slot_minutes > 0`, `float_cap > 0`, non-empty strings bounded (≤ 64 chars ids, ≤ 200 titles).
+JSON shape (near-sdk serde defaults): `"kind": "Restock"`, `"trigger": {"Metric": {"metric": "filament_used_mm", "threshold": 330000}}`, `{"Schedule": {"every_hours": 168}}`, `{"Report": {"min_reports": 1}}`.
+
+Profile validation (`validate_profile`): rules unique ids, `reward_cash <= auto_reward_cash_cap`, `reimbursable_max == 0` unless kind is `Restock` or `Repair`, `deposit_trusted <= deposit`, `protocol_fee_bps <= MAX`, `slot_minutes > 0`, `float_cap > 0`, trigger bounds (`Metric.threshold > 0` and metric id ≤ 32 chars; `Schedule.every_hours > 0`; `Report.min_reports >= 1`), non-empty strings bounded (≤ 64 chars ids, ≤ 200 titles). (`reimbursable_max` may exceed `auto_reward_cash_cap`; such expenses are paid through the DAO, see §3.3 reward procedure.)
 
 ### 2.2 Ledger
 
@@ -135,6 +151,7 @@ pub struct Ledger {
     pub total_refunded: u128,
     pub total_rewards_paid: u128,
     pub total_bonds_paid: u128,
+    pub bonds_outstanding: u128,   // bonds sent to the DAO and not yet settled (D-102); tracking only — not in the balance invariant
     pub total_protocol_fees: u128,
 }
 ```
@@ -193,15 +210,37 @@ pub struct Telemetry {
 
 `report_telemetry` rejects decreasing counters (`E_TELEMETRY_NOT_MONOTONIC`) unless `reset_epoch` is incremented by the DAO (hardware swap).
 
+### 2.4a Faults and service state (D-017)
+
+```rust
+pub struct FaultReport { pub reporter: AccountId, pub note_hash: String, pub at: u64 }
+
+pub struct ServiceState { pub in_service: bool, pub since: u64, pub reason_hash: Option<String> }
+
+pub struct OutOfServicePeriod {
+    pub seq: u64,
+    pub started_at: u64,
+    pub started_by: AccountId,
+    pub reason_hash: String,
+    pub ended_at: Option<u64>,
+    pub ended_by: Option<ServiceRestoredBy>,
+}
+pub enum ServiceRestoredBy { RepairRewarded { task_id: u64 }, Council { account: AccountId } }
+```
+
+Bounds: at most 32 active reports per rule (`E_INVALID_ARGS` beyond). `note_hash` is a hex sha256 (64 chars).
+
 ### 2.5 Task
 
 ```rust
 pub struct Task {
     pub id: u64,
     pub rule_id: String,
+    pub kind: UpkeepKind,              // copied from the rule at open time
     pub opened_by: AccountId,          // agent account (or council for manual tasks)
     pub rationale: String,             // ≤ 1000 chars, from agent
-    pub metric_value_at_open: u64,
+    pub due_value_at_open: u64,        // Metric: delta since baseline; Schedule: hours since last; Report: active reports
+    pub manual: bool,                  // council bypassed the due check
     pub reward_rights: u32,
     pub reward_cash: u128,
     pub needs_council: bool,
@@ -210,6 +249,9 @@ pub struct Task {
     pub claimed_at: Option<u64>,
     pub evidence_hash: Option<String>, // hex sha256
     pub evidence_uri: Option<String>,
+    pub expense: u128,                 // Restock/Repair reimbursement claimed at submit (0 if none)
+    pub receipt_hash: Option<String>,  // hex sha256 of the receipt
+    pub expense_state: ExpenseState,
     pub verification: Option<VerificationResult>,
     pub verifier: Option<AccountId>,
     pub council_approver: Option<AccountId>,
@@ -223,6 +265,8 @@ pub enum TaskStatus { Open, Claimed, Submitted, Approved, Rewarded, Rejected, Ex
 pub struct VerificationResult { pub passed: bool, pub details_hash: String, pub reported_at: u64 }
 
 pub enum RewardState { NotStarted, RightsPending, CashPending, Done, Failed { reason: String } }
+
+pub enum ExpenseState { None, Reserved, NeedsEscalation, Escalated { escalation_id: u64 }, Paid }
 
 pub struct RewardPeriod { pub started_at: u64, pub rights_minted: u32 }
 ```
@@ -241,6 +285,8 @@ pub struct Escalation {
     pub proposal_id: Option<u64>,
     pub status: EscalationStatus,
     pub bond_paid: u128,
+    pub bond_settled: bool,            // D-102: bond moved back to float_free exactly once on the first terminal sync
+    pub submitted_at: u64,
 }
 pub enum EscalationStatus { Submitting, Submitted, Approved, Rejected, Expired, Failed }
 ```
@@ -250,7 +296,7 @@ pub enum EscalationStatus { Submitting, Submitted, Approved, Rejected, Expired, 
 ```rust
 pub struct OutboundOp {
     pub id: u64,
-    pub kind: OpKind,                  // Refund | Sweep | CashReward | Bond | ProtocolFee
+    pub kind: OpKind,                  // Refund | Sweep | CashReward | Reimbursement | Bond | ProtocolFee
     pub to: AccountId,
     pub amount: u128,
     pub ref_id: Option<u64>,           // reservation / task / escalation id
@@ -264,7 +310,7 @@ On failure: status `Failed`, amount moves from `pending_out` back to its source 
 ### 2.8 Reputation
 
 ```rust
-pub struct Reputation { pub sessions: u32, pub clean_returns: u32, pub damages: u32, pub maintenances: u32 }
+pub struct Reputation { pub sessions: u32, pub clean_returns: u32, pub damages: u32, pub upkeeps: u32, pub fault_reports: u32 }
 pub struct ReputationRecord { pub seq: u64, pub account: AccountId, pub kind: String, pub ref_id: u64, pub at: u64 }
 ```
 
@@ -291,36 +337,43 @@ Access abbreviations: **DAO** = `predecessor == dao_id`; **COMMONS** = `predeces
 
 | Method | Access | Deposit | Behavior |
 | :--- | :--- | :--- | :--- |
-| `reserve(start_slot, slots, right_id?)` | ANY | fee + deposit (or deposit only if right) | Checks: `slots <= max`, start in `[now_slot, now_slot + horizon]`, slots free, attached == expected (exact, else `E_WRONG_AMOUNT`). Hold slots with `PendingAuthorization`. Call `commons.authorize_reservation(holder, asset=self, credential=profile.required_credential, right_id, reservation_id)` → `on_authorized`. |
+| `reserve(start_slot, slots, right_id?)` | ANY | fee + deposit (or deposit only if right) | Checks: asset in service (else `E_OUT_OF_SERVICE`), `slots <= max`, start in `[now_slot, now_slot + horizon]`, slots free, attached == expected (exact, else `E_WRONG_AMOUNT`). Hold slots with `PendingAuthorization`. Call `commons.authorize_reservation(holder, asset=self, credential=profile.required_credential, right_id, reservation_id, slots)` (D-301) → `on_authorized`. |
 | `on_authorized(reservation_id)` | private | — | Ok → `Confirmed`; fee → `float_free` (minus protocol fee op if >0); deposit → `deposits_held`; event `reservation_confirmed`; `maybe_sweep()`. Err/failed promise → release slots, status `Rejected`, refund attached via Refund op; event `reservation_rejected {reason}`. |
-| `cancel_reservation(id)` | holder | — | Only `Confirmed` and before start slot. Refund fee per cancellation policy (v1: full refund if ≥ 1 slot before start, else fee kept) + full deposit; if `right_id` → `commons.release_right`. Event. |
-| `mark_session_started(id)` | BRIDGE | — | Only `Confirmed`, within `[start, start + start_window]`. → `InSession`. Event. |
-| `mark_session_finished(id, metrics: Vec<(String,u64)>)` | BRIDGE | — | Only `InSession`. → `Finished`; also applies telemetry (same rules as `report_telemetry`); if `right_id` → `commons.finalize_right`. Reputation `sessions += 1`. Event. |
+| `cancel_reservation(id)` | holder | — | Only `Confirmed` and before start slot. Refund fee per cancellation policy (v1: full refund if ≥ 1 slot before start, else fee kept) + full deposit; if `right_id` → `commons.release_right`. **While out of service:** any `Confirmed` reservation that has not started may be cancelled with full fee + deposit refund and right release, regardless of the normal policy (`reason: "out_of_service"`). Event. |
+| `mark_session_started(id)` | BRIDGE | — | Only `Confirmed`, within `[start, start + start_window]`, asset in service (`E_OUT_OF_SERVICE`). → `InSession`; `last_session_at[holder] = now`. Event. |
+| `mark_session_finished(id, metrics: Vec<(String,u64)>)` | BRIDGE | — | Only `InSession`. → `Finished`; `last_session_at[holder] = now`; also applies telemetry (same rules as `report_telemetry`); if `right_id` → `commons.finalize_right`. Reputation `sessions += 1`. Event. |
 | `mark_no_show(id)` | ANY | — | Only `Confirmed` after start window passed. → `NoShow`; fee kept; deposit refunded (v1 policy; log it); if right → `release_right` (right returns to Active — not consumed). Event. |
 | `confirm_return(id, result)` | ROLE(steward), ≠ holder | — | Only `Finished`. Clean → Refund op for deposit, `Closed`, `clean_returns += 1`. Damage → `Disputed` (deposit stays in `deposits_held`). Events + reputation record. |
 | `resolve_dispute(id, deduct: U128, note_hash)` | DAO | — | Only `Disputed`. `deduct <= deposit`. Deduct → `float_free`; rest → Refund op; `Closed`; `damages += 1`. Event. |
 
-### 3.3 Telemetry & maintenance
+### 3.3 Telemetry & upkeep (D-017)
 
 | Method | Access | Behavior |
 | :--- | :--- | :--- |
 | `report_telemetry(metrics)` | BRIDGE | Monotonic per metric; unknown metrics allowed (≤ 16 metrics, names ≤ 32 chars). Event `telemetry_reported`. |
-| `open_maintenance_task(rule_id, rationale)` | AGENT or ROLE(council) | Rule exists; no open task for rule; `metric - baseline >= threshold` (council may bypass threshold only with `manual=true` flag recorded); `reward_cash <= float_free` → reserve cash (`float_free -= cash; rewards_reserved += cash`); quota pre-check `period.rights_minted + reward_rights <= quota` (rolling period reset when `now > started_at + period_days`). `needs_council = reward_cash > council_threshold_cash`. Event `task_opened {rule_id, metric_value, threshold, rationale}`. |
+| `open_upkeep_task(rule_id, rationale, manual?)` | AGENT or ROLE(council) | Rule exists; no open task for rule (`E_TASK_ALREADY_OPEN`); rule **due** per its trigger (`E_RULE_NOT_DUE`): Metric → `telemetry[metric] - baseline >= threshold`; Schedule → `now - baseline_ts >= every_hours * 3600e9`; Report → active fault reports for the rule `>= min_reports` (council may bypass the due check only with `manual=true`, recorded on the task; the agent can never pass `manual`); `reward_cash <= float_free` → reserve cash (`float_free -= cash; rewards_reserved += cash`); quota pre-check `period.rights_minted + reward_rights <= quota` (rolling period reset when `now > started_at + period_days`). `needs_council = reward_cash > council_threshold_cash`. Event `task_opened {task_id, rule_id, kind, trigger, due_value, rationale, manual}`. |
 | `annotate_task(task_id, note)` | AGENT | Append note (≤ 500 chars) — event only. |
 | `claim_task(task_id)` | ANY member (any account with any role or any reputation sessions ≥ 1 — v1: any account) | Open → Claimed. Not agent/bridge. Event. |
 | `unclaim_task(task_id)` | claimer, or ANY after `claim_timeout_hours` | → Open. Event. |
-| `submit_task(task_id, evidence_hash, evidence_uri?)` | claimer | Claimed → Submitted. Event. |
+| `submit_task(task_id, evidence_hash, evidence_uri?, expense?: U128, receipt_hash?)` | claimer | Claimed → Submitted. `expense > 0` only for Restock/Repair rules (`E_NOT_REIMBURSABLE`), requires `receipt_hash`, and `expense <= rule.reimbursable_max` (`E_EXPENSE_CAP`). Nothing is reserved yet. Event `task_submitted {expense, receipt_hash}`. |
 | `submit_verification_result(task_id, passed, details_hash)` | BRIDGE | Only Submitted. Stores result. Event. |
-| `approve_task(task_id)` | ROLE(verifier); ≠ claimer; ≠ agent; ≠ bridge | Submitted; if rule requires test → result must be `passed`. If `needs_council` or (`first_task_needs_council` and claimer has 0 maintenances) → set `verifier`, wait for `council_approve_task`. Else → **reward**. |
-| `council_approve_task(task_id)` | ROLE(council); ≠ claimer; ≠ verifier | After verifier approval → **reward**. |
+| `approve_task(task_id)` | ROLE(verifier); ≠ claimer; ≠ agent; ≠ bridge | Submitted; if rule requires test → result must be `passed`. Expense handling (never from deposits): if `expense > auto_reward_cash_cap` → `expense_state = NeedsEscalation` (paid only through `escalate(kind="reimbursement", receiver=claimer, amount=expense, task_id)` → `Escalated`); else if `expense > council_threshold_cash` or `expense > float_free` → `needs_council = true` (reserve at council approval); else reserve now (`float_free -= expense; rewards_reserved += expense`, `Reserved`). If `needs_council` or (`first_task_needs_council` and claimer has 0 upkeeps) → set `verifier`, wait for `council_approve_task`. Else → **reward**. |
+| `council_approve_task(task_id)` | ROLE(council); ≠ claimer; ≠ verifier | After verifier approval. Reserves a pending expense from `float_free` (`E_INSUFFICIENT_FLOAT` if not enough — the DAO funds the float first). → **reward**. |
 | `reject_task(task_id, reason)` | ROLE(verifier) or ROLE(council); ≠ claimer | Submitted → Rejected; release reserved cash back to float; reopen rule (rule can be reopened by agent). Event. |
 | `expire_task(task_id)` | ANY | Claimed past timeout → Open (same as unclaim). |
 
 **Reward procedure (exactly once):**
 1. Guard: `status == Approved && reward_state == NotStarted` (set `Approved` first, then start).
 2. If `reward_rights > 0`: `reward_state = RightsPending`; call `commons.mint_rights(holder, group, count, validity_days, max_slots, source={asset, task_id})` → `on_rights_minted(task_id)`.
-3. `on_rights_minted`: success → store token ids, `period.rights_minted += n`; then if `reward_cash > 0` → CashReward op (`rewards_reserved -= cash; pending_out += cash`) → `reward_state = CashPending`; else `Done`. Failure → `reward_state = Failed{...}`; `retry_reward(task_id)` (ANY) restarts from the failed step only. `commons.mint_rights` must be **idempotent by `(asset, task_id)`** so a retry after an ambiguous failure never double-mints.
-4. On `Done`: `status = Rewarded`; baseline for rule = metric value at approval; clear `open_task_by_rule`; reputation `maintenances += 1`; events `task_rewarded`, `reputation_recorded`.
+3. `on_rights_minted`: success → store token ids, `period.rights_minted += n`; then if `reward_cash > 0` → CashReward op, and if `expense_state == Reserved` → a separate Reimbursement op (`ref_id = task_id`; each moves `rewards_reserved → pending_out`) → `reward_state = CashPending` until the ops resolve (a failed op stays retryable via `retry_op` and never blocks `Rewarded`; Reimbursement op success → `expense_state = Paid`); else `Done`. Failure → `reward_state = Failed{...}`; `retry_reward(task_id)` (ANY) restarts from the failed step only. `commons.mint_rights` must be **idempotent by `(asset, task_id)`** so a retry after an ambiguous failure never double-mints.
+4. On `Done`: `status = Rewarded`; reset the rule's baseline per trigger (Metric → metric value at approval; Schedule → `now`; Report → clear the rule's active fault reports); clear `open_task_by_rule`; reputation `upkeeps += 1`; if the task kind is `Repair` and the asset is out of service → back in service, close the open `OutOfServicePeriod` with `RepairRewarded{task_id}`, event `service_restored`; events `task_rewarded`, `reputation_recorded`.
+
+**Faults and service (D-017):**
+
+| Method | Access | Behavior |
+| :--- | :--- | :--- |
+| `report_fault(rule_id?, note_hash)` | ANY account with `last_session_at` within the last 14 days (`E_NO_RECENT_SESSION`) | `rule_id` defaults to the profile's first `Report`-trigger rule (`E_RULE_NOT_FOUND` if none / not a Report rule). One active report per account per rule (`E_ALREADY_REPORTED`). Not agent/bridge. Reputation `fault_reports += 1`. Event `fault_reported {rule_id, reporter, note_hash, active_reports}`. |
+| `set_out_of_service(out: bool, reason_hash)` | `out=true`: ROLE(steward) or ROLE(council) or DAO. `out=false`: ROLE(council) or DAO only | `true` → `in_service=false`, opens an `OutOfServicePeriod`; event `out_of_service`. `false` → closes the period with `Council{account}`; event `service_restored`. The other path back to service is a Rewarded Repair task (above). While out of service: `reserve` and `mark_session_started` fail with `E_OUT_OF_SERVICE`, `can_access` returns `ok=false, reason="out_of_service"`, future Confirmed reservations can be cancelled with a full refund. |
 
 ### 3.4 Money ops
 
@@ -334,18 +387,18 @@ Access abbreviations: **DAO** = `predecessor == dao_id`; **COMMONS** = `predeces
 
 | Method | Access | Behavior |
 | :--- | :--- | :--- |
-| `escalate(kind, receiver, amount, reason, task_id?)` | AGENT or ROLE(council) | Max open escalations (e.g. 3). Bond = DAO `proposal_bond` (cached via `refresh_dao_policy`) taken from `float_free` (must be available, else `E_INSUFFICIENT_FLOAT`). Bond op. Call `dao.add_proposal({description, kind: Transfer{token_id:"", receiver_id, amount}})` with bond attached → `on_escalation_submitted(id)`. Description format: `"COMMONKIT escalation <asset>#<id>: <reason>"`. |
+| `escalate(kind, receiver, amount, reason, task_id?)` (`kind="reimbursement"` requires `task_id` of a task with `expense_state == NeedsEscalation`, `receiver == claimer`, `amount == expense`; sets `Escalated`) | AGENT or ROLE(council) | Max open escalations (e.g. 3). Bond = DAO `proposal_bond` exactly (cached via `refresh_dao_policy`; a wrong bond fails with `ERR_MIN_BOND` and the callback handles it) taken from `float_free` (must be available, else `E_INSUFFICIENT_FLOAT`). Bond op. Call `dao.add_proposal({description, kind: Transfer{token_id:"", receiver_id, amount}})` with bond attached → `on_escalation_submitted(id)`. Description format: `"COMMONKIT escalation <asset>#<id>: <reason>"`. |
 | `on_escalation_submitted(id)` | private | Success → parse proposal id, `Submitted`. Failure → `Failed`, bond returned to `float_free`. |
-| `sync_escalation(id)` | ANY | Calls `dao.get_proposal(proposal_id)` → `on_escalation_synced` maps status. |
-| `refresh_dao_policy()` | ANY | Calls `dao.get_policy()` → caches `proposal_bond`. |
+| `sync_escalation(id)` | ANY | Calls `dao.get_proposal(proposal_id)` → `on_escalation_synced` maps status (D-102): `Approved` → Approved; `Rejected` → Rejected; `InProgress` past `submitted_at + proposal_period` → Expired (Sputnik expiry is lazy; the bond only returns after a council `act_proposal(id, "Finalize")`); `Moved`/`Failed` → Failed; a failed `get_proposal` (a `Removed` proposal is deleted) → Rejected with the bond lost. On the first transition to Approved/Rejected(not removed)/Expired: `bonds_outstanding -= bond`, `float_free += bond`, `bond_settled = true` (exactly once; the DAO refunds the bond as a plain transfer). Removed → `bonds_outstanding -= bond`, `bond_settled = true`, nothing credited. |
+| `refresh_dao_policy()` | ANY | Calls `dao.get_policy()` → caches `proposal_bond` and `proposal_period`. |
 
 (See RESEARCH C8 fallback if contracts cannot add proposals.)
 
 ### 3.6 Views
 
-`get_profile`, `get_wiring` (dao, commons, bridge, agent, versions), `get_ledger` (+ balance, storage usage, byte cost, invariant_ok: bool), `get_reservation(id)`, `get_reservations(from_index, limit)`, `get_reservations_by_holder(account, from, limit)`, `get_slot_owner(slot)`, `get_availability(from_slot, count)`, `can_access(account, reservation_id) -> AccessCheck {ok, reason, window_start, window_end}`, `get_telemetry`, `get_rule_status() -> Vec<{rule_id, metric, value, baseline, threshold, due: bool, open_task}>`, `get_task(id)`, `get_tasks(from, limit, status?)`, `get_escalation(id)`, `get_escalations(from, limit)`, `get_op(id)`, `get_ops(from, limit, status?)`, `get_reputation(account)`, `get_reputation_log(from, limit)`, `get_period()`, `get_roles(account)`, `version()`.
+`get_profile`, `get_wiring` (dao, commons, bridge, agent, versions), `get_ledger` (+ balance, storage usage, byte cost, invariant_ok: bool), `get_reservation(id)`, `get_reservations(from_index, limit)`, `get_reservations_by_holder(account, from, limit)`, `get_slot_owner(slot)`, `get_availability(from_slot, count)`, `can_access(account, reservation_id) -> AccessCheck {ok, reason, window_start, window_end}`, `get_telemetry`, `get_rule_status() -> Vec<{rule_id, kind, trigger, current, baseline, due: bool, next_due_estimate: Option<U64>, open_task}>` (`current`: Metric value / hours since last reward / active reports; `next_due_estimate`: Schedule only, ns timestamp), `get_faults(rule_id?) -> Vec<{rule_id, reports}>`, `get_service_status() -> ServiceState`, `get_service_log(from, limit)`, `get_task(id)`, `get_tasks(from, limit, status?)`, `get_escalation(id)`, `get_escalations(from, limit)`, `get_op(id)`, `get_ops(from, limit, status?)`, `get_reputation(account)`, `get_reputation_log(from, limit)`, `get_period()`, `get_roles(account)`, `version()`.
 
-`can_access` returns `ok=true` only if: reservation `Confirmed` (or `InSession` for resumption), `holder == account`, now within the start window (or session active), and — if credential required — it was authorized at reservation time.
+`can_access` returns `ok=true` only if: asset in service, reservation `Confirmed` (or `InSession` for resumption), `holder == account`, now within the start window (or session active), and — if credential required — it was authorized at reservation time.
 
 ---
 
@@ -456,7 +509,7 @@ Stored ids/timestamps that are exposed in JSON are `U64` (strings). JSON tags: `
 
 ## 9. Events (NEP-297, `standard: "commonkit"`)
 
-`asset`: `profile_updated`, `operators_updated`, `roles_synced`, `float_funded`, `reservation_pending`, `reservation_confirmed`, `reservation_rejected`, `reservation_cancelled`, `session_started`, `session_finished`, `no_show`, `return_confirmed`, `dispute_opened`, `dispute_resolved`, `telemetry_reported`, `task_opened`, `task_annotated`, `task_claimed`, `task_unclaimed`, `task_submitted`, `verification_reported`, `task_approved`, `task_council_approved`, `task_rejected`, `task_rewarded`, `reward_failed`, `op_created`, `op_result`, `swept`, `escalation_created`, `escalation_submitted`, `escalation_synced`, `reputation_recorded`.
+`asset`: `profile_updated`, `operators_updated`, `roles_synced`, `float_funded`, `reservation_pending`, `reservation_confirmed`, `reservation_rejected`, `reservation_cancelled`, `session_started`, `session_finished`, `no_show`, `return_confirmed`, `dispute_opened`, `dispute_resolved`, `telemetry_reported`, `fault_reported`, `out_of_service`, `service_restored`, `task_opened` (with `kind`), `task_annotated`, `task_claimed`, `task_unclaimed`, `task_submitted`, `verification_reported`, `task_approved`, `task_council_approved`, `task_rejected`, `task_rewarded`, `reward_failed`, `op_created`, `op_result`, `swept`, `escalation_created`, `escalation_submitted`, `escalation_synced`, `reputation_recorded`.
 
 `commons`: `asset_registered`, `asset_deactivated`, `roles_set`, `role_sync_failed`, `credential_kind_set`, `training_proposed`, `training_approved`, `training_rejected`, `credential_suspended`, `credential_unsuspended`, `right_locked`, `right_released`, `right_consumed`, `rights_minted`, `storage_funded`, plus NEP-171 `nft_mint` (standard `nep171`, version `1.0.0`, `memo` = mint receipt key).
 
@@ -464,7 +517,7 @@ Each event `data` includes the ids needed to link it (reservation_id, task_id, t
 
 ## 10. Error codes
 
-`E_UNAUTHORIZED`, `E_NOT_DAO`, `E_NOT_COMMONS`, `E_NOT_BRIDGE`, `E_NOT_AGENT`, `E_MISSING_ROLE`, `E_SELF_VERIFY`, `E_INVALID_PROFILE`, `E_WRONG_AMOUNT`, `E_SLOT_TAKEN`, `E_SLOT_OUT_OF_RANGE`, `E_TOO_MANY_SLOTS`, `E_BAD_STATE`, `E_WINDOW_CLOSED`, `E_TELEMETRY_NOT_MONOTONIC`, `E_RULE_NOT_FOUND`, `E_RULE_NOT_DUE`, `E_TASK_ALREADY_OPEN`, `E_QUOTA_EXCEEDED`, `E_CASH_CAP_EXCEEDED`, `E_INSUFFICIENT_FLOAT`, `E_TOO_MANY_ESCALATIONS`, `E_OP_NOT_RETRYABLE`, `E_ALREADY_REWARDED`, `E_NON_TRANSFERABLE`, `E_RIGHT_NOT_ACTIVE`, `E_RIGHT_WRONG_GROUP`, `E_RIGHT_EXPIRED`, `E_CREDENTIAL_MISSING`, `E_ASSET_NOT_REGISTERED`, `E_INVALID_ARGS` (malformed or out-of-bounds argument), `E_NOT_FOUND` (unknown token/training id), `E_NO_REVOCATION` (any attempt path that would revoke a right — there must be **no method** that does it; this code is used by guard functions).
+`E_UNAUTHORIZED`, `E_NOT_DAO`, `E_NOT_COMMONS`, `E_NOT_BRIDGE`, `E_NOT_AGENT`, `E_MISSING_ROLE`, `E_SELF_VERIFY`, `E_INVALID_PROFILE`, `E_WRONG_AMOUNT`, `E_SLOT_TAKEN`, `E_SLOT_OUT_OF_RANGE`, `E_TOO_MANY_SLOTS`, `E_BAD_STATE`, `E_WINDOW_CLOSED`, `E_TELEMETRY_NOT_MONOTONIC`, `E_RULE_NOT_FOUND`, `E_RULE_NOT_DUE`, `E_TASK_ALREADY_OPEN`, `E_QUOTA_EXCEEDED`, `E_CASH_CAP_EXCEEDED`, `E_INSUFFICIENT_FLOAT`, `E_TOO_MANY_ESCALATIONS`, `E_OP_NOT_RETRYABLE`, `E_ALREADY_REWARDED`, `E_NON_TRANSFERABLE`, `E_RIGHT_NOT_ACTIVE`, `E_RIGHT_WRONG_GROUP`, `E_RIGHT_EXPIRED`, `E_CREDENTIAL_MISSING`, `E_ASSET_NOT_REGISTERED`, `E_OUT_OF_SERVICE`, `E_NO_RECENT_SESSION`, `E_ALREADY_REPORTED`, `E_NOT_REIMBURSABLE`, `E_EXPENSE_CAP`, `E_INVALID_ARGS` (malformed or out-of-bounds argument), `E_NOT_FOUND` (unknown token/training id), `E_NO_REVOCATION` (any attempt path that would revoke a right — there must be **no method** that does it; this code is used by guard functions).
 
 ## 11. Deployment & keylessness
 
