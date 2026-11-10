@@ -16,7 +16,7 @@ Built at NEAR HACKATHON 2026 · Track: **Social Money** · NEAR **testnet** only
 
 - Do **open `https://<domain>/app`** (no wallet) → see the board with the four testnet assets, each with the SIMULATED badge, their floats vs caps and upkeep tasks.
 - Do **open `https://<domain>/app/proof`** → see the account keys, the shared `code_hash`, the ledger invariants and the DAO proposals, with explorer links.
-- Do **run `./scripts/simulate.sh washer`** in a clean clone → see the whole loop on a private local NEAR sandbox with the real contracts, bridge and agent, every line prefixed `[SIMULATED]` (all 12 profiles: [`evidence/simulate-all-2026-11-10.txt`](evidence/simulate-all-2026-11-10.txt)).
+- Do **run `./scripts/simulate.sh washer`** in a clean clone → see the whole loop on a private local NEAR sandbox with the real contracts, bridge and agent, every step line prefixed `[SIMULATED]` and the summary headed SIMULATED (all 12 profiles: [`evidence/simulate-all-2026-11-10.txt`](evidence/simulate-all-2026-11-10.txt)).
 - Do **open any tx link below** → see it on the NearBlocks testnet explorer.
 
 ## The five core steps (testnet)
@@ -31,7 +31,7 @@ From [`evidence/steps.json`](evidence/steps.json) (`core: true`); the full table
 
 ## What we built during the hackathon
 
-- **Two Rust contracts** — `asset` (one per shared thing, same WASM everywhere) and `commons` (roles, credentials, non-transferable NEP-171 cards) — per [`docs/CONTRACT_SPEC.md`](docs/CONTRACT_SPEC.md). `pnpm test:contracts` passed on the lead's rerun of 2026-11-10: 402 unit tests and 34 near-workspaces sandbox tests against the real Sputnik DAO v2 WASM ([`contracts/tests/res/SOURCE.md`](contracts/tests/res/SOURCE.md)), including all 20 invariant tests in [`contracts/tests/tests/invariants.rs`](contracts/tests/tests/invariants.rs); the sandbox suite has since grown to 37 tests ([`docs/STATUS.md`](docs/STATUS.md), M1c).
+- **Two Rust contracts** — `asset` (one per shared thing, same WASM everywhere) and `commons` (roles, credentials, non-transferable NEP-171 cards) — per [`docs/CONTRACT_SPEC.md`](docs/CONTRACT_SPEC.md). `pnpm test:contracts` passed on the lead's rerun of 2026-11-10: 402 unit tests (279 asset, 120 commons, 3 types) and 36 near-workspaces sandbox tests (20 invariant tests in [`contracts/tests/tests/invariants.rs`](contracts/tests/tests/invariants.rs), 5 DAO flows, 3 verifier-fix checks, 3 coverage checks, gas, storage, private callbacks, smoke, wiring) against the real Sputnik DAO v2 WASM ([`contracts/tests/res/SOURCE.md`](contracts/tests/res/SOURCE.md)); full output: [`evidence/ci-local/test-contracts-2026-11-10.txt`](evidence/ci-local/test-contracts-2026-11-10.txt).
 - **Two unmodified Sputnik DAO v2 DAOs** from the testnet factory: `makerlab-ck.sputnikv2.testnet` [`FjQhBmLT…`](https://testnet.nearblocks.io/txns/FjQhBmLT7oJa7nbNjuoxtQ6rff1jmV7RfVahBUvPmBhb) and `dorm-b-ck.sputnikv2.testnet` [`7FEEhTWm…`](https://testnet.nearblocks.io/txns/7FEEhTWmfQrhpicfGCz4TiPEKwNNeXDUWegUXxb9HK2D).
 - **Two commons and four asset accounts, keyless.** Deploys: commons [`GSpazbSo…`](https://testnet.nearblocks.io/txns/GSpazbSoUiN5UtbStM5cbRc89VdjjXpvH4P2xDk2vuk8) / [`8BqTEpT2…`](https://testnet.nearblocks.io/txns/8BqTEpT2NmisQwGUXmmCAF2UCboiiADGqUmKG8Qw7ggw); `printer-01` [`315qJKEZ…`](https://testnet.nearblocks.io/txns/315qJKEZC1TcrG8q9BAMcdDEew3ZfWXNzcxXDkPmEJwU), `laser-01` [`CjEyTuGY…`](https://testnet.nearblocks.io/txns/CjEyTuGYMUgZBR6wWzZVHFhtejKvAk3c8c4esjy6uKYF), `washer-01` [`8bDy3oxZ…`](https://testnet.nearblocks.io/txns/8bDy3oxZhrTvac1dW3PNB8GJGShkfaJpLCeri4xWbiBS), `fridge-01` [`Djix1a22…`](https://testnet.nearblocks.io/txns/Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm). Full-access keys deleted: [`7rxMTZ3k…`](https://testnet.nearblocks.io/txns/7rxMTZ3k9BpHVeVKHTmK9Nr2s6JtWvEK4nJoGQLyog7X) [`3qmAWFX7…`](https://testnet.nearblocks.io/txns/3qmAWFX7C9GoV2Jk2mRZjLYo2dhKoP31g6Jo1qQQmbMg) [`Bf6gbxyT…`](https://testnet.nearblocks.io/txns/Bf6gbxyTuguCeP4qm6ZDj4Mekmuhhbyi4nRzTb517EK3) [`BXJTZ5Rc…`](https://testnet.nearblocks.io/txns/BXJTZ5RczfieprUA1s4GSM5E694Qzc5RNxL3EWgiW2Jd) [`HEfVWQF8…`](https://testnet.nearblocks.io/txns/HEfVWQF8uNvtKoNNHHcn3kdkU1zNqCWxU4nHHxf9pT5D) [`CMExFncD…`](https://testnet.nearblocks.io/txns/CMExFncD6yjKEzZPf4tXPTSFUEWQHuSoEAqXnVC9GKyd); `verify.sh` shows 0 access keys on all eight contract accounts (the two DAOs included) and one asset `code_hash` `3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h` ([`evidence/verify-2026-11-10.txt`](evidence/verify-2026-11-10.txt)).
 - **Bridge** (TypeScript, Fastify): NEP-413 access checks with full-access keys only (D-019), the chain write before the unlock (D-404), `moonraker` and `smart_plug` adapters running against device emulators (steps 3, 8, 13), the simulator (steps 15, 19, 20). [`bridge/`](bridge)
@@ -97,21 +97,21 @@ Everything shown so far is simulated or emulated, and labelled so (D-022):
 
 **Demo overrides on testnet** — lowered thresholds and limits so the demo fits in minutes, each applied by a DAO `set_profile` (or `set_operators`) proposal and restored where the step says so ([`evidence/demo-overrides.json`](evidence/demo-overrides.json)):
 
-One off-chain override: in step 10 the agent's purchase hint uses `after_n = 1` instead of the profile's 2, so one rewarded nozzle task triggers the nozzle-kit proposal ([`evidence/steps.json`](evidence/steps.json), step 10 notes).
+| Step | Kind | Asset | Field | Value set | Production value | Live now? | DAO proposal | Executing vote |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | override | printer-01 | `nozzle_clean` | 1800 | 720000 | **yes** | `makerlab-ck.sputnikv2.testnet#9` | [`At6SwzzV…`](https://testnet.nearblocks.io/txns/At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA) |
+| 16 | override | washer-01 | `filter_clean` | 1 | 30 | no (restored) | `dorm-b-ck.sputnikv2.testnet#10` | [`nqMmhGWQ…`](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) |
+| 16 | override | washer-01 | `period_reward_quota` | 2 | 12 | no (restored) | `dorm-b-ck.sputnikv2.testnet#10` | [`nqMmhGWQ…`](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) |
+| 16 | override | printer-01 | `bed_level` | 1 | 50 | no (restored) | `makerlab-ck.sputnikv2.testnet#12` | [`G8Vb1fTc…`](https://testnet.nearblocks.io/txns/G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF) |
+| 16 | override | laser-01 | `agent_id` | null | agent.commonkit-sxflo.testnet | no (restored) | `makerlab-ck.sputnikv2.testnet#13` | [`621S7Ry7…`](https://testnet.nearblocks.io/txns/621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ) |
+| 16 | restore | laser-01 | `agent_id` | agent.commonkit-sxflo.testnet | agent.commonkit-sxflo.testnet | — | `makerlab-ck.sputnikv2.testnet#14` | [`8gn7Tw8b…`](https://testnet.nearblocks.io/txns/8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4) |
+| 16 | restore | washer-01 | `filter_clean` | 30 | 30 | — | `dorm-b-ck.sputnikv2.testnet#11` | [`2tbnLVXm…`](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) |
+| 16 | restore | washer-01 | `period_reward_quota` | 12 | 12 | — | `dorm-b-ck.sputnikv2.testnet#11` | [`2tbnLVXm…`](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) |
+| 16 | restore | printer-01 | `bed_level` | 50 | 50 | — | `makerlab-ck.sputnikv2.testnet#15` | [`DPWHpngq…`](https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1) |
+| 18 | override | printer-01 | `filament_spool` | 5000 | 330000 | **yes** | `makerlab-ck.sputnikv2.testnet#16` | [`FNT5MNsm…`](https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV) |
+| 20 | override | fridge-01 | `weekly_clean` | 1h | 168h | **yes** | `dorm-b-ck.sputnikv2.testnet#12` | [`7uKxVanU…`](https://testnet.nearblocks.io/txns/7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7) |
 
-| Step | Asset | Field | Demo value | Production value | DAO proposal | Executing vote |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | printer-01 | `nozzle_clean` | 1800 | 720000 | `makerlab-ck.sputnikv2.testnet#9` | [`At6SwzzV…`](https://testnet.nearblocks.io/txns/At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA) |
-| 16 | washer-01 | `filter_clean` | 1 | 30 | `dorm-b-ck.sputnikv2.testnet#10` | [`nqMmhGWQ…`](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) |
-| 16 | washer-01 | `period_reward_quota` | 2 | 12 | `dorm-b-ck.sputnikv2.testnet#10` | [`nqMmhGWQ…`](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) |
-| 16 | printer-01 | `bed_level` | 1 | 50 | `makerlab-ck.sputnikv2.testnet#12` | [`G8Vb1fTc…`](https://testnet.nearblocks.io/txns/G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF) |
-| 16 | laser-01 | `agent_id` | null | agent.commonkit-sxflo.testnet | `makerlab-ck.sputnikv2.testnet#13` | [`621S7Ry7…`](https://testnet.nearblocks.io/txns/621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ) |
-| 16 | laser-01 | `agent_id` | agent.commonkit-sxflo.testnet | agent.commonkit-sxflo.testnet | `makerlab-ck.sputnikv2.testnet#14` | [`8gn7Tw8b…`](https://testnet.nearblocks.io/txns/8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4) |
-| 16 | washer-01 | `filter_clean` | 30 | 30 | `dorm-b-ck.sputnikv2.testnet#11` | [`2tbnLVXm…`](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) |
-| 16 | washer-01 | `period_reward_quota` | 12 | 12 | `dorm-b-ck.sputnikv2.testnet#11` | [`2tbnLVXm…`](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) |
-| 16 | printer-01 | `bed_level` | 50 | 50 | `makerlab-ck.sputnikv2.testnet#15` | [`DPWHpngq…`](https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1) |
-| 18 | printer-01 | `filament_spool` | 5000 | 330000 | `makerlab-ck.sputnikv2.testnet#16` | [`FNT5MNsm…`](https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV) |
-| 20 | fridge-01 | `weekly_clean` | 1h | 168h | `dorm-b-ck.sputnikv2.testnet#12` | [`7uKxVanU…`](https://testnet.nearblocks.io/txns/7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7) |
+One off-chain override: in step 10 the agent's purchase hint uses `after_n = 1` instead of the profile's 2, so one rewarded nozzle task triggers the nozzle-kit proposal ([`evidence/steps.json`](evidence/steps.json), step 10 notes).
 
 ## Pilot
 

@@ -1,0 +1,567 @@
+$ pnpm test:contracts:unit && pnpm test:contracts:int
+$ cargo test --manifest-path contracts/Cargo.toml --workspace --exclude commonkit-integration-tests
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.23s
+     Running unittests src/lib.rs (contracts/target/debug/deps/commonkit_asset-e8c94588a7da2a53)
+
+running 279 tests
+test ledger::tests::unaccounted_excludes_in_flight_and_reserve ... ok
+test ledger::tests::sub_underflow_aborts - should panic ... ok
+test tests::escalations::escalate_by_council_member ... ok
+test tests::escalations::escalate_rejects_zero_amount - should panic ... ok
+test tests::escalations::map_dao_status_covers_all_sputnik_statuses ... ok
+test tests::escalations::escalate_rejects_other_accounts - should panic ... ok
+test tests::escalations::escalate_never_uses_deposits_for_bond ... ok
+test tests::escalations::escalate_rejects_unknown_kind - should panic ... ok
+test tests::escalations::escalate_rejects_unknown_task - should panic ... ok
+test tests::escalations::escalate_rejects_without_float_for_bond - should panic ... ok
+test tests::escalations::on_dao_policy_ignores_failure ... ok
+test tests::escalations::escalate_rejects_revoked_agent - should panic ... ok
+test tests::escalations::escalate_opens_transfer_proposal_with_bond_from_float ... ok
+test tests::escalations::refresh_dao_policy_caches_bond_and_period ... ok
+test tests::escalations::escalate_requires_cached_policy - should panic ... ok
+test tests::escalations::escalate_rejects_fourth_open - should panic ... ok
+test tests::escalations::on_escalation_submitted_unreadable_id_writes_bond_off ... ok
+test tests::escalations::on_escalation_submitted_failure_returns_bond ... ok
+test tests::escalations::on_escalation_submitted_stores_id_and_outstanding_bond ... ok
+test tests::escalations::reconcile_does_not_absorb_returned_bond_twice ... ok
+test tests::governance::fund_float_rejects_zero_deposit - should panic ... ok
+test tests::governance::fund_float_credits_float_up_to_cap_and_sweeps_excess ... ok
+test tests::escalations::sync_escalation_rejects_without_proposal_id - should panic ... ok
+test tests::escalations::sync_escalation_approved_returns_bond_once ... ok
+test tests::governance::fund_float_tops_up_storage_reserve_first ... ok
+test tests::governance::new_stores_wiring ... ok
+test tests::governance::set_operators_rejects_non_dao - should panic ... ok
+test tests::escalations::sync_escalation_in_progress_stays_submitted ... ok
+test tests::governance::set_profile_by_dao_bumps_version ... ok
+test tests::governance::set_profile_rejects_invalid - should panic ... ok
+test tests::governance::set_profile_rejects_non_dao - should panic ... ok
+test tests::governance::set_operators_sets_and_clears ... ok
+test tests::escalations::sync_escalation_failed_settles_bond_as_spent ... ok
+test tests::escalations::sync_escalation_moved_settles_bond_as_spent ... ok
+test tests::governance::set_profile_resets_baseline_when_trigger_kind_changes ... ok
+test tests::governance::set_telemetry_epoch_rejects_non_dao - should panic ... ok
+test tests::governance::set_profile_resets_baseline_when_metric_changes ... ok
+test tests::escalations::sync_escalation_lazy_expiry_keeps_bond_until_finalized ... ok
+test tests::escalations::sync_escalation_rejects_after_bond_settled - should panic ... ok
+test tests::governance::set_telemetry_epoch_rejects_non_increasing - should panic ... ok
+test tests::governance::sync_roles_rejects_oversized_snapshot - should panic ... ok
+test tests::governance::sync_roles_drops_unknown_role_names ... ok
+test tests::governance::sync_roles_rejects_non_commons - should panic ... ok
+test tests::governance::set_profile_keeps_existing_reservation_amounts ... ok
+test tests::governance::sync_roles_ignores_stale_version ... ok
+test tests::escalations::sync_escalation_removed_proposal_loses_bond ... ok
+test tests::governance::sync_roles_applies_snapshot_and_tombstones ... ok
+test tests::governance::set_telemetry_epoch_allows_one_reset ... ok
+test tests::ledger_ops::failed_sweep_returns_to_float_and_retry_needs_float ... ok
+test tests::ledger_ops::retry_op_rejects_unknown - should panic ... ok
+test tests::profile::new_rejects_invalid_profile - should panic ... ok
+test tests::profile::profile_json_uses_serde_default_shapes ... ok
+test tests::ledger_ops::retry_op_sweep_rejects_without_float - should panic ... ok
+test tests::profile::validate_profile_accepts_default ... ok
+test tests::profile::validate_profile_accepts_free_slots_with_deposit ... ok
+test tests::profile::validate_profile_rejects_cash_above_cap - should panic ... ok
+test tests::profile::validate_profile_rejects_duplicate_rule_ids - should panic ... ok
+test tests::profile::validate_profile_rejects_empty_display_name - should panic ... ok
+test tests::profile::validate_profile_rejects_fee_above_max - should panic ... ok
+test tests::profile::validate_profile_rejects_fee_without_receiver - should panic ... ok
+test tests::profile::validate_profile_rejects_free_deposit_free_reservations - should panic ... ok
+test tests::ledger_ops::sweep_is_noop_under_cap ... ok
+test tests::profile::validate_profile_rejects_long_metric_name - should panic ... ok
+test tests::profile::validate_profile_rejects_long_title - should panic ... ok
+test tests::profile::validate_profile_rejects_long_rule_id - should panic ... ok
+test tests::profile::validate_profile_rejects_reimbursable_on_cleaning - should panic ... ok
+test tests::profile::validate_profile_rejects_reward_rights_above_mint_limit - should panic ... ok
+test tests::profile::validate_profile_rejects_right_validity_above_cap - should panic ... ok
+test tests::profile::validate_profile_rejects_trusted_deposit_above_deposit - should panic ... ok
+test tests::ledger_ops::sweep_moves_excess_to_dao ... ok
+test tests::ledger_ops::on_op_result_ignores_settled_op ... ok
+test tests::profile::validate_profile_rejects_zero_metric_threshold - should panic ... ok
+test tests::profile::validate_profile_rejects_zero_min_reports - should panic ... ok
+test tests::ledger_ops::retry_op_rejects_pending - should panic ... ok
+test tests::profile::validate_profile_rejects_zero_float_cap - should panic ... ok
+test tests::profile::validate_profile_rejects_zero_schedule - should panic ... ok
+test tests::profile::validate_profile_rejects_zero_slot_minutes - should panic ... ok
+test tests::ledger_ops::retry_op_rejects_succeeded - should panic ... ok
+test tests::ledger_ops::sweep_never_touches_deposits_or_rewards ... ok
+test tests::ledger_ops::reconcile_ignores_in_flight_money ... ok
+test tests::ledger_ops::on_op_result_failed_refund_keeps_claim_and_retry_pays_once ... ok
+test tests::reservations::cancel_reservation_rejects_pending - should panic ... ok
+test tests::reservations::cancel_reservation_late_keeps_fee ... ok
+test tests::reservations::cancel_reservation_rejects_when_float_spent - should panic ... ok
+test tests::reservations::claim_fee_refund_rejects_when_nothing_owed - should panic ... ok
+test tests::reservations::cancel_reservation_rejects_after_start - should panic ... ok
+test tests::reservations::cancel_reservation_rejects_non_holder - should panic ... ok
+test tests::reservations::cancel_reservation_early_refunds_fee_and_deposit ... ok
+test tests::reservations::cancel_reservation_with_right_releases_it ... ok
+test tests::reservations::force_close_session_rejects_non_dao - should panic ... ok
+test tests::reservations::confirm_return_damage_opens_dispute ... ok
+test tests::reservations::confirm_return_rejects_bad_note_hash - should panic ... ok
+test tests::reservations::confirm_return_rejects_non_steward - should panic ... ok
+test tests::reservations::confirm_return_rejects_not_finished - should panic ... ok
+test tests::reservations::cancel_reservation_out_of_service_owes_fee_when_float_is_short ... ok
+test tests::reservations::confirm_return_rejects_holder - should panic ... ok
+test tests::reservations::confirm_return_clean_refunds_deposit ... ok
+test tests::reservations::force_close_session_after_grace ... ok
+test tests::reservations::mark_no_show_rejects_in_session - should panic ... ok
+test tests::reservations::force_close_session_rejects_before_grace - should panic ... ok
+test tests::reservations::mark_no_show_keeps_fee_refunds_deposit_releases_slots ... ok
+test tests::reservations::mark_no_show_rejects_open_window - should panic ... ok
+test tests::reservations::mark_no_show_releases_right ... ok
+test tests::reservations::mark_no_show_out_of_service_refunds_fee_too ... ok
+test tests::reservations::mark_session_started_in_window ... ok
+test tests::reservations::mark_session_finished_rejects_non_bridge - should panic ... ok
+test tests::reservations::mark_session_started_rejects_pending - should panic ... ok
+test tests::reservations::mark_session_finished_consumes_right ... ok
+test tests::reservations::on_authorized_failed_call_rejects_and_refunds ... ok
+test tests::reservations::mark_session_started_rejects_after_window - should panic ... ok
+test tests::reservations::mark_session_finished_records_delta_and_reputation ... ok
+test tests::reservations::mark_session_started_rejects_non_bridge - should panic ... ok
+test tests::reservations::mark_session_finished_rejects_not_in_session - should panic ... ok
+test tests::reservations::mark_session_started_rejects_too_early - should panic ... ok
+test tests::reservations::mark_session_finished_rejects_decreasing_counter - should panic ... ok
+test tests::reservations::rejected_right_reservation_keeps_storage_cost ... ok
+test tests::reservations::reserve_accepts_last_horizon_slot ... ok
+test tests::reservations::reserve_passes_required_credential ... ok
+test tests::reservations::on_authorized_ignores_repeat ... ok
+test tests::reservations::on_authorized_unreadable_result_releases_right ... ok
+test tests::reservations::reserve_rejects_beyond_horizon - should panic ... ok
+test tests::reservations::on_authorized_ok_confirms_and_books_money ... ok
+test tests::reservations::reserve_rejects_past_slot - should panic ... ok
+test tests::reservations::reserve_holds_slots_and_asks_commons ... ok
+test tests::reservations::reserve_rejects_empty_right_id - should panic ... ok
+test tests::reservations::reserve_rejects_wrong_amount - should panic ... ok
+test tests::reservations::reserve_rejects_fee_with_right - should panic ... ok
+test tests::reservations::reserve_rejects_too_many_slots - should panic ... ok
+test tests::reservations::reserve_rejects_zero_slots - should panic ... ok
+test tests::reservations::on_authorized_pays_protocol_fee ... ok
+test tests::reservations::reserve_rejects_overlapping_slots - should panic ... ok
+test tests::reservations::on_authorized_ok_sweeps_fee_above_cap ... ok
+test tests::reservations::reserve_with_right_requires_minimum_deposit ... ok
+test tests::reservations::reserve_with_right_charges_deposit_only ... ok
+test tests::reservations::on_authorized_rejection_releases_slots_and_refunds ... ok
+test tests::reservations::resolve_dispute_rejects_not_disputed - should panic ... ok
+test tests::reservations::resolve_dispute_zero_deduction_records_no_damage ... ok
+test tests::reservations::resolve_dispute_rejects_non_dao - should panic ... ok
+test tests::reservations::resolve_dispute_rejects_deduction_above_deposit - should panic ... ok
+test tests::rewards::escalate_reimbursement_rejects_wrong_amount - should panic ... ok
+test tests::reservations::resolve_dispute_splits_deposit ... ok
+test tests::rewards::escalate_reimbursement_rejects_task_without_pending_expense - should panic ... ok
+test tests::rewards::reimbursement_escalation_approved_marks_paid ... ok
+test tests::rewards::escalate_reimbursement_for_large_expense ... ok
+test tests::rewards::reimbursement_escalation_lazily_expired_can_escalate_again ... ok
+test tests::rewards::reimbursement_escalation_removed_can_escalate_again ... ok
+test tests::rewards::retry_reward_rejects_pending_mint - should panic ... ok
+test tests::rewards::retry_reward_rejects_rewarded_task - should panic ... ok
+test tests::rewards::reimbursement_escalation_rejected_marks_denied ... ok
+test tests::rewards::retry_reward_recovers_a_stuck_mint_after_timeout ... ok
+test tests::reservations::reserve_uses_trusted_deposit_after_clean_returns ... ok
+test tests::rewards::retry_reward_requires_reward_gas - should panic ... ok
+test tests::rewards::reward_cash_after_mint_then_done_on_transfer ... ok
+test tests::rewards::reward_failed_cash_keeps_claim_and_retry_pays_once ... ok
+test tests::rewards::reward_rights_only_completes_on_mint ... ok
+test tests::rewards::reward_mint_failure_then_retry_mints_once ... ok
+test tests::rewards::reward_schedule_resets_baseline_to_now ... ok
+test tests::rewards::reward_failed_reimbursement_is_retryable ... ok
+test tests::rewards::reward_restock_pays_reimbursement_separately ... ok
+test tests::rewards::reward_unreadable_mint_result_is_a_failure ... ok
+test tests::rewards::reward_with_no_rights_and_no_cash_finishes_immediately ... ok
+test tests::service::mark_session_started_rejects_out_of_service - should panic ... ok
+test tests::service::inv_out_of_service_blocks_access_and_refunds ... ok
+test tests::service::report_fault_after_recent_session ... ok
+test tests::service::report_fault_rejects_agent - should panic ... ok
+test tests::service::report_fault_rejects_bad_hash - should panic ... ok
+test tests::service::inv_fault_report_requires_recent_session ... ok
+test tests::service::inv_schedule_rule_due_only_after_interval ... ok
+test tests::service::report_fault_rejects_without_session - should panic ... ok
+test tests::service::report_fault_rejects_non_report_rule - should panic ... ok
+test tests::rewards::reward_report_clears_faults_and_repair_restores_service ... ok
+test tests::service::rule_status_reports_each_trigger ... ok
+test tests::service::report_fault_rejects_profile_without_report_rule - should panic ... ok
+test tests::service::set_out_of_service_rejects_member - should panic ... ok
+test tests::service::set_out_of_service_by_steward_and_back_by_council ... ok
+test tests::service::set_out_of_service_by_dao ... ok
+test tests::service::set_out_of_service_rejects_twice - should panic ... ok
+test tests::service::report_fault_rejects_second_report - should panic ... ok
+test tests::service::set_out_of_service_restore_rejects_steward - should panic ... ok
+test tests::service::inv_restock_expense_capped_and_not_from_deposits ... ok
+test tests::tasks::annotate_task_emits_event ... ok
+test tests::tasks::annotate_task_rejects_non_agent - should panic ... ok
+test tests::tasks::approve_task_expense_above_float_waits_for_council ... ok
+test tests::tasks::approve_task_expense_above_cash_cap_needs_escalation ... ok
+test tests::tasks::approve_task_first_task_waits_for_council ... ok
+test tests::tasks::approve_task_expense_above_council_threshold_waits_for_council ... ok
+test tests::tasks::approve_task_rejects_bridge - should panic ... ok
+test tests::tasks::approve_task_rejects_agent - should panic ... ok
+test tests::tasks::approve_task_rejects_claimer_with_verifier_role - should panic ... ok
+test tests::tasks::approve_task_rejects_non_verifier - should panic ... ok
+test tests::tasks::approve_task_rejects_failed_test - should panic ... ok
+test tests::tasks::approve_task_requires_passed_test - should panic ... ok
+test tests::tasks::approve_task_reserves_small_expense_from_float ... ok
+test tests::tasks::approve_task_rejects_second_approval - should panic ... ok
+test tests::tasks::approve_task_requires_reward_gas - should panic ... ok
+test tests::tasks::cancel_task_by_council_releases_reservations ... ok
+test tests::tasks::approve_task_starts_reward_mint ... ok
+test tests::tasks::cancel_task_rejects_agent - should panic ... ok
+test tests::tasks::claim_task_by_member ... ok
+test tests::tasks::cancel_task_rejects_submitted - should panic ... ok
+test tests::tasks::claim_task_rejects_unknown - should panic ... ok
+test tests::tasks::claim_task_rejects_claimed - should panic ... ok
+test tests::tasks::claim_task_rejects_agent - should panic ... ok
+test tests::tasks::claim_task_rejects_bridge - should panic ... ok
+test tests::tasks::close_failed_reward_rejects_non_dao - should panic ... ok
+test tests::service::report_fault_caps_active_reports - should panic ... ok
+test tests::tasks::close_failed_reward_rejects_pending_reward - should panic ... ok
+test tests::tasks::council_approve_task_rejects_without_verifier - should panic ... ok
+test tests::tasks::council_approve_task_rejects_claimer - should panic ... ok
+test tests::tasks::close_failed_reward_releases_reservations ... ok
+test tests::tasks::council_approve_task_requires_reward_gas - should panic ... ok
+test tests::tasks::open_upkeep_task_council_manual_bypass_is_recorded ... ok
+test tests::tasks::council_approve_task_rejects_non_council - should panic ... ok
+test tests::tasks::council_approve_task_rejects_verifier - should panic ... ok
+test tests::tasks::open_upkeep_task_agent_cannot_pass_manual - should panic ... ok
+test tests::tasks::council_approve_task_rejects_expense_above_float - should panic ... ok
+test tests::tasks::open_upkeep_task_council_without_manual_needs_due - should panic ... ok
+test tests::tasks::expire_task_after_timeout ... ok
+test tests::tasks::cancel_task_false_alarm_resets_baseline_and_faults ... ok
+test tests::tasks::open_upkeep_task_metric_due ... ok
+test tests::tasks::expire_task_rejects_before_timeout - should panic ... ok
+test tests::tasks::open_upkeep_task_quota_frees_after_period ... ok
+test tests::tasks::open_upkeep_task_needs_council_above_threshold ... ok
+test tests::tasks::open_upkeep_task_rejects_metric_not_due - should panic ... ok
+test tests::tasks::open_upkeep_task_rejects_cash_above_cap - should panic ... ok
+test tests::tasks::open_upkeep_task_rejects_cash_above_float - should panic ... ok
+test tests::tasks::open_upkeep_task_rejects_empty_rationale - should panic ... ok
+test tests::tasks::open_upkeep_task_rejects_long_rationale - should panic ... ok
+test tests::tasks::open_upkeep_task_rejects_report_not_due - should panic ... ok
+test tests::tasks::open_upkeep_task_rejects_second_open_task - should panic ... ok
+test tests::tasks::open_upkeep_task_rejects_other_accounts - should panic ... ok
+test tests::tasks::open_upkeep_task_rejects_unknown_rule - should panic ... ok
+test tests::tasks::open_upkeep_task_rejects_quota_overrun - should panic ... ok
+test tests::tasks::reject_task_rejects_open_task - should panic ... ok
+test tests::tasks::open_upkeep_task_reserves_cash ... ok
+test tests::tasks::reject_task_rejects_claimer - should panic ... ok
+test tests::tasks::submit_task_rejects_bad_hash - should panic ... ok
+test tests::tasks::reject_task_keeps_baseline ... ok
+test tests::tasks::reject_task_rejects_without_role - should panic ... ok
+test tests::tasks::submit_task_rejects_expense_above_cap - should panic ... ok
+test tests::tasks::submit_task_rejects_expense_on_maintenance - should panic ... ok
+test tests::tasks::submit_task_rejects_open_task - should panic ... ok
+test tests::tasks::submit_task_rejects_expense_without_receipt - should panic ... ok
+test tests::tasks::reject_task_releases_cash_and_rule ... ok
+test tests::tasks::submit_task_rejects_non_claimer - should panic ... ok
+test tests::tasks::reject_task_releases_reserved_expense ... ok
+test tests::tasks::submit_task_restock_with_expense ... ok
+test tests::tasks::submit_task_stores_evidence ... ok
+test tests::tasks::reject_task_resets_needs_escalation ... ok
+test tests::tasks::submit_verification_result_rejects_unsubmitted - should panic ... ok
+test tests::telemetry::report_telemetry_merges_counters ... ok
+test tests::tasks::unclaim_task_by_claimer ... ok
+test tests::telemetry::report_telemetry_rejects_after_bridge_cleared - should panic ... ok
+test tests::tasks::submit_verification_result_by_bridge ... ok
+test tests::tasks::unclaim_task_by_anyone_after_timeout ... ok
+test tests::telemetry::report_telemetry_rejects_17th_tracked_metric - should panic ... ok
+test tests::tasks::submit_verification_result_rejects_non_bridge - should panic ... ok
+test tests::tasks::unclaim_task_rejects_others_before_timeout - should panic ... ok
+test tests::telemetry::report_telemetry_rejects_non_bridge - should panic ... ok
+test tests::telemetry::report_telemetry_rejects_decrease - should panic ... ok
+test tests::telemetry::report_telemetry_rejects_long_name - should panic ... ok
+test tests::telemetry::report_telemetry_rejects_more_than_16_metrics - should panic ... ok
+test tests::telemetry::report_telemetry_rejects_duplicate_name - should panic ... ok
+test tests::tasks::submit_verification_result_rejects_after_verifier_approval - should panic ... ok
+test tests::telemetry::report_telemetry_reset_restarts_baselines ... ok
+test tests::views::get_ledger_flags_shortfall ... ok
+test tests::telemetry::report_telemetry_reset_is_single_use - should panic ... ok
+test tests::views::get_ledger_reports_balance_and_storage ... ok
+test tests::views::get_escalations_lists_records ... ok
+test tests::views::get_ops_filters_by_status ... ok
+test tests::views::version_names_the_crate ... ok
+test tests::views::can_access_denies_closed_window_and_pending ... ok
+test tests::views::get_period_telemetry_and_profile ... ok
+test tests::views::get_wiring_reports_operators_and_versions ... ok
+test tests::views::can_access_follows_window_and_holder ... ok
+test tests::views::get_slot_owner_and_availability ... ok
+test tests::views::get_reputation_and_log ... ok
+test tests::views::get_tasks_filters_by_status ... ok
+test tests::views::get_reservations_paginates_by_id ... ok
+
+test result: ok. 279 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.54s
+
+     Running unittests src/lib.rs (contracts/target/debug/deps/commonkit_commons-655e6c68521e584e)
+
+running 120 tests
+test tests::credentials::approve_credential_after_reject - should panic ... ok
+test tests::credentials::approve_credential_unknown_training - should panic ... ok
+test tests::credentials::approve_credential_twice_mints_once ... ok
+test tests::credentials::propose_credential_bad_hash - should panic ... ok
+test tests::credentials::approve_credential_requires_verifier - should panic ... ok
+test tests::credentials::approve_credential_trainee_cannot_approve - should panic ... ok
+test tests::credentials::propose_credential_requires_trainer - should panic ... ok
+test tests::credentials::propose_credential_creates_training ... ok
+test tests::credentials::propose_credential_trainer_cannot_train_self - should panic ... ok
+test tests::credentials::approve_credential_mints_credential_and_trainer_rights ... ok
+test tests::credentials::propose_credential_unknown_kind - should panic ... ok
+test tests::credentials::approve_credential_trainer_cannot_approve - should panic ... ok
+test tests::credentials::approve_credential_without_trainer_rewards ... ok
+test tests::credentials::set_credential_kind_caps_trainer_rewards - should panic ... ok
+test tests::credentials::reject_credential_requires_verifier - should panic ... ok
+test tests::credentials::reject_credential_requires_reason - should panic ... ok
+test tests::credentials::set_credential_kind_caps_validity - should panic ... ok
+test tests::credentials::reject_credential_unknown_training - should panic ... ok
+test tests::credentials::set_credential_kind_rejects_bad_id - should panic ... ok
+test tests::credentials::set_credential_kind_rejects_empty_title - should panic ... ok
+test tests::credentials::set_credential_kind_rejects_zero_slots_with_rewards - should panic ... ok
+test tests::credentials::credential_kind_change_leaves_issued_cards_intact ... ok
+test tests::credentials::reject_credential_after_approve - should panic ... ok
+test tests::credentials::set_credential_kind_upserts ... ok
+test tests::credentials::suspend_credential_unknown_token - should panic ... ok
+test tests::credentials::reject_credential_records_reason ... ok
+test tests::nft::humanize_and_svg_escape ... ok
+test tests::credentials::set_credential_kind_requires_dao - should panic ... ok
+test tests::credentials::reject_credential_trainer_cannot_reject - should panic ... ok
+test tests::nft::inv_non_transferable_nft_approve - should panic ... ok
+test tests::credentials::suspend_credential_twice - should panic ... ok
+test tests::credentials::suspend_and_unsuspend_credential ... ok
+test tests::nft::inv_non_transferable_nft_transfer - should panic ... ok
+test tests::nft::nft_metadata_view ... ok
+test tests::nft::nft_is_approved_always_false ... ok
+test tests::nft::inv_non_transferable_nft_transfer_call - should panic ... ok
+test tests::nft::nft_enumeration ... ok
+test tests::credentials::suspend_credential_requires_reason - should panic ... ok
+test tests::credentials::suspend_credential_requires_dao - should panic ... ok
+test tests::nft::nft_token_unknown_is_none ... ok
+test tests::nft::nft_revoke_refused - should panic ... ok
+test tests::nft::nft_revoke_all_refused - should panic ... ok
+test tests::registry::deactivate_asset_unknown - should panic ... ok
+test tests::registry::deactivate_asset_requires_dao - should panic ... ok
+test tests::credentials::unsuspend_credential_not_suspended - should panic ... ok
+test tests::nft::nft_token_usage_right_metadata ... ok
+test tests::registry::new_rejects_bad_metadata_spec - should panic ... ok
+test tests::registry::fund_storage_requires_deposit - should panic ... ok
+test tests::registry::deactivate_asset_marks_inactive ... ok
+test tests::credentials::inv_no_self_verification_training ... ok
+test tests::registry::new_rejects_empty_name - should panic ... ok
+test tests::registry::new_sets_wiring ... ok
+test tests::nft::nft_token_status_follows_lifecycle ... ok
+test tests::registry::fund_storage_accepts_deposit ... ok
+test tests::registry::register_asset_rejects_bad_group_id - should panic ... ok
+test tests::registry::push_without_gas_emits_role_sync_failed ... ok
+test tests::registry::register_asset_adds_to_group_and_pushes_full_snapshot ... ok
+test tests::registry::register_asset_requires_dao - should panic ... ok
+test tests::registry::deactivate_asset_twice - should panic ... ok
+test tests::registry::on_roles_synced_success_is_silent ... ok
+test tests::credentials::unsuspend_credential_requires_dao - should panic ... ok
+test tests::registry::on_roles_synced_failure_emits_event ... ok
+test tests::registry::set_roles_bumps_version_and_pushes_to_active_assets_only ... ok
+test tests::registry::resync_roles_inactive_asset - should panic ... ok
+test tests::registry::resync_roles_anyone_pushes_current_snapshot ... ok
+test tests::nft::nft_token_credential_metadata ... ok
+test tests::registry::set_roles_rejects_unknown_role - should panic ... ok
+test tests::registry::register_asset_moves_group_and_reactivates ... ok
+test tests::registry::set_roles_empty_keeps_tombstone_in_snapshot ... ok
+test tests::registry::resync_roles_unknown_asset - should panic ... ok
+test tests::rights::authorize_credential_missing_denied ... ok
+test tests::rights::authorize_asset_arg_must_be_caller - should panic ... ok
+test tests::registry::set_roles_requires_dao - should panic ... ok
+test tests::rights::authorize_credential_expired_denied ... ok
+test tests::rights::authorize_requires_registered_caller - should panic ... ok
+test tests::rights::authorize_expired_right_denied ... ok
+test tests::rights::authorize_inactive_asset_denied ... ok
+test tests::rights::authorize_credential_held_ok ... ok
+test tests::rights::authorize_consumed_right_denied ... ok
+test tests::rights::authorize_right_and_credential_both_required ... ok
+test tests::rights::authorize_right_locks_it ... ok
+test tests::rights::authorize_other_kind_credential_does_not_count ... ok
+test tests::rights::authorize_locked_right_denied ... ok
+test tests::rights::authorize_credential_suspended_denied ... ok
+test tests::rights::authorize_right_of_other_owner_denied ... ok
+test tests::rights::authorize_without_requirements_ok ... ok
+test tests::rights::authorize_too_many_slots_denied ... ok
+test tests::rights::finalize_active_right_rejected - should panic ... ok
+test tests::rights::mint_rights_count_cap - should panic ... ok
+test tests::rights::finalize_right_consumes_once ... ok
+test tests::rights::inv_exactly_once_mint_idempotent ... ok
+test tests::rights::mint_rights_mints_cards_in_asset_group ... ok
+test tests::rights::authorize_unknown_or_credential_token_as_right_denied ... ok
+test tests::rights::mint_rights_source_must_be_caller - should panic ... ok
+test tests::rights::finalize_right_by_other_asset_rejected - should panic ... ok
+test tests::rights::mint_rights_training_source_rejected - should panic ... ok
+test tests::rights::mint_rights_inactive_asset_rejected - should panic ... ok
+test tests::rights::mint_rights_zero_slots_rejected - should panic ... ok
+test tests::rights::mint_rights_zero_count_rejected - should panic ... ok
+test tests::rights::inv_no_retroactive_revocation_finalize_active_fails ... ok
+test tests::rights::mint_rights_unregistered_caller_rejected - should panic ... ok
+test tests::rights::inv_rights_group_scope ... ok
+test tests::rights::mint_rights_validity_cap - should panic ... ok
+test tests::rights::mint_rights_zero_validity_never_expires ... ok
+test tests::rights::mint_rights_replay_works_after_deactivation ... ok
+test tests::views::get_assets_and_groups ... ok
+test tests::rights::inv_no_retroactive_revocation ... ok
+test tests::rights::release_right_unknown_token - should panic ... ok
+test tests::rights::release_right_by_other_asset_rejected - should panic ... ok
+test tests::rights::suspend_usage_right_is_refused - should panic ... ok
+test tests::views::get_roles_views ... ok
+test tests::views::get_mint_receipt_view ... ok
+test tests::rights::release_right_wrong_reservation_rejected - should panic ... ok
+test tests::views::version_and_wiring ... ok
+test tests::rights::release_right_after_consume_rejected - should panic ... ok
+test tests::rights::release_right_on_credential_rejected - should panic ... ok
+test tests::rights::release_right_unlocks ... ok
+test tests::views::has_credential_and_cards_for_owner ... ok
+test tests::views::get_trainings_views ... ok
+test tests::registry::set_roles_caps_role_accounts - should panic ... ok
+
+test result: ok. 120 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.43s
+
+     Running unittests src/lib.rs (contracts/target/debug/deps/commonkit_types-3b561fada9818ba0)
+
+running 3 tests
+test commons_iface::tests::receipt_keys ... ok
+test commons_iface::tests::json_shapes ... ok
+test asset_iface::tests::sync_roles_json_shape ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests commonkit_asset
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests commonkit_commons
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests commonkit_types
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+$ pnpm build:contracts && cargo test --manifest-path contracts/Cargo.toml -p commonkit-integration-tests
+$ bash scripts/build-contracts.sh
+==> cargo near build non-reproducible-wasm (asset)
+INFO: contract's near-sdk targets protocol version 85; rustc 1.98.1 accepted (bulk-memory opcodes supported by nearcore VM)
+
+Modification timestamps of:
+ |    "/Users/anil/Desktop/commonkit/contracts/target/wasm32-unknown-unknown/release/commonkit_asset.wasm" = SystemTime { tv_sec: 1794303520, tv_nsec: 520027171 }
+ |    "/Users/anil/Desktop/commonkit/contracts/target/near/commonkit_asset/commonkit_asset.wasm" = SystemTime { tv_sec: 1794231943, tv_nsec: 991032358 }
+
+    Finished wasm-opt -O in 2s 68ms
+    Finished cargo near build in 43s
+==> cargo near build non-reproducible-wasm (commons)
+INFO: contract's near-sdk targets protocol version 85; rustc 1.98.1 accepted (bulk-memory opcodes supported by nearcore VM)
+
+Modification timestamps of:
+ |    "/Users/anil/Desktop/commonkit/contracts/target/wasm32-unknown-unknown/release/commonkit_commons.wasm" = SystemTime { tv_sec: 1794303541, tv_nsec: 901986020 }
+ |    "/Users/anil/Desktop/commonkit/contracts/target/near/commonkit_commons/commonkit_commons.wasm" = SystemTime { tv_sec: 1794225049, tv_nsec: 99256266 }
+
+    Finished wasm-opt -O in 2s 428ms
+    Finished cargo near build in 21s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.64s
+     Running unittests src/lib.rs (contracts/target/debug/deps/commonkit_integration_tests-13b0ecf8cf5cc76b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/coverage.rs (contracts/target/debug/deps/coverage-cc45a8389a080e5d)
+
+running 3 tests
+test every_commons_method_has_tests ... ok
+test every_asset_method_has_tests ... ok
+test every_listed_test_exists ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s
+
+     Running tests/dao_flows.rs (contracts/target/debug/deps/dao_flows-f742fd463675f6c0)
+
+running 5 tests
+test governance_function_call_executes_with_dao_as_predecessor ... ok
+test escalation_rejected_by_vote_returns_bond ... ok
+test escalation_removed_proposal_loses_bond ... ok
+test escalation_approved_pays_receiver_and_returns_bond ... ok
+test reimbursement_escalation_outcome_updates_task ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.77s
+
+     Running tests/gas.rs (contracts/target/debug/deps/gas-0049fceedc8e6365)
+
+running 1 test
+test measure_gas_heavy_paths ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 33.06s
+
+     Running tests/invariants.rs (contracts/target/debug/deps/invariants-121158dda176d0cd)
+
+running 20 tests
+test inv_agent_bounded_rule_not_due ... ok
+test inv_credential_required ... ok
+test inv_agent_revoked ... ok
+test inv_agent_bounded_quota ... ok
+test inv_custody_float_cap_sweeps_excess ... ok
+test inv_failed_refund_keeps_claim ... ok
+test inv_exactly_once_reward_retry ... ok
+test inv_custody_deposits_never_swept ... ok
+test inv_ledger_balance_covers_obligations ... ok
+test inv_fault_report_requires_recent_session ... ok
+test inv_no_double_booking_concurrent ... ok
+test inv_no_self_verification_training ... ok
+test inv_non_transferable ... ok
+test inv_no_self_verification_task ... ok
+test inv_rights_group_scope ... ok
+test inv_slots_released_on_rejection ... ok
+test inv_restock_expense_capped_and_not_from_deposits ... ok
+test inv_out_of_service_blocks_access_and_refunds ... ok
+test inv_no_retroactive_revocation ... ok
+test inv_schedule_rule_due_only_after_interval has been running for over 60 seconds
+test inv_schedule_rule_due_only_after_interval ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 902.98s
+
+     Running tests/private_callbacks.rs (contracts/target/debug/deps/private_callbacks-be039bf6e22b9767)
+
+running 1 test
+test private_callbacks_reject_external_callers ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 27.30s
+
+     Running tests/smoke.rs (contracts/target/debug/deps/smoke-cba461cb6ea6e3b4)
+
+running 1 test
+test sandbox_fast_forward_cost ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.47s
+
+     Running tests/storage.rs (contracts/target/debug/deps/storage-97c995cc6dc6b197)
+
+running 1 test
+test measure_asset_storage_growth has been running for over 60 seconds
+test measure_asset_storage_growth ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 73.84s
+
+     Running tests/verifier_fixes.rs (contracts/target/debug/deps/verifier_fixes-04a9a508f94f715c)
+
+running 3 tests
+test right_reservation_needs_min_deposit_and_rejection_keeps_storage_cost ... ok
+test approve_with_minimum_gas_completes_the_whole_reward ... ok
+test out_of_service_cancel_owes_fee_until_float_allows ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 25.81s
+
+     Running tests/wiring.rs (contracts/target/debug/deps/wiring-0109f268329d7037)
+
+running 1 test
+test env_wires_through_dao_proposals ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.77s
+
+   Doc-tests commonkit_integration_tests
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit=0
