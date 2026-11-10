@@ -1,0 +1,191 @@
+[
+  {
+    "kind": "override",
+    "step": 1,
+    "asset": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "rule_id": "nozzle_clean",
+    "value": "1800",
+    "production": "720000",
+    "proposal": "makerlab-ck.sputnikv2.testnet#9",
+    "tx_hashes": [
+      "HBnxKompVkzckacs3GcUEUz2N7y3kTcsfU83dFunvkYL",
+      "GvGnSMRXCGhtxzeYrV8vDZb5tebayjR8gSCxH4fQVLmG",
+      "At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA"
+    ],
+    "at": "2026-11-10T05:13:46.374Z",
+    "label": "demo override nozzle_clean 1800 (production 720000)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/HBnxKompVkzckacs3GcUEUz2N7y3kTcsfU83dFunvkYL",
+      "https://testnet.nearblocks.io/txns/GvGnSMRXCGhtxzeYrV8vDZb5tebayjR8gSCxH4fQVLmG",
+      "https://testnet.nearblocks.io/txns/At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA"
+    ]
+  },
+  {
+    "kind": "override",
+    "step": 16,
+    "asset": "washer-01.dorm-b.commonkit-sxflo.testnet",
+    "rule_id": "filter_clean",
+    "value": "1",
+    "production": "30",
+    "proposal": "dorm-b-ck.sputnikv2.testnet#10",
+    "tx_hashes": [
+      "C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed",
+      "2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG",
+      "nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw"
+    ],
+    "at": "2026-11-10T05:35:10.241Z",
+    "label": "demo override filter_clean 1 (production 30)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed",
+      "https://testnet.nearblocks.io/txns/2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG",
+      "https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw"
+    ]
+  },
+  {
+    "kind": "override",
+    "step": 16,
+    "asset": "washer-01.dorm-b.commonkit-sxflo.testnet",
+    "rule_id": "period_reward_quota",
+    "value": "2",
+    "production": "12",
+    "proposal": "dorm-b-ck.sputnikv2.testnet#10",
+    "tx_hashes": [
+      "C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed",
+      "2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG",
+      "nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw"
+    ],
+    "at": "2026-11-10T05:35:10.241Z",
+    "label": "demo override period_reward_quota 2 (production 12)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed",
+      "https://testnet.nearblocks.io/txns/2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG",
+      "https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw"
+    ]
+  },
+  {
+    "kind": "override",
+    "step": 16,
+    "asset": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "rule_id": "bed_level",
+    "value": "1",
+    "production": "50",
+    "proposal": "makerlab-ck.sputnikv2.testnet#12",
+    "tx_hashes": [
+      "GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino",
+      "PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt",
+      "G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF"
+    ],
+    "at": "2026-11-10T05:35:24.874Z",
+    "label": "demo override bed_level 1 (production 50)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino",
+      "https://testnet.nearblocks.io/txns/PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt",
+      "https://testnet.nearblocks.io/txns/G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF"
+    ]
+  },
+  {
+    "kind": "override",
+    "step": 16,
+    "asset": "laser-01.makerlab.commonkit-sxflo.testnet",
+    "rule_id": "agent_id",
+    "value": "null",
+    "production": "agent.commonkit-sxflo.testnet",
+    "proposal": "makerlab-ck.sputnikv2.testnet#13",
+    "tx_hashes": [
+      "FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6",
+      "GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq",
+      "621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ"
+    ],
+    "at": "2026-11-10T05:35:39.333Z",
+    "label": "demo override agent_id null (production agent.commonkit-sxflo.testnet)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6",
+      "https://testnet.nearblocks.io/txns/GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq",
+      "https://testnet.nearblocks.io/txns/621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ"
+    ]
+  },
+  {
+    "kind": "restore",
+    "step": 16,
+    "asset": "laser-01.makerlab.commonkit-sxflo.testnet",
+    "rule_id": "agent_id",
+    "value": "agent.commonkit-sxflo.testnet",
+    "production": "agent.commonkit-sxflo.testnet",
+    "proposal": "makerlab-ck.sputnikv2.testnet#14",
+    "tx_hashes": [
+      "AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz",
+      "4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6",
+      "8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4"
+    ],
+    "at": "2026-11-10T05:36:20.068Z",
+    "label": "restore agent_id agent.commonkit-sxflo.testnet (production agent.commonkit-sxflo.testnet)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz",
+      "https://testnet.nearblocks.io/txns/4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6",
+      "https://testnet.nearblocks.io/txns/8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4"
+    ]
+  },
+  {
+    "kind": "restore",
+    "step": 16,
+    "asset": "washer-01.dorm-b.commonkit-sxflo.testnet",
+    "rule_id": "filter_clean",
+    "value": "30",
+    "production": "30",
+    "proposal": "dorm-b-ck.sputnikv2.testnet#11",
+    "tx_hashes": [
+      "4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw",
+      "Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26",
+      "2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi"
+    ],
+    "at": "2026-11-10T05:36:33.956Z",
+    "label": "restore filter_clean 30 (production 30)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw",
+      "https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26",
+      "https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi"
+    ]
+  },
+  {
+    "kind": "restore",
+    "step": 16,
+    "asset": "washer-01.dorm-b.commonkit-sxflo.testnet",
+    "rule_id": "period_reward_quota",
+    "value": "12",
+    "production": "12",
+    "proposal": "dorm-b-ck.sputnikv2.testnet#11",
+    "tx_hashes": [
+      "4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw",
+      "Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26",
+      "2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi"
+    ],
+    "at": "2026-11-10T05:36:33.956Z",
+    "label": "restore period_reward_quota 12 (production 12)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw",
+      "https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26",
+      "https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi"
+    ]
+  },
+  {
+    "kind": "restore",
+    "step": 16,
+    "asset": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "rule_id": "bed_level",
+    "value": "50",
+    "production": "50",
+    "proposal": "makerlab-ck.sputnikv2.testnet#15",
+    "tx_hashes": [
+      "946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f",
+      "57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX",
+      "DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1"
+    ],
+    "at": "2026-11-10T05:36:47.945Z",
+    "label": "restore bed_level 50 (production 50)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f",
+      "https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX",
+      "https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1"
+    ]
+  }
+]

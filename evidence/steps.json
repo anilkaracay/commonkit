@@ -593,6 +593,113 @@
     "timestamp": "2026-11-10T05:31:57.248Z"
   },
   {
+    "step": 10,
+    "title": "Agent escalates a nozzle kit purchase; the printer contract opens a Sputnik Transfer proposal; the council approves; the DAO pays the supplier",
+    "core": false,
+    "simulated": false,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "4vcji9GSXnsZcSwhN74r1raEnRZXVnEVUpPFHeCYh3Df",
+      "HMvXQbeEK659LDKgNsHk2ySW5ZopAMAGo7ZYzCQKvfip",
+      "AdosFdrvh23pf5ZWTY6AaoETN38BBpgMYtfyUfS3TSjg",
+      "G3NUkpTvpBjuUBQDSvYG1dJm2TQ7VVTXqTup892p9SeY",
+      "7km7HAcHZq42qNp9C4K1E2SvCbyeEW5fzpU7Gw6K1nAN"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/4vcji9GSXnsZcSwhN74r1raEnRZXVnEVUpPFHeCYh3Df",
+      "https://testnet.nearblocks.io/txns/HMvXQbeEK659LDKgNsHk2ySW5ZopAMAGo7ZYzCQKvfip",
+      "https://testnet.nearblocks.io/txns/AdosFdrvh23pf5ZWTY6AaoETN38BBpgMYtfyUfS3TSjg",
+      "https://testnet.nearblocks.io/txns/G3NUkpTvpBjuUBQDSvYG1dJm2TQ7VVTXqTup892p9SeY",
+      "https://testnet.nearblocks.io/txns/7km7HAcHZq42qNp9C4K1E2SvCbyeEW5fzpU7Gw6K1nAN"
+    ],
+    "transactions": [
+      {
+        "label": "agent escalate(kind=\"purchase\") → printer-01 calls dao.add_proposal with its bond",
+        "hash": "4vcji9GSXnsZcSwhN74r1raEnRZXVnEVUpPFHeCYh3Df",
+        "ok": true,
+        "by": "agent.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "treasury top-up makerlab-ck.sputnikv2.testnet +4.2793 NEAR from the team root (plain transfer, research C10)",
+        "hash": "HMvXQbeEK659LDKgNsHk2ySW5ZopAMAGo7ZYzCQKvfip",
+        "ok": true,
+        "by": "commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#10 council vote (elif)",
+        "hash": "AdosFdrvh23pf5ZWTY6AaoETN38BBpgMYtfyUfS3TSjg",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#10 council vote (burak)",
+        "hash": "G3NUkpTvpBjuUBQDSvYG1dJm2TQ7VVTXqTup892p9SeY",
+        "ok": true,
+        "by": "burak.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "sync_escalation (ANY) maps the DAO status back to the asset",
+        "hash": "7km7HAcHZq42qNp9C4K1E2SvCbyeEW5fzpU7Gw6K1nAN",
+        "ok": true,
+        "by": "commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "escalation_synced"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "Sputnik Transfer proposal created by the asset contract itself",
+        "ok": true,
+        "detail": "{\"proposer\":\"printer-01.makerlab.commonkit-sxflo.testnet\",\"receiver\":\"supplier.commonkit-sxflo.testnet\",\"amount\":\"4000000000000000000000000\"}"
+      },
+      {
+        "what": "description names the asset escalation",
+        "ok": true,
+        "detail": "COMMONKIT escalation printer-01.makerlab.commonkit-sxflo.testnet#0: Nozzle kit for 'nozzle_clean': 1 rewarded tasks so far, the profile suggests a new one every 1 (latest task #0). Amount 4 NEAR. Receiver supplier.commonkit-sxflo.testnet is a COMMONKIT team account acting as the demo supplier."
+      },
+      {
+        "what": "supplier paid 4 NEAR by the DAO",
+        "ok": true,
+        "detail": "4 NEAR"
+      },
+      {
+        "what": "proposal Approved",
+        "ok": true,
+        "detail": "Approved"
+      },
+      {
+        "what": "escalation Approved on the asset (bond settled back to the float)",
+        "ok": true,
+        "detail": "Approved"
+      },
+      {
+        "what": "ledger invariant holds",
+        "ok": true
+      }
+    ],
+    "notes": [
+      "Demo override (agent config, off chain): the nozzle-kit purchase hint uses after_n = 1 instead of the profile’s 2, so one rewarded nozzle task is enough for the demo."
+    ],
+    "outputs": {
+      "escalation_id": "0",
+      "proposal_id": "10"
+    },
+    "timestamp": "2026-11-10T05:32:48.965Z"
+  },
+  {
     "step": 11,
     "title": "Zeynep reserves the laser without the laser_safety credential: rejected, refunded",
     "core": false,
@@ -730,5 +837,623 @@
       "training_id": "1"
     },
     "timestamp": "2026-11-10T05:23:17.262Z"
+  },
+  {
+    "step": 13,
+    "title": "Zeynep (now credentialed) reserves the laser; the bridge switches the emulated Shelly on, then off",
+    "core": false,
+    "simulated": true,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "BA6f822ewK4NNpa5vmQJ6ANgGP9gWo252zSbHzkk99pV",
+      "6CVR6bgWqps1K2avZZSzUw7QsCpNHjacDdMZ7km66NVW",
+      "ADoxyxM2pNkYxc3AerE4a5LKPPCDxsqSMmqeWt9cRFvq",
+      "HF8cj7WdXF6tBvfWvdSLMt2Ek2bDjLCnCXirMrF47RpM"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/BA6f822ewK4NNpa5vmQJ6ANgGP9gWo252zSbHzkk99pV",
+      "https://testnet.nearblocks.io/txns/6CVR6bgWqps1K2avZZSzUw7QsCpNHjacDdMZ7km66NVW",
+      "https://testnet.nearblocks.io/txns/ADoxyxM2pNkYxc3AerE4a5LKPPCDxsqSMmqeWt9cRFvq",
+      "https://testnet.nearblocks.io/txns/HF8cj7WdXF6tBvfWvdSLMt2Ek2bDjLCnCXirMrF47RpM"
+    ],
+    "transactions": [
+      {
+        "label": "Zeynep reserves laser-01 (1 slot from slot 1993654; fee 0.1 NEAR + deposit 3 NEAR)",
+        "hash": "BA6f822ewK4NNpa5vmQJ6ANgGP9gWo252zSbHzkk99pV",
+        "ok": true,
+        "by": "zeynep.commonkit-sxflo.testnet",
+        "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "reservation_confirmed"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "bridge mark_session_started",
+        "hash": "6CVR6bgWqps1K2avZZSzUw7QsCpNHjacDdMZ7km66NVW",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "bridge mark_session_finished (energy/run time telemetry)",
+        "hash": "ADoxyxM2pNkYxc3AerE4a5LKPPCDxsqSMmqeWt9cRFvq",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "steward (Elif) confirms a clean return (deposit refund)",
+        "hash": "HF8cj7WdXF6tBvfWvdSLMt2Ek2bDjLCnCXirMrF47RpM",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "op_created",
+          "return_confirmed",
+          "reputation_recorded",
+          "op_result"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "reservation authorized with the credential (Confirmed or later)",
+        "ok": true,
+        "detail": "Confirmed"
+      },
+      {
+        "what": "bridge grants access (200)",
+        "ok": true,
+        "detail": "200"
+      },
+      {
+        "what": "smart_plug adapter switched the emulated Shelly ON (lamp-class stand-in, SIMULATED)",
+        "ok": true,
+        "detail": "{\"vendor\":\"shelly_gen2\",\"relay_on\":true,\"watts\":60}"
+      },
+      {
+        "what": "Zeynep ends the session (signed finish)",
+        "ok": true,
+        "detail": "200"
+      },
+      {
+        "what": "emulated Shelly switched OFF at the end",
+        "ok": true,
+        "detail": "{\"vendor\":\"shelly_gen2\",\"relay_on\":false,\"watts\":0}"
+      },
+      {
+        "what": "reservation Closed",
+        "ok": true,
+        "detail": "Closed"
+      }
+    ],
+    "notes": [],
+    "outputs": {
+      "reservation_id": "1"
+    },
+    "timestamp": "2026-11-10T05:33:24.393Z"
+  },
+  {
+    "step": 14,
+    "title": "Ayşe uses a printer-earned right on the laser (same group: OK) and on the dorm-b washer (other community: rejected)",
+    "core": false,
+    "simulated": false,
+    "negative": true,
+    "status": "passed",
+    "txHashes": [
+      "8gbyxuQM28ReZFvnLs9Ko5en6R9GVFuhu4rEoYGAFbfh",
+      "FT9tyV6nfawavWfD3w1iR9xU5hSWERkji61FeJH1CEe",
+      "5AzDmbHgMeBAnE6d8RKJCHuK1EfMmt6H6pDazf81MAJe",
+      "7pKC2mABEx7w3z6hQJZ2RWzSBpYbTrwZHFNKtNzGiAhC",
+      "5n5JjQUhjiBDfQukYQ7aFocp7Ef34kW9gLRhsLF5rxau",
+      "8wrKVZ3oBXhQ4hKcTa9ZxJsHChu6EgMXKsA5k9uCNhKm",
+      "U8fudsCesicZ48BQvaCupc9pi5qYTDwJMRhHUVjYvpf",
+      "7iWi8ExRkoGvGUDQonPZPy9zpQDMMLvGcNTstYz29eDQ"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/8gbyxuQM28ReZFvnLs9Ko5en6R9GVFuhu4rEoYGAFbfh",
+      "https://testnet.nearblocks.io/txns/FT9tyV6nfawavWfD3w1iR9xU5hSWERkji61FeJH1CEe",
+      "https://testnet.nearblocks.io/txns/5AzDmbHgMeBAnE6d8RKJCHuK1EfMmt6H6pDazf81MAJe",
+      "https://testnet.nearblocks.io/txns/7pKC2mABEx7w3z6hQJZ2RWzSBpYbTrwZHFNKtNzGiAhC",
+      "https://testnet.nearblocks.io/txns/5n5JjQUhjiBDfQukYQ7aFocp7Ef34kW9gLRhsLF5rxau",
+      "https://testnet.nearblocks.io/txns/8wrKVZ3oBXhQ4hKcTa9ZxJsHChu6EgMXKsA5k9uCNhKm",
+      "https://testnet.nearblocks.io/txns/U8fudsCesicZ48BQvaCupc9pi5qYTDwJMRhHUVjYvpf",
+      "https://testnet.nearblocks.io/txns/7iWi8ExRkoGvGUDQonPZPy9zpQDMMLvGcNTstYz29eDQ"
+    ],
+    "transactions": [
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#11 set_roles elif: steward, council, trainer (precondition for step 14: a second trainer)",
+        "hash": "8gbyxuQM28ReZFvnLs9Ko5en6R9GVFuhu4rEoYGAFbfh",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#11 set_roles elif: steward, council, trainer (precondition for step 14: a second trainer)",
+        "hash": "FT9tyV6nfawavWfD3w1iR9xU5hSWERkji61FeJH1CEe",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#11 set_roles elif: steward, council, trainer (precondition for step 14: a second trainer)",
+        "hash": "5AzDmbHgMeBAnE6d8RKJCHuK1EfMmt6H6pDazf81MAJe",
+        "ok": true,
+        "by": "burak.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [
+          "roles_set",
+          "role_sync_failed",
+          "roles_synced"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "elif proposes laser_safety training for ayse",
+        "hash": "7pKC2mABEx7w3z6hQJZ2RWzSBpYbTrwZHFNKtNzGiAhC",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "commons.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "training_proposed"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Mehmet (verifier ≠ trainer ≠ trainee) approves training #2",
+        "hash": "5n5JjQUhjiBDfQukYQ7aFocp7Ef34kW9gLRhsLF5rxau",
+        "ok": true,
+        "by": "mehmet.commonkit-sxflo.testnet",
+        "receiver": "commons.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "nft_mint",
+          "nft_mint",
+          "training_approved",
+          "rights_minted"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Ayşe reserves laser-01 with her printer-earned right (1 slot from slot 1993656, right right-3; fee 0 NEAR + deposit 3 NEAR)",
+        "hash": "8wrKVZ3oBXhQ4hKcTa9ZxJsHChu6EgMXKsA5k9uCNhKm",
+        "ok": true,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "right_locked",
+          "reservation_confirmed"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Ayşe cancels the laser booking ahead of time (full refund, right released)",
+        "hash": "U8fudsCesicZ48BQvaCupc9pi5qYTDwJMRhHUVjYvpf",
+        "ok": true,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "op_created",
+          "op_created",
+          "reservation_cancelled",
+          "op_result",
+          "right_released",
+          "op_result"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Ayşe tries her makerlab right on washer-01 (dorm-b) (1 slot from slot 498415, right right-3; fee 0 NEAR + deposit 0.01 NEAR)",
+        "hash": "7iWi8ExRkoGvGUDQonPZPy9zpQDMMLvGcNTstYz29eDQ",
+        "ok": true,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "op_created",
+          "reservation_rejected",
+          "op_result"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "precondition: Ayşe holds laser_safety (trained by Elif, approved by Mehmet)",
+        "ok": true,
+        "detail": "true"
+      },
+      {
+        "what": "after cancelling, the right is Active again (not consumed)",
+        "ok": true,
+        "detail": "Active"
+      },
+      {
+        "what": "washer rejects the foreign right: reservation_rejected E_RIGHT_NOT_ACTIVE (the card does not exist in dorm-b's commons)",
+        "ok": true,
+        "detail": "E_RIGHT_NOT_ACTIVE"
+      },
+      {
+        "what": "Refund op Succeeded",
+        "ok": true,
+        "detail": "Succeeded"
+      },
+      {
+        "what": "washer reservation Rejected",
+        "ok": true,
+        "detail": "Rejected"
+      },
+      {
+        "what": "the right itself is untouched by the foreign asset",
+        "ok": true,
+        "detail": "Active"
+      }
+    ],
+    "notes": [
+      "E_RIGHT_WRONG_GROUP needs a card of the same commons in another group; it is shown in step 19 (a dorm-b laundry right on the dorm-b fridge). Across communities the other commons has no such card (D-750)."
+    ],
+    "outputs": {
+      "proposal:set_roles elif: steward, council, trainer (precondition for step 14: a second trainer)": "makerlab-ck.sputnikv2.testnet#11",
+      "training_id": "2",
+      "right_id": "right-3",
+      "laser_reservation_id": "2",
+      "washer_reservation_id": "1"
+    },
+    "timestamp": "2026-11-10T05:34:26.168Z"
+  },
+  {
+    "step": 16,
+    "title": "Agent limits: not due, duplicate task, over quota, after revocation — each refused on chain",
+    "core": false,
+    "simulated": false,
+    "negative": true,
+    "status": "passed",
+    "txHashes": [
+      "C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed",
+      "2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG",
+      "nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw",
+      "GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino",
+      "PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt",
+      "G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF",
+      "FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6",
+      "GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq",
+      "621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ",
+      "AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz",
+      "4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6",
+      "8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4",
+      "4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw",
+      "Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26",
+      "2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi",
+      "946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f",
+      "57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX",
+      "DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1",
+      "CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j",
+      "E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg",
+      "2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a",
+      "BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod",
+      "4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed",
+      "https://testnet.nearblocks.io/txns/2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG",
+      "https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw",
+      "https://testnet.nearblocks.io/txns/GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino",
+      "https://testnet.nearblocks.io/txns/PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt",
+      "https://testnet.nearblocks.io/txns/G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF",
+      "https://testnet.nearblocks.io/txns/FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6",
+      "https://testnet.nearblocks.io/txns/GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq",
+      "https://testnet.nearblocks.io/txns/621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ",
+      "https://testnet.nearblocks.io/txns/AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz",
+      "https://testnet.nearblocks.io/txns/4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6",
+      "https://testnet.nearblocks.io/txns/8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4",
+      "https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw",
+      "https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26",
+      "https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi",
+      "https://testnet.nearblocks.io/txns/946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f",
+      "https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX",
+      "https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1",
+      "https://testnet.nearblocks.io/txns/CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j",
+      "https://testnet.nearblocks.io/txns/E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg",
+      "https://testnet.nearblocks.io/txns/2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a",
+      "https://testnet.nearblocks.io/txns/BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod",
+      "https://testnet.nearblocks.io/txns/4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc"
+    ],
+    "transactions": [
+      {
+        "label": "dorm-b-ck.sputnikv2.testnet#10 DEMO OVERRIDE washer-01: period_reward_quota 2, filter_clean threshold 1 (quota demo; restored below)",
+        "hash": "C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed",
+        "ok": true,
+        "by": "nil.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "dorm-b-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "dorm-b-ck.sputnikv2.testnet#10 DEMO OVERRIDE washer-01: period_reward_quota 2, filter_clean threshold 1 (quota demo; restored below)",
+        "hash": "2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG",
+        "ok": true,
+        "by": "nil.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "dorm-b-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "dorm-b-ck.sputnikv2.testnet#10 DEMO OVERRIDE washer-01: period_reward_quota 2, filter_clean threshold 1 (quota demo; restored below)",
+        "hash": "nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw",
+        "ok": true,
+        "by": "ozan.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "dorm-b-ck.sputnikv2.testnet",
+        "events": [
+          "profile_updated"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#12 DEMO OVERRIDE printer-01: bed_level threshold 1 job so one rule is due for the duplicate-task attempt (restored below)",
+        "hash": "GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#12 DEMO OVERRIDE printer-01: bed_level threshold 1 job so one rule is due for the duplicate-task attempt (restored below)",
+        "hash": "PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#12 DEMO OVERRIDE printer-01: bed_level threshold 1 job so one rule is due for the duplicate-task attempt (restored below)",
+        "hash": "G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF",
+        "ok": true,
+        "by": "burak.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [
+          "profile_updated"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#13 set_operators laser-01: agent revoked (agent_id = null); restored below",
+        "hash": "FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#13 set_operators laser-01: agent revoked (agent_id = null); restored below",
+        "hash": "GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#13 set_operators laser-01: agent revoked (agent_id = null); restored below",
+        "hash": "621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ",
+        "ok": true,
+        "by": "burak.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [
+          "operators_updated"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#14 set_operators laser-01: restore bridge + agent after the revocation demo",
+        "hash": "AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#14 set_operators laser-01: restore bridge + agent after the revocation demo",
+        "hash": "4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#14 set_operators laser-01: restore bridge + agent after the revocation demo",
+        "hash": "8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4",
+        "ok": true,
+        "by": "burak.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [
+          "operators_updated"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "dorm-b-ck.sputnikv2.testnet#11 restore washer-01 profile after the quota demo",
+        "hash": "4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw",
+        "ok": true,
+        "by": "nil.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "dorm-b-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "dorm-b-ck.sputnikv2.testnet#11 restore washer-01 profile after the quota demo",
+        "hash": "Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26",
+        "ok": true,
+        "by": "nil.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "dorm-b-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "dorm-b-ck.sputnikv2.testnet#11 restore washer-01 profile after the quota demo",
+        "hash": "2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi",
+        "ok": true,
+        "by": "ozan.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "dorm-b-ck.sputnikv2.testnet",
+        "events": [
+          "profile_updated"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#15 restore printer-01 profile (bed_level threshold) after the duplicate-task demo",
+        "hash": "946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#15 restore printer-01 profile (bed_level threshold) after the duplicate-task demo",
+        "hash": "57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#15 restore printer-01 profile (bed_level threshold) after the duplicate-task demo",
+        "hash": "DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1",
+        "ok": true,
+        "by": "burak.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [
+          "profile_updated"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "agent key: rule_not_due_metric (E_RULE_NOT_DUE)",
+        "hash": "CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j",
+        "ok": false,
+        "by": "agent.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "agent key: rule_not_due_schedule (E_RULE_NOT_DUE)",
+        "hash": "E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg",
+        "ok": false,
+        "by": "agent.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "agent key: task_already_open (E_TASK_ALREADY_OPEN)",
+        "hash": "2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a",
+        "ok": false,
+        "by": "agent.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "agent key: quota_exceeded (E_QUOTA_EXCEEDED)",
+        "hash": "BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod",
+        "ok": false,
+        "by": "agent.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "agent key: not_agent_after_revocation (E_NOT_AGENT)",
+        "hash": "4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc",
+        "ok": false,
+        "by": "agent.commonkit-sxflo.testnet"
+      }
+    ],
+    "assertions": [
+      {
+        "what": "limits report is a testnet run",
+        "ok": true,
+        "detail": "near"
+      },
+      {
+        "what": "Open a task for a rule whose delta < threshold → E_RULE_NOT_DUE",
+        "ok": true,
+        "detail": "rejected E_RULE_NOT_DUE tx CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j"
+      },
+      {
+        "what": "Open a task for a Schedule rule before every_hours have passed → E_RULE_NOT_DUE",
+        "ok": true,
+        "detail": "rejected E_RULE_NOT_DUE tx E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg"
+      },
+      {
+        "what": "Open a second task for the same rule → E_TASK_ALREADY_OPEN",
+        "ok": true,
+        "detail": "rejected E_TASK_ALREADY_OPEN tx 2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a"
+      },
+      {
+        "what": "Exceed the period quota → E_QUOTA_EXCEEDED",
+        "ok": true,
+        "detail": "rejected E_QUOTA_EXCEEDED tx BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod"
+      },
+      {
+        "what": "Call approve_task → E_MISSING_ROLE | E_SELF_VERIFY | PROTOCOL:MethodNameMismatch",
+        "ok": true,
+        "detail": "rejected PROTOCOL:MethodNameMismatch (refused before execution, no tx)"
+      },
+      {
+        "what": "Attach deposit with its function-call key (e.g. fund_float) → PROTOCOL:DepositWithFunctionCall",
+        "ok": true,
+        "detail": "rejected PROTOCOL:DepositWithFunctionCall (refused before execution, no tx)"
+      },
+      {
+        "what": "Use the key after the DAO calls set_operators(agent_id=None) → E_NOT_AGENT",
+        "ok": true,
+        "detail": "rejected E_NOT_AGENT tx 4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc"
+      },
+      {
+        "what": "exact code E_RULE_NOT_DUE shown",
+        "ok": true
+      },
+      {
+        "what": "exact code E_TASK_ALREADY_OPEN shown",
+        "ok": true
+      },
+      {
+        "what": "exact code E_QUOTA_EXCEEDED shown",
+        "ok": true
+      },
+      {
+        "what": "exact code E_NOT_AGENT shown",
+        "ok": true
+      },
+      {
+        "what": "laser-01 agent restored",
+        "ok": true,
+        "detail": "agent.commonkit-sxflo.testnet"
+      },
+      {
+        "what": "washer-01 quota restored",
+        "ok": true,
+        "detail": "12"
+      },
+      {
+        "what": "printer-01 bed_level threshold restored",
+        "ok": true,
+        "detail": "50"
+      }
+    ],
+    "notes": [],
+    "outputs": {
+      "proposal:DEMO OVERRIDE washer-01: period_reward_quota 2, filter_clean threshold 1 (quota demo; restored below)": "dorm-b-ck.sputnikv2.testnet#10",
+      "proposal:DEMO OVERRIDE printer-01: bed_level threshold 1 job so one rule is due for the duplicate-task attempt (restored below)": "makerlab-ck.sputnikv2.testnet#12",
+      "proposal:set_operators laser-01: agent revoked (agent_id = null); restored below": "makerlab-ck.sputnikv2.testnet#13",
+      "limits_done": "1",
+      "limits_exit": "0",
+      "proposal:set_operators laser-01: restore bridge + agent after the revocation demo": "makerlab-ck.sputnikv2.testnet#14",
+      "proposal:restore washer-01 profile after the quota demo": "dorm-b-ck.sputnikv2.testnet#11",
+      "proposal:restore printer-01 profile (bed_level threshold) after the duplicate-task demo": "makerlab-ck.sputnikv2.testnet#15"
+    },
+    "timestamp": "2026-11-10T05:37:00.655Z"
   }
 ]

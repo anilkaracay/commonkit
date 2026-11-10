@@ -23,9 +23,9 @@ export const step18: DemoStep = {
     const { cast, rec, gov } = ctx;
     const a = ctx.asset(cast.printer);
     if (metricThreshold(await a.profile(), 'filament_spool') !== FILAMENT_DEMO_THRESHOLD)
-      await gov.call(cast.makerlab, `DEMO OVERRIDE printer-01: filament_spool threshold ${FILAMENT_DEMO_THRESHOLD} mm (profile pilot_overrides; real 330 000 mm)`, cast.printer, [
+      await gov.override(cast.makerlab, cast.printer, [
         { method_name: 'set_profile', args: { profile: withRule(printerDemoProfile(), 'filament_spool', { trigger: { Metric: { metric: 'filament_used_mm', threshold: FILAMENT_DEMO_THRESHOLD } } }) }, gas: 30n * TGAS },
-      ]);
+      ], [{ kind: 'override', rule_id: 'filament_spool', value: FILAMENT_DEMO_THRESHOLD, production: metricThreshold(printerDemoProfile(), 'filament_spool')! }], 'demo-lowered (profile pilot_overrides), emulated Moonraker telemetry');
     if (!ctx.own('deposits_before')) rec.out('deposits_before', (await a.ledger()).deposits_held);
 
     let taskId = ctx.own('task_id') ?? (await a.rule('filament_spool')).open_task;

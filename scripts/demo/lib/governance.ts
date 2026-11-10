@@ -7,16 +7,36 @@ import { nearToYocto, yoctoToNear } from '@commonkit/sdk';
 import { Dao, type FnAction } from '../../lib/dao.js';
 import type { Chain } from '../../lib/near.js';
 import type { CommunityCast } from './cast.js';
+import { overrideLabel, recordOverride, restoreLabel } from './overrides.js';
 import type { StepRecorder } from './record.js';
 
 export const TREASURY_MARGIN = nearToYocto('0.5');
 
 export interface Governance {
   /** One FunctionCall proposal on `receiver` (≥ 1 action, atomic), proposed and voted through. */
-  call(c: CommunityCast, label: string, receiver: string, actions: FnAction[]): Promise<number>;
+  call(c: CommunityCast, label: string, receiver: string, actions: FnAction[]): Promise<Passed>;
+  /**
+   * A demo override (or its restore) of live values: proposal labelled
+   * "demo override <rule_id> <value> (production <value>)" per item, each item written to
+   * evidence/demo-overrides.json with the proposal id and tx hashes.
+   */
+  override(c: CommunityCast, receiver: string, actions: FnAction[], items: OverrideItem[], why: string): Promise<Passed>;
   /** Plain-transfer top-up of a DAO treasury from the root when `amount` would not be available. */
   ensureTreasury(c: CommunityCast, amount: bigint): Promise<void>;
   dao(c: CommunityCast): Dao;
+}
+
+export interface Passed {
+  id: number;
+  proposal: string;
+  hashes: string[];
+}
+
+export interface OverrideItem {
+  kind: 'override' | 'restore';
+  rule_id: string;
+  value: string | number;
+  production: string | number;
 }
 
 export function governance(chain: Chain, root: string, rec: StepRecorder, step: number): Governance {
@@ -36,7 +56,14 @@ export function governance(chain: Chain, root: string, rec: StepRecorder, step: 
       );
       for (const tx of r.txs) rec.tx(`${c.dao}#${r.proposalId} ${label}`, tx);
       rec.out(`proposal:${label}`, `${c.dao}#${r.proposalId}`);
-      return r.proposalId;
+      return { id: r.proposalId, proposal: `${c.dao}#${r.proposalId}`, hashes: r.txs.map((t) => t.hash) };
+    },
+    async override(c, receiver, actions, items, why) {
+      const label = `${items.map((i) => (i.kind === 'override' ? overrideLabel(i.rule_id, i.value, i.production) : restoreLabel(i.rule_id, i.production))).join('; ')} on ${receiver.split('.')[0]} — ${why}`;
+      const passed = await this.call(c, label, receiver, actions);
+      for (const i of items)
+        recordOverride({ kind: i.kind, step, asset: receiver, rule_id: i.rule_id, value: String(i.value), production: String(i.production), proposal: passed.proposal, tx_hashes: passed.hashes });
+      return passed;
     },
     async ensureTreasury(c, amount) {
       const available = BigInt(await chain.view<string>(c.dao, 'get_available_amount'));

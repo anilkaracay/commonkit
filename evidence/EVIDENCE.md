@@ -5,7 +5,7 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ## Judge flow
 
-10 of 21 steps passed. ★ = one of the five core steps shown in the README.
+14 of 21 steps passed. ★ = one of the five core steps shown in the README.
 
 | # | Step | Result | Transactions |
 | :--- | :--- | :--- | :--- |
@@ -17,8 +17,12 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | 6 | More fees push the printer float over its cap; the excess is swept to the DAO treasury ★ | ✅ | [DBTLyXkr…](https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S) |
 | 7 | Telemetry crossed nozzle_clean; the agent opens the upkeep task with a rationale ★ (simulation) | ✅ | [AbQSVeSa…](https://testnet.nearblocks.io/txns/AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem) |
 | 8 | Ayşe claims and submits; the bridge runs a calibration print; Mehmet approves; 2 rights minted ★ (simulation) | ✅ | [GZfCTLk4…](https://testnet.nearblocks.io/txns/GZfCTLk4VvcijK7BfSMwmFYYCpRfmwXZ3LdsNvEjXMJ1) [ChE95bYQ…](https://testnet.nearblocks.io/txns/ChE95bYQJJWomAfU4PxxbtMADQ6VajRhwxtwkTyTXzqp) [5RAh6R1w…](https://testnet.nearblocks.io/txns/5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr) [Gr7bwqmC…](https://testnet.nearblocks.io/txns/Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx) |
+| 10 | Agent escalates a nozzle kit purchase; the printer contract opens a Sputnik Transfer proposal; the council approves; the DAO pays the supplier  | ✅ | [4vcji9GS…](https://testnet.nearblocks.io/txns/4vcji9GSXnsZcSwhN74r1raEnRZXVnEVUpPFHeCYh3Df) [HMvXQbeE…](https://testnet.nearblocks.io/txns/HMvXQbeEK659LDKgNsHk2ySW5ZopAMAGo7ZYzCQKvfip) [AdosFdrv…](https://testnet.nearblocks.io/txns/AdosFdrvh23pf5ZWTY6AaoETN38BBpgMYtfyUfS3TSjg) [G3NUkpTv…](https://testnet.nearblocks.io/txns/G3NUkpTvpBjuUBQDSvYG1dJm2TQ7VVTXqTup892p9SeY) [7km7HAcH…](https://testnet.nearblocks.io/txns/7km7HAcHZq42qNp9C4K1E2SvCbyeEW5fzpU7Gw6K1nAN) |
 | 11 | Zeynep reserves the laser without the laser_safety credential: rejected, refunded  | ✅ | [DWyA3hq1…](https://testnet.nearblocks.io/txns/DWyA3hq1TyJwyafuZGVr3CmfagmpBMokLeYMLyji2Es3) |
 | 12 | Ayşe proposes Zeynep’s laser training; Mehmet approves; Zeynep gets laser_safety, Ayşe a laser-group right  | ✅ | [B2CwNMwt…](https://testnet.nearblocks.io/txns/B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG) [6wdSrqts…](https://testnet.nearblocks.io/txns/6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM) |
+| 13 | Zeynep (now credentialed) reserves the laser; the bridge switches the emulated Shelly on, then off (simulation) | ✅ | [BA6f822e…](https://testnet.nearblocks.io/txns/BA6f822ewK4NNpa5vmQJ6ANgGP9gWo252zSbHzkk99pV) [6CVR6bgW…](https://testnet.nearblocks.io/txns/6CVR6bgWqps1K2avZZSzUw7QsCpNHjacDdMZ7km66NVW) [ADoxyxM2…](https://testnet.nearblocks.io/txns/ADoxyxM2pNkYxc3AerE4a5LKPPCDxsqSMmqeWt9cRFvq) [HF8cj7Wd…](https://testnet.nearblocks.io/txns/HF8cj7WdXF6tBvfWvdSLMt2Ek2bDjLCnCXirMrF47RpM) |
+| 14 | Ayşe uses a printer-earned right on the laser (same group: OK) and on the dorm-b washer (other community: rejected)  | ✅ | [8gbyxuQM…](https://testnet.nearblocks.io/txns/8gbyxuQM28ReZFvnLs9Ko5en6R9GVFuhu4rEoYGAFbfh) [FT9tyV6n…](https://testnet.nearblocks.io/txns/FT9tyV6nfawavWfD3w1iR9xU5hSWERkji61FeJH1CEe) [5AzDmbHg…](https://testnet.nearblocks.io/txns/5AzDmbHgMeBAnE6d8RKJCHuK1EfMmt6H6pDazf81MAJe) [7pKC2mAB…](https://testnet.nearblocks.io/txns/7pKC2mABEx7w3z6hQJZ2RWzSBpYbTrwZHFNKtNzGiAhC) [5n5JjQUh…](https://testnet.nearblocks.io/txns/5n5JjQUhjiBDfQukYQ7aFocp7Ef34kW9gLRhsLF5rxau) [8wrKVZ3o…](https://testnet.nearblocks.io/txns/8wrKVZ3oBXhQ4hKcTa9ZxJsHChu6EgMXKsA5k9uCNhKm) [U8fudsCe…](https://testnet.nearblocks.io/txns/U8fudsCesicZ48BQvaCupc9pi5qYTDwJMRhHUVjYvpf) [7iWi8ExR…](https://testnet.nearblocks.io/txns/7iWi8ExRkoGvGUDQonPZPy9zpQDMMLvGcNTstYz29eDQ) |
+| 16 | Agent limits: not due, duplicate task, over quota, after revocation — each refused on chain  | ✅ | [C8JkikXo…](https://testnet.nearblocks.io/txns/C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed) [2rCeE2M1…](https://testnet.nearblocks.io/txns/2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG) [nqMmhGWQ…](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) [GvykqdCm…](https://testnet.nearblocks.io/txns/GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino) [PQct6RW7…](https://testnet.nearblocks.io/txns/PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt) [G8Vb1fTc…](https://testnet.nearblocks.io/txns/G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF) [FmDVLwMZ…](https://testnet.nearblocks.io/txns/FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6) [GDwFcx8W…](https://testnet.nearblocks.io/txns/GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq) [621S7Ry7…](https://testnet.nearblocks.io/txns/621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ) [AZ8F2GoD…](https://testnet.nearblocks.io/txns/AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz) [4fuwk6rL…](https://testnet.nearblocks.io/txns/4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6) [8gn7Tw8b…](https://testnet.nearblocks.io/txns/8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4) [4YA4vH9f…](https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw) [Ew52ujzR…](https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26) [2tbnLVXm…](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) [946wLUkg…](https://testnet.nearblocks.io/txns/946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f) [57HaCMJ9…](https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX) [DPWHpngq…](https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1) [CeKXhvUM…](https://testnet.nearblocks.io/txns/CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j) [E5z6dYSt…](https://testnet.nearblocks.io/txns/E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg) [2pTH2ej1…](https://testnet.nearblocks.io/txns/2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a) [BpuNwpok…](https://testnet.nearblocks.io/txns/BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod) [4LTTFcJq…](https://testnet.nearblocks.io/txns/4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc) |
 
 ### Step 1 — DAO proposal registers printer-01, sets its profile and funds its float
 
@@ -144,6 +148,26 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | [Gr7bwqmC…](https://testnet.nearblocks.io/txns/Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx) | Mehmet (verifier, independent) approves | mehmet.commonkit-sxflo.testnet | ok |
 - Note: task already Rewarded (earlier attempt)
 
+### Step 10 — Agent escalates a nozzle kit purchase; the printer contract opens a Sputnik Transfer proposal; the council approves; the DAO pays the supplier
+
+✅ passed · 2026-11-10 05:32:48 UTC
+
+- ✅ Sputnik Transfer proposal created by the asset contract itself — `{"proposer":"printer-01.makerlab.commonkit-sxflo.testnet","receiver":"supplier.commonkit-sxflo.testnet","amount":"4000000000000000000000000"}`
+- ✅ description names the asset escalation — `COMMONKIT escalation printer-01.makerlab.commonkit-sxflo.testnet#0: Nozzle kit for 'nozzle_clean': 1 rewarded tasks so far, the profile suggests a new one every 1 (latest task #0). Amount 4 NEAR. Receiver supplier.commonkit-sxflo.testnet is a COMMONKIT team account acting as the demo supplier.`
+- ✅ supplier paid 4 NEAR by the DAO — `4 NEAR`
+- ✅ proposal Approved — `Approved`
+- ✅ escalation Approved on the asset (bond settled back to the float) — `Approved`
+- ✅ ledger invariant holds
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [4vcji9GS…](https://testnet.nearblocks.io/txns/4vcji9GSXnsZcSwhN74r1raEnRZXVnEVUpPFHeCYh3Df) | agent escalate(kind="purchase") → printer-01 calls dao.add_proposal with its bond | agent.commonkit-sxflo.testnet | ok |
+| [HMvXQbeE…](https://testnet.nearblocks.io/txns/HMvXQbeEK659LDKgNsHk2ySW5ZopAMAGo7ZYzCQKvfip) | treasury top-up makerlab-ck.sputnikv2.testnet +4.2793 NEAR from the team root (plain transfer, research C10) | commonkit-sxflo.testnet | ok |
+| [AdosFdrv…](https://testnet.nearblocks.io/txns/AdosFdrvh23pf5ZWTY6AaoETN38BBpgMYtfyUfS3TSjg) | makerlab-ck.sputnikv2.testnet#10 council vote (elif) | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [G3NUkpTv…](https://testnet.nearblocks.io/txns/G3NUkpTvpBjuUBQDSvYG1dJm2TQ7VVTXqTup892p9SeY) | makerlab-ck.sputnikv2.testnet#10 council vote (burak) | burak.makerlab.commonkit-sxflo.testnet | ok |
+| [7km7HAcH…](https://testnet.nearblocks.io/txns/7km7HAcHZq42qNp9C4K1E2SvCbyeEW5fzpU7Gw6K1nAN) | sync_escalation (ANY) maps the DAO status back to the asset | commonkit-sxflo.testnet | ok |
+- Note: Demo override (agent config, off chain): the nozzle-kit purchase hint uses after_n = 1 instead of the profile’s 2, so one rewarded nozzle task is enough for the demo.
+
 ### Step 11 — Zeynep reserves the laser without the laser_safety credential: rejected, refunded
 
 ✅ passed · 2026-11-10 05:22:54 UTC
@@ -173,6 +197,123 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | :--- | :--- | :--- | :--- |
 | [B2CwNMwt…](https://testnet.nearblocks.io/txns/B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG) | ayse proposes laser_safety training for zeynep | ayse.commonkit-sxflo.testnet | ok |
 | [6wdSrqts…](https://testnet.nearblocks.io/txns/6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM) | Mehmet (verifier ≠ trainer ≠ trainee) approves training #1 | mehmet.commonkit-sxflo.testnet | ok |
+
+### Step 13 — Zeynep (now credentialed) reserves the laser; the bridge switches the emulated Shelly on, then off (simulation)
+
+✅ passed · 2026-11-10 05:33:24 UTC
+
+- ✅ reservation authorized with the credential (Confirmed or later) — `Confirmed`
+- ✅ bridge grants access (200) — `200`
+- ✅ smart_plug adapter switched the emulated Shelly ON (lamp-class stand-in, SIMULATED) — `{"vendor":"shelly_gen2","relay_on":true,"watts":60}`
+- ✅ Zeynep ends the session (signed finish) — `200`
+- ✅ emulated Shelly switched OFF at the end — `{"vendor":"shelly_gen2","relay_on":false,"watts":0}`
+- ✅ reservation Closed — `Closed`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [BA6f822e…](https://testnet.nearblocks.io/txns/BA6f822ewK4NNpa5vmQJ6ANgGP9gWo252zSbHzkk99pV) | Zeynep reserves laser-01 (1 slot from slot 1993654; fee 0.1 NEAR + deposit 3 NEAR) | zeynep.commonkit-sxflo.testnet | ok |
+| [6CVR6bgW…](https://testnet.nearblocks.io/txns/6CVR6bgWqps1K2avZZSzUw7QsCpNHjacDdMZ7km66NVW) | bridge mark_session_started | bridge.commonkit-sxflo.testnet | ok |
+| [ADoxyxM2…](https://testnet.nearblocks.io/txns/ADoxyxM2pNkYxc3AerE4a5LKPPCDxsqSMmqeWt9cRFvq) | bridge mark_session_finished (energy/run time telemetry) | bridge.commonkit-sxflo.testnet | ok |
+| [HF8cj7Wd…](https://testnet.nearblocks.io/txns/HF8cj7WdXF6tBvfWvdSLMt2Ek2bDjLCnCXirMrF47RpM) | steward (Elif) confirms a clean return (deposit refund) | elif.makerlab.commonkit-sxflo.testnet | ok |
+
+### Step 14 — Ayşe uses a printer-earned right on the laser (same group: OK) and on the dorm-b washer (other community: rejected)
+
+✅ passed · 2026-11-10 05:34:26 UTC
+
+- ✅ precondition: Ayşe holds laser_safety (trained by Elif, approved by Mehmet) — `true`
+- ✅ after cancelling, the right is Active again (not consumed) — `Active`
+- ✅ washer rejects the foreign right: reservation_rejected E_RIGHT_NOT_ACTIVE (the card does not exist in dorm-b's commons) — `E_RIGHT_NOT_ACTIVE`
+- ✅ Refund op Succeeded — `Succeeded`
+- ✅ washer reservation Rejected — `Rejected`
+- ✅ the right itself is untouched by the foreign asset — `Active`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [8gbyxuQM…](https://testnet.nearblocks.io/txns/8gbyxuQM28ReZFvnLs9Ko5en6R9GVFuhu4rEoYGAFbfh) | makerlab-ck.sputnikv2.testnet#11 set_roles elif: steward, council, trainer (precondition for step 14: a second trainer) | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [FT9tyV6n…](https://testnet.nearblocks.io/txns/FT9tyV6nfawavWfD3w1iR9xU5hSWERkji61FeJH1CEe) | makerlab-ck.sputnikv2.testnet#11 set_roles elif: steward, council, trainer (precondition for step 14: a second trainer) | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [5AzDmbHg…](https://testnet.nearblocks.io/txns/5AzDmbHgMeBAnE6d8RKJCHuK1EfMmt6H6pDazf81MAJe) | makerlab-ck.sputnikv2.testnet#11 set_roles elif: steward, council, trainer (precondition for step 14: a second trainer) | burak.makerlab.commonkit-sxflo.testnet | ok |
+| [7pKC2mAB…](https://testnet.nearblocks.io/txns/7pKC2mABEx7w3z6hQJZ2RWzSBpYbTrwZHFNKtNzGiAhC) | elif proposes laser_safety training for ayse | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [5n5JjQUh…](https://testnet.nearblocks.io/txns/5n5JjQUhjiBDfQukYQ7aFocp7Ef34kW9gLRhsLF5rxau) | Mehmet (verifier ≠ trainer ≠ trainee) approves training #2 | mehmet.commonkit-sxflo.testnet | ok |
+| [8wrKVZ3o…](https://testnet.nearblocks.io/txns/8wrKVZ3oBXhQ4hKcTa9ZxJsHChu6EgMXKsA5k9uCNhKm) | Ayşe reserves laser-01 with her printer-earned right (1 slot from slot 1993656, right right-3; fee 0 NEAR + deposit 3 NEAR) | ayse.commonkit-sxflo.testnet | ok |
+| [U8fudsCe…](https://testnet.nearblocks.io/txns/U8fudsCesicZ48BQvaCupc9pi5qYTDwJMRhHUVjYvpf) | Ayşe cancels the laser booking ahead of time (full refund, right released) | ayse.commonkit-sxflo.testnet | ok |
+| [7iWi8ExR…](https://testnet.nearblocks.io/txns/7iWi8ExRkoGvGUDQonPZPy9zpQDMMLvGcNTstYz29eDQ) | Ayşe tries her makerlab right on washer-01 (dorm-b) (1 slot from slot 498415, right right-3; fee 0 NEAR + deposit 0.01 NEAR) | ayse.commonkit-sxflo.testnet | ok |
+- Note: E_RIGHT_WRONG_GROUP needs a card of the same commons in another group; it is shown in step 19 (a dorm-b laundry right on the dorm-b fridge). Across communities the other commons has no such card (D-750).
+
+### Step 16 — Agent limits: not due, duplicate task, over quota, after revocation — each refused on chain
+
+✅ passed · 2026-11-10 05:37:00 UTC
+
+- ✅ limits report is a testnet run — `near`
+- ✅ Open a task for a rule whose delta < threshold → E_RULE_NOT_DUE — `rejected E_RULE_NOT_DUE tx CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j`
+- ✅ Open a task for a Schedule rule before every_hours have passed → E_RULE_NOT_DUE — `rejected E_RULE_NOT_DUE tx E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg`
+- ✅ Open a second task for the same rule → E_TASK_ALREADY_OPEN — `rejected E_TASK_ALREADY_OPEN tx 2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a`
+- ✅ Exceed the period quota → E_QUOTA_EXCEEDED — `rejected E_QUOTA_EXCEEDED tx BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod`
+- ✅ Call approve_task → E_MISSING_ROLE | E_SELF_VERIFY | PROTOCOL:MethodNameMismatch — `rejected PROTOCOL:MethodNameMismatch (refused before execution, no tx)`
+- ✅ Attach deposit with its function-call key (e.g. fund_float) → PROTOCOL:DepositWithFunctionCall — `rejected PROTOCOL:DepositWithFunctionCall (refused before execution, no tx)`
+- ✅ Use the key after the DAO calls set_operators(agent_id=None) → E_NOT_AGENT — `rejected E_NOT_AGENT tx 4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc`
+- ✅ exact code E_RULE_NOT_DUE shown
+- ✅ exact code E_TASK_ALREADY_OPEN shown
+- ✅ exact code E_QUOTA_EXCEEDED shown
+- ✅ exact code E_NOT_AGENT shown
+- ✅ laser-01 agent restored — `agent.commonkit-sxflo.testnet`
+- ✅ washer-01 quota restored — `12`
+- ✅ printer-01 bed_level threshold restored — `50`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [C8JkikXo…](https://testnet.nearblocks.io/txns/C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed) | dorm-b-ck.sputnikv2.testnet#10 DEMO OVERRIDE washer-01: period_reward_quota 2, filter_clean threshold 1 (quota demo; restored below) | nil.dorm-b.commonkit-sxflo.testnet | ok |
+| [2rCeE2M1…](https://testnet.nearblocks.io/txns/2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG) | dorm-b-ck.sputnikv2.testnet#10 DEMO OVERRIDE washer-01: period_reward_quota 2, filter_clean threshold 1 (quota demo; restored below) | nil.dorm-b.commonkit-sxflo.testnet | ok |
+| [nqMmhGWQ…](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) | dorm-b-ck.sputnikv2.testnet#10 DEMO OVERRIDE washer-01: period_reward_quota 2, filter_clean threshold 1 (quota demo; restored below) | ozan.dorm-b.commonkit-sxflo.testnet | ok |
+| [GvykqdCm…](https://testnet.nearblocks.io/txns/GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino) | makerlab-ck.sputnikv2.testnet#12 DEMO OVERRIDE printer-01: bed_level threshold 1 job so one rule is due for the duplicate-task attempt (restored below) | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [PQct6RW7…](https://testnet.nearblocks.io/txns/PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt) | makerlab-ck.sputnikv2.testnet#12 DEMO OVERRIDE printer-01: bed_level threshold 1 job so one rule is due for the duplicate-task attempt (restored below) | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [G8Vb1fTc…](https://testnet.nearblocks.io/txns/G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF) | makerlab-ck.sputnikv2.testnet#12 DEMO OVERRIDE printer-01: bed_level threshold 1 job so one rule is due for the duplicate-task attempt (restored below) | burak.makerlab.commonkit-sxflo.testnet | ok |
+| [FmDVLwMZ…](https://testnet.nearblocks.io/txns/FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6) | makerlab-ck.sputnikv2.testnet#13 set_operators laser-01: agent revoked (agent_id = null); restored below | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [GDwFcx8W…](https://testnet.nearblocks.io/txns/GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq) | makerlab-ck.sputnikv2.testnet#13 set_operators laser-01: agent revoked (agent_id = null); restored below | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [621S7Ry7…](https://testnet.nearblocks.io/txns/621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ) | makerlab-ck.sputnikv2.testnet#13 set_operators laser-01: agent revoked (agent_id = null); restored below | burak.makerlab.commonkit-sxflo.testnet | ok |
+| [AZ8F2GoD…](https://testnet.nearblocks.io/txns/AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz) | makerlab-ck.sputnikv2.testnet#14 set_operators laser-01: restore bridge + agent after the revocation demo | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [4fuwk6rL…](https://testnet.nearblocks.io/txns/4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6) | makerlab-ck.sputnikv2.testnet#14 set_operators laser-01: restore bridge + agent after the revocation demo | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [8gn7Tw8b…](https://testnet.nearblocks.io/txns/8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4) | makerlab-ck.sputnikv2.testnet#14 set_operators laser-01: restore bridge + agent after the revocation demo | burak.makerlab.commonkit-sxflo.testnet | ok |
+| [4YA4vH9f…](https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw) | dorm-b-ck.sputnikv2.testnet#11 restore washer-01 profile after the quota demo | nil.dorm-b.commonkit-sxflo.testnet | ok |
+| [Ew52ujzR…](https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26) | dorm-b-ck.sputnikv2.testnet#11 restore washer-01 profile after the quota demo | nil.dorm-b.commonkit-sxflo.testnet | ok |
+| [2tbnLVXm…](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) | dorm-b-ck.sputnikv2.testnet#11 restore washer-01 profile after the quota demo | ozan.dorm-b.commonkit-sxflo.testnet | ok |
+| [946wLUkg…](https://testnet.nearblocks.io/txns/946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f) | makerlab-ck.sputnikv2.testnet#15 restore printer-01 profile (bed_level threshold) after the duplicate-task demo | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [57HaCMJ9…](https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX) | makerlab-ck.sputnikv2.testnet#15 restore printer-01 profile (bed_level threshold) after the duplicate-task demo | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [DPWHpngq…](https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1) | makerlab-ck.sputnikv2.testnet#15 restore printer-01 profile (bed_level threshold) after the duplicate-task demo | burak.makerlab.commonkit-sxflo.testnet | ok |
+| [CeKXhvUM…](https://testnet.nearblocks.io/txns/CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j) | agent key: rule_not_due_metric (E_RULE_NOT_DUE) | agent.commonkit-sxflo.testnet | failed (see tx) |
+| [E5z6dYSt…](https://testnet.nearblocks.io/txns/E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg) | agent key: rule_not_due_schedule (E_RULE_NOT_DUE) | agent.commonkit-sxflo.testnet | failed (see tx) |
+| [2pTH2ej1…](https://testnet.nearblocks.io/txns/2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a) | agent key: task_already_open (E_TASK_ALREADY_OPEN) | agent.commonkit-sxflo.testnet | failed (see tx) |
+| [BpuNwpok…](https://testnet.nearblocks.io/txns/BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod) | agent key: quota_exceeded (E_QUOTA_EXCEEDED) | agent.commonkit-sxflo.testnet | failed (see tx) |
+| [4LTTFcJq…](https://testnet.nearblocks.io/txns/4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc) | agent key: not_agent_after_revocation (E_NOT_AGENT) | agent.commonkit-sxflo.testnet | failed (see tx) |
+
+## Demo overrides (`evidence/demo-overrides.json`)
+
+Every value changed for the demo went through a DAO proposal. **live** = still in force on chain.
+
+| When (UTC) | Step | Asset | Change | Proposal | Txs |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 2026-11-10 05:13:46 | 1 | printer-01 | demo override nozzle_clean 1800 (production 720000) **live** | makerlab-ck.sputnikv2.testnet#9 | [HBnxKomp…](https://testnet.nearblocks.io/txns/HBnxKompVkzckacs3GcUEUz2N7y3kTcsfU83dFunvkYL) [GvGnSMRX…](https://testnet.nearblocks.io/txns/GvGnSMRXCGhtxzeYrV8vDZb5tebayjR8gSCxH4fQVLmG) [At6SwzzV…](https://testnet.nearblocks.io/txns/At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA) |
+| 2026-11-10 05:35:10 | 16 | washer-01 | demo override filter_clean 1 (production 30) | dorm-b-ck.sputnikv2.testnet#10 | [C8JkikXo…](https://testnet.nearblocks.io/txns/C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed) [2rCeE2M1…](https://testnet.nearblocks.io/txns/2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG) [nqMmhGWQ…](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) |
+| 2026-11-10 05:35:10 | 16 | washer-01 | demo override period_reward_quota 2 (production 12) | dorm-b-ck.sputnikv2.testnet#10 | [C8JkikXo…](https://testnet.nearblocks.io/txns/C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed) [2rCeE2M1…](https://testnet.nearblocks.io/txns/2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG) [nqMmhGWQ…](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) |
+| 2026-11-10 05:35:24 | 16 | printer-01 | demo override bed_level 1 (production 50) | makerlab-ck.sputnikv2.testnet#12 | [GvykqdCm…](https://testnet.nearblocks.io/txns/GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino) [PQct6RW7…](https://testnet.nearblocks.io/txns/PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt) [G8Vb1fTc…](https://testnet.nearblocks.io/txns/G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF) |
+| 2026-11-10 05:35:39 | 16 | laser-01 | demo override agent_id null (production agent.commonkit-sxflo.testnet) | makerlab-ck.sputnikv2.testnet#13 | [FmDVLwMZ…](https://testnet.nearblocks.io/txns/FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6) [GDwFcx8W…](https://testnet.nearblocks.io/txns/GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq) [621S7Ry7…](https://testnet.nearblocks.io/txns/621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ) |
+| 2026-11-10 05:36:20 | 16 | laser-01 | restore agent_id agent.commonkit-sxflo.testnet (production agent.commonkit-sxflo.testnet) | makerlab-ck.sputnikv2.testnet#14 | [AZ8F2GoD…](https://testnet.nearblocks.io/txns/AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz) [4fuwk6rL…](https://testnet.nearblocks.io/txns/4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6) [8gn7Tw8b…](https://testnet.nearblocks.io/txns/8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4) |
+| 2026-11-10 05:36:33 | 16 | washer-01 | restore filter_clean 30 (production 30) | dorm-b-ck.sputnikv2.testnet#11 | [4YA4vH9f…](https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw) [Ew52ujzR…](https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26) [2tbnLVXm…](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) |
+| 2026-11-10 05:36:33 | 16 | washer-01 | restore period_reward_quota 12 (production 12) | dorm-b-ck.sputnikv2.testnet#11 | [4YA4vH9f…](https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw) [Ew52ujzR…](https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26) [2tbnLVXm…](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) |
+| 2026-11-10 05:36:47 | 16 | printer-01 | restore bed_level 50 (production 50) | makerlab-ck.sputnikv2.testnet#15 | [946wLUkg…](https://testnet.nearblocks.io/txns/946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f) [57HaCMJ9…](https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX) [DPWHpngq…](https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1) |
+
+## Agent limits (`evidence/agent-limits.json`)
+
+✅ every limit held · 2026-11-10 05:36:18 UTC · chain near
+
+| Attempt | Expected | Got | Tx |
+| :--- | :--- | :--- | :--- |
+| ✅ Open a task for a rule whose delta < threshold | E_RULE_NOT_DUE | E_RULE_NOT_DUE | [CeKXhvUM…](https://testnet.nearblocks.io/txns/CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j) |
+| ✅ Open a task for a Schedule rule before every_hours have passed | E_RULE_NOT_DUE | E_RULE_NOT_DUE | [E5z6dYSt…](https://testnet.nearblocks.io/txns/E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg) |
+| ✅ Open a second task for the same rule | E_TASK_ALREADY_OPEN | E_TASK_ALREADY_OPEN | [2pTH2ej1…](https://testnet.nearblocks.io/txns/2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a) |
+| ✅ Exceed the period quota | E_QUOTA_EXCEEDED | E_QUOTA_EXCEEDED | [BpuNwpok…](https://testnet.nearblocks.io/txns/BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod) |
+| ✅ Call approve_task | E_MISSING_ROLE / E_SELF_VERIFY / PROTOCOL:MethodNameMismatch | PROTOCOL:MethodNameMismatch | — (refused before execution) |
+| ✅ Attach deposit with its function-call key (e.g. fund_float) | PROTOCOL:DepositWithFunctionCall | PROTOCOL:DepositWithFunctionCall | — (refused before execution) |
+| ✅ Use the key after the DAO calls set_operators(agent_id=None) | E_NOT_AGENT | E_NOT_AGENT | [4LTTFcJq…](https://testnet.nearblocks.io/txns/4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc) |
 
 ## funding
 

@@ -39,17 +39,20 @@ export const step16: DemoStep = {
     if (!ctx.own('limits_done')) {
       // 1. Preconditions through the DAOs (labelled demo overrides).
       if ((await washer.profile()).period_reward_quota !== WASHER_QUOTA_OVERRIDE)
-        await gov.call(cast.dormB, `DEMO OVERRIDE washer-01: period_reward_quota ${WASHER_QUOTA_OVERRIDE}, filter_clean threshold 1 (quota demo; restored below)`, cast.washer, op({
+        await gov.override(cast.dormB, cast.washer, op({
           ...withRule(washerFile, 'filter_clean', { trigger: { Metric: { metric: 'cycles', threshold: 1 } } }),
           period_reward_quota: WASHER_QUOTA_OVERRIDE,
-        }));
+        }), [
+          { kind: 'override', rule_id: 'filter_clean', value: 1, production: metricThreshold(washerFile, 'filter_clean')! },
+          { kind: 'override', rule_id: 'period_reward_quota', value: WASHER_QUOTA_OVERRIDE, production: washerFile.period_reward_quota },
+        ], 'quota demo (restored after the limits run)');
       const bed = await printer.rule('bed_level');
       if (bed.open_task === null && metricThreshold(await printer.profile(), 'bed_level') !== BED_LEVEL_OVERRIDE)
-        await gov.call(cast.makerlab, `DEMO OVERRIDE printer-01: bed_level threshold ${BED_LEVEL_OVERRIDE} job so one rule is due for the duplicate-task attempt (restored below)`, cast.printer, op(
+        await gov.override(cast.makerlab, cast.printer, op(
           withRule(printerDemoProfile(), 'bed_level', { trigger: { Metric: { metric: 'jobs_total', threshold: BED_LEVEL_OVERRIDE } } }),
-        ));
+        ), [{ kind: 'override', rule_id: 'bed_level', value: BED_LEVEL_OVERRIDE, production: metricThreshold(printerDemoProfile(), 'bed_level')! }], 'one rule due for the duplicate-task attempt (restored after the limits run)');
       if ((await laser.wiring()).agent_id !== null)
-        await gov.call(cast.makerlab, 'set_operators laser-01: agent revoked (agent_id = null); restored below', cast.laser, ops(cast.bridge, null));
+        await gov.override(cast.makerlab, cast.laser, ops(cast.bridge, null), [{ kind: 'override', rule_id: 'agent_id', value: 'null', production: cast.agent }], 'agent revoked for the E_NOT_AGENT attempt (restored after the limits run)');
 
       // 2. The agent's own limits script with its function-call keys (writes evidence/agent-limits.json).
       console.log('  running agent/src/limits-demo.ts --chain near --send-testnet-transactions');
@@ -61,11 +64,14 @@ export const step16: DemoStep = {
 
     // 3. Restore everything the overrides changed (each through the DAO again).
     if ((await laser.wiring()).agent_id !== cast.agent)
-      await gov.call(cast.makerlab, 'set_operators laser-01: restore bridge + agent after the revocation demo', cast.laser, ops(cast.bridge, cast.agent));
+      await gov.override(cast.makerlab, cast.laser, ops(cast.bridge, cast.agent), [{ kind: 'restore', rule_id: 'agent_id', value: cast.agent, production: cast.agent }], 'after the revocation demo');
     if ((await washer.profile()).period_reward_quota !== washerFile.period_reward_quota)
-      await gov.call(cast.dormB, 'restore washer-01 profile after the quota demo', cast.washer, op(washerFile));
+      await gov.override(cast.dormB, cast.washer, op(washerFile), [
+        { kind: 'restore', rule_id: 'filter_clean', value: metricThreshold(washerFile, 'filter_clean')!, production: metricThreshold(washerFile, 'filter_clean')! },
+        { kind: 'restore', rule_id: 'period_reward_quota', value: washerFile.period_reward_quota, production: washerFile.period_reward_quota },
+      ], 'after the quota demo');
     if (metricThreshold(await printer.profile(), 'bed_level') !== metricThreshold(printerDemoProfile(), 'bed_level'))
-      await gov.call(cast.makerlab, 'restore printer-01 profile (bed_level threshold) after the duplicate-task demo', cast.printer, op(printerDemoProfile()));
+      await gov.override(cast.makerlab, cast.printer, op(printerDemoProfile()), [{ kind: 'restore', rule_id: 'bed_level', value: metricThreshold(printerDemoProfile(), 'bed_level')!, production: metricThreshold(printerDemoProfile(), 'bed_level')! }], 'after the duplicate-task demo');
 
     // 4. Assertions from the agent's report.
     const path = join(EVIDENCE_DIR, 'agent-limits.json');

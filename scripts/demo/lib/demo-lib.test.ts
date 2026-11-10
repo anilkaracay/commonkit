@@ -13,6 +13,7 @@ import { nep413Hash, serializeNep413, signNep413 } from './nep413.js';
 import { StepRecorder, protocolCode, readSteps, upsertStep } from './record.js';
 import { NS_PER_MIN, pickFutureSlot, pickUsableSlot, reservationCost, slotsToExceedCap } from './slots.js';
 import type { Profile } from './views.js';
+import { activeOverrides, overrideLabel, readOverrides, recordOverride } from './overrides.js';
 import type { TxResult } from '../../lib/near.js';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -166,5 +167,20 @@ describe('step recorder and evidence', () => {
     const md = renderEvidence({ steps: [r.finish()], logs: {}, limits: null, pilotFunding: null });
     expect(md).toContain('| 4 | Can is refused ★ (simulation) | ✅ | — (refused by the bridge) |');
     expect(md).toContain('1 of 21 steps passed');
+  });
+});
+
+describe('demo overrides evidence', () => {
+  it('labels overrides as the web expects and tracks what is still live', () => {
+    expect(overrideLabel('bed_level', 1, 50)).toBe('demo override bed_level 1 (production 50)');
+    const path = join(mkdtempSync(join(tmpdir(), 'ck-ovr-')), 'o.json');
+    const base = { step: 16, asset: 'printer-01.x.testnet', rule_id: 'bed_level', value: '1', production: '50', tx_hashes: ['H'] };
+    recordOverride({ ...base, kind: 'override', proposal: 'd#12', at: '2026-11-10T05:00:00Z' }, path);
+    recordOverride({ ...base, kind: 'override', proposal: 'd#12', at: '2026-11-10T05:00:00Z' }, path);
+    expect(readOverrides(path)).toHaveLength(1);
+    expect(activeOverrides(readOverrides(path))).toHaveLength(1);
+    recordOverride({ ...base, kind: 'restore', value: '50', proposal: 'd#15', at: '2026-11-10T05:10:00Z' }, path);
+    expect(activeOverrides(readOverrides(path))).toHaveLength(0);
+    expect(readOverrides(path)[1]!.label).toBe('restore bed_level 50 (production 50)');
   });
 });

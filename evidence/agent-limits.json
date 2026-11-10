@@ -1,0 +1,211 @@
+{
+  "kind": "commonkit-agent-limits",
+  "generated_at": "2026-11-10T05:36:18.195Z",
+  "network": "testnet",
+  "chain": "near",
+  "simulated": false,
+  "agent_account": "agent.commonkit-sxflo.testnet",
+  "attempts": [
+    {
+      "id": "rule_not_due_metric",
+      "spec": "Open a task for a rule whose delta < threshold",
+      "asset_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "method": "open_upkeep_task",
+      "args": {
+        "rule_id": "nozzle_clean",
+        "rationale": "Limits demo: the agent tries to open this task although the contract must refuse it."
+      },
+      "expected": [
+        "E_RULE_NOT_DUE"
+      ],
+      "context": {
+        "rule_id": "nozzle_clean",
+        "kind": "Maintenance",
+        "trigger": {
+          "type": "Metric",
+          "metric": "nozzle_seconds",
+          "threshold": "1800"
+        },
+        "current": "15600",
+        "baseline": "15600",
+        "due_value": "0",
+        "due": false,
+        "next_due_estimate": null,
+        "open_task": null
+      },
+      "status": "rejected",
+      "code": "E_RULE_NOT_DUE",
+      "error": "transaction CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j failed (E_RULE_NOT_DUE): {\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_RULE_NOT_DUE: the rule's trigger has not fired\"}}}}",
+      "tx_hash": "CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j",
+      "pass": true
+    },
+    {
+      "id": "rule_not_due_schedule",
+      "spec": "Open a task for a Schedule rule before every_hours have passed",
+      "asset_id": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+      "method": "open_upkeep_task",
+      "args": {
+        "rule_id": "weekly_clean",
+        "rationale": "Limits demo: the agent tries to open this task although the contract must refuse it."
+      },
+      "expected": [
+        "E_RULE_NOT_DUE"
+      ],
+      "context": {
+        "rule_id": "weekly_clean",
+        "kind": "Cleaning",
+        "trigger": {
+          "type": "Schedule",
+          "everyHours": 168
+        },
+        "current": "0",
+        "baseline": "1794286046062014543",
+        "due_value": "0",
+        "due": false,
+        "next_due_estimate": "1794890846062014543",
+        "open_task": null,
+        "chain_time_ns": "1794288955037276074"
+      },
+      "status": "rejected",
+      "code": "E_RULE_NOT_DUE",
+      "error": "transaction E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg failed (E_RULE_NOT_DUE): {\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_RULE_NOT_DUE: the rule's trigger has not fired\"}}}}",
+      "tx_hash": "E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg",
+      "pass": true
+    },
+    {
+      "id": "task_already_open",
+      "spec": "Open a second task for the same rule",
+      "asset_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "method": "open_upkeep_task",
+      "args": {
+        "rule_id": "bed_level",
+        "rationale": "Limits demo: the agent tries to open this task although the contract must refuse it."
+      },
+      "expected": [
+        "E_TASK_ALREADY_OPEN"
+      ],
+      "context": {
+        "rule_id": "bed_level",
+        "kind": "Maintenance",
+        "trigger": {
+          "type": "Metric",
+          "metric": "jobs_total",
+          "threshold": "1"
+        },
+        "current": "13",
+        "baseline": "0",
+        "due_value": "13",
+        "due": true,
+        "next_due_estimate": null,
+        "open_task": "1",
+        "setup_task_id": "1",
+        "setup_tx_hash": "6X1Viak4QjVvYZQXTncF7hzktiMuLvdJAKv6Fb84EWzv"
+      },
+      "status": "rejected",
+      "code": "E_TASK_ALREADY_OPEN",
+      "error": "transaction 2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a failed (E_TASK_ALREADY_OPEN): {\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_TASK_ALREADY_OPEN: rule already has an open task\"}}}}",
+      "tx_hash": "2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a",
+      "pass": true
+    },
+    {
+      "id": "quota_exceeded",
+      "spec": "Exceed the period quota",
+      "asset_id": "washer-01.dorm-b.commonkit-sxflo.testnet",
+      "method": "open_upkeep_task",
+      "args": {
+        "rule_id": "filter_clean",
+        "rationale": "Limits demo: the agent tries to open this task although the contract must refuse it."
+      },
+      "expected": [
+        "E_QUOTA_EXCEEDED"
+      ],
+      "context": {
+        "rule_id": "filter_clean",
+        "kind": "Cleaning",
+        "trigger": {
+          "type": "Metric",
+          "metric": "cycles",
+          "threshold": "1"
+        },
+        "current": "28",
+        "baseline": "0",
+        "due_value": "28",
+        "due": true,
+        "next_due_estimate": null,
+        "open_task": null,
+        "rights_minted": 0,
+        "rights_reserved": 0,
+        "reward_rights": 3,
+        "quota": 2
+      },
+      "status": "rejected",
+      "code": "E_QUOTA_EXCEEDED",
+      "error": "transaction BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod failed (E_QUOTA_EXCEEDED): {\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_QUOTA_EXCEEDED: period reward quota reached\"}}}}",
+      "tx_hash": "BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod",
+      "pass": true
+    },
+    {
+      "id": "approve_task",
+      "spec": "Call approve_task",
+      "asset_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "method": "approve_task",
+      "args": {
+        "task_id": "1"
+      },
+      "expected": [
+        "E_MISSING_ROLE",
+        "E_SELF_VERIFY",
+        "PROTOCOL:MethodNameMismatch"
+      ],
+      "context": {},
+      "status": "rejected",
+      "code": "PROTOCOL:MethodNameMismatch",
+      "error": "transaction 7duVNLQtC6VUuYCyiPmtbtK77gMcWVfDwEykjkYauCd1 rejected before execution: {\"name\":\"HANDLER_ERROR\",\"cause\":{\"info\":{},\"name\":\"INVALID_TRANSACTION\"},\"code\":-32000,\"message\":\"Server error\",\"data\":{\"TxExecutionError\":{\"InvalidTxError\":{\"InvalidAccessKeyError\":{\"MethodNameMismatch\":{\"method_name\":\"approve_task\"}}}}}}",
+      "tx_hash": null,
+      "pass": true
+    },
+    {
+      "id": "deposit_with_function_call_key",
+      "spec": "Attach deposit with its function-call key (e.g. fund_float)",
+      "asset_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "method": "fund_float",
+      "args": {
+        "deposit_yocto": "1"
+      },
+      "expected": [
+        "PROTOCOL:DepositWithFunctionCall"
+      ],
+      "context": {
+        "float_free_before": "3000000000000000000000000",
+        "float_free_after": "3000000000000000000000000"
+      },
+      "status": "rejected",
+      "code": "PROTOCOL:DepositWithFunctionCall",
+      "error": "transaction HH473d8xUHtrwSfJaEPg7Giwfg8XgKTj1Jj4DNXYbjfz rejected before execution: {\"name\":\"HANDLER_ERROR\",\"cause\":{\"info\":{},\"name\":\"INVALID_TRANSACTION\"},\"code\":-32000,\"message\":\"Server error\",\"data\":{\"TxExecutionError\":{\"InvalidTxError\":{\"InvalidAccessKeyError\":\"DepositWithFunctionCall\"}}}}",
+      "tx_hash": null,
+      "pass": true
+    },
+    {
+      "id": "not_agent_after_revocation",
+      "spec": "Use the key after the DAO calls set_operators(agent_id=None)",
+      "asset_id": "laser-01.makerlab.commonkit-sxflo.testnet",
+      "method": "open_upkeep_task",
+      "args": {
+        "rule_id": "lens_clean",
+        "rationale": "Limits demo: the agent tries to open this task although the contract must refuse it."
+      },
+      "expected": [
+        "E_NOT_AGENT"
+      ],
+      "context": {
+        "agent_id_on_chain": null
+      },
+      "status": "rejected",
+      "code": "E_NOT_AGENT",
+      "error": "transaction 4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc failed (E_NOT_AGENT): {\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_NOT_AGENT: caller is not the agent or a council member\"}}}}",
+      "tx_hash": "4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc",
+      "pass": true
+    }
+  ],
+  "all_passed": true
+}

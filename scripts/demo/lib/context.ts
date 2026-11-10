@@ -23,8 +23,10 @@ export interface CallOpts {
 /** D-214 recommended attached gas per method (Tgas). Reward-starting methods need ≥ 125. */
 export const GAS: Record<string, bigint> = {
   reserve: 120n,
-  cancel_reservation: 60n,
-  mark_no_show: 60n,
+  // D-214 says 60, but with a right the call schedules a Refund op and a RightRelease op, each with
+  // its callback: 60 Tgas ran out on testnet (tx 2vYsjK98…, D-756). 150 leaves room for both.
+  cancel_reservation: 150n,
+  mark_no_show: 150n,
   confirm_return: 60n,
   claim_fee_refund: 60n,
   retry_op: 60n,

@@ -7,6 +7,7 @@ import type { DemoStep } from '../lib/runner.js';
 const FLOAT = nearToYocto('2'); // D-021: printer demo float 2 NEAR (cap 3)
 /** profiles/printer_3d.json meta.pilot_overrides.nozzle_clean (demo override; real value 720 000 s). */
 const NOZZLE_DEMO_THRESHOLD = 1800;
+const PRODUCTION_NOZZLE = 720_000;
 
 /** printer-01 profile for the demo: the file profile with the nozzle_clean demo override. */
 export function printerDemoProfile() {
@@ -45,12 +46,10 @@ export const step01: DemoStep = {
     if (actions.length) {
       if (actions.some((x) => x.method_name === 'fund_float')) await gov.ensureTreasury(c, FLOAT);
       daoBefore = await ctx.balance(c.dao);
-      await gov.call(
-        c,
-        `printer-01 profile (demo override nozzle_clean ${NOZZLE_DEMO_THRESHOLD} s, from the profile's pilot_overrides) + fund_float ${near(FLOAT)}`,
-        printer,
-        actions,
-      );
+      const why = `printer-01 profile (nozzle_clean from the profile's pilot_overrides) + fund_float ${near(FLOAT)}`;
+      if (actions.some((x) => x.method_name === 'set_profile'))
+        await gov.override(c, printer, actions, [{ kind: 'override', rule_id: 'nozzle_clean', value: NOZZLE_DEMO_THRESHOLD, production: PRODUCTION_NOZZLE }], why);
+      else await gov.call(c, why, printer, actions);
     } else ctx.rec.note('profile and float were already set (earlier attempt); not proposed again');
 
     const [reg2, p2, l2, wiring] = await Promise.all([commons.asset(printer), a.profile(), a.ledger(), a.wiring()]);

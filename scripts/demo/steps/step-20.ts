@@ -1,5 +1,5 @@
 import { TGAS } from '../../lib/config.js';
-import { withRule } from '../lib/actions.js';
+import { fileProfile, withRule } from '../lib/actions.js';
 import { runAgentUntil } from '../lib/agent.js';
 import type { DemoContext } from '../lib/context.js';
 import type { DemoStep } from '../lib/runner.js';
@@ -31,9 +31,9 @@ export const step20: DemoStep = {
     }
     if ((await every()) !== DEMO_INTERVAL_H) {
       const p = await a.profile();
-      await gov.call(cast.dormB, `DEMO OVERRIDE fridge-01: weekly_clean every ${DEMO_INTERVAL_H} h (D-018; real 168 h, covered by sandbox test inv_schedule_rule_due_only_after_interval)`, f, [
+      await gov.override(cast.dormB, f, [
         { method_name: 'set_profile', args: { profile: withRule(p, 'weekly_clean', { trigger: { Schedule: { every_hours: DEMO_INTERVAL_H } } }) }, gas: 30n * TGAS },
-      ]);
+      ], [{ kind: 'override', rule_id: 'weekly_clean', value: `${DEMO_INTERVAL_H}h`, production: `${fileProfile('fridge-01').rules.find((r) => r.rule_id === 'weekly_clean')?.trigger.Schedule?.every_hours}h` }], 'D-018: testnet time cannot be fast-forwarded; 168 h covered by sandbox test inv_schedule_rule_due_only_after_interval');
     }
     let taskId = ctx.own('task_id') ?? (await a.rule('weekly_clean')).open_task;
     if (!taskId) {

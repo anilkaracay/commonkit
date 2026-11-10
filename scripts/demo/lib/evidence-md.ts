@@ -7,6 +7,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { EVIDENCE_DIR, explorerTx } from '../../lib/config.js';
 import type { TxRecord } from '../../lib/evidence.js';
+import { activeOverrides, readOverrides, type OverrideEntry } from './overrides.js';
 import { readSteps, type DemoStepRecord } from './record.js';
 
 export const TOTAL_STEPS = 21;
@@ -45,6 +46,7 @@ export interface EvidenceInputs {
   logs: Record<string, TxRecord[]>;
   limits: LimitsReport | null;
   pilotFunding: FundingEntry[] | null;
+  overrides?: OverrideEntry[];
 }
 
 /** Pure: the whole page. */
@@ -70,6 +72,7 @@ export function renderEvidence(inp: EvidenceInputs): string {
     }
     for (const s of inp.steps) L.push(...stepDetail(s));
   }
+  if (inp.overrides?.length) L.push(...overridesSection(inp.overrides));
   if (inp.limits) L.push(...limitsSection(inp.limits));
   if (inp.pilotFunding?.length) L.push(...fundingSection(inp.pilotFunding));
   for (const [name, records] of Object.entries(inp.logs)) L.push(...logSection(name, records));
@@ -101,6 +104,14 @@ function limitsSection(r: LimitsReport): string[] {
   return L;
 }
 
+function overridesSection(all: OverrideEntry[]): string[] {
+  const live = new Set(activeOverrides(all));
+  const L = ['', '## Demo overrides (`evidence/demo-overrides.json`)', '', 'Every value changed for the demo went through a DAO proposal. **live** = still in force on chain.', '', '| When (UTC) | Step | Asset | Change | Proposal | Txs |', '| :--- | :--- | :--- | :--- | :--- | :--- |'];
+  for (const e of all)
+    L.push(`| ${e.at.slice(0, 19).replace('T', ' ')} | ${e.step} | ${e.asset.split('.')[0]} | ${cell(e.label)}${live.has(e) ? ' **live**' : ''} | ${e.proposal} | ${e.tx_hashes.map(short).join(' ')} |`);
+  return L;
+}
+
 function fundingSection(rows: FundingEntry[]): string[] {
   const L = ['', '## Pilot funding (`evidence/pilot-funding.json`)', '', '| When (UTC) | Account | NEAR | Tx |', '| :--- | :--- | :--- | :--- |'];
   for (const r of rows) L.push(`| ${r.at.slice(0, 19).replace('T', ' ')} | ${r.account_id} | ${r.amount_near} | ${short(r.tx)} ${r.ok ? '✅' : '❌'} |`);
@@ -127,6 +138,7 @@ export function loadEvidenceInputs(dir = EVIDENCE_DIR): EvidenceInputs {
     logs,
     limits: readJson<LimitsReport>(join(dir, 'agent-limits.json')),
     pilotFunding: readJson<FundingEntry[]>(join(dir, 'pilot-funding.json')),
+    overrides: readOverrides(join(dir, 'demo-overrides.json')),
   };
 }
 

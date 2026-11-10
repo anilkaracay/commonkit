@@ -26,7 +26,7 @@ export async function housekeeping(chain: Chain, cast: Cast): Promise<void> {
         if (r.status !== 'Confirmed' || now <= windowEnd) continue;
         log.add(
           `mark_no_show ${assetId.split('.')[0]} reservation ${r.id} (${holder.split('.')[0]}, unused demo booking)`,
-          await chain.call(cast.root, assetId, 'mark_no_show', { id: r.id }, { gas: 60n * TGAS }),
+          await chain.call(cast.root, assetId, 'mark_no_show', { id: r.id }, { gas: 150n * TGAS }),
         );
       }
   }
