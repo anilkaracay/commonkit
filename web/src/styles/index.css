@@ -2,8 +2,9 @@
 /* One design system for landing and app (D-030): tokens, fonts, base, components, Tailwind theme. */
 @import '@commonkit/design/tokens.css';
 @import '@commonkit/design/fonts.css';
-@import '@commonkit/design/base.css';
-@import '@commonkit/design/components.css';
+/* Layered so Tailwind utilities can refine them (unlayered CSS would beat every utility). */
+@import '@commonkit/design/base.css' layer(base);
+@import '@commonkit/design/components.css' layer(components);
 @import '@commonkit/design/tailwind.css';
 
 /* App-only knobs: ?demo=1 enlarges key numbers so they read on a phone recording. */
@@ -70,7 +71,6 @@
   /* Key numbers grow in ?demo=1. */
   .key-num {
     font-size: calc(var(--key-base, 1.5rem) * var(--ck-key-scale));
-    font-variant-numeric: tabular-nums;
   }
   .mono-id {
     font-family: var(--ck-font-mono);

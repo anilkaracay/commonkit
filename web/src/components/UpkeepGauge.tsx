@@ -57,7 +57,7 @@ export function UpkeepGauge({ rules, ruleDefs, size = 168 }: { rules: RuleStatus
           />
         )}
       </svg>
-      <figcaption className="absolute inset-0 flex flex-col items-center justify-center px-[14%] text-center">
+      <figcaption className="absolute inset-0 flex -translate-y-[4%] flex-col items-center justify-center px-[16%] text-center">
         {due ? (
           <span className="key-num display leading-none text-due" style={{ ['--key-base' as string]: `${size / 150}rem` }}>
             Due now
@@ -69,7 +69,7 @@ export function UpkeepGauge({ rules, ruleDefs, size = 168 }: { rules: RuleStatus
         )}
         <span className={`mt-1.5 leading-tight text-text-3 ${due ? 'line-clamp-3 text-[11px]' : 'line-clamp-2 text-xs'}`}>{label}</span>
       </figcaption>
-      <p className="absolute inset-x-0 top-full mt-2 line-clamp-2 text-center text-sm leading-snug font-medium text-text-2" title={title}>
+      <p className="absolute inset-x-[20%] bottom-0 line-clamp-2 text-center text-xs leading-snug font-medium text-text-2" title={title}>
         {title}
       </p>
     </figure>
@@ -87,14 +87,14 @@ export function RuleBars({ rules, ruleDefs, demo }: { rules: RuleStatus[]; ruleD
         const d = demo?.get(rule.rule_id);
         return (
           <li key={rule.rule_id} className="py-3.5 first:pt-0 last:pb-0">
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="flex min-w-0 items-center gap-2 font-medium">
-                <span className="text-slate-400">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+              <span className="flex min-w-0 items-start gap-2 font-medium">
+                <span className="mt-1 text-slate-400">
                   <KindIcon kind={rule.kind} />
                 </span>
                 {def?.title ?? rule.rule_id}
               </span>
-              <span className="num min-w-0 text-right text-sm break-words text-text-2">
+              <span className="num ml-auto text-sm whitespace-nowrap text-text-2">
                 {p.bare(p.used)} / {p.format(p.threshold)}
               </span>
             </div>

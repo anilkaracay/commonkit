@@ -7,7 +7,7 @@ import { useDataSource } from '../data/source';
 import { CardTile } from '../components/CardTile';
 import { Mark, SimulatedBadge } from '../components/Badges';
 import { taskTone } from '../components/TaskRow';
-import { LoadError, Loading, Section } from '../components/Section';
+import { Empty, LoadError, Loading, Section } from '../components/Section';
 import { WalletGate } from '../components/WalletGate';
 import { Account, TxLink } from '../components/TxLink';
 import { useDemoLink } from '../demo/demo';
@@ -53,7 +53,8 @@ export function TaskPage() {
   const s = q.data;
   const rule = s.profile.rules.find((r) => r.rule_id === task.rule_id);
   const status = s.rules.find((r) => r.rule_id === task.rule_id);
-  const sim = s.profile.adapter === 'simulator';
+  // D-022: every testnet asset is simulated (emulated device or simulator).
+  const sim = s.profile.adapter === 'simulator' || !!dep.data?.assets.find((a) => a.asset_id === assetId)?.simulated;
   const progress = status ? ruleProgress(status) : null;
   const alias = dep.data?.assets.find((a) => a.asset_id === assetId)?.alias ?? assetId;
 
@@ -87,7 +88,7 @@ export function TaskPage() {
 
       <figure className="border-l-2 border-due-fill pl-5 sm:pl-6">
         <figcaption className="text-sm text-text-3">Why the machine asked</figcaption>
-        <blockquote className="mt-2 max-w-3xl text-xl leading-snug tracking-tight sm:text-[22px]">{task.rationale}</blockquote>
+        <blockquote className="mt-2 max-w-3xl text-lg leading-snug tracking-tight sm:text-[22px]">{task.rationale}</blockquote>
         <p className="mt-3">
           <TxLink hash={ds.rowTx(`task-${alias}-${task.id}`)} label="task_opened tx" />
         </p>
@@ -144,6 +145,8 @@ export function TaskPage() {
 
       {task.minted_right_ids.length > 0 && (
         <Section title="Cards earned" note="Non-transferable. Nobody can take them back.">
+          {cards.isLoading && <Loading what="cards" />}
+          {cards.data?.length === 0 && <Empty>The minted cards are no longer listed for this member.</Empty>}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {(cards.data ?? []).map((c) => (
               <CardTile key={c.token_id} card={c} simulated={sim} />

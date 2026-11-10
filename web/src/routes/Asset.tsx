@@ -155,7 +155,7 @@ export function AssetPage() {
 
       <Section title="Upkeep" note={`Profile v${s.wiring.profile_version} · the rule closest to its trigger, then every rule`}>
         <div className="panel grid gap-10 p-5 pb-6 sm:p-8 md:grid-cols-[220px_minmax(0,1fr)] md:items-center md:gap-12">
-          <div className="flex justify-center pb-12">
+          <div className="flex justify-center">
             <UpkeepGauge rules={s.rules} ruleDefs={s.profile.rules} size={196} />
           </div>
           <RuleBars rules={s.rules} ruleDefs={s.profile.rules} demo={demo} />
@@ -180,7 +180,7 @@ export function AssetPage() {
       </div>
 
       <Section title="Telemetry" note={`${s.telemetry.reports} reports from the bridge · updated ${formatAgo(s.telemetry.updated_at, now)} · counters only go up`}>
-        <dl className="panel grid grid-cols-2 overflow-hidden sm:grid-cols-3 lg:grid-cols-6">
+        <dl className="panel grid overflow-hidden" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
           {s.telemetry.metrics.map(([m, v]) => (
             <div key={m} className="min-w-0 p-5 shadow-[inset_-1px_-1px_0_var(--ck-line)]">
               <dt className="truncate text-sm text-text-3">{metricLabel(m)}</dt>
@@ -205,7 +205,8 @@ export function AssetPage() {
       {(s.faults.some((f) => f.reports.length > 0) || s.serviceLog.length > 0) && (
         <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
           <Section title="Fault reports" note="From members who used it in the last 14 days">
-            <ul className="panel divide-y divide-line">
+            {!s.faults.some((f) => f.reports.length > 0) && <Empty>No active fault reports.</Empty>}
+            <ul className="panel divide-y divide-line empty:hidden">
               {s.faults.flatMap((f) =>
                 f.reports.map((r) => (
                   <li key={`${f.rule_id}-${r.reporter}`} className="px-5 py-4 text-sm">
@@ -217,7 +218,8 @@ export function AssetPage() {
             </ul>
           </Section>
           <Section title="Service log" note="Out-of-service periods">
-            <ul className="panel divide-y divide-line">
+            {s.serviceLog.length === 0 && <Empty>Never out of service.</Empty>}
+            <ul className="panel divide-y divide-line empty:hidden">
               {s.serviceLog.map((p) => (
                 <li key={p.seq} className="px-5 py-4 text-sm">
                   <p className="num">

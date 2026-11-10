@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { useAssetSnapshot } from '../data/hooks';
+import { useAssetSnapshot, useDeployment } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { SimulatedBadge } from '../components/Badges';
 import { LoadError, Loading } from '../components/Section';
@@ -20,6 +20,7 @@ export function ReservePage() {
   const { assetId = '' } = useParams();
   const ds = useDataSource();
   const q = useAssetSnapshot(assetId);
+  const dep = useDeployment();
   const wallet = useWallet();
   const toast = useToast();
   const link = useDemoLink();
@@ -38,7 +39,7 @@ export function ReservePage() {
   if (q.error) return <LoadError error={q.error} />;
   if (!q.data || !avail.data) return <Loading what="availability" />;
   const p = q.data.profile;
-  const sim = p.adapter === 'simulator';
+  const sim = p.adapter === 'simulator' || !!dep.data?.assets.find((a) => a.asset_id === assetId)?.simulated;
   // Holding reservation id per slot (null = free), from get_availability's SlotInfo list.
   const slots = avail.data.map((x) => x.reservation_id);
 
@@ -82,7 +83,7 @@ export function ReservePage() {
         </p>
       )}
 
-      <fieldset className="m-0 border-0 p-0">
+      <fieldset className="mx-0 min-w-0 border-0 p-0">
         <legend className="mb-3 text-sm text-text-3">Pick a start slot</legend>
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
           {slots.map((holder, i) => {
@@ -121,9 +122,11 @@ export function ReservePage() {
             className="field num w-20"
           />
         </label>
-        <label className="flex items-center gap-2.5 text-sm text-text-2">
-          <input type="checkbox" checked={useRight} onChange={(e) => setUseRight(e.target.checked)} className="size-4 accent-[var(--ck-accent)]" />
-          Use a usage right (no fee, up to {p.right_max_slots} slots, group <span className="font-mono text-xs">{p.group_id}</span>)
+        <label className="flex items-start gap-2.5 text-sm text-text-2">
+          <input type="checkbox" checked={useRight} onChange={(e) => setUseRight(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-[var(--ck-accent)]" />
+          <span>
+            Use a usage right (no fee, up to {p.right_max_slots} slots, group <span className="font-mono text-xs">{p.group_id}</span>)
+          </span>
         </label>
       </div>
 
@@ -137,7 +140,7 @@ export function ReservePage() {
         <dl className="text-sm">
           <div className="flex justify-between gap-4 pb-3">
             <dt className="text-text-2">Fee {useRight ? '(paid by your right)' : `(${count} × ${formatNear(p.price_per_slot)})`}</dt>
-            <dd className="num">{formatNear(fee)} NEAR</dd>
+            <dd className="num whitespace-nowrap">{formatNear(fee)} NEAR</dd>
           </div>
           <div className="flex justify-between gap-4 border-t border-line py-3">
             <dt className="text-text-2">
@@ -146,11 +149,11 @@ export function ReservePage() {
                 Refunded after a clean return · {formatNear(p.deposit_trusted)} after {p.trusted_after} clean returns
               </span>
             </dt>
-            <dd className="num">{formatNear(deposit)} NEAR</dd>
+            <dd className="num whitespace-nowrap">{formatNear(deposit)} NEAR</dd>
           </div>
           <div className="flex items-baseline justify-between gap-4 border-t border-line pt-4">
             <dt className="font-medium">Attached exactly</dt>
-            <dd className="key-num display" style={{ ['--key-base' as string]: '1.75rem' }}>
+            <dd className="key-num display whitespace-nowrap" style={{ ['--key-base' as string]: '1.75rem' }}>
               {formatNear(attached)} <span className="text-base text-text-3">NEAR</span>
             </dd>
           </div>

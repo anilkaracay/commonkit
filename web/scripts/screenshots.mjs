@@ -32,11 +32,12 @@ async function go(page, url) {
   await settle(page);
 }
 
-const strip = (h) => h?.slice(prefix.length) ?? null;
+const strip = (h) => (h ? h.slice(prefix.length) : null);
 
 for (const width of [390, 1440]) {
   const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 900 }, deviceScaleFactor: width === 390 ? 2 : 1 });
   await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('article a[href*="/a/"]', { timeout: 180_000 });
   await settle(page);
 
   // Discover live ids (task, reservation) from the asset pages instead of hard-coding them.
@@ -47,14 +48,16 @@ for (const width of [390, 1440]) {
   const washer = pick('washer', 2);
   let task = null;
   let access = null;
-  for (const a of [printer, laser, washer]) {
+  for (const a of [printer, laser, washer].filter(Boolean)) {
     await go(page, a);
     task ??= strip(await page.$eval('a[href*="/t/"]', (x) => x.getAttribute('href')).catch(() => null));
     access ??= strip(await page.$eval('a[href*="/access/"]', (x) => x.getAttribute('href')).catch(() => null));
   }
   const member = strip(await (async () => {
     await go(page, '/me');
-    return page.$eval('a[href*="/me?as="]', (x) => x.getAttribute('href')).catch(() => null);
+    // Prefer a member who has earned cards (the demo maintainer), else the first one listed.
+    const links = await page.$$eval('a[href*="/me?as="]', (xs) => xs.map((x) => [x.getAttribute('href'), x.textContent ?? '']));
+    return (links.find(([, t]) => /ay[sş]e/i.test(t)) ?? links[0])?.[0] ?? null;
   })());
 
   const routes = [
@@ -76,7 +79,7 @@ for (const width of [390, 1440]) {
   ];
 
   for (const [name, url] of routes) {
-    if (only && !only.includes(name)) continue;
+    if (!url || (only && !only.includes(name))) continue;
     await go(page, url);
     await page.evaluate(() => window.scrollTo(0, 0));
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);

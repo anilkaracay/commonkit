@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { BRIDGE_URL, bridgeMessage, requestAccess, type AccessResult } from '../bridge/client';
 import { useWallet } from '../wallet/wallet';
-import { useAssetSnapshot } from '../data/hooks';
+import { useAssetSnapshot, useDeployment } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { Mark, SimulatedBadge } from '../components/Badges';
 import { LoadError, Loading } from '../components/Section';
@@ -18,6 +18,7 @@ export function AccessPage() {
   const { assetId = '', reservationId = '' } = useParams();
   const ds = useDataSource();
   const q = useAssetSnapshot(assetId);
+  const dep = useDeployment();
   const link = useDemoLink();
   const wallet = useWallet();
   const [result, setResult] = useState<AccessResult | null>(null);
@@ -44,7 +45,7 @@ export function AccessPage() {
   if (q.error) return <LoadError error={q.error} />;
   if (!q.data) return <Loading what="the reservation" />;
   if (!r) return <NotFoundPage what={`reservation #${reservationId}`} />;
-  const sim = q.data.profile.adapter === 'simulator';
+  const sim = q.data.profile.adapter === 'simulator' || !!dep.data?.assets.find((a) => a.asset_id === assetId)?.simulated;
 
   const steps = [
     'Your wallet signs a NEP-413 message naming this reservation. No transaction, no fee.',
@@ -76,7 +77,7 @@ export function AccessPage() {
         <div>
           <dt>Status</dt>
           <dd>
-            <Mark tone="ok">{r.status}</Mark>
+            <Mark tone={r.status === 'Confirmed' || r.status === 'InSession' ? 'ok' : r.status === 'Rejected' || r.status === 'Disputed' ? 'danger' : 'quiet'}>{r.status}</Mark>
           </dd>
         </div>
         {check.data && (

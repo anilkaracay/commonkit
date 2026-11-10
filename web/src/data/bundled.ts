@@ -20,8 +20,33 @@ export function bundledSteps(): EvidenceStep[] {
   return file<EvidenceStep[]>('steps.json') ?? [];
 }
 
+/** One attempt as `scripts` writes it to evidence/agent-limits.json (`{ attempts: [...] }`). */
+interface RawLimitAttempt {
+  spec?: string;
+  id?: string;
+  expected?: string[] | string;
+  code?: string | null;
+  status?: string;
+  pass?: boolean;
+  tx_hash?: string | null;
+}
+
+/** Accepts the flat list (AGENT_SPEC §5) or the `{ attempts }` file the limits demo writes. */
+export function normalizeAgentLimits(raw: unknown): AgentLimitAttempt[] {
+  if (Array.isArray(raw)) return raw as AgentLimitAttempt[];
+  const attempts = (raw as { attempts?: RawLimitAttempt[] } | null)?.attempts;
+  if (!Array.isArray(attempts)) return [];
+  return attempts.map((a) => ({
+    attempt: a.spec ?? a.id ?? 'attempt',
+    expected: Array.isArray(a.expected) ? a.expected.join(' or ') : (a.expected ?? ''),
+    observed: a.code ?? a.status ?? '',
+    ok: a.pass === true,
+    tx_hash: a.tx_hash ?? null,
+  }));
+}
+
 export function bundledAgentLimits(): AgentLimitAttempt[] {
-  return file<AgentLimitAttempt[]>('agent-limits.json') ?? [];
+  return normalizeAgentLimits(file<unknown>('agent-limits.json'));
 }
 
 /** Every recorded setup / seeding / funding transaction, oldest first. */

@@ -6,7 +6,7 @@ import { FloatMeter } from './KasaBar';
 import { MachineVisual } from './MachineVisual';
 import { assetStatus } from './assetStatus';
 import { useDemoThresholds } from '../data/hooks';
-import { mostDueRule } from '../lib/metrics';
+import { mostDueRule, ruleProgress } from '../lib/metrics';
 import { DemoThresholdChip } from './DemoThreshold';
 import { useDemoLink } from '../demo/demo';
 
@@ -26,7 +26,9 @@ export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: B
   const sim = deployed.simulated || snap.profile.adapter === 'simulator';
   const link = useDemoLink();
   const demo = useDemoThresholds(deployed.asset_id, snap.rules);
-  const due = mostDueRule(snap.rules);
+  // The card shows one rule: the one with an open task (it matches the status mark), else the most due.
+  const open = snap.rules.find((r) => r.open_task !== null);
+  const due = open ? ruleProgress(open) : mostDueRule(snap.rules);
   const ruleTitle = due ? (snap.profile.rules.find((r) => r.rule_id === due.rule.rule_id)?.title ?? due.rule.rule_id) : null;
   const shownDemo = due ? demo.get(due.rule.rule_id) : undefined;
   const hot = !!due && (due.fraction >= 1 || due.rule.open_task !== null);
