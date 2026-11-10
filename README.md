@@ -15,7 +15,7 @@ Built at NEAR HACKATHON 2026 · Track: **Social Money** · Testnet only.
 ## Try it in 2 minutes
 
 - Hosted demo (no wallet): `<URL>`
-- Do **open the 3D printer page** → see its own account, float vs cap, upkeep gauge and who keeps it alive.
+- Do **open the 3D printer page** (simulated asset, emulated device) → see its own account, float vs cap, upkeep gauge and who keeps it alive.
 - Do **open Proof** → see keyless accounts, identical code hashes across assets, ledger invariants, DAO proposals.
 - Do **run `./scripts/simulate.sh washer`** → see the full loop on a simulated dorm washer in a second DAO.
 
@@ -29,33 +29,35 @@ Built at NEAR HACKATHON 2026 · Track: **Social Money** · Testnet only.
 
 ## Scenarios
 
-12 asset profiles, one contract (`docs/PROFILES.md`, `profiles/*.json`). Grouped by upkeep kind; a profile appears under every kind it uses. Status comes from each profile's `meta.status`. "Pending" means planned as real hardware with no device session on testnet yet; it becomes "real hardware" only with a tx link.
+12 asset profiles, one contract (`docs/PROFILES.md`, `profiles/*.json`). Grouped by upkeep kind; a profile appears under every kind it uses. No physical device is used anywhere (D-022): the four testnet assets run through the real bridge adapters against device emulators or the simulator, and every event and screen says SIMULATED. The other eight profiles are examples with a runnable simulator scenario.
 
 | Upkeep kind | Profile: rule (trigger) | Adapter | Status |
 | :--- | :--- | :--- | :--- |
-| Maintenance | printer_3d: `nozzle_clean` (Metric), `bed_level` (Metric) | moonraker | real hardware (pending) |
-| Maintenance | laser_cutter: `lens_clean` (Metric) | smart_plug | real hardware (pending; labelled stand-in allowed) |
-| Maintenance | washer: `descale` (Metric) | simulator | simulation |
-| Maintenance | gpu_server: `driver_update` (Schedule) · tractor: `oil_change` (Metric) | api_gateway · smart_plug | profile example only |
-| Restock | printer_3d: `filament_spool` (Metric, receipt ≤ 0.5 NEAR) | moonraker | real hardware (pending) |
-| Restock | washer: `detergent` (Metric, receipt ≤ 0.3 NEAR) | simulator | simulation |
-| Restock | emergency_generator: `fuel_refill` (Metric, receipt ≤ 1 NEAR) | smart_plug | profile example only |
-| Cleaning | washer: `filter_clean` (Metric) | simulator | simulation |
-| Cleaning | community_fridge: `weekly_clean` (Schedule) · gpu_server: `dust_clean` · tractor: `pump_filter_clean` (Schedule) · microscope: `clean_inventory` · rehearsal_room: `room_clean` | smart_plug · api_gateway · smart_plug · manual_qr · smart_lock | profile example only |
-| Inspection | laser_cutter: `monthly_safety_check` (Schedule) | smart_plug | real hardware (pending; labelled stand-in allowed) |
-| Inspection | ev_charger: `cable_check` · cargo_bike: `brake_check`, `tire_check` · community_fridge: `temperature_check` · emergency_generator: `monthly_test_run` (Schedule) · tool_library_ladder: `safety_inspection` | ocpp · smart_lock · smart_plug · smart_plug · manual_qr | profile example only |
-| Repair | printer_3d: `fault_repair` (Report) | moonraker | real hardware (pending) |
-| Repair | washer: `fault_repair` (Report) | simulator | simulation |
-| Repair | rehearsal_room: `fault_repair` (Report, 2 reports) | smart_lock | profile example only |
-| Rebalance | cargo_bike: `return_home` (Report, 2 reports) | smart_lock | profile example only |
-| Supervision | rehearsal_room: `evening_supervision` (Schedule) | smart_lock | profile example only |
-| Teaching (credential flow, not a rule) | laser_cutter `laser_safety` | smart_plug | real hardware (pending) |
+| Maintenance | printer-01 (printer_3d): `nozzle_clean` (Metric), `bed_level` (Metric) | moonraker → emulated Moonraker | simulation (testnet asset) |
+| Maintenance | laser-01 (laser_cutter): `lens_clean` (Metric) | smart_plug → emulated Shelly | simulation (testnet asset) |
+| Maintenance | washer-01 (washer): `descale` (Metric) | simulator | simulation (testnet asset) |
+| Maintenance | gpu_server: `driver_update` (Schedule) · tractor: `oil_change` (Metric) | api_gateway · smart_plug | profile example only (simulator scenario) |
+| Restock | printer-01: `filament_spool` (Metric, receipt ≤ 0.5 NEAR) | moonraker → emulated Moonraker | simulation (testnet asset) |
+| Restock | washer-01: `detergent` (Metric, receipt ≤ 0.3 NEAR) | simulator | simulation (testnet asset) |
+| Restock | emergency_generator: `fuel_refill` (Metric, receipt ≤ 1 NEAR) | smart_plug | profile example only (simulator scenario) |
+| Cleaning | washer-01: `filter_clean` (Metric) | simulator | simulation (testnet asset) |
+| Cleaning | fridge-01 (community_fridge): `weekly_clean` (Schedule) | simulator (D-018) | simulation (testnet asset) |
+| Cleaning | gpu_server: `dust_clean` · tractor: `pump_filter_clean` (Schedule) · microscope: `clean_inventory` · rehearsal_room: `room_clean` | api_gateway · smart_plug · manual_qr · smart_lock | profile example only (simulator scenario) |
+| Inspection | laser-01: `monthly_safety_check` (Schedule) | smart_plug → emulated Shelly | simulation (testnet asset) |
+| Inspection | fridge-01: `temperature_check` (Metric) | simulator (D-018) | simulation (testnet asset) |
+| Inspection | ev_charger: `cable_check` · cargo_bike: `brake_check`, `tire_check` · emergency_generator: `monthly_test_run` (Schedule) · tool_library_ladder: `safety_inspection` | ocpp · smart_lock · smart_plug · manual_qr | profile example only (simulator scenario) |
+| Repair | printer-01: `fault_repair` (Report) | moonraker → emulated Moonraker | simulation (testnet asset) |
+| Repair | washer-01: `fault_repair` (Report) | simulator | simulation (testnet asset) |
+| Repair | rehearsal_room: `fault_repair` (Report, 2 reports) | smart_lock | profile example only (simulator scenario) |
+| Rebalance | cargo_bike: `return_home` (Report, 2 reports) | smart_lock | profile example only (simulator scenario) |
+| Supervision | rehearsal_room: `evening_supervision` (Schedule) | smart_lock | profile example only (simulator scenario) |
+| Teaching (credential flow, not a rule) | laser-01 `laser_safety` | smart_plug → emulated Shelly | simulation (testnet asset) |
 
-<!-- Replace "(pending)" only with a tx link to a real-device session. Every row also runs with ./scripts/simulate.sh <asset_type> (labelled simulation). -->
+<!-- Adapter column for the testnet assets: confirm against the bridge config before publishing. Every row runs with ./scripts/simulate.sh <asset_type>. -->
 
-## Pilot
+## Simulation and emulators
 
-<!-- real numbers with links; consent; lowered thresholds note -->
+<!-- What is simulated and how: real bridge adapters (moonraker, smart_plug) against local device emulators that implement the documented API subset; simulator scenarios for the other profiles; demo-lowered thresholds (meta.pilot_overrides) applied by DAO set_profile proposals, with tx links. No physical device and no real community pilot; no pilot numbers are claimed (D-022). -->
 
 ## Judge flow
 
@@ -78,7 +80,7 @@ Built at NEAR HACKATHON 2026 · Track: **Social Money** · Testnet only.
 
 ## Security model and honest limits
 
-<!-- from docs/PRODUCT_TR.md §20 -->
+<!-- from docs/PRODUCT_TR.md §20. Must include: no physical device was tested; the adapters were tested only against device emulators that implement the documented API subset (D-022). -->
 
 ## Trezu
 

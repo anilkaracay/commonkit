@@ -25,8 +25,8 @@ Bu cümle README'nin ilk paragrafında ve videonun ilk 10 saniyesinde yer alır.
 | Kapsam | Tek kontrat + varlık profilleri + takılabilir adaptörler. Aynı kod; makerspace, yurt, kooperatif, apartman, araştırma grubu gibi farklı topluluklarda çalışır. |
 | Saklama modeli | **Ana saklama Sputnik DAO hazinesinde.** Varlık hesabı yalnız tavanlı bir işletme kasası tutar; fazlası otomatik olarak DAO'ya döner. |
 | Vitrin varlığı | Bir üretici topluluğunun ortak 3D yazıcısı (Klipper/Moonraker veya OctoPrint) |
-| Demoda kanıtlanacak genellik | Aynı kontratın ikinci gerçek varlıkta (akıllı prize bağlı cihaz) ve üçüncü, simülasyonla çalışan farklı bir toplulukta çalışması |
-| Gerçek kullanıcı | En az bir gerçek topluluk, en az 5 gerçek üye, en az bir gerçek bakım işi |
+| Demoda kanıtlanacak genellik | Aynı kontratın dört testnet varlığında (yazıcı, lazer, çamaşır makinesi, buzdolabı) ve iki DAO'da çalışması; hepsi simülasyon (D-022) |
+| Gerçek kullanıcı | Planlanmadı (D-022); pilot sayısı iddia edilmez |
 | Ayırt edici mekanizma | Varlık, zincirdeki hakkı olmayana açılmaz; telemetrisiyle bakım görevi açar; doğrulanmış bakım ve eğitim emeği, o varlığı kullanma hakkına dönüşür. |
 | Ajan modeli | Varlık başına tek bir operasyon ajanı; yalnız function-call anahtarı ve kontratın koyduğu sınırlar içinde çalışır |
 | Mevcut durum | Ürün yönü kararlaştırıldı. Bu belge henüz geliştirilmiş veya test edilmiş işlev iddiası taşımaz. |
@@ -85,6 +85,8 @@ Bu cümle README'nin ilk paragrafında ve videonun ilk 10 saniyesinde yer alır.
 
 Kaynak: `docs/DECISIONS.md` D-017, `docs/CONTRACT_SPEC.md` §2.1, §2.4a, §3.3.
 
+**2.3 notu (D-022):** Donanım alınmayacak ve pilot yapılmayacak; tüm varlıklar simülasyondur (gerçek adaptörler, API'ye sadık cihaz emülatörlerine karşı çalışır). Bölüm 3, 13, 15 ve 20 buna göre güncellendi.
+
 ---
 
 ## 1. Ürün bir cümlede
@@ -116,18 +118,18 @@ Her senaryo aynı döngüyü kullanır: **kullan → öde → varlık özenini f
 
 | # | Senaryo | Topluluk | Varlık | Kullanım birimi | Erişim kilidi | Telemetri | Özen işleri (tür: tetik) | Özel kural | Durum |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | **Makerspace yazıcısı** (vitrin) | Üniversite maker kulübü, hackerspace | 3D yazıcı | Baskı işi | Moonraker / OctoPrint API | Baskı süresi, iş sayısı, kullanılan filament (mm) | Bakım: nozul temizliği (baskı süresi), yatak kalibrasyonu (iş sayısı) · İkmal: filament makarası (filament mm; fişle en çok 0,5 NEAR) · Onarım: arıza bildirimi | Kalibrasyon baskısı doğrulamaya eklenir | gerçek donanım (beklemede) |
-| 2 | **Riskli atölye makinesi** | Makerspace, okul atölyesi | Lazer kesici, CNC | Oturum | Akıllı priz / röle | Çalışma süresi, enerji | Bakım: lens ve ayna temizliği (çalışma süresi) · Kontrol: aylık güvenlik kontrolü (takvim) · **yeni üyeleri eğitmek** (yeterlilik akışı) | Yeterlilik kartı olmadan erişim yok | gerçek donanım (beklemede; etiketli yedek cihaz olabilir) |
-| 3 | **Yurt / apartman çamaşırhanesi** | Öğrenci yurdu, site yönetimi | Çamaşır makinesi | Yıkama döngüsü | Simülatör (hedef: akıllı priz) | Döngü sayısı | Temizlik: filtre (30 döngü) · Bakım: kireç sökme (120 döngü) · İkmal: ortak deterjan (40 döngü; fişle en çok 0,3 NEAR) · Onarım: arıza bildirimi | Arıza bildirilince hizmet dışı; onarım ödüllenince hizmete döner | simülasyon |
-| 4 | **Ortak EV şarj noktası** | Site, kooperatif ofis | Şarj noktası | kWh (v1'de dilim başına ücret) | OCPP uzaktan başlatma | Oturum sayısı | Kontrol: kablo ve soket (100 oturum) | Bakım fonu elektrik maliyetinden ayrı | yalnız profil örneği |
-| 5 | **Topluluk bisikleti** | Mahalle girişimi, kampüs | Kargo bisikleti | Km (v1'de dilim başına ücret) | Akıllı kilit | Km | Kontrol: fren (300 km), lastik (500 km) · Yerine getirme: iki üye bildirince bisikleti yerine götürmek | Depozito, sorunsuz iade geçmişine göre düşer | yalnız profil örneği |
-| 6 | **Ortak GPU / sunucu** | Araştırma grubu, hackerspace, açık kaynak topluluğu | GPU sunucusu | GPU saati | API anahtarı ağ geçidi | GPU saati | Bakım: sürücü güncelleme (30 günde bir, takvim) · Temizlik: toz filtresi ve fanlar (1000 GPU saati) | Dijital görevler otomatik testle doğrulanır; `gpu_basics` yeterliliği | yalnız profil örneği |
-| 7 | **Tarım kooperatifi** | Köy kooperatifi, üretici birliği | Traktör ve sulama pompası | Saat | Akıllı röle | Motor süresi | Bakım: yağ değişimi (100 motor saati) · Temizlik: pompa filtresi (14 günde bir, takvim) | `tractor_operator` yeterliliği | yalnız profil örneği |
-| 8 | **Okul / kütüphane ekipmanı** | Okul kulübü, halk kütüphanesi | Mikroskop | Ödünç alma | Manuel QR teslim | Yok (kullanım sayısı) | Temizlik: optik temizliği ve envanter (20 ödünç) | Telemetrisiz varlıklar da katılır | yalnız profil örneği |
-| 9 | **Mahalle buzdolabı** | Mahalle dayanışma ağı | Ortak buzdolabı | Ziyaret (ücretsiz) | Akıllı priz (izleme) | Sıcaklık (zincire 8 °C üstü örnek sayısı olarak gider) | Temizlik: haftalık temizlik (168 saatte bir, takvim) · Kontrol: sıcaklık sapmasında conta ve termostat | Ücret ve depozito yok; özen tek katkı yolu | yalnız profil örneği |
-| 10 | **Acil durum jeneratörü** | Apartman bloğu, afet gönüllüleri | Jeneratör | Saat | Akıllı priz / röle | Yakıt seviyesi (zincire kullanılan yakıt olarak gider) | Kontrol: aylık yük altında test (takvim) · İkmal: yakıt (20 l; fişle en çok 1 NEAR) | `generator_operator` yeterliliği | yalnız profil örneği |
-| 11 | **Prova odası** | Müzik kolektifi | Prova odası | Seans | Akıllı kilit | Seans sayısı | Temizlik: oda ve kablolar (10 seans) · Gözetim: haftalık açık oda akşamı (takvim) · Onarım: iki üye arıza bildirince | Arıza için iki bağımsız bildirim | yalnız profil örneği |
-| 12 | **Alet kütüphanesi** | Mahalle alet kütüphanesi | Merdiven | Ödünç alma | Manuel QR teslim | Kullanım sayısı | Kontrol: basamak, ayak ve kilitler (25 ödünç) | Güvenlik kontrolü ödünç sayısına bağlı | yalnız profil örneği |
+| 1 | **Makerspace yazıcısı** (vitrin) | Üniversite maker kulübü, hackerspace | 3D yazıcı | Baskı işi | Moonraker / OctoPrint API | Baskı süresi, iş sayısı, kullanılan filament (mm) | Bakım: nozul temizliği (baskı süresi), yatak kalibrasyonu (iş sayısı) · İkmal: filament makarası (filament mm; fişle en çok 0,5 NEAR) · Onarım: arıza bildirimi | Kalibrasyon baskısı doğrulamaya eklenir | simülasyon (testnet varlığı, emüle Moonraker) |
+| 2 | **Riskli atölye makinesi** | Makerspace, okul atölyesi | Lazer kesici, CNC | Oturum | Akıllı priz / röle | Çalışma süresi, enerji | Bakım: lens ve ayna temizliği (çalışma süresi) · Kontrol: aylık güvenlik kontrolü (takvim) · **yeni üyeleri eğitmek** (yeterlilik akışı) | Yeterlilik kartı olmadan erişim yok | simülasyon (testnet varlığı, emüle Shelly) |
+| 3 | **Yurt / apartman çamaşırhanesi** | Öğrenci yurdu, site yönetimi | Çamaşır makinesi | Yıkama döngüsü | Simülatör (hedef: akıllı priz) | Döngü sayısı | Temizlik: filtre (30 döngü) · Bakım: kireç sökme (120 döngü) · İkmal: ortak deterjan (40 döngü; fişle en çok 0,3 NEAR) · Onarım: arıza bildirimi | Arıza bildirilince hizmet dışı; onarım ödüllenince hizmete döner | simülasyon (testnet varlığı) |
+| 4 | **Ortak EV şarj noktası** | Site, kooperatif ofis | Şarj noktası | kWh (v1'de dilim başına ücret) | OCPP uzaktan başlatma | Oturum sayısı | Kontrol: kablo ve soket (100 oturum) | Bakım fonu elektrik maliyetinden ayrı | yalnız profil örneği (simülatör senaryosu) |
+| 5 | **Topluluk bisikleti** | Mahalle girişimi, kampüs | Kargo bisikleti | Km (v1'de dilim başına ücret) | Akıllı kilit | Km | Kontrol: fren (300 km), lastik (500 km) · Yerine getirme: iki üye bildirince bisikleti yerine götürmek | Depozito, sorunsuz iade geçmişine göre düşer | yalnız profil örneği (simülatör senaryosu) |
+| 6 | **Ortak GPU / sunucu** | Araştırma grubu, hackerspace, açık kaynak topluluğu | GPU sunucusu | GPU saati | API anahtarı ağ geçidi | GPU saati | Bakım: sürücü güncelleme (30 günde bir, takvim) · Temizlik: toz filtresi ve fanlar (1000 GPU saati) | Dijital görevler otomatik testle doğrulanır; `gpu_basics` yeterliliği | yalnız profil örneği (simülatör senaryosu) |
+| 7 | **Tarım kooperatifi** | Köy kooperatifi, üretici birliği | Traktör ve sulama pompası | Saat | Akıllı röle | Motor süresi | Bakım: yağ değişimi (100 motor saati) · Temizlik: pompa filtresi (14 günde bir, takvim) | `tractor_operator` yeterliliği | yalnız profil örneği (simülatör senaryosu) |
+| 8 | **Okul / kütüphane ekipmanı** | Okul kulübü, halk kütüphanesi | Mikroskop | Ödünç alma | Manuel QR teslim | Yok (kullanım sayısı) | Temizlik: optik temizliği ve envanter (20 ödünç) | Telemetrisiz varlıklar da katılır | yalnız profil örneği (simülatör senaryosu) |
+| 9 | **Mahalle buzdolabı** | Mahalle dayanışma ağı | Ortak buzdolabı | Ziyaret (ücretsiz) | Akıllı priz (izleme) | Sıcaklık (zincire 8 °C üstü örnek sayısı olarak gider) | Temizlik: haftalık temizlik (168 saatte bir, takvim) · Kontrol: sıcaklık sapmasında conta ve termostat | Ücret yok; 0,1 NEAR iade edilen depozito (D-020) | simülasyon (testnet varlığı, D-018) |
+| 10 | **Acil durum jeneratörü** | Apartman bloğu, afet gönüllüleri | Jeneratör | Saat | Akıllı priz / röle | Yakıt seviyesi (zincire kullanılan yakıt olarak gider) | Kontrol: aylık yük altında test (takvim) · İkmal: yakıt (20 l; fişle en çok 1 NEAR) | `generator_operator` yeterliliği | yalnız profil örneği (simülatör senaryosu) |
+| 11 | **Prova odası** | Müzik kolektifi | Prova odası | Seans | Akıllı kilit | Seans sayısı | Temizlik: oda ve kablolar (10 seans) · Gözetim: haftalık açık oda akşamı (takvim) · Onarım: iki üye arıza bildirince | Arıza için iki bağımsız bildirim | yalnız profil örneği (simülatör senaryosu) |
+| 12 | **Alet kütüphanesi** | Mahalle alet kütüphanesi | Merdiven | Ödünç alma | Manuel QR teslim | Kullanım sayısı | Kontrol: basamak, ayak ve kilitler (25 ödünç) | Güvenlik kontrolü ödünç sayısına bağlı | yalnız profil örneği (simülatör senaryosu) |
 
 Demoda yalnız 15. bölümde belirtilen senaryolar çalışır halde gösterilir. Diğerleri README'de "yalnız profil örneği" olarak etiketlenir ve tamamlanmış özellik olarak iddia edilmez.
 
@@ -435,31 +437,9 @@ Topluluk, varlık, pano ve kanıt sayfaları cüzdan gerektirmeden açılır.
 
 ## 13. Pilot topluluk
 
-Gerçek kullanıcı, rakip başvuruların çoğunda bulunmayan ve jürinin etki sorusunu doğrudan cevaplayan kanıttır.
+**Durum: planlanmadı (D-022).** Donanım alınmayacak; hackathon süresince gerçek bir topluluk pilotu yapılmayacak ve README'de pilot sayısı iddia edilmeyecek. Gerçek kullanıcı kanıtı yerine, herkesin çalıştırabildiği emülasyon gösterilir: köprünün gerçek adaptörleri, API'ye sadık cihaz emülatörlerine karşı çalışır ve her olay "simulated" etiketi taşır.
 
-### Asgari hedefler (14 Kasım'a kadar)
-
-| Ölçü | Hedef |
-| :--- | :--- |
-| Gerçek topluluk | En az 1 (maker kulübü, hackerspace veya atölye) |
-| Gerçek üye hesabı | En az 5 |
-| Gerçek rezervasyon ve oturum | En az 10 |
-| Gerçek bakım işi | En az 1, bağımsız onaylı |
-| Gerçek eğitim | En az 1 (lazer veya yazıcı için) |
-| Topluluk temsilcisinden kısa görüş | 1 (videoda veya README'de, izinle) |
-
-Hedeflere ulaşılamazsa README'de gerçekleşen sayılar aynen yazılır; abartılmaz.
-
-### Kurallar
-
-- Katılımcıların görüntü ve hesap adlarının kamuya açık olacağına yazılı veya mesajla onayı alınır.
-- Kişisel bilgi, fotoğraf veya belge zincire yazılmaz; yalnız özetler kaydedilir.
-- Pilot verisi README'de "pilot" olarak ayrı bir bölümde, işlem bağlantılarıyla verilir.
-- Testnet tokenlarının değeri olmadığı katılımcılara açıkça söylenir.
-
-### Ölçülecek sonuçlar
-
-Tamamlanan oturumlar, telemetriyle açılıp kapanan bakım görevleri, haklarını kullanan bakımcılar, verilen eğitimler, reddedilen haksız erişim denemeleri, depozito çözüm süreleri ve topluluk temsilcisinin geri bildirimi.
+İnsan ileride isterse pilot yalnız `manual_qr` adaptörüyle, elektroniği olmayan gerçek bir eşya üzerinde yapılır. O durumda `docs/PILOT.md`'deki onay metni ve kurallar geçerlidir: katılımcı onayı alınır, kişisel bilgi zincire yazılmaz, testnet tokenlarının değeri olmadığı söylenir, gerçekleşen sayılar aynen yazılır.
 
 ## 14. İş modeli ve sürdürülebilirlik
 
@@ -494,30 +474,36 @@ Profil, ücretin bakım ve sarf giderlerini karşılayacak düzeyde ayarlanır. 
 
 ### Demoda gerçekten çalışacak senaryolar
 
+Fiziksel cihaz yok (D-022). Zincir tarafı (rezervasyon, kasa, DAO önerileri, haklar) gerçek testnet işlemleridir; cihazlar emüle veya simüledir ve her yerde öyle etiketlenir.
+
 | Senaryo | Varlık | Adaptör | Durum |
 | :--- | :--- | :--- | :--- |
-| 1 | 3D yazıcı | `moonraker` (veya `octoprint`) | Gerçek donanım, gerçek topluluk |
-| 2 | Lazer kesici (yoksa lehim istasyonu) | `smart_plug` | Gerçek donanım, yeterlilik kartıyla |
-| 3 | Yurt çamaşır makinesi | `simulator` | Simülasyon; ekranda açıkça etiketli |
+| 1 | 3D yazıcı (`printer-01`) | `moonraker` → emüle Moonraker | Simülasyon (testnet varlığı) |
+| 2 | Lazer kesici (`laser-01`) | `smart_plug` → emüle Shelly | Simülasyon (testnet varlığı), yeterlilik kartıyla |
+| 3 | Yurt çamaşır makinesi (`washer-01`) | `simulator` | Simülasyon (testnet varlığı), ikinci DAO |
+| 4 | Yurt buzdolabı (`fridge-01`) | `simulator` | Simülasyon (testnet varlığı), takvimli temizlik |
 
-Ek senaryolar (EV şarj, bisiklet, GPU, tarım kooperatifi, okul ekipmanı) README'de profil örnekleri olarak verilir ve `simulate.sh` ile denenebilir.
+Diğer sekiz profil README'de "yalnız profil örneği (simülatör senaryosu)" olarak verilir ve `simulate.sh` ile denenebilir.
 
 ### 90 saniyelik video
 
-1. **0–10 sn:** Neden zincir cümlesi. Hızlı geçiş: yazıcı, çamaşır makinesi, traktör, bisiklet.
-2. **10–30 sn:** Telefondan rezervasyon → gerçek yazıcı basmaya başlar. Rezervasyonu olmayanın işi reddedilir.
-3. **30–45 sn:** Telemetri eşiği → ajan görevi açar, gerekçe ekranda. Ayşe bakımı yapar, kalibrasyon baskısı, Mehmet onaylar → 2 hak kartı.
-4. **45–60 sn:** Zeynep lazere erişemez → Ayşe onu eğitir → kart gelir, priz açılır, lazer çalışır.
-5. **60–70 sn:** Kasa tavanı aşılır → fazlası DAO hazinesine akar. Parça alımı için DAO önerisi.
-6. **70–80 sn:** Aynı kontrat, başka bir toplulukta: yurt çamaşırhanesi simülasyonu. "Same contract. Different commons."
-7. **80–85 sn:** Konsey verilmiş hakkı silmeye çalışır → kontrat reddeder.
-8. **85–90 sn:** Gerçek topluluk temsilcisinden tek cümle + depo ve demo bağlantıları.
+Yalnız ekran kaydı: web uygulaması, "SIMULATED" etiketli köprü/emülatör konsolu ve explorer sekmeleri. Kamera çekimi, gerçek cihaz veya "yazıcı basmaya başlar" görüntüsü yok; simüle her çekimde "simulated" altyazısı var. Ayrıntılı zamanlama: `docs/DEMO_SCRIPT.md` §1.
+
+1. **0–10 sn:** Neden zincir cümlesi; panoda dört varlık kartı, SIMULATED rozetiyle.
+2. **10–25 sn:** Web uygulamasından rezervasyon → köprü konsolunda emüle yazıcı işi başlatır. Rezervasyonu olmayanın isteği reddedilir.
+3. **25–40 sn:** Telemetri eşiği → ajan görevi açar, gerekçe ekranda. Ayşe görevi üstlenir, emülatörde kalibrasyon baskısı, Mehmet onaylar → 2 hak kartı.
+4. **40–45 sn:** Özen montajı: doldur · temizle · kontrol et · öğret.
+5. **45–58 sn:** Zeynep lazere erişemez → Ayşe onu eğitir → kart gelir, emüle priz açılır.
+6. **58–68 sn:** Kasa tavanı aşılır → fazlası DAO hazinesine akar. Parça alımı için DAO önerisi.
+7. **68–77 sn:** Aynı kontrat, başka bir toplulukta: yurt çamaşırhanesi. "Same contract. Different commons."
+8. **77–83 sn:** Konsey verilmiş hakkı silmeye çalışır → kontrat reddeder.
+9. **83–90 sn:** `verify.sh` çıktısı + depo ve demo bağlantıları.
 
 ### Tam jüri akışı (README'de "X yap → Y'yi gör" olarak)
 
 1. DAO önerisi ile yazıcı kaydı, profil ve kasa fonlama.
 2. Rezervasyon: ücret kasaya, depozito ayrı alacak olarak.
-3. Köprü erişim kontrolü: geçerli hakla baskı başlar, haksız iş reddedilir.
+3. Köprü erişim kontrolü: geçerli hakla emüle yazıcıda baskı başlar, haksız iş reddedilir.
 4. Teslim onayı ve depozito iadesi (gerçek testnet transferi).
 5. Kasa tavanı aşımı → DAO hazinesine süpürme.
 6. Telemetri eşiği → ajanın gerekçeli bakım görevi.
@@ -628,7 +614,8 @@ Sorular, jüri üyelerinin bilinen ilgi alanlarından yapılmış çıkarımlard
 ## 20. Dürüst sınırlar
 
 - **Köprü ve adaptörler güvenilir bileşenlerdir.** Telemetri tek başına ödül üretmez; köprü anahtarı DAO tarafından iptal edilebilir.
-- **Fiziksel atlatma mümkündür.** Varlığın başındaki biri kilidi atlatabilir. Bu sosyal kontrol gerektirir.
+- **Fiziksel cihaz test edilmedi (D-022).** Adaptörler yalnız belgelenmiş API alt kümesini uygulayan cihaz emülatörlerine karşı test edildi; gerçek bir Moonraker, Shelly veya Tasmota cihazında çalıştırılmadı. Tüm varlıklar simülasyondur.
+- **Fiziksel atlatma mümkündür.** Gerçek kurulumda varlığın başındaki biri kilidi atlatabilir. Bu sosyal kontrol gerektirir.
 - **Akıllı priz telemetrisi dolaylıdır.** Döngü ve çalışma saati enerji profilinden çıkarılır; hatalı sayım olabilir.
 - **Bakım ve eğitim kalitesi** için insan değerlendirmesi gerekir; doğrulama testi destekleyici kanıttır.
 - **Yeterlilik kartı yasal sertifika değildir.** Topluluğun iç kuralıdır; iş güvenliği mevzuatının yerini tutmaz.
@@ -637,8 +624,8 @@ Sorular, jüri üyelerinin bilinen ilgi alanlarından yapılmış çıkarımlard
 - **Gizlilik:** Kanıt fotoğrafları zincire yazılmaz; yalnız özetleri kaydedilir.
 - **Yalnız testnet.** Testnet NEAR'ın değeri yoktur.
 - **Trezu ile uçtan uca entegrasyon yok.**
-- **Senaryoların çoğu gösterilmedi.** EV şarj, bisiklet, GPU, tarım ve okul senaryoları profil örneği ve simülasyondur.
-- **İş modeli doğrulanmadı.** Pilot tektir ve kısa sürelidir.
+- **Senaryoların çoğu gösterilmedi.** Dört testnet varlığı simülasyondur; diğer sekiz profil yalnız profil örneği ve simülatör senaryosudur.
+- **İş modeli doğrulanmadı.** Gerçek kullanıcı pilotu yapılmadı.
 - **Denetim yok.** Kontrat bağımsız güvenlik denetiminden geçmemiştir.
 
 ## 21. Açık kararlar

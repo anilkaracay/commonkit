@@ -58,7 +58,7 @@ One script per judge-flow step (DEMO_SCRIPT §2), each:
 3. Asserts expected state via views (and expected failure code for negative steps).
 4. Appends `{step, title, txHashes, explorerLinks, assertions, timestamp}` to `evidence/steps.json` and regenerates `evidence/EVIDENCE.md`.
 
-`pnpm demo:all` runs steps 1–21 in order (step 21 is `verify.sh`, DEMO_SCRIPT §2) (hardware steps use the simulator unless `HARDWARE=1`).
+`pnpm demo:all` runs steps 1–21 in order (step 21 is `verify.sh`, DEMO_SCRIPT §2) (device steps run through the bridge against the device emulators or the simulator; no hardware, D-022).
 
 ## 6. `scripts/verify.sh` (read-only, no keys)
 

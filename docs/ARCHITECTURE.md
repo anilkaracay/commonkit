@@ -17,8 +17,8 @@ flowchart TB
     end
     subgraph Edge["Next to the devices"]
         BRIDGE["bridge service<br/>(Raspberry Pi / laptop)"]
-        AD1["moonraker adapter"] --> P["3D printer"]
-        AD2["smart_plug adapter"] --> L["laser cutter / soldering station"]
+        AD1["moonraker adapter"] --> P["emulated Moonraker (3D printer)"]
+        AD2["smart_plug adapter"] --> L["emulated Shelly plug (laser cutter)"]
         AD3["simulator adapter"]
     end
     AGENT["operations agent"]
@@ -160,5 +160,5 @@ A member with a session on the asset in the last 14 days calls `report_fault(rul
 | :--- | :--- |
 | `near-workspaces` sandbox | Contract integration tests (including a real Sputnik DAO WASM if obtainable; otherwise a minimal mock DAO with the same interface — log which) |
 | testnet | Everything demoed and claimed |
-| local bridge + simulator | Reproducible judge runs without hardware |
+| local bridge + device emulators + simulator | Every demo run (no hardware is used, D-022); reproducible by judges |
 | hosted web | Static deploy (Vercel or GitHub Pages) pointing at testnet RPC |

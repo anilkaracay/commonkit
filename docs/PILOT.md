@@ -1,8 +1,10 @@
 # PILOT — real community run
 
-Real users are our strongest differentiator. Most competing Social Money projects state they ran only with their own test accounts.
+> **Status: not planned (D-022).** No hardware is bought and no real-community pilot runs before the deadline. Every asset in the demo is simulated (real bridge adapters against device emulators, or the simulator). No pilot numbers will be claimed anywhere; the README has no pilot section.
+>
+> A real-community pilot would only happen if the human later asks for it, and then only with the `manual_qr` adapter on a real item (no electronics), using the consent text in §4. The rest of this file is kept as the plan for that case. Its targets are not commitments.
 
-## 1. Minimum targets (by 2026-11-14)
+## 1. Minimum targets (only if a pilot is later requested)
 
 | Metric | Target | Actual (fill in) |
 | :--- | :--- | :--- |
@@ -48,4 +50,4 @@ Store consents in `evidence/pilot/consents.md` with first name (or nickname), ac
 
 ## 6. Demo-lowered parameters
 
-For the pilot, lower `nozzle_clean.threshold` (e.g. 30 minutes of printing) and state it in README: "Thresholds were lowered for the pilot so a maintenance cycle could happen within the hackathon week; production values are in profiles/printer_3d.json."
+These apply to the simulated demo today (`meta.pilot_overrides`, set by DAO `set_profile` proposals). For a pilot, lower `nozzle_clean.threshold` (e.g. 30 minutes of printing) and state it in README: "Thresholds were lowered for the pilot so a maintenance cycle could happen within the hackathon week; production values are in profiles/printer_3d.json."

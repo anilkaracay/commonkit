@@ -17,7 +17,7 @@ flowchart LR
     M2 --> M6
     M5 --> M7[M7 web wired to testnet]
     M6 --> M7
-    M6 --> M8[M8 hardware + pilot]
+    M6 --> M8[M8 emulators + simulated e2e]
     M7 --> M9[M9 README, verify.sh, video assets, submission prep]
     M8 --> M9
 ```
@@ -29,7 +29,7 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 ## M0 — Research + scaffold (≤ 2 h)
 
 - [ ] Complete `docs/RESEARCH_CHECKLIST.md`; write `docs/RESEARCH_RESULTS.md`; log decisions.
-- [ ] Ask the human once for hardware facts (E10) and pilot community name; record. Continue with simulator if unknown.
+- [ ] ~~Ask the human for hardware facts (E10) and pilot community name~~ — resolved by D-022: no hardware, no pilot.
 - [ ] Monorepo scaffold: pnpm workspaces, `contracts/` cargo workspace, `packages/sdk`, `bridge`, `agent`, `web`, `scripts`, `profiles`, `scenarios`, `deployments`, `evidence`.
 - [ ] Tooling: rustfmt, clippy, eslint, prettier, vitest, GitHub Actions CI.
 - [ ] `.gitignore` covers `.env*`, keys, `target/`, `node_modules/`, `bridge/state/`.
@@ -71,7 +71,7 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 
 ## M2 — testnet setup (scripts, idempotent)
 
-- [ ] `scripts/setup-testnet.ts`: root + community accounts, member accounts (team/pilot/demo-bot), bridge & agent accounts, DAOs via factory, deploy commons + 3 assets, delete full-access keys, add function-call keys for bridge/agent per asset, write `deployments/testnet.json`.
+- [ ] `scripts/setup-testnet.ts`: root + community accounts, member accounts (team/demo-bot), bridge & agent accounts, DAOs via factory, deploy commons + 4 assets (printer-01, laser-01, washer-01, fridge-01; D-018), delete full-access keys, add function-call keys for bridge/agent per asset, write `deployments/testnet.json`.
 - [ ] `scripts/seed-testnet.ts`: via DAO proposals (`proposeAndPass`): register assets, roles, credential kinds, fund storage & floats, set operators. Evidence logged.
 - [ ] `scripts/verify.sh` first version (keyless, code hashes, wiring).
 
@@ -99,7 +99,7 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 
 ## M6 — testnet e2e + evidence
 
-- [ ] `scripts/demo/step-01..21.ts` per DEMO_SCRIPT, simulator for hardware steps (step 21 = `verify.sh`).
+- [ ] `scripts/demo/step-01..21.ts` per DEMO_SCRIPT; device steps run through the bridge against the emulators or the simulator (step 21 = `verify.sh`).
 - [ ] Upkeep steps 18–20: printer Restock with capped reimbursement (+ `E_EXPENSE_CAP`), washer fault → out of service → refund → Repair → back in service (+ `E_NO_RECENT_SESSION`), fridge Schedule cleaning (+ `E_RULE_NOT_DUE`).
 - [ ] `pnpm demo:all` green; `evidence/steps.json` + `EVIDENCE.md`.
 - [ ] `scripts/simulate.sh <asset_type>` for all 12 profiles with `scenarios/<asset_type>.yaml`, labelled simulation.
@@ -113,17 +113,17 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 - [ ] `/proof` page mirrors verify.sh.
 - [ ] Deploy (Vercel/GitHub Pages); URL in README; keep alive until at least 2026-11-25.
 
-## M8 — hardware + pilot (needs the human on site)
+## M8 — emulators + simulated end-to-end (no hardware, D-022)
 
-- [ ] Printer via moonraker/octoprint: reserve → access → print → finish → telemetry.
-- [ ] Smart plug device (soldering station or lamp stand-in for the laser if needed — label it).
-- [ ] Pilot per `docs/PILOT.md`: ≥ 5 real members, ≥ 10 sessions, ≥ 1 maintenance (upkeep) task, ≥ 1 training; evidence and consent recorded.
-- [ ] Video footage per DEMO_SCRIPT §1.
+- [ ] Device emulators: local HTTP servers implementing the documented API subset the adapters use — Moonraker (and OctoPrint), Shelly Gen2/Gen1, Tasmota — with state machine, counters, auth and failure modes (BRIDGE_AND_ADAPTERS §4.7).
+- [ ] Real adapters against the emulators: printer-01 via `moonraker` (reserve → access → print → finish → telemetry incl. `filament_used_mm`), laser-01 via `smart_plug` (switch on/off, energy, run seconds); everything labelled SIMULATED / emulated device.
+- [ ] Simulated end-to-end on testnet: all four testnet assets (printer-01, laser-01, washer-01, fridge-01) through the bridge and agent; `simulate.sh` for all 12 profiles.
+- [ ] Screen-only video footage per DEMO_SCRIPT §1 (no camera shots).
 
 ## M9 — README, submission prep
 
 - [ ] README per `docs/SUBMISSION.md` (only verified claims; status column for scenarios).
-- [ ] Track compliance table, Trezu paragraph, honest limits, pilot results with links.
+- [ ] Track compliance table, Trezu paragraph, honest limits (no physical device tested; adapters tested against emulators), "Simulation and emulators" section with links.
 - [ ] X post draft + submission payload draft (do **not** post/submit — hard stop).
 - [ ] Final verifier pass: fresh clone → install → tests → verify.sh → simulate.sh.
 
@@ -133,7 +133,7 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 - [ ] `pnpm test:contracts && pnpm test` green on a clean clone.
 - [ ] verify.sh green on testnet.
 - [ ] 21/21 evidence steps with tx hashes.
-- [ ] Three demo assets live on the hosted web app; simulator clearly labelled.
-- [ ] Real printer run on video; pilot numbers in README (whatever they really are).
+- [ ] Four testnet assets live on the hosted web app; every one carries the SIMULATED badge.
+- [ ] Emulated stack runs end to end: bridge with the real moonraker / smart_plug adapters against the device emulators, agent and contracts on testnet, from a clean clone.
 - [ ] README reviewed by `verifier` agent: every claim has a link or test name.
 - [ ] Submission payload and X post text ready for the human.

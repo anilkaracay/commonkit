@@ -11,8 +11,8 @@ Deadline: **2026-11-14 23:59 UTC** (Türkiye: 15 Nov 02:59). Target: submit by *
 3. **Try it in 2 minutes** — hosted demo URL (no wallet) + three "do X → see Y" bullets.
 4. **What we built during the hackathon** — bullets, each with a link (tx, test name or file).
 5. **The loop** — mermaid diagram from ARCHITECTURE §4.4 (short).
-6. **Scenarios table** — the 12 profiles (`docs/PROFILES.md`), grouped by upkeep kind (Maintenance, Restock, Cleaning, Inspection, Repair, Rebalance, Supervision; a profile appears under each kind it uses), with a **Status** column taken from `meta.status`: `real hardware` / `simulation` / `profile example only`. Printer and laser stay `real hardware (pending)` until a session tx on the real device exists; never write `real hardware` without that tx link.
-7. **Pilot** — real numbers with links; consent note; lowered thresholds note.
+6. **Scenarios table** — the 12 profiles (`docs/PROFILES.md`), grouped by upkeep kind (Maintenance, Restock, Cleaning, Inspection, Repair, Rebalance, Supervision; a profile appears under each kind it uses), with a **Status** column: the four testnet assets (printer-01, laser-01, washer-01, fridge-01) are `simulation (testnet asset)`, the other eight `profile example only (simulator scenario)`. No row says real hardware (D-022).
+7. **Simulation and emulators** — what is simulated and how: real bridge adapters against device emulators, simulator scenarios, demo-lowered thresholds with their `set_profile` tx links. No physical device and no pilot; no pilot numbers (D-022).
 8. **Judge flow** — 21 steps (`docs/DEMO_SCRIPT.md` §2; step 21 is `verify.sh`), each "Do X → See Y" + `pnpm demo:step N` + evidence link.
 9. **Verify it yourself** — `./scripts/verify.sh` output sample; `./scripts/simulate.sh washer` (or any of the 12 `asset_type`s; labelled simulation).
 10. **Social Money compliance table** (PRODUCT_TR §17, translated).
@@ -29,24 +29,20 @@ No marketing adjectives. Every claim has a link or a test name.
 
 ## 2. X demo post (draft — the human posts it)
 
+Limit (D-023): ≤ 280 characters, each URL counts as 23. Both `<url>` placeholders are counted as 23.
+
+<!-- character count: 276 / 280 (240 raw + 2 URLs × (23 − 5)); recount after replacing the placeholders -->
 ```
-Shared machines get used by everyone and maintained by no one.
+Shared machines: used by all, fixed by none.
 
-COMMONKIT gives each shared thing its own keyless NEAR account. Our makerspace 3D printer:
-• only prints for an on-chain reservation
-• opens its own upkeep task when telemetry says so
-• pays whoever fixes it with usage rights nobody can take back
-• sweeps its extra cash to the community's Sputnik DAO
+COMMONKIT gives each a keyless NEAR account: it opens only for on-chain bookings and pays maintainers in access nobody can revoke.
 
-Same contract runs a laser cutter (credential required) and a dorm washer (simulated).
-Fix it, refill it, clean it, check it, teach it: every kind of care earns access.
-
-Built at NEAR HACKATHON @NEARProtocol #NEARHackathon @NearBuilders @NearLegion
-Demo: <url>  Code: <repo>
-What shared thing in your life should pay for its own upkeep?
+Simulated demo: <url>
+Code: <url>
+@NEARProtocol #NEARHackathon
 ```
 
-Attach the 90-second video.
+Problem first; NEAR's role is the keyless per-machine account. A closing question ("What should pay for its own upkeep?") does not fit within 280; it can go in a reply if the human wants one. Extra detail goes into the README, not a thread (D-023). Attach the 90-second screen-only video (DEMO_SCRIPT §1).
 
 ## 3. Submission payload (draft — print, wait for explicit yes)
 
@@ -78,7 +74,7 @@ Attach the 90-second video.
 
 ### `idea` draft (fit to ≤ 2000 chars after final numbers)
 
-> Shared equipment in communities — makerspace printers, dorm washers, co-op tractors — is used by everyone and maintained by no one, and its money and rules live in one admin's spreadsheet. COMMONKIT gives every shared asset its own keyless NEAR account running the same contract. Members reserve on-chain; a small bridge next to the device only unlocks it for a valid reservation (NEP-413 signed request + on-chain check). Fees fill a capped operating float; everything above the cap is swept to the community's unmodified Sputnik DAO, and larger purchases become Sputnik proposals opened by the asset contract itself. The bridge reports telemetry; when a profile rule is due (telemetry threshold, schedule or member fault reports), the asset's operations agent (function-call key, contract-enforced caps and quotas) opens an upkeep task (maintenance, restock, cleaning, inspection, repair) with a rationale; restock and repair work can claim a capped, receipt-backed expense from the float. A member does the work, the bridge runs a verification test, an independent member approves, and the maintainer receives non-transferable NEP-171 usage-right cards that no admin can revoke. Risky machines require credential cards; trainers earn rights. Same WASM, different profile + adapter: we run a real 3D printer and a smart-plug device in a real makerspace pilot (N members, N sessions), and a simulated dorm washer in a second DAO. Testnet only. Everything claimed is verifiable with scripts/verify.sh.
+> Shared equipment in communities — makerspace printers, dorm washers, co-op tractors — is used by everyone and maintained by no one, and its money and rules live in one admin's spreadsheet. COMMONKIT gives every shared asset its own keyless NEAR account running the same contract. Members reserve on-chain; a small bridge next to the device only unlocks it for a valid reservation (NEP-413 signed request + on-chain check). Fees fill a capped operating float; everything above the cap is swept to the community's unmodified Sputnik DAO, and larger purchases become Sputnik proposals opened by the asset contract itself. The bridge reports telemetry; when a profile rule is due (telemetry threshold, schedule or member fault reports), the asset's operations agent (function-call key, contract-enforced caps and quotas) opens an upkeep task (maintenance, restock, cleaning, inspection, repair) with a rationale; restock and repair work can claim a capped, receipt-backed expense from the float. A member does the work, the bridge runs a verification test, an independent member approves, and the maintainer receives non-transferable NEP-171 usage-right cards that no admin can revoke. Risky machines require credential cards; trainers earn rights. Same WASM, different profile + adapter: four testnet assets (3D printer, laser cutter, dorm washer, dorm fridge) in two DAOs. No physical device was used: the printer and laser run through the real Moonraker and Shelly adapters against local device emulators, the others through a simulator, and every event and screen is labelled simulated. Testnet only. Everything claimed is verifiable with scripts/verify.sh.
 
 ## 4. Final checklist
 

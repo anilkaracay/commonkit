@@ -84,7 +84,7 @@ Every adapter has unit tests with a fake HTTP server (msw or nock) and one contr
 
 - `unlock(session)`: upload job file with print=true (`POST /server/files/upload`, research E1). If no file (interactive session), just mark ready.
 - `lock()`: printers are "locked" by the fact that only the bridge holds the API key and member-facing UIs are disabled or password-protected (research E5). Document exactly how in README.
-- `readMetrics()`: from `GET /server/history/totals` → `job_totals {total_jobs, total_print_time, total_filament_used}` in seconds and mm (research E3) → `jobs_total`, `print_seconds`, `filament_used_mm` (the Restock rule `filament_spool`); `jobs_failed` from job history / `print_stats.state == error` (E2). `nozzle_seconds` = print_seconds since last nozzle change (simplest: `nozzle_seconds = print_seconds`; the on-chain rule baseline handles resets). E3 is from the Moonraker docs, not yet run against a printer (research §3.8).
+- `readMetrics()`: from `GET /server/history/totals` → `job_totals {total_jobs, total_print_time, total_filament_used}` in seconds and mm (research E3) → `jobs_total`, `print_seconds`, `filament_used_mm` (the Restock rule `filament_spool`); `jobs_failed` from job history / `print_stats.state == error` (E2). `nozzle_seconds` = print_seconds since last nozzle change (simplest: `nozzle_seconds = print_seconds`; the on-chain rule baseline handles resets). E3 is from the Moonraker docs; in the demo the adapter reads it from the emulated Moonraker (§4.7), never a real printer (D-022).
 - `runVerification({type: "calibration_print", file: "verify/calibration_cube.gcode", max_minutes})`: run print, wait for `complete` state without errors → passed. `detailsHash` = sha256 of the job record JSON.
 - `sessionDone`: `print_stats.state in {complete, cancelled, error}`.
 
@@ -99,8 +99,8 @@ Same contract using OctoPrint REST (research E6).
 - `readMetrics()` → `energy_wh` (cumulative), `run_seconds` (seconds with power > `active_watts_threshold`), `cycles` (count of active→idle transitions lasting > `min_cycle_seconds`). Cycle detection runs in the bridge on a 1–5 s poll loop; persisted to `bridge/state/<asset>.json` so restarts keep counters monotonic.
 - `sessionDone`: session timer elapsed, or (for cycle devices) a cycle ended.
 - `runVerification({type: "power_profile", expect: {min_watts, max_watts, seconds}})` → passed if observed profile within bounds.
-- Optional `temperature_c` gauge (community_fridge `temperature_check`) when the device exposes a temperature sensor. Research E7 verified only switch, power and energy fields, so no plug temperature read is claimed; without a sensor the simulator provides the gauge, labelled simulation.
-- **Safety:** a laser cutter is powered on only when a human is present; the demo can use a soldering station or lamp as the stand-in and must label it. Enforced in config (D-408): a `dangerous` asset on a real adapter fails validation unless it has a labelled `stand_in` (copied into unlock events) or `human_present_confirmed: true`, which an operator sets only while a person is at the device and never commits.
+- Optional `temperature_c` gauge (community_fridge `temperature_check`) when the device exposes a temperature sensor. Research E7 verified only switch, power and energy fields, so no plug temperature read is claimed; in the demo the gauge comes from the emulator or the simulator, labelled simulation (D-022).
+- **Safety:** a laser cutter is powered on only when a human is present. In the demo `laser-01` drives an emulated Shelly plug (§4.7), so nothing is energized (D-022). Enforced in config (D-408): a `dangerous` asset on a real adapter fails validation unless it has a labelled `stand_in` (copied into unlock events) or `human_present_confirmed: true`, which an operator sets only while a person is at the device and never commits.
 
 ### 4.4 `manual_qr` (no electronics)
 
@@ -117,8 +117,20 @@ Same contract using OctoPrint REST (research E6).
 
 `report_telemetry` accepts only monotonic counters (`E_TELEMETRY_NOT_MONOTONIC`). Levels that go up and down (`temperature_c`, `fuel_level`) come from `readGauges()` and are never sent raw. Per asset, config `gauges` derives counters on every telemetry tick: `samples_above` / `samples_below` a limit (× `telemetry_interval_sec` ≈ time out of range), `decrease_sum` (× `scale`) and `increase_count` (rises ≥ `min_step`, e.g. refills). The profiles use the derived names: community_fridge `temp_high_samples ≥ 6`, emergency_generator `fuel_used_dl ≥ 200`. Derived counters get the normal monotonic protection (D-406); state in `bridge/state/<asset>.gauges.json`. Live gauge values appear in bridge events and `/assets` only, so a live temperature display reads the bridge, not the chain.
 
+### 4.7 Device emulators (D-022; in progress, the bridge engineer refines this section)
+
+No physical device is used in the hackathon. To keep the real code paths, the production adapters (`moonraker`, `octoprint`, `smart_plug` for Shelly Gen2 / Gen1 / Tasmota, `manual_qr`) run unchanged against **device emulators**: local HTTP servers that implement only the documented API subset these adapters call (research E1–E9), with:
+
+- the device state machine (Moonraker `print_stats.state` standby → printing → complete / cancelled / error; Shelly switch on/off),
+- cumulative counters the adapters read (`history/totals` jobs, print time, filament mm; `aenergy.total` Wh, `apower` W),
+- the same auth as the device (Moonraker `X-Api-Key`; Shelly digest auth if enabled),
+- failure modes (offline, job error, failed calibration, wrong key) driven by the scenario file, deterministic with a seed.
+
+The bridge config points the adapter's `base_url` at the emulator; nothing else changes. Every emulator response path, bridge log line, event and UI badge says SIMULATED / emulated device, and the `simulated = 1` metric goes on chain as for the simulator (D-401). The adapter tests run against the same emulators. Honest limit: an emulator follows the documentation, not a real device, so no claim is made about real Moonraker or Shelly firmware (§5).
+
 ## 5. Device-side lock assumptions (honest limits)
 
+- No physical device was tested (D-022). The adapters were tested only against the emulators in §4.7; the points below describe a real installation.
 - Physical bypass (unplug the smart plug, press the printer's own buttons) is possible. We state it.
 - The bridge is trusted; if compromised it could fake telemetry. Telemetry alone never pays anyone; the DAO can revoke the bridge operator on the asset contract.
 
