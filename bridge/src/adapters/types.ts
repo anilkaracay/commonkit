@@ -81,6 +81,8 @@ export interface Adapter {
   readGauges?(): Promise<Gauges>;
   runVerification(test: VerificationTest): Promise<VerificationOutcome>;
   sessionDone(session: SessionContext): Promise<boolean>;
+  /** Extra data for the session holder, returned by /access (e.g. manual_qr handover codes). */
+  sessionInfo?(session: SessionContext): Promise<Record<string, unknown>>;
   close?(): Promise<void>;
 }
 
@@ -93,6 +95,8 @@ export interface AdapterContext {
   logger: Logger;
   /** Base directory used to resolve relative paths in adapter_config. */
   configDir: string;
+  /** Environment for secrets named in adapter_config (`*_env`). */
+  env: NodeJS.ProcessEnv;
 }
 
 export class AdapterOfflineError extends Error {

@@ -31,6 +31,8 @@ export interface BridgeOptions {
   retry?: { attempts: number; baseDelayMs: number };
   /** Chain-time cache window in ms (0 = always ask the chain). */
   chainClockMaxAgeMs?: number;
+  /** Environment for adapter secrets (`*_env` in adapter_config). Default process.env. */
+  env?: NodeJS.ProcessEnv;
 }
 
 /** The whole bridge minus HTTP: build with createBridge, then init(), start(), stop(). */
@@ -74,6 +76,7 @@ export class Bridge {
         clock: this.clock,
         logger,
         configDir: o.config.configDir,
+        env: o.env ?? process.env,
       });
       if (adapter.simulated && !simulated) throw new Error(`adapter ${adapter.kind} is simulated but was not labelled`);
       this.assets.set(a.asset_id, {

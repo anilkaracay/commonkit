@@ -18,7 +18,7 @@ const ctx = (n: number): SessionContext => ({
 async function sim(scenario: string, stateDir?: string, clock = new ManualClock()) {
   const adapter = new SimulatorAdapter(
     { scenario: `scenarios/${scenario}.yaml` },
-    { assetId: "sim.testnet", stateDir: stateDir ?? (await tempDir()), clock, logger: pino({ level: "silent" }), configDir: FIXTURES },
+    { assetId: "sim.testnet", stateDir: stateDir ?? (await tempDir()), clock, logger: pino({ level: "silent" }), configDir: FIXTURES, env: {} },
   );
   await adapter.init();
   return { adapter, clock };

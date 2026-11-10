@@ -11,7 +11,7 @@ for (const scenario of ["washer", "printer_3d", "laser_cutter", "community_fridg
     const make = () =>
       new SimulatorAdapter(
         { scenario: `scenarios/${scenario}.yaml` },
-        { assetId: `${scenario}-01.testnet`, stateDir, clock, logger: pino({ level: "silent" }), configDir: FIXTURES },
+        { assetId: `${scenario}-01.testnet`, stateDir, clock, logger: pino({ level: "silent" }), configDir: FIXTURES, env: {} },
       );
     const adapter = make();
     return {

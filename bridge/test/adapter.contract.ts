@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { MAX_METRICS, MAX_METRIC_NAME, type Adapter, type Metrics, type SessionContext } from "../src/adapters/types.js";
+import { afterEach, describe, expect, it } from "vitest";
+import { MAX_METRICS, MAX_METRIC_NAME, type Adapter, type Metrics, type SessionContext, type VerificationTest } from "../src/adapters/types.js";
 
 /**
  * Shared adapter contract (BRIDGE §4). Every adapter (simulator now; moonraker, octoprint,
@@ -11,6 +11,10 @@ export interface ContractHarness {
   completeSession(session: SessionContext): Promise<void>;
   /** Makes a fresh adapter instance over the same persisted state (restart). */
   restart?(): Promise<Adapter>;
+  /** The test this adapter runs in the contract (default: simulated). null = no automated test. */
+  verificationTest?: VerificationTest | null;
+  /** Cleanup (close emulators, timers). */
+  dispose?(): Promise<void>;
 }
 
 const session = (n: number): SessionContext => ({
@@ -28,8 +32,21 @@ function expectMonotonic(before: Metrics, after: Metrics): void {
   }
 }
 
-export function describeAdapterContract(name: string, make: () => Promise<ContractHarness>): void {
+export function describeAdapterContract(name: string, makeHarness: () => Promise<ContractHarness>): void {
   describe(`adapter contract: ${name}`, () => {
+    const live: ContractHarness[] = [];
+    const make = async () => {
+      const h = await makeHarness();
+      live.push(h);
+      return h;
+    };
+    afterEach(async () => {
+      for (const h of live.splice(0)) {
+        await h.adapter.close?.();
+        await h.dispose?.();
+      }
+    });
+
     it("starts locked and online after init (fail closed)", async () => {
       const { adapter } = await make();
       await adapter.init();
@@ -122,10 +139,16 @@ export function describeAdapterContract(name: string, make: () => Promise<Contra
       await h.adapter.lock();
     });
 
-    it("runVerification returns passed + a sha256 hex detailsHash", async () => {
+    it("runVerification returns passed + a sha256 hex detailsHash (or refuses if it has no automated test)", async () => {
       const h = await make();
       await h.adapter.init();
-      const out = await h.adapter.runVerification({ type: "simulated" });
+      const test = h.verificationTest === undefined ? ({ type: "simulated" } as const) : h.verificationTest;
+      if (test === null) {
+        await expect(h.adapter.runVerification({ type: "simulated" })).rejects.toThrow();
+        return;
+      }
+      const out = await h.adapter.runVerification(test);
+      expect(out.passed).toBe(true);
       expect(typeof out.passed).toBe("boolean");
       expect(out.detailsHash).toMatch(/^[0-9a-f]{64}$/);
       expect(typeof out.details).toBe("object");

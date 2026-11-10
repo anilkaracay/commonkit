@@ -66,7 +66,9 @@ export function createEmulatorApp<F extends BaseFaults>(
   snapshot: () => Record<string, unknown>,
 ): FastifyInstance {
   const app = Fastify({
-    loggerInstance: logger.child({ emulated: true, simulated: true, device }) as FastifyBaseLogger,
+    loggerInstance: logger.child(
+      Object.prototype.hasOwnProperty.call(logger.bindings(), "emulated") ? { device } : { emulated: true, simulated: true, device },
+    ) as FastifyBaseLogger,
     bodyLimit: 32 * 1024 * 1024,
   });
   app.addHook("onRequest", async (req, reply) => {
