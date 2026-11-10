@@ -1,0 +1,162 @@
+{
+  "label": "SIMULATED washer loop on NEAR testnet (simulator adapter, D-022): reserve -> NEP-413 access -> session -> finish -> telemetry",
+  "simulated": true,
+  "network": "testnet",
+  "at": "2026-11-10T05:07:00.947Z",
+  "asset_id": "washer-01.dorm-b.commonkit-sxflo.testnet",
+  "member": "ali.commonkit-sxflo.testnet",
+  "bridge": "bridge.commonkit-sxflo.testnet",
+  "reservation_id": "0",
+  "session": {
+    "id": "7b8e498d-837c-40cc-abff-9b4e1d56e881",
+    "finish_reason": "device_done",
+    "metrics_at_end": {
+      "cycles": "28",
+      "run_seconds": "99900",
+      "energy_wh": "25000",
+      "simulated": "1"
+    }
+  },
+  "txs": {
+    "reserve": "87FJrXVfsP6RSCeEDrwSoBJR4Lk5XMz8aGE8hUpQjnwM",
+    "mark_session_started": "BN6pE1VzS1Lt7wPSDQ8Tno5M7SuTsLqTL9k6UNB9RGy5",
+    "mark_session_finished": "8rptmDfkHTBP5H4WYfsgrmPb3Kx2rM5VzF1mECwFrKvD",
+    "report_telemetry": "H6o6jBerzcx4ffWVasgTuvSBTTNwy9MQoA1THXm4rph3"
+  },
+  "explorer": {
+    "reserve": "https://testnet.nearblocks.io/txns/87FJrXVfsP6RSCeEDrwSoBJR4Lk5XMz8aGE8hUpQjnwM",
+    "mark_session_started": "https://testnet.nearblocks.io/txns/BN6pE1VzS1Lt7wPSDQ8Tno5M7SuTsLqTL9k6UNB9RGy5",
+    "mark_session_finished": "https://testnet.nearblocks.io/txns/8rptmDfkHTBP5H4WYfsgrmPb3Kx2rM5VzF1mECwFrKvD",
+    "report_telemetry": "https://testnet.nearblocks.io/txns/H6o6jBerzcx4ffWVasgTuvSBTTNwy9MQoA1THXm4rph3"
+  },
+  "bridge_events": [
+    {
+      "type": "bridge_started",
+      "simulated": true,
+      "data": {
+        "bridge_account": "bridge.commonkit-sxflo.testnet",
+        "chain": "near",
+        "recipient": "commonkit-bridge:bridge.commonkit-sxflo.testnet",
+        "assets": [
+          {
+            "asset_id": "washer-01.dorm-b.commonkit-sxflo.testnet",
+            "adapter": "simulator",
+            "device": "simulator",
+            "simulated": true,
+            "stand_in": null
+          }
+        ]
+      }
+    },
+    {
+      "type": "session_started",
+      "simulated": true,
+      "data": {
+        "session_id": "7b8e498d-837c-40cc-abff-9b4e1d56e881",
+        "reservation_id": "0",
+        "account_id": "ali.commonkit-sxflo.testnet",
+        "key_permission": "full_access",
+        "tx": "BN6pE1VzS1Lt7wPSDQ8Tno5M7SuTsLqTL9k6UNB9RGy5",
+        "deadline_chain_ns": "1794290754858299908"
+      }
+    },
+    {
+      "type": "device_unlocked",
+      "simulated": true,
+      "data": {
+        "session_id": "7b8e498d-837c-40cc-abff-9b4e1d56e881",
+        "reservation_id": "0"
+      }
+    },
+    {
+      "type": "access_granted",
+      "simulated": true,
+      "data": {
+        "session_id": "7b8e498d-837c-40cc-abff-9b4e1d56e881",
+        "reservation_id": "0",
+        "account_id": "ali.commonkit-sxflo.testnet",
+        "key_permission": "full_access",
+        "resumed": false
+      }
+    },
+    {
+      "type": "device_locked",
+      "simulated": true,
+      "data": {
+        "session_id": "7b8e498d-837c-40cc-abff-9b4e1d56e881",
+        "reason": "device_done"
+      }
+    },
+    {
+      "type": "session_finished",
+      "simulated": true,
+      "data": {
+        "session_id": "7b8e498d-837c-40cc-abff-9b4e1d56e881",
+        "reservation_id": "0",
+        "reason": "device_done",
+        "tx": "8rptmDfkHTBP5H4WYfsgrmPb3Kx2rM5VzF1mECwFrKvD",
+        "metrics": {
+          "cycles": "28",
+          "run_seconds": "99900",
+          "energy_wh": "25000",
+          "simulated": "1"
+        },
+        "delta": {
+          "cycles": "1",
+          "run_seconds": "2700",
+          "energy_wh": "700",
+          "simulated": "0"
+        }
+      }
+    },
+    {
+      "type": "telemetry_reported",
+      "simulated": true,
+      "data": {
+        "metrics": {
+          "cycles": "28",
+          "run_seconds": "99900",
+          "energy_wh": "25001",
+          "simulated": "1"
+        },
+        "gauges": {},
+        "tx": "H6o6jBerzcx4ffWVasgTuvSBTTNwy9MQoA1THXm4rph3"
+      }
+    }
+  ],
+  "post_checks": {
+    "checked_at": "2026-11-10T05:07:36.459Z",
+    "reservation": {
+      "status": "Finished",
+      "fee_paid": "200000000000000000000000",
+      "deposit_paid": "0",
+      "return_result": null
+    },
+    "ledger": {
+      "invariant_ok": true,
+      "storage_ok": true,
+      "float_free": "1000000000000000000000000",
+      "float_cap": "1000000000000000000000000",
+      "deposits_held": "0",
+      "total_fees_in": "200000000000000000000000",
+      "total_swept": "250959398775000000000000"
+    },
+    "ops": [
+      {
+        "id": "0",
+        "kind": "Sweep",
+        "amount": "50000000000000000000000",
+        "status": "Succeeded",
+        "ref_id": null
+      },
+      {
+        "id": "1",
+        "kind": "Sweep",
+        "amount": "200959398775000000000000",
+        "status": "Succeeded",
+        "ref_id": null
+      }
+    ],
+    "note": "Reservation left Finished: the steward return check (confirm_return) is not part of this loop. Washer deposit is 0, so the refund on a Clean return is 0 and deposits_held stays 0."
+  }
+}

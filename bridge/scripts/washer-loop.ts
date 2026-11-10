@@ -198,9 +198,23 @@ assets:
       Object.entries({ reserve: reserveTx.txHash, mark_session_started: s.startTx, mark_session_finished: s.finishTx, report_telemetry: telemetryTx }).flatMap(([k, v]) => (v ? [[k, explorer(v)]] : [])),
     ),
     bridge_events: events.map((e) => ({ type: e.type, simulated: e.simulated, data: e.data })),
+    post_checks: await postChecks(rpc, reservationId),
   };
   await writeFile(values.out, JSON.stringify(evidence, null, 2) + "\n");
   log(`evidence written to ${values.out}`);
+}
+
+/** Views after the loop: reservation state, ledger invariant, deposit position, ops (sweeps/refunds). */
+async function postChecks(rpc: NearRpc, reservationId: string): Promise<Record<string, unknown>> {
+  const r = await rpc.view<Record<string, unknown>>(ASSET, "get_reservation", { id: reservationId });
+  const ledger = await rpc.view<Record<string, unknown>>(ASSET, "get_ledger");
+  const ops = await rpc.view<Array<Record<string, unknown>>>(ASSET, "get_ops", { from_index: "0", limit: 50 });
+  return {
+    reservation: { status: r.status, fee_paid: r.fee_paid, deposit_paid: r.deposit_paid, return_result: r.return_result },
+    ledger: { invariant_ok: ledger.invariant_ok, storage_ok: ledger.storage_ok, float_free: ledger.float_free, float_cap: ledger.float_cap, deposits_held: ledger.deposits_held, total_fees_in: ledger.total_fees_in, total_swept: ledger.total_swept },
+    ops: ops.map((o) => ({ id: o.id, kind: o.kind, amount: o.amount, status: o.status, ref_id: o.ref_id })),
+    note: "Reservation left Finished: the steward return check (confirm_return) is not part of this loop. Washer deposit is 0, so the refund on a Clean return is 0 and deposits_held stays 0.",
+  };
 }
 
 await main();
