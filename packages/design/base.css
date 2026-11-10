@@ -1,0 +1,62 @@
+/* Base element styles on the tokens. Import after tokens.css and fonts.css. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--ck-bg);
+  color: var(--ck-text);
+  font-family: var(--ck-font-sans);
+  font-size: var(--ck-text-base);
+  font-stretch: 100%;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+img,
+svg,
+canvas,
+video {
+  display: block;
+  max-width: 100%;
+}
+a {
+  color: inherit;
+}
+:focus-visible {
+  outline: var(--ck-focus);
+  outline-offset: var(--ck-focus-offset);
+  border-radius: var(--ck-radius-xs);
+}
+.ck-num {
+  font-variant-numeric: tabular-nums;
+}
+.ck-mono {
+  font-family: var(--ck-font-mono);
+  font-size: 0.86em;
+  letter-spacing: -0.01em;
+}
+.ck-display {
+  font-stretch: var(--ck-display-stretch);
+  font-weight: var(--ck-display-weight);
+  letter-spacing: var(--ck-display-tracking);
+  line-height: var(--ck-display-leading);
+  text-wrap: balance;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

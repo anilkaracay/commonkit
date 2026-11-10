@@ -1,0 +1,97 @@
+/*
+ * Tailwind v4 theme for COMMONKIT (the "preset"). Usage in a CSS entry:
+ *   @import 'tailwindcss';
+ *   @import '@commonkit/design/all.css';
+ *   @import '@commonkit/design/tailwind.css';
+ * Utilities then read the tokens: bg-bg-alt, text-text-2, bg-accent, border-line, font-mono,
+ * rounded-lg, shadow-md, ease-ck-out, duration-ck-3, text-display-xl ...
+ */
+@theme inline {
+  --color-*: initial;
+  --color-white: var(--ck-white);
+  --color-ink: var(--ck-ink-950);
+  --color-navy-900: var(--ck-navy-900);
+  --color-navy-800: var(--ck-navy-800);
+  --color-navy-700: var(--ck-navy-700);
+  --color-cobalt-700: var(--ck-cobalt-700);
+  --color-cobalt-600: var(--ck-cobalt-600);
+  --color-blue-500: var(--ck-blue-500);
+  --color-sky-300: var(--ck-sky-300);
+  --color-ice-200: var(--ck-ice-200);
+  --color-ice-100: var(--ck-ice-100);
+  --color-ice-50: var(--ck-ice-50);
+  --color-slate-700: var(--ck-slate-700);
+  --color-slate-600: var(--ck-slate-600);
+  --color-slate-500: var(--ck-slate-500);
+  --color-slate-400: var(--ck-slate-400);
+  --color-slate-300: var(--ck-slate-300);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-bg: var(--ck-bg);
+  --color-bg-alt: var(--ck-bg-alt);
+  --color-surface: var(--ck-surface);
+  --color-surface-2: var(--ck-surface-2);
+  --color-text: var(--ck-text);
+  --color-text-2: var(--ck-text-2);
+  --color-text-3: var(--ck-text-3);
+  --color-line: var(--ck-line);
+  --color-line-strong: var(--ck-line-strong);
+  --color-accent: var(--ck-accent);
+  --color-accent-hover: var(--ck-accent-hover);
+  --color-accent-soft: var(--ck-accent-soft);
+  --color-on-accent: var(--ck-on-accent);
+  --color-track: var(--ck-track);
+  --color-fill: var(--ck-fill);
+  --color-due: var(--ck-due);
+  --color-due-fill: var(--ck-due-fill);
+  --color-due-soft: var(--ck-due-soft);
+  --color-danger: var(--ck-danger);
+  --color-danger-soft: var(--ck-danger-soft);
+  --color-liability: var(--ck-liability);
+  --color-liability-soft: var(--ck-liability-soft);
+  --color-sim: var(--ck-sim);
+  --color-inverse: var(--ck-inverse-bg);
+  --color-inverse-text: var(--ck-inverse-text);
+  --color-inverse-text-2: var(--ck-inverse-text-2);
+
+  --font-*: initial;
+  --font-sans: var(--ck-font-sans);
+  --font-display: var(--ck-font-sans);
+  --font-mono: var(--ck-font-mono);
+
+  --text-xs: var(--ck-text-xs);
+  --text-sm: var(--ck-text-sm);
+  --text-base: var(--ck-text-base);
+  --text-md: var(--ck-text-md);
+  --text-lg: var(--ck-text-lg);
+  --text-xl: var(--ck-text-xl);
+  --text-2xl: var(--ck-text-2xl);
+  --text-3xl: var(--ck-text-3xl);
+  --text-display-lg: var(--ck-text-4xl);
+  --text-display-lg--line-height: var(--ck-display-leading);
+  --text-display-lg--letter-spacing: var(--ck-display-tracking);
+  --text-display-xl: var(--ck-text-5xl);
+  --text-display-xl--line-height: var(--ck-display-leading);
+  --text-display-xl--letter-spacing: var(--ck-display-tracking);
+
+  --radius-xs: var(--ck-radius-xs);
+  --radius-sm: var(--ck-radius-sm);
+  --radius-md: var(--ck-radius-md);
+  --radius-lg: var(--ck-radius-lg);
+  --radius-xl: var(--ck-radius-xl);
+  --radius-full: var(--ck-radius-full);
+
+  --shadow-*: initial;
+  --shadow-sm: var(--ck-shadow-sm);
+  --shadow-md: var(--ck-shadow-md);
+  --shadow-lg: var(--ck-shadow-lg);
+
+  --ease-ck-out: var(--ck-ease-out);
+  --ease-ck-in-out: var(--ck-ease-in-out);
+}
+
+@utility font-display-stretch {
+  font-stretch: var(--ck-display-stretch);
+  font-weight: var(--ck-display-weight);
+}

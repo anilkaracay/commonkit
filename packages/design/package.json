@@ -1,0 +1,34 @@
+{
+  "name": "@commonkit/design",
+  "private": true,
+  "version": "0.1.0",
+  "description": "COMMONKIT design system (D-030): light-led blue tokens, CK Sans + Geist Mono, Tailwind v4 theme, base components.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./tokens.css",
+    "./fonts.css": "./fonts.css",
+    "./base.css": "./base.css",
+    "./components.css": "./components.css",
+    "./tailwind.css": "./tailwind.css",
+    "./all.css": "./all.css",
+    "./fonts/*": "./fonts/*"
+  },
+  "files": [
+    "*.css",
+    "fonts",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

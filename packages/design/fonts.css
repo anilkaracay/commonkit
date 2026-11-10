@@ -1,0 +1,37 @@
+/*
+ * CK Sans = Mona Sans 2 (SIL OFL 1.1, RFN "Mona"), instanced to wdth 100–112 / wght 400–640 and subset
+ * (Latin, Latin-1, Turkish). Renamed inside the file because the subset is a Modified Version.
+ * Geist Mono (SIL OFL 1.1), Latin subset: account ids and tx hashes only. Licenses in fonts/OFL-*.txt.
+ */
+@font-face {
+  font-family: 'CK Sans';
+  src: url('./fonts/ck-sans.woff2') format('woff2');
+  font-weight: 400 640;
+  font-stretch: 100% 112%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'CK Sans';
+  src: url('./fonts/ck-sans-tr.woff2') format('woff2');
+  font-weight: 400 640;
+  font-stretch: 100% 112%;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+011E-011F, U+0130-0131, U+015E-015F;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('./fonts/geist-mono.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+/* Metric-adjusted local fallback: keeps layout stable while CK Sans loads (no CLS). */
+@font-face {
+  font-family: 'CK Fallback';
+  src: local('Arial'), local('Helvetica Neue'), local('Helvetica');
+  size-adjust: 104%;
+  ascent-override: 92%;
+  descent-override: 24%;
+}

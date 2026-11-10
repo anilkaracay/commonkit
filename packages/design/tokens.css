@@ -1,0 +1,132 @@
+/*
+ * COMMONKIT design tokens (D-030) — light-led blue system. Light only.
+ * Primitives first, then semantic tokens. Components and pages use the semantic ones.
+ * Contrast pairs are checked in src/contrast.test.ts (WCAG AA).
+ */
+:root {
+  color-scheme: light;
+
+  /* ---- Primitives: blue scale ---- */
+  --ck-ink-950: #0a1526; /* near-black navy: all primary text */
+  --ck-navy-900: #0d1f3c;
+  --ck-navy-800: #132b52;
+  --ck-navy-700: #1c3a6b;
+  --ck-cobalt-700: #1c42b8; /* pressed / hover on cobalt */
+  --ck-cobalt-600: #2453e0; /* actions, links, gauge fills */
+  --ck-blue-500: #4d7ff0;
+  --ck-sky-300: #9cc3ff;
+  --ck-ice-200: #dce6f4;
+  --ck-ice-100: #eaf0f8;
+  --ck-ice-50: #f5f8fc;
+  --ck-white: #ffffff;
+
+  /* ---- Primitives: blue-tinted neutrals ---- */
+  --ck-slate-700: #33415a;
+  --ck-slate-600: #4e5d76;
+  --ck-slate-500: #5b6a83;
+  --ck-slate-400: #8593a8; /* decorative only (icons, rules), never text */
+  --ck-slate-300: #a9b9d3;
+  --ck-line-200: #dce3ee;
+  --ck-line-300: #c6d1e1;
+
+  /* ---- The one warm accent: open / due upkeep only ---- */
+  --ck-orange-500: #f07a2a; /* fills, dots, the bed tab in 3D */
+  --ck-orange-700: #b4500f; /* text on white */
+  --ck-orange-50: #fdf0e6;
+
+  /* ---- Functional: errors and refusals only (never decoration) ---- */
+  --ck-red-700: #b42318;
+  --ck-red-50: #fdecea;
+
+  /* ---- Semantic ---- */
+  --ck-bg: var(--ck-white);
+  --ck-bg-alt: var(--ck-ice-50);
+  --ck-surface: var(--ck-white);
+  --ck-surface-2: var(--ck-ice-100);
+  --ck-text: var(--ck-ink-950);
+  --ck-text-2: var(--ck-slate-600); /* secondary copy */
+  --ck-text-3: var(--ck-slate-500); /* captions, meta (>= 4.5:1 on white and ice-50) */
+  --ck-line: var(--ck-line-200);
+  --ck-line-strong: var(--ck-line-300);
+  --ck-accent: var(--ck-cobalt-600);
+  --ck-accent-hover: var(--ck-cobalt-700);
+  --ck-on-accent: var(--ck-white);
+  --ck-accent-soft: #e8eefc;
+  --ck-track: #e3eaf4; /* gauge track */
+  --ck-fill: var(--ck-cobalt-600); /* gauge fill */
+  --ck-due: var(--ck-orange-700); /* text: "Due", "Task #3 open" */
+  --ck-due-fill: var(--ck-orange-500);
+  --ck-due-soft: var(--ck-orange-50);
+  --ck-danger: var(--ck-red-700);
+  --ck-danger-soft: var(--ck-red-50);
+  --ck-liability: var(--ck-navy-700); /* deposits held: a liability, shown in navy, never as revenue */
+  --ck-liability-soft: var(--ck-ice-100);
+  --ck-sim: var(--ck-slate-600); /* "Simulated device" label: quiet, outlined square, no colour badge */
+  --ck-inverse-bg: var(--ck-navy-900); /* rare dark surfaces (usage-right pass, footer) */
+  --ck-inverse-text: var(--ck-white);
+  --ck-inverse-text-2: var(--ck-slate-300);
+
+  /* ---- Type ---- */
+  --ck-font-sans: 'CK Sans', 'CK Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ck-font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  /* Display: width 112 %, weight 560, tight tracking. Text: width 100 %. */
+  --ck-display-stretch: 112%;
+  --ck-display-weight: 560;
+  --ck-display-tracking: -0.042em;
+  --ck-display-leading: 0.98;
+  --ck-text-xs: 12.5px;
+  --ck-text-sm: 13.5px;
+  --ck-text-base: 15px; /* app body */
+  --ck-text-md: 17px; /* landing body */
+  --ck-text-lg: 19px;
+  --ck-text-xl: 22px;
+  --ck-text-2xl: 28px;
+  --ck-text-3xl: 36px;
+  --ck-text-4xl: clamp(36px, 4.6vw, 68px); /* section headline */
+  --ck-text-5xl: clamp(44px, 5.3vw, 80px); /* hero headline */
+  --ck-weight-regular: 400;
+  --ck-weight-medium: 520;
+  --ck-weight-semibold: 600;
+
+  /* ---- Space (4 px base) ---- */
+  --ck-space-1: 4px;
+  --ck-space-2: 8px;
+  --ck-space-3: 12px;
+  --ck-space-4: 16px;
+  --ck-space-5: 20px;
+  --ck-space-6: 24px;
+  --ck-space-8: 32px;
+  --ck-space-10: 40px;
+  --ck-space-12: 48px;
+  --ck-space-16: 64px;
+  --ck-space-24: 96px;
+  --ck-space-32: 128px;
+  --ck-gutter: clamp(20px, 4vw, 48px);
+  --ck-wrap: 1240px;
+
+  /* ---- Radius ---- */
+  --ck-radius-xs: 4px;
+  --ck-radius-sm: 8px;
+  --ck-radius-md: 14px;
+  --ck-radius-lg: 20px;
+  --ck-radius-xl: 28px;
+  --ck-radius-full: 999px; /* buttons only */
+
+  /* ---- Elevation (blue-tinted, soft; no glow) ---- */
+  --ck-shadow-sm: 0 1px 2px rgb(10 21 38 / 0.06);
+  --ck-shadow-md: 0 1px 2px rgb(10 21 38 / 0.06), 0 12px 32px -12px rgb(10 21 38 / 0.14);
+  --ck-shadow-lg: 0 2px 4px rgb(10 21 38 / 0.08), 0 40px 80px -32px rgb(13 31 60 / 0.45);
+
+  /* ---- Motion ---- */
+  --ck-dur-1: 120ms; /* press, hover colour */
+  --ck-dur-2: 200ms; /* small state changes */
+  --ck-dur-3: 320ms; /* panels, gauges */
+  --ck-dur-4: 600ms; /* crossfades (poster -> live 3D) */
+  --ck-dur-5: 900ms; /* scroll reveals */
+  --ck-ease-out: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --ck-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---- Focus ---- */
+  --ck-focus: 2px solid var(--ck-cobalt-600);
+  --ck-focus-offset: 3px;
+}

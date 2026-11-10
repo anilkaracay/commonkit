@@ -1,0 +1,140 @@
+/* Base components shared by landing and app. Plain classes, prefixed ck-, no framework required. */
+
+/* Buttons: one filled action per view, everything else is a quiet link or the ghost button. */
+.ck-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ck-space-2);
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--ck-radius-full);
+  background: var(--ck-accent);
+  color: var(--ck-on-accent);
+  font: var(--ck-weight-semibold) 15px/1 var(--ck-font-sans);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--ck-dur-1) var(--ck-ease-out),
+    transform var(--ck-dur-2) var(--ck-ease-out);
+}
+.ck-btn:hover {
+  background: var(--ck-accent-hover);
+}
+.ck-btn:active {
+  transform: translateY(1px);
+}
+.ck-btn[disabled],
+.ck-btn[aria-disabled='true'] {
+  background: var(--ck-surface-2);
+  color: var(--ck-text-3);
+  cursor: not-allowed;
+}
+.ck-btn--ghost {
+  background: transparent;
+  color: var(--ck-text);
+  box-shadow: inset 0 0 0 1px var(--ck-line-strong);
+}
+.ck-btn--ghost:hover {
+  background: var(--ck-bg-alt);
+}
+.ck-btn--lg {
+  height: 48px;
+  padding: 0 22px;
+  font-size: 16px;
+}
+.ck-link {
+  color: var(--ck-text);
+  font-weight: var(--ck-weight-semibold);
+  text-decoration: none;
+}
+.ck-link:hover {
+  color: var(--ck-accent);
+}
+
+/* Card: white surface, hairline, soft shadow. */
+.ck-card {
+  background: var(--ck-surface);
+  border: 1px solid var(--ck-line);
+  border-radius: var(--ck-radius-lg);
+  box-shadow: var(--ck-shadow-md);
+}
+
+/* Gauge: 4 px track, cobalt fill; set --v as a percentage. Add .is-due for upkeep that is due. */
+.ck-gauge {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ck-track);
+  overflow: hidden;
+}
+.ck-gauge > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--v, 0%);
+  background: var(--ck-fill);
+  border-radius: 2px;
+  transition: width var(--ck-dur-3) var(--ck-ease-out);
+}
+.ck-gauge.is-due > span {
+  background: var(--ck-due-fill);
+}
+
+/* Honesty labels: designed in, quiet, always present when they apply. */
+.ck-sim {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ck-sim);
+  font-size: var(--ck-text-sm);
+  font-weight: var(--ck-weight-medium);
+}
+.ck-sim::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+}
+.ck-note {
+  color: var(--ck-text-3);
+  font-size: var(--ck-text-sm);
+}
+
+/* Status dot: in service (blue) or due/open (orange). Pair it with text, never colour alone. */
+.ck-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ck-blue-500);
+  vertical-align: 1px;
+}
+.ck-dot--due {
+  background: var(--ck-due-fill);
+}
+.ck-dot--off {
+  background: var(--ck-slate-400);
+}
+
+/* Key/value rows (ledger, task, right). */
+.ck-rows {
+  margin: 0;
+  border-top: 1px solid var(--ck-line);
+}
+.ck-rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ck-space-4);
+  padding: 11px 0;
+  border-bottom: 1px solid var(--ck-line);
+}
+.ck-rows dt {
+  color: var(--ck-text-3);
+}
+.ck-rows dd {
+  margin: 0;
+  font-weight: var(--ck-weight-medium);
+  text-align: right;
+}
