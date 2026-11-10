@@ -22,7 +22,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 
 | Gate | Content | State |
 | :--- | :--- | :--- |
-| G1 Core live | M1c verified; 4 assets live + keyless; verify.sh green; bridge + agent on testnet; hosted app with real data | ◐ |
+| G1 Core live | ◐ contracts + keyless + verify.sh ✅; bridge washer loop + agent on testnet running; hosted app waits on H11 | evidence/verify-2026-11-10.txt |
 | G2 Proof complete | 21/21 judge steps with evidence; simulate.sh × 12; pilot kit + runbook; plug onboarded if delivered; landing §1–9 | ☐ |
 | G3 Real world | pilot run; plug clips; evidence + consents (or plainly skipped) | ☐ |
 | G4 Feature freeze | after G3 (or G2 if no pilot) | ☐ |
@@ -38,8 +38,8 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | M0 Research + scaffold | ✅ (verifier pending) | docs/RESEARCH_RESULTS.md (C8 contract-as-proposer proven on testnet, D-101); `pnpm validate:profiles` 12/12 ✅ |
 | M1a asset contract | ✅ (verifier: pass with fixes → fixed, D-213) | 279 unit tests (`cargo test -p commonkit-asset`), wasm sha256 24132b0a…ec8e, code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h |
 | M1b commons contract | ✅ (verifier: pass with fixes → fixed) | 120 unit tests, code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn |
-| M1c sandbox + invariants | ✅ tests green (lead rerun 2026-11-10), verifier review running | `pnpm test:contracts` exit 0: 34 sandbox tests incl. 20/20 inv_* against real Sputnik v2 WASM; reproducible build not achieved (D-216) |
-| M2 testnet setup | ◐ 4 assets deployed + seeded, one code_hash; keyless deletion gated on M1c verifier | `./scripts/verify.sh --allow-pending` 0 ❌ (70d6242); deploy txs printer 315qJKEZ…, laser CjEyTuGY…, washer 8bDy3oxZ…, fridge Djix1a22… (evidence/setup.json, evidence/seed.json) |
+| M1c sandbox + invariants | ✅ verifier: pass with fixes → priority fixes done (864a222) | 34 sandbox incl. 20/20 inv_*; reproducible build works but differs from deployed host build — deployed code kept, both hashes documented (D-216/D-218) |
+| M2 testnet setup | ✅ 4 assets + 2 commons live and keyless | strict `./scripts/verify.sh` exit 0, 48 ✅ (evidence/verify-2026-11-10.txt); delete-key txs in evidence/setup.json (e.g. printer-01 Bf6gbxyT…); D-709 margin repair via DAO transfers |
 | M3 bridge + adapters | ◐ simulator, NEP-413 (full-access only, D-019), signer wiring done; emulators + real adapters in progress | `pnpm --filter @commonkit/bridge test` |
 | M4 agent | ◐ offline ✅ (68 tests); signer wiring in progress | `pnpm --filter @commonkit/agent test` |
 | M5 web skeleton | ✅ on mock data, verifier pending | `pnpm --filter @commonkit/web test` 46 ✅; screenshots web/screenshots |
