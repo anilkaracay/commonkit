@@ -13,7 +13,7 @@ const repo = resolve(here, '../..');
 const dep = JSON.parse(readFileSync(resolve(repo, 'deployments/testnet.json'), 'utf8')) as {
   communities: Record<string, { dao_id: string; assets: string[] }>;
 };
-const rpc = new NearRpc(process.env.NEAR_RPC_URL ?? RPC_URLS[0], politeFetch(2));
+const rpc = new NearRpc(process.env.NEAR_RPC_URL ?? RPC_URLS[0], politeFetch(1));
 const assets = [];
 for (const [community, c] of Object.entries(dep.communities))
   for (const account of c.assets) {

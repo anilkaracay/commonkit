@@ -3,15 +3,16 @@
  * build-time data as the page. Run after `vite build`: tsx scripts/og.ts
  */
 import { chromium } from 'playwright';
-import { readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadData } from '../render/data.ts';
 import { art, LOGO_MARK } from '../render/art.ts';
 import { machineCard } from '../src/lib/cards.ts';
 
 const root = resolve(import.meta.dirname, '..');
-const assets = resolve(root, 'dist/assets');
-const css = readdirSync(assets).find((f) => /^style-.*\.css$/.test(f) || /^index-.*\.css$/.test(f));
+// the build inlines the page CSS; reuse that <style> block
+const builtHtml = readFileSync(resolve(root, 'dist/index.html'), 'utf8');
+const css = /<style>([\s\S]*?)<\/style>/.exec(builtHtml)?.[1];
 if (!css) throw new Error('run vite build first');
 const d = loadData();
 const a = d.snapshot.assets.find((x) => x.asset_type === 'printer_3d')!;
@@ -24,7 +25,7 @@ const card = machineCard(a, {
   at: d.snapshot.taken_at,
 });
 
-const og = `<!doctype html><html data-hero="a"><head><meta charset="utf-8"><link rel="stylesheet" href="/assets/${css}">
+const og = `<!doctype html><html data-hero="a"><head><meta charset="utf-8"><style>${css}</style>
 <style>
   body { width: 1200px; height: 630px; overflow: hidden; margin: 0; }
   .og { position: relative; height: 630px; padding: 48px 64px 72px; display: grid; grid-template-columns: 1fr 390px; gap: 40px; align-items: center;

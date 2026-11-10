@@ -1,5 +1,5 @@
 {
-  "taken_at": "2026-11-10T05:16:51.634Z",
+  "taken_at": "2026-11-10T05:28:47.257Z",
   "network": "testnet",
   "assets": [
     {
@@ -108,7 +108,7 @@
       "display_name": "Makerlab laser cutter",
       "in_service": true,
       "ledger": {
-        "float_free": "1050000000000000000000000",
+        "float_free": "1053420000000000000000000",
         "float_cap": "3000000000000000000000000",
         "deposits_held": "0",
         "rewards_reserved": "0",
