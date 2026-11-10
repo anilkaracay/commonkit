@@ -3,6 +3,7 @@ packages:
   - bridge
   - agent
   - web
+  - landing
   - scripts
 allowBuilds:
   esbuild: true
