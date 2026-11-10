@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COMMONKIT</title>
+<meta name="description" content="Shared machines that pay for their own upkeep. Each one runs its own keyless NEAR account; members who maintain it earn access.">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232453E0%22/%3E%3Crect x=%229%22 y=%229%22 width=%2214%22 height=%2214%22 rx=%223%22 fill=%22%23fff%22/%3E%3C/svg%3E">
+<script>
+  // Exploration only: ?theme=navy shows the navy-led treatment.
+  (function () { var t = new URLSearchParams(location.search).get('theme'); if (t === 'navy') { document.documentElement.dataset.theme = 'navy'; document.querySelector('meta[name=theme-color]').content = '#0D1F3C'; } })();
+</script>
+<link rel="preload" href="./fonts/ck-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./posters/hero-1200.webp" as="image" type="image/webp" imagesrcset="./posters/hero-600.webp 600w, ./posters/hero-800.webp 800w, ./posters/hero-1200.webp 1200w" imagesizes="(min-width: 1024px) 54vw, 100vw" fetchpriority="high">
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav wrap">
+  <a class="mark" href="./" aria-label="COMMONKIT home">COMMONKIT</a>
+  <nav aria-label="Primary">
+    <a href="#earn">How it works</a>
+    <a href="/app/proof">Proof</a>
+    <a class="btn btn-sm" href="/app">Open the app</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <h1 id="hero-title" class="display">Machines that pay their own upkeep.</h1>
+      <p class="lede">Every shared machine runs its own keyless NEAR account. Members who maintain it earn access.</p>
+      <div class="ctas">
+        <a class="btn" href="/app">Open the app</a>
+        <a class="link" href="/app/proof">See the proof <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+
+    <figure class="stage" id="stage" aria-label="The Makerlab 3D printer, with its state read from NEAR testnet">
+      <img class="poster" src="./posters/hero-1200.webp" srcset="./posters/hero-600.webp 600w, ./posters/hero-800.webp 800w, ./posters/hero-1200.webp 1200w" sizes="(min-width: 1024px) 54vw, 100vw" width="1200" height="1200" alt="" fetchpriority="high" decoding="async">
+      <svg class="leaders" aria-hidden="true" viewBox="0 0 1000 1000" preserveAspectRatio="none"><path data-leader="screen"/><path data-leader="nozzle"/><path data-leader="task"/></svg>
+      <ul class="callouts">
+        <li class="callout" data-anchor="nozzle"><span class="v num" data-live="nozzle">{{p.nozzle}} / {{p.nozzleMax}} s</span><span class="c">{{p.nozzleNote}}</span></li>
+        <li class="callout" data-anchor="screen"><span class="v num" data-live="float">{{p.float}} / {{p.cap}} NEAR</span><span class="c">Float, capped</span></li>
+        <li class="callout" data-anchor="task"><span class="v"><span class="due-dot" aria-hidden="true"></span>{{p.task}}</span><span class="c">{{p.taskNote}}</span></li>
+      </ul>
+      <figcaption class="stage-note"><span class="sim">Simulated device</span><span data-live="read">State from NEAR testnet, read {{readAt}}</span></figcaption>
+    </figure>
+  </section>
+
+  <section class="earn" id="earn" aria-labelledby="earn-title">
+    <div class="wrap">
+      <header class="head center">
+        <h2 id="earn-title" class="display-2">Fees in. Upkeep out.</h2>
+        <p class="lede">Each machine keeps a capped float; everything above the cap goes to the community treasury.</p>
+      </header>
+      <ol class="lineup">{{lineup}}</ol>
+      <p class="swept"><span class="big num">{{swept}} NEAR</span><span class="c">swept above the caps into {{sweptDaos}} community treasuries on testnet</span></p>
+    </div>
+  </section>
+
+  <section class="rights wrap" id="rights" aria-labelledby="rights-title">
+    <div class="rights-copy">
+      <h2 id="rights-title" class="display-2">Earned access, never taken back.</h2>
+      <p class="lede">Maintain the machine, an independent member verifies, and you receive rights no admin can revoke.</p>
+      <ul class="refused" aria-label="Attempts to take the right back, refused on testnet">{{refused}}</ul>
+    </div>
+    <div class="pass-wrap">
+      <article class="pass" aria-label="Usage right card">
+        <header class="pass-top"><span class="pass-brand">COMMONKIT</span><span class="pass-kind">Makerlab</span></header>
+        <p class="pass-count"><span class="n num">{{earn.count}}</span><span class="u">usage rights</span></p>
+        <dl class="pass-rows">
+          <div><dt>Earned by</dt><dd>{{earn.by}}</dd></div>
+          <div><dt>For</dt><dd>Task {{earn.task}} · {{earn.rule}}</dd></div>
+          <div><dt>Verified by</dt><dd>{{earn.verifier}}</dd></div>
+          <div><dt>Valid</dt><dd>{{earn.validity}} days</dd></div>
+        </dl>
+        <footer class="pass-foot"><span>Non-transferable · NEP-171</span><a class="mono" href="https://testnet.nearblocks.io/txns/{{earn.tx}}" rel="noopener">{{earn.txShort}}</a></footer>
+      </article>
+    </div>
+  </section>
+
+  <section class="app wrap" id="card" aria-labelledby="app-title">
+    <header class="head center">
+      <h2 id="app-title" class="display-2">Every machine, in the open.</h2>
+      <p class="lede">The app reads each machine’s account straight from testnet. No wallet needed.</p>
+    </header>
+    <article class="acard" aria-label="Asset card: {{p.name}}">
+      <figure class="acard-art"><img src="posters/printer-800.webp" width="800" height="800" alt="" loading="lazy" decoding="async"></figure>
+      <div class="acard-body">
+        <header class="acard-head">
+          <div>
+            <h3 class="acard-name">{{p.name}}</h3>
+            <p class="mono acard-acct">{{p.account}}</p>
+          </div>
+          <div class="acard-tags"><span class="state"><span class="on" aria-hidden="true"></span>{{p.inService}}</span><span class="sim">Simulated device</span></div>
+        </header>
+        <div class="acard-float">
+          <div class="row"><span>Float</span><span class="num"><b>{{p.float}}</b> / {{p.cap}} NEAR</span></div>
+          {{p.floatGauge}}
+        </div>
+        <ul class="rules" aria-label="Upkeep rules">{{p.rules}}</ul>
+        <footer class="acard-foot">
+          <a class="btn" href="/app">Reserve</a>
+          <span class="price"><b class="num">{{p.price}} NEAR</b> per {{p.slot}} min · <span class="num">{{p.deposit}} NEAR</span> refundable deposit</span>
+        </footer>
+      </div>
+    </article>
+    <p class="read-note">Testnet snapshot, read {{readAt}}.</p>
+  </section>
+</main>
+
+<footer class="foot wrap">
+  <span class="mark">COMMONKIT</span>
+  <span>NEAR testnet only · every device is simulated or emulated · code hash <span class="mono">{{codeHash}}</span></span>
+</footer>
+<script type="module" src="./src/main.ts"></script>
+</body>
+</html>

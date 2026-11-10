@@ -96,3 +96,72 @@ and redistribution with the license (`landing/src/fonts/OFL.txt`).
 | Agent terminal | `evidence/agent-limits.json` when it exists, otherwise an honest "testnet run pending" state |
 | Why NEAR numbers | D-214 sandbox gas measurements, `deployments/testnet.json` (code size, code_hash, keys) |
 | Pilot | pilot evidence when it exists, otherwise "pilot pending" |
+
+## 4. Round 2 (D-029 addendum 2): visual-first, minimal copy
+
+Opened 2026-11-10 at 1440 × 900 in headless Chromium (Playwright 1.64.1) with
+`landing/explore/v2/research.mjs`, which reads the first viewport's computed styles and the share of the
+viewport covered by images/video/canvas. Pages were read as data only; nothing below copies their text,
+art or palette.
+
+| Page | Largest text in first viewport | Media share of first viewport | Technique worth taking |
+| :--- | :--- | :--- | :--- |
+| apple.com/macbook-air | 64 px / 600, line-height 1.09, normal tracking | 100 % | One product shot owns the screen; the headline is short and sits on the image's quiet area |
+| apple.com/airpods-pro | 64 px / 600, −0.009 em | 100 % | Each scroll step is one object + one sentence; detail moves to a spec section |
+| linear.app | 64 px / 510, −0.022 em, line-height 1.0 | 45 % | Real product UI as the image; 15 px muted subline; one filled CTA |
+| stripe.com | 48 px / 300 (light), −0.02 em | 100 % | A light display weight reads calm and expensive; two-tone headline for the second clause |
+| vercel.com | 64 px / 400, −0.06 em | 64 % | Extreme restraint: one object, lots of air, heavy negative tracking at a regular weight |
+| teenage.engineering/products/op-xy | ~44 px light, lower case, centred | ~90 % (photo) | Object first, tiny caption; the product is lit like a studio still |
+| nothing.tech | 48 px / 400 house face | 100 % | Monochrome system, one red accent used only for signal |
+| raycast.com | 64 px / 600 | 83 % | One object, one sentence, one CTA; mono only for a single technical footnote |
+
+Common rules we apply: one visual per screen that covers most of it; display text 64–96 px with negative
+tracking (−0.02 to −0.06 em) and line-height ≈ 1; a subline at 15–21 px in a muted colour; at most two CTAs;
+under ~40 words in the first viewport; numbers as part of the image (callouts on the object, a single big
+figure), not as paragraphs; motion is slow and continuous on the object only (camera drift, mechanism),
+never on the text.
+
+### Typeface (round 2)
+
+Specimens of Mona Sans, Hubot Sans, Geist, Instrument Sans, Host Grotesk, Funnel Display and Funnel Sans were
+set side by side with our headline and numbers (fontsource 5.3.0 files, OFL 1.1). General Sans and Switzer
+(Fontshare ITF Free Font License) were not used: that license does not allow redistributing the font files,
+and we self-host from a public repository. Inter, Satoshi, Clash, Bricolage and Space Grotesk are excluded by
+direction.
+
+**Pick: Mona Sans (variable `wdth` + `wght`) for everything, Geist Mono for account ids and hashes.** One family
+covers display and text: the display sizes use 112 % width at weight 560 with −0.042 em tracking, which gives
+the engineered, calm stance of the reference pages without a second display face; text uses 100 % width. Its
+figures have a tabular feature and a slashed zero, which suits a page whose numbers are ledger values. Geist
+Mono is only used for `printer-01.makerlab…` style ids.
+
+| Font | Source | License | Our file |
+| :--- | :--- | :--- | :--- |
+| Mona Sans 2 (wdth 100–112, wght 400–640 instance, Latin + Turkish subset) | `@fontsource-variable/mona-sans` 5.3.0 — https://github.com/github/mona-sans | SIL OFL 1.1, Reserved Font Name "Mona" | `landing/explore/v2/fonts/ck-sans*.woff2`, renamed **CK Sans** inside the file because the instanced subset is a Modified Version (OFL §3); license in `fonts/OFL-mona-sans.txt` |
+| Geist Mono (Latin subset) | `@fontsource-variable/geist-mono` 5.3.0 — https://github.com/vercel/geist-font | SIL OFL 1.1 | `fonts/geist-mono.woff2`, license in `fonts/OFL-geist-mono.txt` |
+
+Subsetting and instancing: fontTools 4.60.2 (`uvx --from fonttools==4.60.2`).
+
+### Palette (round 2)
+
+Blue scale: ink `#0A1526`, navy-950 `#081629`, navy-900 `#0D1F3C`, navy-800 `#132B52`, cobalt `#2453E0`,
+blue-500 `#4D7FF0`, sky `#9CC3FF`, ice-200 `#DCE6F4`, ice-100 `#EAF0F8`, ice-50 `#F5F8FC`, white. Blue-tinted
+greys: slate-700 `#33415A`, slate-600 `#4E5D76`, slate-500 `#5B6A83`, slate-300 `#A9B9D3`. One warm signal,
+`#F07A2A` (`#F59A52` on navy), used only where a task is open or a rule is due.
+
+WCAG contrast (computed): ink on white 18.3; slate-600 on ice-50 6.3; slate-500 on white 5.5; cobalt on white
+6.2 (white on cobalt 6.2); white on navy-900 16.4; slate-300 on navy-900 8.3; sky on navy-900 9.1 (navy text on a
+sky button 9.1); slate-300 on navy-800 7.1. The signal colour is never used for text on white.
+
+### 3D
+
+three.js 0.187.0 (MIT, published 2026-10-30), vanilla (no React runtime), loaded as a lazy chunk. Models are
+procedural (`RoundedBoxGeometry`, `ExtrudeGeometry` with bevels, `LatheGeometry`, cylinders, tori); no
+downloaded or generated meshes. Lighting: `RoomEnvironment` through PMREM plus one key light with a VSM soft
+shadow and a canvas-drawn contact shadow; `NeutralToneMapping`; no bloom, no emissive glow. Posters (LCP
+image and the reduced-motion view) are rendered from the same scene by `landing/explore/v2/shoot.mjs`.
+Loading: the poster is the LCP element; the 3D chunk (≈148 kB gzip) loads on the first interaction, or
+3 s after load on fine-pointer devices; `prefers-reduced-motion` keeps the poster. Measured on the v2 build
+(vite preview, Lighthouse 13.6.0 mobile, 10 runs): performance 98–100, accessibility 100, best practices 100,
+LCP 1.7–2.3 s (2.0 s in the last six runs), CLS 0; desktop preset 100 / LCP 0.4 s. Live loop: 60.0 fps, p95
+frame 16.7 ms at 1440 × 900 (headless Chromium, ANGLE Metal, Apple M5).
