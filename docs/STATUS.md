@@ -5,27 +5,30 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | Milestone | State | Evidence |
 | :--- | :--- | :--- |
 | M0 Research + scaffold | ✅ (verifier pending) | docs/RESEARCH_RESULTS.md (C8 contract-as-proposer proven on testnet, D-101); `pnpm validate:profiles` 12/12 ✅ |
-| M1a asset contract | ◐ in progress (incl. D-017 upkeep) | unit tests landing in contracts/asset |
-| M1b commons contract | ✅ implemented, verifier pending | 120 unit tests (`cargo test -p commonkit-commons`), wasm 337 044 B |
-| M1c sandbox + invariants | ☐ | |
-| M2 testnet setup | ◐ scripts in preparation | |
-| M3 bridge + adapters | ◐ wave 1 ✅ (simulator, NEP-413, sessions, gauges, out-of-service); hardware adapters pending | `pnpm --filter @commonkit/bridge test` 102 ✅ |
-| M4 agent | ◐ offline part in progress | |
+| M1a asset contract | ✅ (verifier: pass with fixes → fixed, D-213) | 279 unit tests (`cargo test -p commonkit-asset`), wasm sha256 24132b0a…ec8e, code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h |
+| M1b commons contract | ✅ (verifier: pass with fixes → fixed) | 120 unit tests, code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn |
+| M1c sandbox + invariants | ✅ tests green (lead rerun 2026-11-10), verifier review running | `pnpm test:contracts` exit 0: 34 sandbox tests incl. 20/20 inv_* against real Sputnik v2 WASM; reproducible build not achieved (D-216) |
+| M2 testnet setup | ◐ 2 DAOs + 2 commons + seed done; 4 assets deploying | evidence/setup.json, evidence/seed.json |
+| M3 bridge + adapters | ◐ simulator, NEP-413 (full-access only, D-019), signer wiring done; emulators + real adapters in progress | `pnpm --filter @commonkit/bridge test` |
+| M4 agent | ◐ offline ✅ (68 tests); signer wiring in progress | `pnpm --filter @commonkit/agent test` |
 | M5 web skeleton | ✅ on mock data, verifier pending | `pnpm --filter @commonkit/web test` 46 ✅; screenshots web/screenshots |
 | M6 e2e + evidence | ☐ | |
 | M7 web on testnet + hosting | ☐ | |
-| M8 hardware + pilot | ☐ | |
+| M8 emulators (no hardware, D-022) | ◐ in progress | |
 | M9 README + submission prep | ☐ | |
 
 ## Blockers / questions for the human
 
-- Hardware: no printer and no smart plug confirmed yet (D-013) → simulator everywhere; M8 blocked until hardware is chosen.
-- Pilot community name/date, team size and names for README: not yet given.
+- No hardware will be bought (D-022): everything simulated via real adapters + device emulators. Pilot: not planned unless the human asks.
+- GitHub Actions do not start on the private repo: "recent account payments have failed or your spending limit needs to be increased" (account billing). Public repos run free.
+- Before submission the human provides: lead name, email, team size, mainnet payout account, consent; posts on X; makes the repo public.
 - Testnet NEAR: root `commonkit-sxflo.testnet` has 10 NEAR; setup needs more (amount reported by chain-ops in M2).
 
 ## Log
 
 <!-- YYYY-MM-DD HH:MM UTC — what changed, what was verified (tx hashes / test names), what is next -->
+
+- 2026-11-10 ~05:30 UTC — M1c done and independently rerun green (`pnpm test:contracts`: 402 unit + 34 sandbox incl. 20/20 inv_*). Verifier M1a/M1b findings fixed (D-213). No-hardware decision D-022 applied across profiles/docs; X post 276/280 (D-023). sdk/web carry all §10 error codes. Running: chain-ops deploying 4 assets (keyless deletion gated on lead go), bridge emulators + adapters, agent signer wiring, verifier review of M1c tests. Next: M2 keyless + verify.sh, then M6 21 judge steps.
 
 - 2026-11-09 ~14:30 UTC — Spec change D-017 (maintenance → upkeep: kinds × triggers, capped reimbursement, faults, out of service) applied to CONTRACT_SPEC, 12 profiles, and all docs (judge flow now 21 steps, D-801; fridge-01 asset D-018). Research done (D-101…D-108). Bridge wave 1 + D-017 done (102 tests). Web M5 on mock data done (46 tests). Lockfile committed; clean `pnpm install --frozen-lockfile` passes. Rate limit hit once (13:00–13:00 UTC reset at 16:00 TR) — agents now commit after every chunk. Running: asset contract (D-017), chain-ops M2 prep, agent M4 offline. Next: verifier on M1a+M1b, then M1c sandbox + all inv_* tests.
 
