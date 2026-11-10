@@ -6,6 +6,7 @@
  *   pnpm demo:step all --from <n>  resume demo:all from step n
  *   pnpm demo:step render          regenerate evidence/EVIDENCE.md from evidence/*.json
  *   pnpm demo:step list            list the steps (core ★, simulated, negative)
+ *   pnpm demo:step checks          TEST_PLAN §6 checks 6–11 (read-only; for verify.ts to adopt)
  *   pnpm demo:step housekeeping    mark ended, unused demo reservations as no-shows (deposit refunds)
  *
  * Each step prints one line, executes, waits for FINAL, asserts through views (or the expected
@@ -13,7 +14,7 @@
  * bridge against emulated devices or the simulator (SIMULATED, D-022).
  */
 import './lib/rpc-throttle.mjs';
-import { assertTestnet } from '../lib/config.js';
+import { EVIDENCE_DIR, assertTestnet } from '../lib/config.js';
 import { loadDeployments } from '../lib/deployments.js';
 import { Chain } from '../lib/near.js';
 import { buildCast } from './lib/cast.js';
@@ -23,6 +24,7 @@ import { housekeeping } from './lib/housekeeping.js';
 import { readSteps, upsertStep } from './lib/record.js';
 import { runStep, type RunnerDeps } from './lib/runner.js';
 import { STEPS } from './steps/index.js';
+import { runEvidenceChecks } from './lib/verify-checks.js';
 
 function flag(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -42,6 +44,12 @@ async function main(): Promise<void> {
   const dep = loadDeployments();
   const cast = buildCast(dep);
   if (cmd === 'housekeeping') return housekeeping(chain, cast);
+  if (cmd === 'checks') {
+    const lines = await runEvidenceChecks((c, m, a) => chain.view(c, m, a), dep, EVIDENCE_DIR);
+    for (const l of lines) console.log(`${l.info ? 'ℹ️' : l.ok ? '✅' : '❌'} [${l.check}] ${l.text}`);
+    if (lines.some((l) => !l.ok && !l.info)) process.exitCode = 1;
+    return;
+  }
 
   const deps: RunnerDeps = {
     readSteps: () => readSteps(),
