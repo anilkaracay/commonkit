@@ -15,7 +15,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | H7 | Make repo public (checklist provided) | G6 | public CI, submission | later |
 | H8 | Publish X post with video (text + file provided) | G6 | demoUrl | later |
 | H9 | Submit form on nearhackathon.com (filled checklist provided) | after H7+H8 | done | later |
-| H10 | Approve landing hero direction (2 screenshots sent to chat) | Lane G step 3 | landing build | later |
+| H10 | Pick one of three art directions (A/B/C renders sent to chat, D-029) | as soon as renders arrive | landing + app redesign | open |
 | H11 | Log in to Vercel once (`npx vercel login`) or give a deploy token in .env (VERCEL_TOKEN) | ASAP | hosted preview (Lane C/G) | open |
 
 ## Gates
