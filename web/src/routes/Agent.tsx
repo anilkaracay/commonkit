@@ -1,8 +1,8 @@
 import { Link } from 'react-router';
 import { useAgentLimits, useAllAssets } from '../data/hooks';
 import { useDataSource } from '../data/source';
-import { Pill, SimulatedBadge } from '../components/Badges';
-import { Empty, LoadError, Loading, Section } from '../components/Section';
+import { Mark, SimulatedBadge } from '../components/Badges';
+import { Empty, LoadError, Loading, PageHead, Section } from '../components/Section';
 import { TxLink } from '../components/TxLink';
 import { useDemoLink } from '../demo/demo';
 import { formatNear } from '../lib/near';
@@ -22,60 +22,89 @@ export function AgentPage() {
     .flatMap(({ deployed, snap }) => [
       ...snap.tasks
         .filter((t) => t.opened_by === snap.wiring.agent_id || t.opened_by.startsWith('agent'))
-        .map((t) => ({ at: BigInt(t.created_at), key: `t-${deployed.alias}-${t.id}`, deployed, kind: 'opened task' as const, title: snap.profile.rules.find((r) => r.rule_id === t.rule_id)?.title ?? t.rule_id, text: t.rationale, href: `/t/${deployed.asset_id}/${t.id}`, tx: ds.rowTx(`task-${deployed.alias}-${t.id}`) })),
-      ...snap.escalations.map((e) => ({ at: 0n, key: `e-${deployed.alias}-${e.id}`, deployed, kind: 'escalated' as const, title: `${formatNear(e.amount)} NEAR ${e.kind} → DAO proposal #${e.proposal_id ?? '—'}`, text: e.reason, href: `/a/${deployed.asset_id}`, tx: ds.rowTx(`esc-${deployed.alias}-${e.id}`) })),
+        .map((t) => ({ at: BigInt(t.created_at), key: `t-${deployed.alias}-${t.id}`, deployed, kind: 'Opened a task' as const, title: snap.profile.rules.find((r) => r.rule_id === t.rule_id)?.title ?? t.rule_id, text: t.rationale, href: `/t/${deployed.asset_id}/${t.id}`, tx: ds.rowTx(`task-${deployed.alias}-${t.id}`) })),
+      ...snap.escalations.map((e) => ({ at: 0n, key: `e-${deployed.alias}-${e.id}`, deployed, kind: 'Escalated' as const, title: `${formatNear(e.amount)} NEAR ${e.kind} → DAO proposal #${e.proposal_id ?? '—'}`, text: e.reason, href: `/a/${deployed.asset_id}`, tx: ds.rowTx(`esc-${deployed.alias}-${e.id}`) })),
     ])
     .sort((a, b) => Number(b.at - a.at));
+  const passed = limits.data?.filter((l) => l.ok).length ?? 0;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="eyebrow">operations agent</p>
-        <h1 className="text-3xl font-extrabold">The machine's operator, on a short leash</h1>
-        <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-          <p className="tag p-3"><span className="font-medium text-alive">Can</span> open a maintenance task when on-chain telemetry crossed a profile threshold, annotate it, and ask the DAO for purchases.</p>
-          <p className="tag p-3"><span className="font-medium text-danger">Cannot</span> approve work, pay anyone, change profiles, or open a task the telemetry does not justify. The DAO can switch it off.</p>
-        </div>
+    <div className="space-y-16 sm:space-y-20">
+      <div className="space-y-8">
+        <PageHead title="The machine's operator, on a short leash" />
+        <dl className="grid gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-2">
+          <div className="bg-surface p-5 sm:p-6">
+            <dt className="flex items-center gap-2 font-medium">
+              <span aria-hidden className="size-2 rounded-full bg-blue-500" /> Can
+            </dt>
+            <dd className="mt-2 text-text-2">Open an upkeep task when on-chain telemetry crossed a profile threshold, explain it, and ask the DAO for purchases.</dd>
+          </div>
+          <div className="bg-surface p-5 sm:p-6">
+            <dt className="flex items-center gap-2 font-medium">
+              <span aria-hidden className="size-2 rounded-full bg-danger" /> Cannot
+            </dt>
+            <dd className="mt-2 text-text-2">Approve work, pay anyone, change profiles, or open a task the telemetry does not justify. The DAO can switch it off.</dd>
+          </div>
+        </dl>
       </div>
 
-      <Section title="Feed" eyebrow="actions with their rationale">
+      <Section title="Feed" note="What it did, with its rationale">
         {feed.length === 0 ? (
           <Empty>The agent has not acted yet.</Empty>
         ) : (
-          <ol className="space-y-3">
+          <ol className="panel divide-y divide-line">
             {feed.map((f) => (
-              <li key={f.key} className={`tag p-4 ${f.deployed.simulated ? 'tag-sim' : ''}`}>
-                <p className="flex flex-wrap items-center gap-2 text-xs text-ink-3">
-                  <Pill tone={f.kind === 'opened task' ? 'due' : 'liability'}>{f.kind}</Pill>
-                  <span className="num">{f.deployed.alias}</span>
-                  {f.at > 0n && <span>· {formatAgo(f.at, now)}</span>}
+              <li key={f.key} className="px-5 py-5 sm:px-6">
+                <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-3">
+                  <Mark tone={f.kind === 'Opened a task' ? 'due' : 'quiet'}>{f.kind}</Mark>
+                  <span>{f.deployed.alias}</span>
+                  {f.at > 0n && <span>{formatAgo(f.at, now)}</span>}
                   {f.deployed.simulated && <SimulatedBadge />}
-                  <span className="ml-auto"><TxLink hash={f.tx} /></span>
+                  <span className="ml-auto">
+                    <TxLink hash={f.tx} />
+                  </span>
                 </p>
-                <Link to={link(f.href)} className="mt-1 block font-medium hover:underline">{f.title}</Link>
-                <p className="mt-1 text-sm text-ink-2">{f.text}</p>
+                <Link to={link(f.href)} className="mt-2 block text-lg font-medium no-underline hover:text-accent">
+                  {f.title}
+                </Link>
+                <p className="mt-1 max-w-3xl text-text-2">{f.text}</p>
               </li>
             ))}
           </ol>
         )}
       </Section>
 
-      <Section title="Limits demo" eyebrow="each attempt must fail with the expected code">
+      <Section title="Limits demo" note="Each attempt must fail with the expected error code">
         {!limits.data ? (
           <Loading what="limits evidence" />
         ) : (
-          <ul className="tag divide-y divide-line px-4">
-            {limits.data.map((l) => (
-              <li key={l.attempt} className="flex items-start gap-3 py-3 text-sm">
-                <span className={l.ok ? 'text-alive' : 'text-danger'} aria-label={l.ok ? 'as expected' : 'unexpected'}>{l.ok ? '✓' : '✗'}</span>
-                <div className="min-w-0 flex-1">
-                  <p>{l.attempt}</p>
-                  <p className="num text-xs text-ink-2">expected {l.expected} · observed {l.observed}</p>
-                </div>
-                <TxLink hash={l.tx_hash} />
-              </li>
-            ))}
-          </ul>
+          <div className="space-y-4">
+            <p className="flex items-baseline gap-3">
+              <span className="key-num display leading-none" style={{ ['--key-base' as string]: '2.25rem' }}>
+                {passed}/{limits.data.length}
+              </span>
+              <span className="text-text-2">refused as expected</span>
+            </p>
+            <ul className="panel divide-y divide-line">
+              {limits.data.map((l) => (
+                <li key={l.attempt} className="flex items-start gap-4 px-5 py-4">
+                  <span
+                    className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-[11px] font-bold text-white ${l.ok ? 'bg-accent' : 'bg-danger'}`}
+                    aria-label={l.ok ? 'as expected' : 'unexpected'}
+                  >
+                    {l.ok ? '✓' : '✗'}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p>{l.attempt}</p>
+                    <p className="mt-1 text-sm text-text-3">
+                      expected <span className="font-mono text-xs text-text-2">{l.expected}</span> · observed <span className="font-mono text-xs text-text-2">{l.observed}</span>
+                    </p>
+                  </div>
+                  <TxLink hash={l.tx_hash} />
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </Section>
     </div>

@@ -5,7 +5,8 @@ import { Link, useParams } from 'react-router';
 import { useAssetSnapshot, useDeployment } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { CardTile } from '../components/CardTile';
-import { Pill, SimulatedBadge } from '../components/Badges';
+import { Mark, SimulatedBadge } from '../components/Badges';
+import { taskTone } from '../components/TaskRow';
 import { LoadError, Loading, Section } from '../components/Section';
 import { WalletGate } from '../components/WalletGate';
 import { Account, TxLink } from '../components/TxLink';
@@ -59,8 +60,8 @@ export function TaskPage() {
   const timeline: [string, boolean, ReactNode][] = [
     ['Opened by the agent', true, <><Account id={task.opened_by} /> · {formatDateTime(task.created_at)}</>],
     ['Claimed', !!task.claimer, task.claimer ? <><Account id={task.claimer} />{task.claimed_at && ` · ${formatDateTime(task.claimed_at)}`}</> : 'waiting for a member'],
-    ['Evidence submitted', !!task.evidence_hash, task.evidence_hash ? <span className="num break-all">sha256 {task.evidence_hash}</span> : 'photo hash, computed in the browser'],
-    ...(task.receipt_hash ? [['Receipt attached', true, <span key="r" className="num break-all">sha256 {task.receipt_hash}</span>] as [string, boolean, ReactNode]] : []),
+    ['Evidence submitted', !!task.evidence_hash, task.evidence_hash ? <span className="font-mono text-xs break-all">sha256 {task.evidence_hash}</span> : 'photo hash, computed in the browser'],
+    ...(task.receipt_hash ? [['Receipt attached', true, <span key="r" className="font-mono text-xs break-all">sha256 {task.receipt_hash}</span>] as [string, boolean, ReactNode]] : []),
     ['Verification test', !!task.verification, rule?.requires_verification_test ? (task.verification ? `${task.verification.passed ? 'passed' : 'failed'} · bridge report` : 'bridge runs it after submission') : 'not required by this rule'],
     ['Approved by an independent verifier', !!task.verifier, task.verifier ? <Account id={task.verifier} /> : 'verifier ≠ claimer, agent or bridge'],
     ...(task.needs_council || task.council_approver ? [['Council second approval', !!task.council_approver, task.council_approver ? <Account id={task.council_approver} /> : 'needed'] as [string, boolean, ReactNode]] : []),
@@ -68,67 +69,72 @@ export function TaskPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-16">
       <div>
-        <Link to={link(`/a/${assetId}`)} className="text-sm text-ink-2 hover:underline">
+        <Link to={link(`/a/${assetId}`)} className="text-sm text-text-3 no-underline hover:text-accent">
           ← {s.meta.display_name}
         </Link>
-        <p className="eyebrow mt-2">task #{task.id} · {alias}</p>
-        <h1 className="flex flex-wrap items-center gap-3 text-3xl font-extrabold">
-          {rule?.title ?? task.rule_id} <Pill tone={task.status === 'Rewarded' ? 'alive' : 'due'}>{task.status}</Pill> {sim && <SimulatedBadge />}
-        </h1>
+        <p className="mt-4 flex flex-wrap items-center gap-x-3 text-sm text-text-3">
+          <KindChip kind={task.kind} />
+          <span className="num">task #{task.id} · {alias}</span>
+        </p>
+        <h1 className="display mt-2 text-[34px] sm:text-[44px]">{rule?.title ?? task.rule_id}</h1>
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <Mark tone={taskTone[task.status]}>{task.status}</Mark>
+          {sim && <SimulatedBadge />}
+        </div>
       </div>
 
-      <blockquote className="tag border-l-4 border-l-due-fill p-4">
-        <p className="eyebrow">why the machine asked</p>
-        <p className="mt-1 text-lg leading-snug">{task.rationale}</p>
-        <TxLink hash={ds.rowTx(`task-${alias}-${task.id}`)} label="task_opened tx" />
-      </blockquote>
+      <figure className="border-l-2 border-due-fill pl-5 sm:pl-6">
+        <figcaption className="text-sm text-text-3">Why the machine asked</figcaption>
+        <blockquote className="mt-2 max-w-3xl text-xl leading-snug tracking-tight sm:text-[22px]">{task.rationale}</blockquote>
+        <p className="mt-3">
+          <TxLink hash={ds.rowTx(`task-${alias}-${task.id}`)} label="task_opened tx" />
+        </p>
+      </figure>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <Section title="Rule facts" eyebrow="why it was due">
-          <dl className="tag grid grid-cols-2 gap-4 p-4 text-sm">
+      <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
+        <Section title="Rule facts" note="Why it was due">
+          <dl className="ck-rows text-sm">
             <div>
-              <dt className="text-xs text-ink-3">kind</dt>
-              <dd><KindChip kind={task.kind} /></dd>
+              <dt>Trigger</dt>
+              <dd className="num">{rule ? describeTrigger(rule.trigger) : task.rule_id}</dd>
             </div>
             <div>
-              <dt className="text-xs text-ink-3">trigger</dt>
-              <dd className="num text-xs">{rule ? describeTrigger(rule.trigger) : task.rule_id}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-3">due value at open</dt>
+              <dt>Due value at open</dt>
               <dd className="num">{progress ? progress.format(BigInt(task.due_value_at_open)) : String(task.due_value_at_open)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-ink-3">opened</dt>
-              <dd className="text-xs">{task.manual ? 'manually by the council (due check bypassed, recorded)' : 'by the agent, due check passed'}</dd>
+              <dt>Opened</dt>
+              <dd>{task.manual ? 'Manually by the council (due check bypassed, recorded)' : 'By the agent, due check passed'}</dd>
             </div>
-            <div className="col-span-2">
-              <dt className="text-xs text-ink-3">reward</dt>
+            <div>
+              <dt>Reward</dt>
               <dd>
-                {task.reward_rights} usage right(s) in <span className="num">{s.profile.group_id}</span>
-                {rule && toYocto(rule.reimbursable_max) > 0n && <span className="text-ink-2"> · documented expense reimbursable up to {formatNear(rule.reimbursable_max)} NEAR</span>}
+                {task.reward_rights} usage right(s) in <span className="font-mono text-xs">{s.profile.group_id}</span>
+                {rule && toYocto(rule.reimbursable_max) > 0n && <span className="block text-xs font-normal text-text-3">Documented expense reimbursable up to {formatNear(rule.reimbursable_max)} NEAR</span>}
               </dd>
             </div>
-            {toYocto(task.expense) > 0n && (
-              <div className="col-span-2 rounded-tag-sm bg-surface-2 p-3">
-                <dt className="text-xs text-ink-3">expense claimed</dt>
-                <dd className="num font-semibold">{formatNear(task.expense)} NEAR <span className="font-normal text-ink-3">· {expenseLabel(task.expense_state)}</span></dd>
-                {task.receipt_hash && <dd className="num mt-1 text-[11px] break-all text-ink-2">receipt sha256 {task.receipt_hash}</dd>}
-                <dd className="mt-1 text-[11px] text-ink-3">Paid from the float only, never from deposits; above the cash cap it goes through a DAO proposal.</dd>
-              </div>
-            )}
           </dl>
+          {toYocto(task.expense) > 0n && (
+            <div className="rounded-md bg-bg-alt p-4 text-sm">
+              <p className="text-text-3">Expense claimed</p>
+              <p className="num mt-1 font-semibold">
+                {formatNear(task.expense)} NEAR <span className="font-normal text-text-3">· {expenseLabel(task.expense_state)}</span>
+              </p>
+              {task.receipt_hash && <p className="mono-id mt-1 break-all">receipt sha256 {task.receipt_hash}</p>}
+              <p className="mt-2 text-xs text-text-3">Paid from the float only, never from deposits; above the cash cap it goes through a DAO proposal.</p>
+            </div>
+          )}
         </Section>
-        <Section title="Progress" eyebrow="no one approves their own work">
-          <ol className="tag space-y-3 p-4 text-sm">
+        <Section title="Progress" note="No one approves their own work">
+          <ol className="relative space-y-5 before:absolute before:top-2 before:bottom-2 before:left-[5px] before:w-px before:bg-line">
             {timeline.map(([label, done, detail]) => (
-              <li key={label} className="flex gap-3">
-                <span aria-hidden className={`mt-1 size-3 shrink-0 rounded-full border-2 ${done ? 'border-alive bg-alive' : 'border-line-strong'}`} />
+              <li key={label} className="relative flex gap-4">
+                <span aria-hidden className={`relative mt-1.5 size-[11px] shrink-0 rounded-full ${done ? 'bg-accent' : 'border border-line-strong bg-surface'}`} />
                 <div className="min-w-0">
-                  <p className={done ? 'font-medium' : 'text-ink-3'}>{label}</p>
-                  <p className="text-xs text-ink-2">{detail}</p>
+                  <p className={done ? 'font-medium' : 'text-text-3'}>{label}</p>
+                  <p className="mt-0.5 text-sm text-text-3">{detail}</p>
                 </div>
               </li>
             ))}
@@ -137,8 +143,8 @@ export function TaskPage() {
       </div>
 
       {task.minted_right_ids.length > 0 && (
-        <Section title="Cards earned" eyebrow="non-transferable, never revocable">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Section title="Cards earned" note="Non-transferable. Nobody can take them back.">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {(cards.data ?? []).map((c) => (
               <CardTile key={c.token_id} card={c} simulated={sim} />
             ))}
@@ -147,16 +153,26 @@ export function TaskPage() {
       )}
 
       {['Open', 'Claimed'].includes(task.status) && (
-        <Section title="Do this task" eyebrow="claim · evidence · submit">
-          <div className="tag space-y-3 p-4 text-sm">
+        <Section title="Do this task" note="Claim, attach evidence, submit">
+          <div className="ck-card space-y-5 p-5 text-sm sm:p-6">
             <label className="block">
               <span className="font-medium">Evidence photo</span>
-              <span className="block text-xs text-ink-3">Only its SHA-256 goes on-chain. The photo never leaves this device.</span>
-              <input type="file" accept="image/*" className="mt-2 block w-full text-xs" onChange={(e) => { const f = e.target.files?.[0]; if (f) void sha256Hex(f).then(setHash); }} />
+              <span className="mt-0.5 block text-text-3">Only its SHA-256 goes on-chain. The photo never leaves this device.</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="mt-3 block w-full text-sm text-text-2 file:mr-3 file:rounded-full file:border-0 file:bg-bg-alt file:px-4 file:py-2 file:text-sm file:font-medium file:text-text"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void sha256Hex(f).then(setHash);
+                }}
+              />
             </label>
-            {hash && <p className="num text-xs break-all">sha256 {hash}</p>}
+            {hash && <p className="mono-id break-all">sha256 {hash}</p>}
             <WalletGate action="Claiming and submitting a task">
-              <button type="button" className="rounded-full bg-ink px-5 py-2 font-medium text-paper">{task.status === 'Open' ? 'Claim' : 'Submit evidence'}</button>
+              <button type="button" className="ck-btn">
+                {task.status === 'Open' ? 'Claim' : 'Submit evidence'}
+              </button>
             </WalletGate>
           </div>
         </Section>

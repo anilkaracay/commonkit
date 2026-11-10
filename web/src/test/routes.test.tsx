@@ -112,11 +112,17 @@ describe('no internal jargon in the UI', () => {
     expect(text).not.toMatch(/\bM[1-9]\b|\bD-\d{3}\b|\bTODO\b|still being written|Kasa/);
   });
 
-  it('asset header shows at most two status badges', async () => {
+  it('asset header shows at most two status marks', async () => {
     renderAt(`/a/${A.washer}`);
     const h1 = await screen.findByRole('heading', { level: 1 });
     const header = h1.closest('header') as HTMLElement;
-    const badges = header.querySelectorAll('.rounded-full.px-2');
-    expect(badges.length).toBeLessThanOrEqual(2);
+    expect(header.querySelectorAll('[data-mark]').length).toBeLessThanOrEqual(2);
+  });
+
+  it('every board card carries at most two status marks', async () => {
+    renderAt('/');
+    const cards = await screen.findAllByRole('article');
+    expect(cards.length).toBeGreaterThan(0);
+    for (const card of cards) expect(card.querySelectorAll('[data-mark]').length).toBeLessThanOrEqual(2);
   });
 });

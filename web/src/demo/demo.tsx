@@ -66,10 +66,10 @@ export function DemoOverlay() {
   const entry = evidence.data?.find((s) => s.step === step);
   return (
     <div
-      className="pointer-events-none fixed bottom-4 left-4 z-50 max-w-[min(26rem,calc(100vw-2rem))] rounded-xl bg-ink px-3 py-2 text-paper shadow-tag"
+      className="pointer-events-none fixed bottom-4 left-4 z-50 max-w-[min(26rem,calc(100vw-2rem))] rounded-md bg-inverse px-4 py-3 text-inverse-text shadow-lg"
       aria-live="polite"
     >
-      <p className="font-mono text-[11px] font-bold tracking-[0.12em]">
+      <p className="num text-xs font-semibold tracking-[0.1em] text-sky-300">
         STEP {step}/{TOTAL_STEPS}
       </p>
       {entry && <p className="text-sm leading-snug">{entry.title}</p>}

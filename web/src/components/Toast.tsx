@@ -41,20 +41,20 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 export function ErrorToast({ error, onClose }: { error: HumanError; onClose?: () => void }) {
   return (
-    <div role="alert" className="tag w-full max-w-md border-danger/40 p-3">
+    <div role="alert" className="w-full max-w-md rounded-md border border-line bg-surface p-4 shadow-lg">
       <div className="flex items-start gap-3">
-        <span aria-hidden className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-danger text-[11px] font-bold text-surface">
+        <span aria-hidden className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-danger text-[11px] font-bold text-white">
           !
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">{error.message}</p>
+          <p className="font-medium">{error.message}</p>
           <details className="mt-1">
-            <summary className="cursor-pointer font-mono text-[11px] text-ink-3">{error.code ?? 'details'}</summary>
-            <p className="mt-1 font-mono text-[11px] break-all text-ink-3">{error.raw}</p>
+            <summary className="cursor-pointer font-mono text-xs text-text-3">{error.code ?? 'details'}</summary>
+            <p className="mt-1 font-mono text-xs break-all text-text-3">{error.raw}</p>
           </details>
         </div>
         {onClose && (
-          <button type="button" onClick={onClose} className="text-ink-3 hover:text-ink" aria-label="Dismiss">
+          <button type="button" onClick={onClose} className="text-lg leading-none text-text-3 hover:text-text" aria-label="Dismiss">
             ×
           </button>
         )}

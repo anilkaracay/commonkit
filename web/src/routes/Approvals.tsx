@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { useAllAssets, useCommunities } from '../data/hooks';
-import { Empty, LoadError, Loading, Section } from '../components/Section';
+import { Empty, LoadError, Loading, PageHead, Section } from '../components/Section';
 import { SimulatedBadge } from '../components/Badges';
 import { WalletGate } from '../components/WalletGate';
 import { Account } from '../components/TxLink';
@@ -23,59 +23,56 @@ export function ApprovalsPage() {
   const groups = [
     {
       title: 'Returns to confirm',
-      who: 'steward · not the holder',
+      who: 'Steward · not the holder',
       empty: 'No finished sessions waiting for a return check.',
       rows: returns.map(({ deployed, r }) => (
-        <li key={`${deployed.alias}-${r.id}`} className="flex items-center gap-2 py-2.5 text-sm">
-          <Link to={link(`/a/${deployed.asset_id}`)} className="hover:underline">{deployed.alias}</Link> #{r.id} · <Account id={r.holder} />
+        <li key={`${deployed.alias}-${r.id}`} className="flex flex-wrap items-center gap-x-2 gap-y-1 px-5 py-3.5 text-sm">
+          <Link to={link(`/a/${deployed.asset_id}`)} className="font-medium no-underline hover:text-accent">{deployed.alias}</Link> <span className="num text-text-3">#{r.id}</span> · <Account id={r.holder} />
           {deployed.simulated && <SimulatedBadge />}
         </li>
       )),
     },
     {
       title: 'Work to verify',
-      who: 'verifier · not the claimer, agent or bridge',
+      who: 'Verifier · not the claimer, agent or bridge',
       empty: 'No submitted maintenance waiting for a verifier.',
       rows: toVerify.map(({ deployed, snap, t }) => (
-        <li key={`${deployed.alias}-${t.id}`} className="py-2.5 text-sm">
-          <Link to={link(`/t/${deployed.asset_id}/${t.id}`)} className="hover:underline">{snap.profile.rules.find((r) => r.rule_id === t.rule_id)?.title}</Link> · {t.kind} · {deployed.alias} · by <Account id={t.claimer} />
-          {toYocto(t.expense) > 0n && <span className="num text-xs text-ink-2"> · expense {formatNear(t.expense)} NEAR with receipt</span>}
+        <li key={`${deployed.alias}-${t.id}`} className="px-5 py-3.5 text-sm">
+          <Link to={link(`/t/${deployed.asset_id}/${t.id}`)} className="font-medium no-underline hover:text-accent">{snap.profile.rules.find((r) => r.rule_id === t.rule_id)?.title}</Link> · {t.kind} · {deployed.alias} · by <Account id={t.claimer} />
+          {toYocto(t.expense) > 0n && <span className="num text-text-3"> · expense {formatNear(t.expense)} NEAR with receipt</span>}
         </li>
       )),
     },
     {
       title: 'Council second approvals',
-      who: 'council · not the claimer or verifier',
+      who: 'Council · not the claimer or verifier',
       empty: 'Nothing needs a second approval.',
       rows: toCouncil.map(({ deployed, t }) => (
-        <li key={`${deployed.alias}-${t.id}`} className="py-2.5 text-sm">
-          <Link to={link(`/t/${deployed.asset_id}/${t.id}`)} className="hover:underline">task #{t.id}</Link> · {deployed.alias} · verified by <Account id={t.verifier} />
+        <li key={`${deployed.alias}-${t.id}`} className="px-5 py-3.5 text-sm">
+          <Link to={link(`/t/${deployed.asset_id}/${t.id}`)} className="font-medium no-underline hover:text-accent">task #{t.id}</Link> · {deployed.alias} · verified by <Account id={t.verifier} />
         </li>
       )),
     },
     {
       title: 'Credentials to approve',
-      who: 'verifier · not the trainer or trainee',
+      who: 'Verifier · not the trainer or trainee',
       empty: 'No proposed trainings.',
       rows: trainings.map(({ c, t }) => (
-        <li key={`${c.community.slug}-${t.id}`} className="py-2.5 text-sm">
-          <Account id={t.trainer} /> → <Account id={t.trainee} /> · <span className="num">{t.kind}</span>
+        <li key={`${c.community.slug}-${t.id}`} className="px-5 py-3.5 text-sm">
+          <Account id={t.trainer} /> → <Account id={t.trainee} /> · <span className="font-mono text-xs">{t.kind}</span>
         </li>
       )),
     },
   ];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-extrabold">Approvals</h1>
-        <p className="text-sm text-ink-2">Every approval comes from someone other than the person who did the work. The contracts enforce it.</p>
-      </div>
+    <div className="space-y-14">
+      <PageHead title="Approvals">Every approval comes from someone other than the person who did the work. The contracts enforce it.</PageHead>
       <WalletGate action="Approving" />
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
         {groups.map((g) => (
-          <Section key={g.title} title={g.title} eyebrow={g.who}>
-            {g.rows.length === 0 ? <Empty>{g.empty}</Empty> : <ul className="tag divide-y divide-line px-4">{g.rows}</ul>}
+          <Section key={g.title} title={g.title} note={g.who}>
+            {g.rows.length === 0 ? <Empty>{g.empty}</Empty> : <ul className="panel divide-y divide-line">{g.rows}</ul>}
           </Section>
         ))}
       </div>

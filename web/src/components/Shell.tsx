@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { useDataSource } from '../data/source';
 import { usePagePoll } from '../data/poll';
@@ -25,36 +25,9 @@ function WalletButton() {
       onClick={() => void (wallet.accountId ? wallet.disconnect() : wallet.connect()).catch((e: unknown) => toast.showError(e))}
       disabled={wallet.status === 'unavailable'}
       title={wallet.accountId ? `Connected as ${wallet.accountId}. Click to disconnect.` : wallet.unavailableReason}
-      className="max-w-[12rem] truncate rounded-full border border-line-strong px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-60"
+      className={`ck-btn ck-btn--sm max-w-[13rem] ${wallet.accountId ? 'ck-btn--ghost' : ''}`}
     >
-      {wallet.accountId ?? 'Connect wallet'}
-    </button>
-  );
-}
-
-function ThemeToggle() {
-  const [theme, setTheme] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem('ck-theme');
-    } catch {
-      return null;
-    }
-  });
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme) root.dataset.theme = theme;
-    else delete root.dataset.theme;
-    try {
-      if (theme) localStorage.setItem('ck-theme', theme);
-      else localStorage.removeItem('ck-theme');
-    } catch {
-      /* storage unavailable: theme still applies for this visit */
-    }
-  }, [theme]);
-  const next = theme === null ? 'dark' : theme === 'dark' ? 'light' : null;
-  return (
-    <button type="button" className="underline decoration-dotted" onClick={() => setTheme(next)}>
-      theme: {theme ?? 'system'}
+      <span className="truncate">{wallet.accountId ?? 'Connect wallet'}</span>
     </button>
   );
 }
@@ -81,51 +54,43 @@ function Frame() {
     window.scrollTo?.(0, 0);
   }, [pathname]);
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col bg-bg">
       {ds.kind === 'mock' && <MockBanner />}
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-          <NavLink to={link('/')} className="flex items-center gap-2" aria-label="COMMONKIT board">
-            <svg aria-hidden width="22" height="22" viewBox="0 0 32 32">
-              <circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" strokeWidth="3.5" />
-              <path d="M16 5a11 11 0 0 1 11 11" fill="none" stroke="var(--ck-due-fill)" strokeWidth="3.5" />
-              <circle cx="16" cy="16" r="3" fill="currentColor" />
-            </svg>
-            <span className="font-display text-lg font-extrabold tracking-tight">COMMONKIT</span>
-            <span className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] text-ink-2">testnet</span>
+      <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur-md">
+        <div className="wrap flex flex-wrap items-center gap-x-8 gap-y-1 pt-3 sm:h-16 sm:py-0">
+          <NavLink to={link('/')} className="flex items-baseline gap-2.5 no-underline" aria-label="COMMONKIT board">
+            <span className="text-[15px] font-semibold tracking-[0.09em] [font-stretch:112%]">COMMONKIT</span>
+            <span className="text-xs text-text-3">testnet</span>
           </NavLink>
-          <nav aria-label="Main" className="order-3 -mx-1 flex w-full gap-1 sm:order-none sm:ml-auto sm:w-auto">
+          <nav aria-label="Main" className="order-3 -mx-2 flex w-full sm:order-none sm:mx-0 sm:w-auto sm:gap-1">
             {NAV.map(([to, label]) => (
               <NavLink
                 key={to}
                 to={link(to)}
                 end={to === '/'}
                 className={({ isActive }) =>
-                  `rounded-full px-3 py-1 text-sm ${isActive ? 'bg-ink font-medium text-paper' : 'text-ink-2 hover:bg-surface-2'}`
+                  `relative px-2 py-2.5 text-[15px] no-underline transition-colors sm:px-3 ${isActive ? 'text-text after:absolute after:inset-x-2 after:-bottom-px after:h-0.5 after:bg-accent sm:after:inset-x-3 sm:after:bottom-[-13px]' : 'text-text-2 hover:text-text'}`
                 }
               >
                 {label}
               </NavLink>
             ))}
           </nav>
-          <div className="ml-auto sm:ml-0">
+          <div className="ml-auto">
             <WalletButton />
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
+      <main className="wrap flex-1 py-8 sm:py-12">
         <Outlet />
       </main>
-      <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-7xl flex-wrap gap-x-4 gap-y-1 px-4 py-4 text-xs text-ink-3">
-          <NavLink to={link('/train')}>Trainings</NavLink>
-          <NavLink to={link('/approvals')}>Approvals</NavLink>
-          <NavLink to={link('/pilot')}>Pilot</NavLink>
-          <a href="/">About</a>
-          <span>{sourceNote(pathname, ds.kind)}</span>
-          <span className="ml-auto">
-            <ThemeToggle />
-          </span>
+      <footer className="mt-12 border-t border-line">
+        <div className="wrap flex flex-wrap items-baseline gap-x-6 gap-y-2 py-6 text-sm text-text-3">
+          <NavLink to={link('/train')} className="no-underline hover:text-text">Trainings</NavLink>
+          <NavLink to={link('/approvals')} className="no-underline hover:text-text">Approvals</NavLink>
+          <NavLink to={link('/pilot')} className="no-underline hover:text-text">Pilot</NavLink>
+          <a href="/" className="no-underline hover:text-text">About</a>
+          <span className="w-full text-xs lg:ml-auto lg:w-auto">{sourceNote(pathname, ds.kind)}</span>
         </div>
       </footer>
       <DemoOverlay />

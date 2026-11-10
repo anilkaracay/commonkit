@@ -3,8 +3,8 @@ import { Link, useSearchParams } from 'react-router';
 import { useCardsFor, useDeployment } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { CardTile } from '../components/CardTile';
-import { Pill } from '../components/Badges';
-import { Empty, Loading, Section } from '../components/Section';
+import { Mark } from '../components/Badges';
+import { Empty, Loading, PageHead, Section } from '../components/Section';
 import { WalletGate } from '../components/WalletGate';
 import { Account } from '../components/TxLink';
 import { useDemoLink } from '../demo/demo';
@@ -34,17 +34,17 @@ export function MePage() {
 
   if (!account) {
     return (
-      <div className="mx-auto max-w-xl space-y-6">
-        <h1 className="text-3xl font-extrabold">My cards</h1>
+      <div className="mx-auto max-w-xl space-y-10">
+        <PageHead title="My cards" />
         <WalletGate action="Seeing your own cards" />
-        <Section title="Or look at a member" eyebrow="cards are public on-chain">
-          <ul className="tag divide-y divide-line px-4">
+        <Section title="Or look at a member" note="Cards are public on-chain">
+          <ul className="panel divide-y divide-line">
             {(dep.data?.members ?? []).map((m) => (
-              <li key={m.account_id} className="flex items-center justify-between py-2.5">
-                <Link to={link(`/me?as=${m.account_id}`)} className="hover:underline">
-                  {m.display_name}
+              <li key={m.account_id}>
+                <Link to={link(`/me?as=${m.account_id}`)} className="flex items-center justify-between gap-4 px-5 py-3.5 no-underline hover:bg-bg-alt">
+                  <span className="font-medium">{m.display_name}</span>
+                  <span className="text-sm text-text-3">{m.kind} →</span>
                 </Link>
-                <Pill tone={m.kind === 'demo-bot' ? 'sim' : 'muted'}>{m.kind}</Pill>
               </li>
             ))}
           </ul>
@@ -55,40 +55,38 @@ export function MePage() {
 
   const simCommunity = (slug: string) => dep.data?.communities.find((c) => c.slug === slug)?.simulated ?? false;
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="eyebrow">{wallet.accountId ? 'connected' : 'read-only view'}</p>
-        <h1 className="text-3xl font-extrabold">
-          <Account id={account} />
-        </h1>
-        <p className="mono-id">{account}</p>
-      </div>
-      <Section title="Cards" eyebrow="rights and credentials">
+    <div className="space-y-16">
+      <PageHead context={wallet.accountId ? 'Connected' : 'Read-only view'} title={<Account id={account} />}>
+        <span className="mono-id">{account}</span>
+      </PageHead>
+      <Section title="Cards" note="Usage rights and credentials">
         {!cards.data ? (
           <Loading what="cards" />
         ) : cards.data.length === 0 ? (
           <Empty>No cards yet. Maintain a machine or get trained to earn one.</Empty>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {cards.data.map(({ card, community }) => (
               <CardTile key={`${community.slug}-${card.token_id}`} card={card} simulated={simCommunity(community.slug)} communityName={community.name} />
             ))}
           </div>
         )}
       </Section>
-      <Section title="Reservations and reputation" eyebrow="per machine">
-        <ul className="tag divide-y divide-line px-4">
+      <Section title="Reservations and reputation" note="Per machine">
+        <ul className="panel divide-y divide-line">
           {(perAsset.data ?? []).filter((x) => x.reservations.length > 0 || x.reputation.sessions > 0 || x.reputation.upkeeps > 0).map(({ a, reservations, reputation }) => (
-            <li key={a.asset_id} className="py-3 text-sm">
-              <p className="font-medium">
-                <Link to={link(`/a/${a.asset_id}`)} className="hover:underline">{a.alias}</Link>{' '}
-                <span className="text-xs text-ink-3">
+            <li key={a.asset_id} className="px-5 py-4 text-sm">
+              <p className="flex flex-wrap items-baseline gap-x-3">
+                <Link to={link(`/a/${a.asset_id}`)} className="font-medium no-underline hover:text-accent">{a.alias}</Link>
+                <span className="num text-text-3">
                   {reputation.sessions} sessions · {reputation.clean_returns} clean · {reputation.upkeeps} upkeep · {reputation.fault_reports} fault reports
                 </span>
               </p>
-              <p className="mt-1 flex flex-wrap gap-1">
+              <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
                 {reservations.map((r) => (
-                  <Pill key={r.id} tone="muted">#{r.id} {r.status}</Pill>
+                  <Mark key={r.id} tone={r.status === 'Confirmed' || r.status === 'InSession' ? 'ok' : 'quiet'}>
+                    <span className="num">#{r.id}</span> {r.status}
+                  </Mark>
                 ))}
               </p>
             </li>

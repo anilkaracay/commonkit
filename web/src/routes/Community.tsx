@@ -1,10 +1,11 @@
 import { Link, useParams } from 'react-router';
-import { useCommunities } from '../data/hooks';
+import { useCatalog, useCommunities, useDeployment } from '../data/hooks';
 import { useDataSource } from '../data/source';
-import { SimulatedBadge, Pill } from '../components/Badges';
+import { SimulatedBadge } from '../components/Badges';
 import { Empty, LoadError, Loading, Section } from '../components/Section';
 import { Account } from '../components/TxLink';
 import { ProposalRow } from '../components/ProposalRow';
+import { MachineVisual } from '../components/MachineVisual';
 import { formatNear } from '../lib/near';
 import { shortAccount } from '../lib/enums';
 import { useDemoLink } from '../demo/demo';
@@ -15,6 +16,8 @@ export function CommunityPage() {
   const { community } = useParams();
   const ds = useDataSource();
   const comms = useCommunities();
+  const dep = useDeployment();
+  const catalog = useCatalog();
   const link = useDemoLink();
   if (comms.error) return <LoadError error={comms.error} />;
   if (!comms.data) return <Loading what="the community" />;
@@ -25,102 +28,118 @@ export function CommunityPage() {
   const councilMembers = council && typeof council.kind === 'object' && 'Group' in council.kind ? council.kind.Group : [];
   const groups = new Map<string, string[]>();
   for (const a of c.assets) groups.set(a.group_id, [...(groups.get(a.group_id) ?? []), a.asset_id]);
+  // Static files only (deployments + bundled profiles): no extra RPC reads on this page.
+  const entryOf = (id: string) => {
+    const file = dep.data?.assets.find((a) => a.asset_id === id)?.profile_file;
+    return catalog.data?.find((e) => e.file === file || e.file.endsWith(`/${file}`));
+  };
+  const typeOf = (id: string) => entryOf(id)?.profile.asset_type;
+  const nameOf = (id: string) => entryOf(id)?.meta.display_name ?? shortAccount(id);
 
   return (
-    <div className="space-y-10">
-      <header className={`tag p-5 ${c.community.simulated ? 'tag-sim' : ''}`}>
-        <p className="eyebrow">community</p>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-extrabold">{c.community.name}</h1>
-          {c.community.simulated && <SimulatedBadge />}
-        </div>
-        <dl className="mt-4 grid gap-4 sm:grid-cols-3">
-          <div>
-            <dt className="eyebrow">DAO treasury</dt>
-            <dd className="num key-num font-semibold" style={{ ['--key-base' as string]: '1.75rem' }}>
-              {formatNear(c.treasury.amount, { maxDecimals: 2 })} <span className="text-base text-ink-3">NEAR</span>
-            </dd>
-            <dd className="mono-id">{c.community.dao_id}</dd>
+    <div className="space-y-16 sm:space-y-20">
+      <header className="space-y-8">
+        <div>
+          <p className="mb-3 text-sm text-text-3">Community</p>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <h1 className="display text-[34px] sm:text-[44px]">{c.community.name}</h1>
+            {c.community.simulated && <SimulatedBadge />}
           </div>
-          <div>
-            <dt className="eyebrow">Council</dt>
-            <dd className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm">
+        </div>
+        <dl className="grid gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-3">
+          <div className="bg-surface p-5 sm:p-6">
+            <dt className="text-sm text-text-3">DAO treasury</dt>
+            <dd className="mt-1 flex items-baseline gap-1.5">
+              <span className="key-num display leading-none" style={{ ['--key-base' as string]: '2.25rem' }}>
+                {formatNear(c.treasury.amount, { maxDecimals: 2 })}
+              </span>
+              <span className="text-sm text-text-3">NEAR</span>
+            </dd>
+            <dd className="mono-id mt-3">{c.community.dao_id}</dd>
+          </div>
+          <div className="bg-surface p-5 sm:p-6">
+            <dt className="text-sm text-text-3">Council</dt>
+            <dd className="mt-2 flex flex-col gap-1">
               {councilMembers.map((m) => (
                 <Account key={m} id={m} />
               ))}
             </dd>
-            <dd className="mt-1 text-xs text-ink-3">proposal bond {formatNear(c.policy.proposal_bond)} NEAR</dd>
+            <dd className="mt-3 text-xs text-text-3">
+              Proposal bond <span className="num">{formatNear(c.policy.proposal_bond)}</span> NEAR
+            </dd>
           </div>
-          <div>
-            <dt className="eyebrow">Commons contract</dt>
-            <dd className="mono-id mt-1">{c.community.commons_id}</dd>
-            <dd className="text-xs text-ink-3">roles, credentials, usage-right cards</dd>
+          <div className="bg-surface p-5 sm:p-6">
+            <dt className="text-sm text-text-3">Commons contract</dt>
+            <dd className="mono-id mt-2 text-text">{c.community.commons_id}</dd>
+            <dd className="mt-3 text-xs text-text-3">Roles, credentials, usage-right cards</dd>
           </div>
         </dl>
       </header>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <Section title="Groups" eyebrow="rights are shared inside a group">
-          <ul className="tag divide-y divide-line px-4">
-            {[...groups].map(([g, ids]) => (
-              <li key={g} className="py-3">
-                <p className="num font-medium">{g}</p>
-                <p className="mt-1 flex flex-wrap gap-2">
-                  {ids.map((id) => (
-                    <Link key={id} to={link(`/a/${id}`)} className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-xs hover:underline">
-                      {shortAccount(id)}
+      <Section title="Groups" note="Rights are shared inside a group">
+        <div className="space-y-8">
+          {[...groups].map(([g, ids]) => (
+            <div key={g} className="space-y-3">
+              <p className="font-mono text-sm text-text-2">{g}</p>
+              <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {ids.map((id) => (
+                  <li key={id}>
+                    <Link to={link(`/a/${id}`)} className="group block no-underline">
+                      <MachineVisual type={typeOf(id) ?? ''} className="rounded-md" />
+                      <span className="mt-2 block truncate font-medium group-hover:text-accent">{nameOf(id)}</span>
+                      <span className="mono-id block truncate">{shortAccount(id)}</span>
                     </Link>
-                  ))}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </Section>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Section>
 
-        <Section title="Credential kinds" eyebrow="needed for risky machines">
+      <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
+        <Section title="Credential kinds" note="Needed for risky machines">
           {c.credentialKinds.length === 0 ? (
             <Empty>No credential kinds. Every machine here is open to all members.</Empty>
           ) : (
-            <ul className="tag divide-y divide-line px-4">
+            <ul className="panel divide-y divide-line">
               {c.credentialKinds.map((k) => (
-                <li key={k.kind} className="py-3 text-sm">
+                <li key={k.kind} className="px-5 py-4">
                   <p>
-                    <span className="num font-semibold text-cred">{k.kind}</span> · {k.title}
+                    {k.title} <span className="font-mono text-xs text-text-3">{k.kind}</span>
                   </p>
-                  <p className="text-xs text-ink-2">
-                    valid {k.validity_days ? `${k.validity_days} days` : 'without expiry'} · trainer earns {k.trainer_reward_rights} right(s) in{' '}
-                    <span className="num">{k.reward_group}</span>
+                  <p className="mt-1 text-sm text-text-3">
+                    Valid {k.validity_days ? `${k.validity_days} days` : 'without expiry'} · trainer earns {k.trainer_reward_rights} right(s) in{' '}
+                    <span className="font-mono text-xs">{k.reward_group}</span>
                   </p>
                 </li>
               ))}
             </ul>
           )}
         </Section>
+
+        <Section title="Roles" note="Set only by DAO proposals">
+          <ul className="panel divide-y divide-line">
+            {c.roles.map(({ account_id: account, roles }) => (
+              <li key={account} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3.5">
+                <Account id={account} />
+                <span className="text-sm text-text-3">{roles.join(' · ')}</span>
+              </li>
+            ))}
+          </ul>
+        </Section>
       </div>
 
-      <Section title="Roles" eyebrow="set only by DAO proposals">
-        <ul className="tag divide-y divide-line px-4">
-          {c.roles.map(({ account_id: account, roles }) => (
-            <li key={account} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
-              <Account id={account} />
-              <span className="flex flex-wrap gap-1">
-                {roles.map((r) => (
-                  <Pill key={r} tone={r === 'council' ? 'liability' : r === 'trainer' ? 'due' : 'alive'}>
-                    {r}
-                  </Pill>
-                ))}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section title="Governance" eyebrow="recent Sputnik proposals">
-        <ul className="tag divide-y divide-line px-4">
-          {[...c.proposals].reverse().map((p) => (
-            <ProposalRow key={p.id} proposal={p} daoId={c.community.dao_id} assetIds={c.assets.map((a) => a.asset_id)} nowMs={ds.now()} />
-          ))}
-        </ul>
+      <Section title="Governance" note="Recent Sputnik proposals">
+        {c.proposals.length === 0 ? (
+          <Empty>No proposals yet.</Empty>
+        ) : (
+          <ul className="panel divide-y divide-line">
+            {[...c.proposals].reverse().map((p) => (
+              <ProposalRow key={p.id} proposal={p} daoId={c.community.dao_id} assetIds={c.assets.map((a) => a.asset_id)} nowMs={ds.now()} />
+            ))}
+          </ul>
+        )}
       </Section>
     </div>
   );

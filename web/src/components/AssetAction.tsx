@@ -30,9 +30,9 @@ async function sha256Hex(text: string): Promise<string> {
 
 function Panel({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="tag border-2 border-ink p-4" aria-label={title}>
-      <h2 className="text-xl font-bold">{title}</h2>
-      <div className="mt-2 space-y-3 text-sm">{children}</div>
+    <section className="ck-card p-5 sm:p-6" aria-label={title}>
+      <h2 className="text-xl">{title}</h2>
+      <div className="mt-3 space-y-4 text-sm">{children}</div>
     </section>
   );
 }
@@ -46,8 +46,8 @@ export function AssetAction({ action, snap }: { action: DeepAction; snap: AssetS
     const next = encodeURIComponent(`${pathname}${search}`);
     return (
       <Panel title={t.needWalletTitle}>
-        <p className="text-ink-2">{t.needWalletBody}</p>
-        <Link to={`/pilot?next=${next}`} className="inline-block rounded-full bg-ink px-5 py-2 font-medium text-paper">
+        <p className="text-text-2">{t.needWalletBody}</p>
+        <Link to={`/pilot?next=${next}`} className="ck-btn">
           {t.goPilot}
         </Link>
       </Panel>
@@ -83,15 +83,15 @@ function FaultDialog({ snap }: { snap: AssetSnapshot }) {
 
   return (
     <Panel title={t.faultTitle}>
-      <p className="text-ink-2">{t.faultBody}</p>
-      <p className="flex items-center gap-2 text-xs text-ink-3"><SimulatedBadge /> {t.simulatedNote}</p>
+      <p className="text-text-2">{t.faultBody}</p>
+      <p className="flex flex-wrap items-center gap-2 text-xs text-text-3"><SimulatedBadge /> {t.simulatedNote}</p>
       {reportRules.length === 0 ? (
         <p className="text-due">{t.faultNoRule}</p>
       ) : (
         <>
           <label className="block">
-            <span className="text-xs text-ink-3">{t.faultRule}</span>
-            <select value={rule} onChange={(e) => setRule(e.target.value)} className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-2 py-1.5">
+            <span className="text-xs text-text-3">{t.faultRule}</span>
+            <select value={rule} onChange={(e) => setRule(e.target.value)} className="field mt-1">
               {reportRules.map((r) => (
                 <option key={r.rule_id} value={r.rule_id}>
                   {r.title}
@@ -100,14 +100,14 @@ function FaultDialog({ snap }: { snap: AssetSnapshot }) {
             </select>
           </label>
           <label className="block">
-            <span className="text-xs text-ink-3">{t.faultNote}</span>
-            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} className="mt-1 block w-full rounded-md border border-line-strong bg-surface px-2 py-1.5" />
+            <span className="text-xs text-text-3">{t.faultNote}</span>
+            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} className="field mt-1" />
           </label>
-          <button type="button" disabled={busy || note.trim().length < 3} onClick={() => void send()} className="rounded-full bg-danger px-5 py-2 font-medium text-paper disabled:opacity-50">
+          <button type="button" disabled={busy || note.trim().length < 3} onClick={() => void send()} className="ck-btn">
             {t.faultSend}
           </button>
           {tx && (
-            <p className="text-alive">
+            <p className="text-accent">
               {t.sent} <TxLink hash={tx} />
             </p>
           )}
@@ -144,7 +144,7 @@ function ReturnPanel({ snap }: { snap: AssetSnapshot }) {
 
   return (
     <Panel title={t.returnTitle}>
-      <p className="text-ink-2">{t.returnStewardOnly}</p>
+      <p className="text-text-2">{t.returnStewardOnly}</p>
       {manual ? (
         loans.isError ? (
           <p className="text-due">{t.bridgeUnreachable}</p>
@@ -156,28 +156,28 @@ function ReturnPanel({ snap }: { snap: AssetSnapshot }) {
                 <button
                   type="button"
                   disabled={!isSteward}
-                  className="rounded-full bg-ink px-4 py-1.5 text-paper disabled:opacity-50"
+                  className="ck-btn ck-btn--sm"
                   onClick={() => void confirmManual(wallet, snap.assetId, loan, 'return').then(() => setTx('bridge'), (e: unknown) => toast.showError(new Error(bridgeMessage(e))))}
                 >
                   {t.confirmManualReturn}
                 </button>
               </li>
             ))}
-            {loans.data && !loans.data.current && loans.data.outstanding.length === 0 && <li className="text-ink-3">{t.returnNone}</li>}
+            {loans.data && !loans.data.current && loans.data.outstanding.length === 0 && <li className="text-text-3">{t.returnNone}</li>}
           </ul>
         )
       ) : finished.length === 0 ? (
-        <p className="text-ink-3">{t.returnNone}</p>
+        <p className="text-text-3">{t.returnNone}</p>
       ) : (
         <ul className="space-y-2">
           {finished.map((r) => (
             <li key={r.id} className="flex flex-wrap items-center gap-2">
               <span className="num">#{r.id}</span> <Account id={r.holder} />
-              {r.session_finished_at && <span className="text-xs text-ink-3">{formatDateTime(r.session_finished_at)}</span>}
-              <button type="button" disabled={!isSteward || r.holder === wallet.accountId} onClick={() => void confirmOnChain(r.id, true)} className="rounded-full bg-alive px-4 py-1.5 text-paper disabled:opacity-50">
+              {r.session_finished_at && <span className="text-xs text-text-3">{formatDateTime(r.session_finished_at)}</span>}
+              <button type="button" disabled={!isSteward || r.holder === wallet.accountId} onClick={() => void confirmOnChain(r.id, true)} className="ck-btn ck-btn--sm">
                 {t.confirmClean}
               </button>
-              <button type="button" disabled={!isSteward || r.holder === wallet.accountId} onClick={() => void confirmOnChain(r.id, false)} className="rounded-full border border-danger px-4 py-1.5 text-danger disabled:opacity-50">
+              <button type="button" disabled={!isSteward || r.holder === wallet.accountId} onClick={() => void confirmOnChain(r.id, false)} className="ck-btn ck-btn--sm ck-btn--danger">
                 {t.reportDamage}
               </button>
             </li>
@@ -185,7 +185,7 @@ function ReturnPanel({ snap }: { snap: AssetSnapshot }) {
         </ul>
       )}
       {tx && tx !== 'bridge' && <TxLink hash={tx} />}
-      {tx === 'bridge' && <p className="text-alive">{t.sent}</p>}
+      {tx === 'bridge' && <p className="text-accent">{t.sent}</p>}
     </Panel>
   );
 }

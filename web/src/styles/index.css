@@ -1,130 +1,139 @@
 @import 'tailwindcss';
-@import './tokens.css';
+/* One design system for landing and app (D-030): tokens, fonts, base, components, Tailwind theme. */
+@import '@commonkit/design/tokens.css';
+@import '@commonkit/design/fonts.css';
+@import '@commonkit/design/base.css';
+@import '@commonkit/design/components.css';
+@import '@commonkit/design/tailwind.css';
 
-@theme inline {
-  --color-paper: var(--ck-paper);
-  --color-surface: var(--ck-surface);
-  --color-surface-2: var(--ck-surface-2);
-  --color-ink: var(--ck-ink);
-  --color-ink-2: var(--ck-ink-2);
-  --color-ink-3: var(--ck-ink-3);
-  --color-line: var(--ck-line);
-  --color-line-strong: var(--ck-line-strong);
-  --color-alive: var(--ck-alive);
-  --color-alive-soft: var(--ck-alive-soft);
-  --color-due: var(--ck-due);
-  --color-due-fill: var(--ck-due-fill);
-  --color-due-soft: var(--ck-due-soft);
-  --color-danger: var(--ck-danger);
-  --color-danger-soft: var(--ck-danger-soft);
-  --color-liability: var(--ck-liability);
-  --color-liability-soft: var(--ck-liability-soft);
-  --color-sim: var(--ck-sim);
-  --color-sim-soft: var(--ck-sim-soft);
-  --color-cred: var(--ck-cred);
-
-  --font-display: 'Bricolage Grotesque Variable', 'Avenir Next', system-ui, sans-serif;
-  --font-sans: 'Instrument Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
-
-  --radius-tag: var(--ck-radius);
-  --radius-tag-sm: var(--ck-radius-sm);
-  --shadow-tag: var(--ck-shadow);
+/* App-only knobs: ?demo=1 enlarges key numbers so they read on a phone recording. */
+:root {
+  --ck-key-scale: 1;
+}
+:root[data-demo='true'] {
+  --ck-key-scale: 1.35;
 }
 
 @layer base {
-  html {
-    -webkit-text-size-adjust: 100%;
-    text-rendering: optimizeLegibility;
-  }
   body {
-    background: var(--ck-paper);
-    color: var(--ck-ink);
-    font-family: var(--font-sans);
-    font-size: 15px;
-    line-height: 1.5;
     overflow-x: hidden;
   }
   h1,
   h2,
   h3 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
-    line-height: 1.1;
+    margin: 0;
+    font-weight: var(--ck-weight-semibold);
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    text-wrap: balance;
   }
-  :focus-visible {
-    outline: 2px solid var(--ck-alive);
-    outline-offset: 2px;
-    border-radius: 4px;
+  p,
+  ol,
+  ul,
+  dl,
+  dd,
+  figure,
+  blockquote {
+    margin: 0;
   }
   a {
     text-underline-offset: 3px;
   }
+  table {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 @layer components {
-  /* Machine nameplate: the card every asset is drawn on. */
-  .tag {
+  .wrap {
+    width: 100%;
+    max-width: calc(var(--ck-wrap) + var(--ck-gutter) * 2);
+    margin-inline: auto;
+    padding-inline: var(--ck-gutter);
+  }
+  /* Display headings: CK Sans at 112 % width, tight tracking. */
+  .display {
+    font-stretch: var(--ck-display-stretch);
+    font-weight: var(--ck-display-weight);
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+  }
+  /* A quiet panel: hairline, no shadow. Lists, tables, details. */
+  .panel {
     background: var(--ck-surface);
     border: 1px solid var(--ck-line);
-    border-radius: var(--ck-radius);
-    box-shadow: var(--ck-shadow);
-  }
-  /* Simulated things look like blueprints: blue tint and diagonal hatching. */
-  .tag-sim {
-    background-color: var(--ck-sim-soft);
-    background-image: repeating-linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--ck-sim) 14%, transparent) 0 1px,
-      transparent 1px 9px
-    );
-    border-color: color-mix(in srgb, var(--ck-sim) 45%, transparent);
-    border-style: dashed;
-  }
-  .hatch-liability {
-    background-color: var(--ck-liability-soft);
-    background-image: repeating-linear-gradient(
-      45deg,
-      color-mix(in srgb, var(--ck-liability) 55%, transparent) 0 2px,
-      transparent 2px 7px
-    );
-  }
-  .hatch-over {
-    background-image: repeating-linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--ck-danger) 35%, transparent) 0 2px,
-      transparent 2px 6px
-    );
-  }
-  .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ck-ink-3);
+    border-radius: var(--ck-radius-md);
   }
   .num {
-    font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
   }
-  /* Key numbers grow in ?demo=1 so they read on a phone recording. */
+  /* Key numbers grow in ?demo=1. */
   .key-num {
     font-size: calc(var(--key-base, 1.5rem) * var(--ck-key-scale));
+    font-variant-numeric: tabular-nums;
   }
   .mono-id {
-    font-family: var(--font-mono);
+    font-family: var(--ck-font-mono);
     font-size: 12px;
+    letter-spacing: -0.01em;
     overflow-wrap: anywhere;
-    color: var(--ck-ink-2);
+    color: var(--ck-text-3);
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+  .label {
+    font-size: var(--ck-text-xs);
+    color: var(--ck-text-3);
+  }
+  .ck-btn--sm {
+    height: 36px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+  .ck-btn--danger {
+    background: transparent;
+    color: var(--ck-danger);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ck-danger) 45%, transparent);
+  }
+  .ck-btn--danger:hover {
+    background: var(--ck-danger-soft);
+  }
+  .ck-btn--danger[disabled] {
+    background: transparent;
+    color: var(--ck-text-3);
+    box-shadow: inset 0 0 0 1px var(--ck-line);
+  }
+  .ck-btn--ghost[disabled] {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--ck-line);
+  }
+  .field {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--ck-line-strong);
+    border-radius: var(--ck-radius-sm);
+    background: var(--ck-surface);
+    padding: 8px 10px;
+    font: inherit;
+    color: inherit;
+  }
+  .field:focus-visible {
+    border-color: var(--ck-accent);
+  }
+  .code {
+    display: block;
+    border-radius: var(--ck-radius-sm);
+    background: var(--ck-bg-alt);
+    border: 1px solid var(--ck-line);
+    padding: 10px 12px;
+    font-family: var(--ck-font-mono);
+    font-size: 12.5px;
+    color: var(--ck-text);
+    overflow-wrap: anywhere;
+  }
+  .text-link {
+    color: var(--ck-accent);
+    text-decoration: none;
+  }
+  .text-link:hover {
+    text-decoration: underline;
   }
 }

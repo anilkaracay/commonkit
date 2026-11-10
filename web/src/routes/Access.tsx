@@ -5,7 +5,7 @@ import { BRIDGE_URL, bridgeMessage, requestAccess, type AccessResult } from '../
 import { useWallet } from '../wallet/wallet';
 import { useAssetSnapshot } from '../data/hooks';
 import { useDataSource } from '../data/source';
-import { Pill, SimulatedBadge } from '../components/Badges';
+import { Mark, SimulatedBadge } from '../components/Badges';
 import { LoadError, Loading } from '../components/Section';
 import { WalletGate } from '../components/WalletGate';
 import { Account } from '../components/TxLink';
@@ -46,54 +46,87 @@ export function AccessPage() {
   if (!r) return <NotFoundPage what={`reservation #${reservationId}`} />;
   const sim = q.data.profile.adapter === 'simulator';
 
-  return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <Link to={link(`/a/${assetId}`)} className="text-sm text-ink-2 hover:underline">
-        ← {q.data.meta.display_name}
-      </Link>
-      <h1 className="flex flex-wrap items-center gap-3 text-3xl font-extrabold">
-        Start reservation #{r.id} {sim && <SimulatedBadge />}
-      </h1>
+  const steps = [
+    'Your wallet signs a NEP-413 message naming this reservation. No transaction, no fee.',
+    <>
+      The bridge next to the machine verifies the signature and calls <span className="font-mono text-xs">can_access</span> on this account.
+    </>,
+    `Only if the chain says yes does it unlock the ${q.data.profile.adapter === 'smart_plug' ? 'plug' : 'device'} and report the session start.`,
+  ];
 
-      <div className="tag space-y-2 p-4 text-sm">
-        <p>
-          Holder <Account id={r.holder} /> · <Pill tone="liability">{r.status}</Pill>
-        </p>
-        {check.data && (
-          <>
-            <p>
-              Start window {formatDateTime(check.data.window_start)} → {formatDateTime(check.data.window_end)}
-            </p>
-            <p className={check.data.ok ? 'text-alive' : 'text-due'}>
-              can_access for the holder right now: <strong>{check.data.ok ? 'yes' : 'no'}</strong> ({check.data.reason})
-            </p>
-          </>
-        )}
+  return (
+    <div className="mx-auto max-w-xl space-y-10">
+      <div>
+        <Link to={link(`/a/${assetId}`)} className="text-sm text-text-3 no-underline hover:text-accent">
+          ← {q.data.meta.display_name}
+        </Link>
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+          <h1 className="display text-[34px] sm:text-[44px]">Start reservation #{r.id}</h1>
+          {sim && <SimulatedBadge />}
+        </div>
       </div>
 
-      <ol className="space-y-2 text-sm text-ink-2">
-        <li>1. Your wallet signs a NEP-413 message naming this reservation (no transaction, no fee).</li>
-        <li>2. The bridge next to the machine verifies the signature and calls <span className="num">can_access</span> on this account.</li>
-        <li>3. Only if the chain says yes does it unlock the {q.data.profile.adapter === 'smart_plug' ? 'plug' : 'device'} and report the session start.</li>
+      <dl className="ck-rows text-sm">
+        <div>
+          <dt>Holder</dt>
+          <dd>
+            <Account id={r.holder} />
+          </dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>
+            <Mark tone="ok">{r.status}</Mark>
+          </dd>
+        </div>
+        {check.data && (
+          <>
+            <div>
+              <dt>Start window</dt>
+              <dd className="num">
+                {formatDateTime(check.data.window_start)} → {formatDateTime(check.data.window_end)}
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <span className="font-mono text-xs">can_access</span> now
+              </dt>
+              <dd className={check.data.ok ? 'text-accent' : 'text-text-2'}>
+                {check.data.ok ? 'yes' : 'no'} <span className="font-normal text-text-3">({check.data.reason})</span>
+              </dd>
+            </div>
+          </>
+        )}
+      </dl>
+
+      <ol className="space-y-4">
+        {steps.map((step, i) => (
+          <li key={i} className="flex gap-4 text-text-2">
+            <span className="num grid size-7 shrink-0 place-items-center rounded-full bg-bg-alt text-sm font-medium text-text">{i + 1}</span>
+            <span className="pt-0.5">{step}</span>
+          </li>
+        ))}
       </ol>
 
       <WalletGate action="Starting a session">
-        <button type="button" disabled={busy} onClick={() => void start()} className="rounded-full bg-ink px-5 py-2 font-medium text-paper disabled:opacity-50">
+        <button type="button" disabled={busy} onClick={() => void start()} className="ck-btn ck-btn--lg">
           Start
         </button>
-        <p className="mt-2 text-xs text-ink-3">Bridge: {BRIDGE_URL}</p>
+        <p className="mt-3 text-xs text-text-3">Bridge: {BRIDGE_URL}</p>
       </WalletGate>
       {error && (
-        <p role="alert" className="rounded-tag bg-danger-soft p-3 text-sm text-danger">
+        <p role="alert" className="rounded-md bg-danger-soft p-4 text-sm text-danger">
           {error}
         </p>
       )}
       {result && (
-        <div className="tag space-y-1 p-4 text-sm">
-          <p className="font-medium text-alive">
+        <div className="ck-card space-y-1.5 p-5 text-sm">
+          <p className="font-medium text-accent">
             Session {result.resumed ? 'resumed' : 'started'} · {result.session_id}
           </p>
-          <p className="text-xs text-ink-3">signed with a {result.key_permission} key · emulated device (SIMULATED)</p>
+          <p className="flex flex-wrap items-center gap-2 text-xs text-text-3">
+            Signed with a {result.key_permission} key · emulated device <SimulatedBadge />
+          </p>
           {result.device?.manual_qr && (
             <p>
               Handover code for the steward: <span className="num font-semibold">{result.device.manual_qr.handover_code}</span>

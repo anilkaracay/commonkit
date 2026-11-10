@@ -4,12 +4,12 @@ import { AssetAction, parseAction } from '../components/AssetAction';
 import { useAssetSnapshot, useCommunities, useDemoThresholds, useDeployment, useEvidence } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import type { Reservation } from '../data/types';
-import { AssetIcon } from '../components/AssetIcon';
-import { keylessLabel, Pill, SimulatedBadge, type Tone } from '../components/Badges';
-import { KasaBar } from '../components/KasaBar';
+import { keylessLabel, Mark, SimulatedBadge, type Tone } from '../components/Badges';
+import { KasaBar, MoneyFigures } from '../components/KasaBar';
 import { KeepersList } from '../components/KeepersList';
 import { UpkeepGauge, RuleBars } from '../components/UpkeepGauge';
 import { OutOfServiceBand } from '../components/AssetCard';
+import { MachineVisual } from '../components/MachineVisual';
 import { useWallet } from '../wallet/wallet';
 import { Empty, LoadError, Loading, Section } from '../components/Section';
 import { TaskRow } from '../components/TaskRow';
@@ -25,9 +25,9 @@ import { deviceOf } from '../data/devices';
 import { ReservationActions } from '../components/ReservationActions';
 
 const resTone: Partial<Record<Reservation['status'], Tone>> = {
-  Confirmed: 'liability',
-  InSession: 'alive',
-  Finished: 'due',
+  Confirmed: 'ok',
+  InSession: 'ok',
+  Finished: 'quiet',
   Disputed: 'danger',
   Rejected: 'danger',
 };
@@ -76,78 +76,76 @@ export function AssetPage() {
   }
 
   return (
-    <div className="space-y-10">
-      {/* Nameplate */}
-      <header className={`tag overflow-hidden ${sim ? 'tag-sim' : ''}`}>
-        <div className="grid grid-cols-1 gap-6 p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-          <div className="flex items-start gap-4">
-            <div className={`grid size-16 shrink-0 place-items-center rounded-2xl border-2 ${sim ? 'border-sim text-sim' : 'border-ink text-ink'}`}>
-              <AssetIcon type={s.profile.asset_type} size={36} />
-            </div>
-            <div className="min-w-0">
-              <p className="eyebrow">
-                <Link to={link(`/c/${deployed.community}`)} className="hover:underline">
-                  {community?.community.name ?? deployed.community}
-                </Link>{' '}
-                · {s.profile.group_id}
-              </p>
-              <h1 className="text-3xl font-extrabold sm:text-4xl">{s.meta.display_name}</h1>
-              <p className="mono-id mt-1">{assetId}</p>
-              <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-ink-3">
-                <span className={deployed.keyless === true ? 'text-alive' : 'text-due'}>{keylessLabel(deployed.keyless)}</span>
-                <span>· {s.profile.adapter} adapter</span>
-                {s.profile.required_credential && (
-                  <span>
-                    · needs a <span className="num font-semibold text-cred">{s.profile.required_credential}</span> credential
-                  </span>
-                )}
-                <TxLink hash={deployed.deploy_tx} label="deploy tx" />
-              </p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                {sim && <SimulatedBadge assetId={assetId} />}
-                <Pill tone={status.tone}>{status.label}</Pill>
-              </div>
-              <p className="mt-3 max-w-xl text-sm text-ink-2">{s.meta.scenario_story_en}</p>
+    <div className="space-y-16 sm:space-y-20">
+      {/* The machine card: the machine first, then who it is, what it holds, and what you can do. */}
+      <header className="ck-card grid overflow-hidden lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+        <MachineVisual type={s.profile.asset_type} priority className="border-b border-line lg:aspect-auto lg:min-h-full lg:border-r lg:border-b-0" />
+        <div className="flex min-w-0 flex-col gap-7 p-5 sm:p-8 lg:p-10">
+          <div className="min-w-0">
+            <p className="text-sm text-text-3">
+              <Link to={link(`/c/${deployed.community}`)} className="no-underline hover:text-accent">
+                {community?.community.name ?? deployed.community}
+              </Link>
+              <span className="font-mono text-xs"> · {s.profile.group_id}</span>
+            </p>
+            <h1 className="display mt-2 text-[34px] sm:text-[44px]">{s.meta.display_name}</h1>
+            <p className="mono-id mt-2">{assetId}</p>
+            <p className="mt-4 max-w-[34rem] text-text-2">{s.meta.scenario_story_en}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+              <Mark tone={status.tone}>{status.label}</Mark>
+              {sim && <SimulatedBadge assetId={assetId} />}
             </div>
           </div>
-          <div className="flex justify-center">
-            <UpkeepGauge rules={s.rules} ruleDefs={s.profile.rules} size={176} />
-          </div>
-        </div>
-        {!s.service.in_service && (
-          <div className="px-5 pb-4">
-            <OutOfServiceBand detail={`Since ${formatDateTime(s.service.since)}. Reservations and sessions are refused (E_OUT_OF_SERVICE); upcoming reservations can be cancelled for a full refund.`} />
-          </div>
-        )}
-        <div className="flex flex-wrap items-center gap-3 border-t border-line bg-surface/60 px-5 py-3">
-          {s.service.in_service ? (
-            <Link to={link(`/a/${assetId}/reserve`)} className="rounded-full bg-ink px-4 py-1.5 text-sm font-medium text-paper">
-              Reserve
-            </Link>
-          ) : (
-            <span aria-disabled className="cursor-not-allowed rounded-full bg-surface-2 px-4 py-1.5 text-sm font-medium text-ink-3">
-              Reserve
-            </span>
+
+          {!s.service.in_service && (
+            <OutOfServiceBand detail={`Since ${formatDateTime(s.service.since)}. Reservations and sessions are refused; upcoming reservations can be cancelled for a full refund.`} />
           )}
-          <button
-            type="button"
-            disabled={wallet.status !== 'connected'}
-            title={wallet.status === 'connected' ? 'Report a fault (needs a session in the last 14 days)' : (wallet.unavailableReason ?? 'Connect a wallet to report a fault')}
-            onClick={() => navigate(link(`/a/${assetId}?action=fault`))}
-            className="rounded-full border border-danger px-4 py-1.5 text-sm font-medium text-danger disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Report a fault
-          </button>
-          <span className="text-sm text-ink-2">
-            <span className="num font-semibold text-ink">{formatNear(s.profile.price_per_slot)} NEAR</span> per {s.profile.slot_minutes} min
-            {toYocto(s.profile.deposit) > 0n && (
-              <>
-                {' '}
-                + <span className="num">{formatNear(s.profile.deposit)}</span> refundable deposit
-              </>
-            )}
-          </span>
-          <span className="ml-auto text-xs text-ink-3">Status read live from NEAR testnet.</span>
+
+          <MoneyFigures ledger={s.ledger} floatCap={s.profile.float_cap} />
+
+          <div className="space-y-3 border-t border-line pt-6">
+            <div className="flex flex-wrap items-center gap-3">
+              {s.service.in_service ? (
+                <Link to={link(`/a/${assetId}/reserve`)} className="ck-btn ck-btn--lg">
+                  Reserve
+                </Link>
+              ) : (
+                <span aria-disabled="true" className="ck-btn ck-btn--lg">
+                  Reserve
+                </span>
+              )}
+              <button
+                type="button"
+                disabled={wallet.status !== 'connected'}
+                title={wallet.status === 'connected' ? 'Report a fault (needs a session in the last 14 days)' : (wallet.unavailableReason ?? 'Connect a wallet to report a fault')}
+                onClick={() => navigate(link(`/a/${assetId}?action=fault`))}
+                className="ck-btn ck-btn--lg ck-btn--ghost"
+              >
+                Report a fault
+              </button>
+            </div>
+            <p className="text-sm text-text-3">
+              <span className="num font-semibold text-text">{formatNear(s.profile.price_per_slot)} NEAR</span> per {s.profile.slot_minutes} min
+              {toYocto(s.profile.deposit) > 0n && (
+                <>
+                  {' '}
+                  · <span className="num">{formatNear(s.profile.deposit)}</span> NEAR refundable deposit
+                </>
+              )}
+              {s.profile.required_credential && (
+                <>
+                  {' '}
+                  · needs a <span className="font-mono text-xs text-text-2">{s.profile.required_credential}</span> credential
+                </>
+              )}
+            </p>
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-3">
+              <span>{keylessLabel(deployed.keyless)}</span>
+              <span>· {s.profile.adapter} adapter</span>
+              <span>· read live from NEAR testnet</span>
+              <TxLink hash={deployed.deploy_tx} label="deploy tx" />
+            </p>
+          </div>
         </div>
       </header>
 
@@ -155,64 +153,77 @@ export function AssetPage() {
 
       {sim && <SimulationPanel assetType={s.profile.asset_type} assetId={assetId} />}
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-        <Section title="Money" eyebrow="what this machine holds">
-          <div className="tag p-4">
-            <KasaBar ledger={s.ledger} floatCap={s.profile.float_cap} />
-            <p className={`mt-3 text-xs ${s.ledger.invariant_ok ? 'text-alive' : 'text-danger'}`}>
-              {s.ledger.invariant_ok ? 'Balance covers every obligation (invariant_ok).' : 'Ledger invariant is broken.'}{' '}
-              <span className="text-ink-3">balance {formatNear(s.ledger.balance)} NEAR incl. {formatNear(s.ledger.storage_reserve)} storage reserve</span>
-            </p>
+      <Section title="Upkeep" note={`Profile v${s.wiring.profile_version} · the rule closest to its trigger, then every rule`}>
+        <div className="panel grid gap-10 p-5 pb-6 sm:p-8 md:grid-cols-[220px_minmax(0,1fr)] md:items-center md:gap-12">
+          <div className="flex justify-center pb-12">
+            <UpkeepGauge rules={s.rules} ruleDefs={s.profile.rules} size={196} />
           </div>
-        </Section>
-        <Section title="Who keeps me alive" eyebrow="maintainers and trainers">
-          <div className="tag px-4 py-1">
+          <RuleBars rules={s.rules} ruleDefs={s.profile.rules} demo={demo} />
+        </div>
+      </Section>
+
+      <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-10">
+        <Section title="Who keeps me alive" note="Members whose upkeep or training was rewarded">
+          <div className="panel p-5 sm:p-6">
             <KeepersList tasks={s.tasks} trainings={trainings} nowMs={now} />
           </div>
         </Section>
-      </div>
-
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <Section title="Upkeep rules" eyebrow={`profile v${s.wiring.profile_version}`}>
-          <div className="tag p-4">
-            <RuleBars rules={s.rules} ruleDefs={s.profile.rules} demo={demo} />
+        <Section title="Money" note={s.ledger.invariant_ok ? 'The balance covers every obligation.' : 'Ledger invariant is broken.'}>
+          <div className="panel p-5 sm:p-6">
+            <KasaBar ledger={s.ledger} floatCap={s.profile.float_cap} />
+            <p className={`mt-4 text-xs ${s.ledger.invariant_ok ? 'text-text-3' : 'text-danger'}`}>
+              Balance <span className="num">{formatNear(s.ledger.balance)}</span> NEAR, including <span className="num">{formatNear(s.ledger.storage_reserve)}</span> storage reserve
+              {s.ledger.invariant_ok ? ' · invariant_ok' : ''}
+            </p>
           </div>
         </Section>
-        <Section title="Telemetry" eyebrow={`${s.telemetry.reports} reports from the bridge`}>
-          <dl className="tag grid grid-cols-2 gap-4 p-4">
-            {s.telemetry.metrics.map(([m, v]) => (
-              <div key={m}>
-                <dt className="text-xs text-ink-3">{metricLabel(m)}</dt>
-                <dd className="num text-lg font-semibold">{formatMetric(m, v)}</dd>
-              </div>
-            ))}
-            <p className="col-span-2 text-xs text-ink-3">updated {formatAgo(s.telemetry.updated_at, now)} · counters only go up</p>
-          </dl>
-        </Section>
       </div>
 
+      <Section title="Telemetry" note={`${s.telemetry.reports} reports from the bridge · updated ${formatAgo(s.telemetry.updated_at, now)} · counters only go up`}>
+        <dl className="panel grid grid-cols-2 overflow-hidden sm:grid-cols-3 lg:grid-cols-6">
+          {s.telemetry.metrics.map(([m, v]) => (
+            <div key={m} className="min-w-0 p-5 shadow-[inset_-1px_-1px_0_var(--ck-line)]">
+              <dt className="truncate text-sm text-text-3">{metricLabel(m)}</dt>
+              <dd className="num mt-1 text-2xl font-medium tracking-tight">{formatMetric(m, v)}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
+
+      <Section title="Tasks" note="Upkeep opened by the operations agent">
+        {s.tasks.length === 0 ? (
+          <Empty>No upkeep tasks yet. One opens when a rule above is due.</Empty>
+        ) : (
+          <ul className="panel divide-y divide-line">
+            {[...s.tasks].reverse().map((t) => (
+              <TaskRow key={t.id} task={t} assetId={assetId} rule={s.profile.rules.find((r) => r.rule_id === t.rule_id)} simulated={sim} nowMs={now} txHash={ds.rowTx(`task-${deployed.alias}-${t.id}`)} />
+            ))}
+          </ul>
+        )}
+      </Section>
+
       {(s.faults.some((f) => f.reports.length > 0) || s.serviceLog.length > 0) && (
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-          <Section title="Fault reports" eyebrow="from members who used it in the last 14 days">
-            <ul className="tag divide-y divide-line px-4">
+        <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
+          <Section title="Fault reports" note="From members who used it in the last 14 days">
+            <ul className="panel divide-y divide-line">
               {s.faults.flatMap((f) =>
                 f.reports.map((r) => (
-                  <li key={`${f.rule_id}-${r.reporter}`} className="py-2.5 text-sm">
-                    <Account id={r.reporter} /> <span className="text-xs text-ink-3">· {f.rule_id} · {formatAgo(r.at, now)}</span>
-                    <p className="num text-[11px] break-all text-ink-3">note sha256 {r.note_hash}</p>
+                  <li key={`${f.rule_id}-${r.reporter}`} className="px-5 py-4 text-sm">
+                    <Account id={r.reporter} /> <span className="text-text-3">· {f.rule_id} · {formatAgo(r.at, now)}</span>
+                    <p className="mono-id mt-1 break-all">note sha256 {r.note_hash}</p>
                   </li>
                 )),
               )}
             </ul>
           </Section>
-          <Section title="Service log" eyebrow="out-of-service periods">
-            <ul className="tag divide-y divide-line px-4">
+          <Section title="Service log" note="Out-of-service periods">
+            <ul className="panel divide-y divide-line">
               {s.serviceLog.map((p) => (
-                <li key={p.seq} className="py-2.5 text-sm">
-                  <p>
+                <li key={p.seq} className="px-5 py-4 text-sm">
+                  <p className="num">
                     {formatDateTime(p.started_at)} → {p.ended_at ? formatDateTime(p.ended_at) : <span className="font-medium text-danger">still out</span>}
                   </p>
-                  <p className="text-xs text-ink-3">
+                  <p className="mt-1 text-text-3">
                     by <Account id={p.started_by} />
                     {p.ended_by && ('RepairRewarded' in p.ended_by ? ` · restored by repair task #${p.ended_by.RepairRewarded.task_id}` : ' · restored by council')}
                   </p>
@@ -223,83 +234,76 @@ export function AssetPage() {
         </div>
       )}
 
-      <Section title="Tasks" eyebrow="upkeep opened by the operations agent">
-        {s.tasks.length === 0 ? (
-          <Empty>No upkeep tasks yet. One opens when a rule above is due.</Empty>
-        ) : (
-          <ul className="tag divide-y divide-line px-4">
-            {[...s.tasks].reverse().map((t) => (
-              <TaskRow key={t.id} task={t} assetId={assetId} rule={s.profile.rules.find((r) => r.rule_id === t.rule_id)} simulated={sim} nowMs={now} txHash={ds.rowTx(`task-${deployed.alias}-${t.id}`)} />
-            ))}
-          </ul>
-        )}
-      </Section>
-
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <Section title="Next slots" eyebrow={`${s.profile.slot_minutes} min each · UTC`}>
-          <ol className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
+      <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
+        <Section title="Next slots" note={`${s.profile.slot_minutes} min each · UTC`}>
+          {avail.isLoading && <Loading what="slots" />}
+          {avail.error && <LoadError error={avail.error} />}
+          <ol className="grid grid-cols-4 gap-2 sm:grid-cols-6">
             {(avail.data ?? []).map(({ reservation_id: holder }, i) => {
               const slotNo = nowSlot + BigInt(i);
               return (
                 <li
                   key={i}
-                  className={`rounded-md border px-1 py-1.5 text-center text-[11px] ${holder ? 'border-transparent bg-ink text-paper' : 'border-line-strong bg-surface'}`}
+                  className={`rounded-sm px-1 py-2.5 text-center text-xs ${holder ? 'bg-inverse text-inverse-text' : 'bg-bg-alt text-text-2'}`}
                   title={holder ? `reservation #${holder}` : 'free'}
                 >
-                  <span className="num block">{formatTime(slotStartNs(slotNo, s.profile.slot_minutes))}</span>
-                  <span className="block opacity-70">{holder ? `#${holder}` : 'free'}</span>
+                  <span className="num block text-sm font-medium">{formatTime(slotStartNs(slotNo, s.profile.slot_minutes))}</span>
+                  <span className={`block ${holder ? 'text-inverse-text-2' : 'text-text-3'}`}>{holder ? `#${holder}` : 'free'}</span>
                 </li>
               );
             })}
           </ol>
         </Section>
-        <Section title="Reservations" eyebrow="latest first">
-          <ul className="tag divide-y divide-line px-4">
-            {[...s.reservations].reverse().map((r) => (
-              <li key={r.id} className="flex items-start gap-3 py-2.5 text-sm">
-                <span className="num w-8 shrink-0 text-xs text-ink-3">#{r.id}</span>
-                <div className="min-w-0 flex-1">
-                  <p>
-                    <Account id={r.holder} /> <span className="text-ink-3">· {r.slots} slot{r.slots > 1 ? 's' : ''}</span>
-                  </p>
-                  <p className="text-xs text-ink-3">
-                    {formatDateTime(slotStartNs(r.start_slot, s.profile.slot_minutes))} ·{' '}
-                    {r.right_id ? `right ${r.right_id}` : `fee ${formatNear(r.fee_paid)}`}
-                    {toYocto(r.deposit_paid) > 0n && ` + deposit ${formatNear(r.deposit_paid)}`}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end gap-1">
-                  <Pill tone={resTone[r.status] ?? 'muted'}>{r.status}</Pill>
-                  {r.status === 'Confirmed' && (
-                    <Link to={link(`/a/${assetId}/access/${r.id}`)} className="text-xs underline decoration-dotted">
-                      start
-                    </Link>
-                  )}
-                  <ReservationActions assetId={assetId} r={r} profile={s.profile} nowMs={now} />
-                  <TxLink hash={ds.rowTx(`res-${deployed.alias}-${r.id}`)} />
-                </div>
-              </li>
-            ))}
-          </ul>
+        <Section title="Reservations" note="Latest first">
+          {s.reservations.length === 0 ? (
+            <Empty>No reservations yet.</Empty>
+          ) : (
+            <ul className="panel divide-y divide-line">
+              {[...s.reservations].reverse().map((r) => (
+                <li key={r.id} className="flex items-start gap-4 px-5 py-4 text-sm">
+                  <span className="num w-7 shrink-0 text-text-3">#{r.id}</span>
+                  <div className="min-w-0 flex-1">
+                    <p>
+                      <Account id={r.holder} /> <span className="text-text-3">· {r.slots} slot{r.slots > 1 ? 's' : ''}</span>
+                    </p>
+                    <p className="num mt-1 text-text-3">
+                      {formatDateTime(slotStartNs(r.start_slot, s.profile.slot_minutes))} · {r.right_id ? `right ${r.right_id}` : `fee ${formatNear(r.fee_paid)}`}
+                      {toYocto(r.deposit_paid) > 0n && ` + deposit ${formatNear(r.deposit_paid)}`}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <Mark tone={resTone[r.status] ?? 'quiet'}>{r.status}</Mark>
+                    {r.status === 'Confirmed' && (
+                      <Link to={link(`/a/${assetId}/access/${r.id}`)} className="text-link text-xs">
+                        Start →
+                      </Link>
+                    )}
+                    <ReservationActions assetId={assetId} r={r} profile={s.profile} nowMs={now} />
+                    <TxLink hash={ds.rowTx(`res-${deployed.alias}-${r.id}`)} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </Section>
       </div>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <Section title="Escalations" eyebrow="payments above the cash cap go to the DAO">
+      <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
+        <Section title="Escalations" note="Payments above the cash cap become DAO proposals">
           {s.escalations.length === 0 ? (
             <Empty>No escalations. Purchases above the cap become Sputnik proposals opened by this contract.</Empty>
           ) : (
-            <ul className="tag divide-y divide-line px-4">
+            <ul className="panel divide-y divide-line">
               {s.escalations.map((e) => (
-                <li key={e.id} className="py-3 text-sm">
-                  <div className="flex items-start justify-between gap-2">
+                <li key={e.id} className="px-5 py-4 text-sm">
+                  <div className="flex items-start justify-between gap-3">
                     <p>
                       <span className="num font-semibold">{formatNear(e.amount)} NEAR</span> {e.kind} → <Account id={e.receiver} />
                     </p>
-                    <Pill tone={e.status === 'Approved' ? 'alive' : e.status === 'Submitted' ? 'due' : 'muted'}>{e.status}</Pill>
+                    <Mark tone={e.status === 'Approved' ? 'ok' : 'quiet'}>{e.status}</Mark>
                   </div>
-                  <p className="mt-1 text-xs text-ink-2">{e.reason}</p>
-                  <p className="mt-1 text-xs text-ink-3">
+                  <p className="mt-1 text-text-2">{e.reason}</p>
+                  <p className="num mt-1 text-xs text-text-3">
                     proposal #{e.proposal_id ?? '—'} in {s.wiring.dao_id} · bond {formatNear(e.bond_paid)} NEAR from float
                   </p>
                 </li>
@@ -307,57 +311,63 @@ export function AssetPage() {
             </ul>
           )}
         </Section>
-        <Section title="Reputation" eyebrow="on this machine">
+        <Section title="Reputation" note="On this machine">
           {rep.size === 0 ? (
             <Empty>No sessions yet.</Empty>
           ) : (
-            <table className="tag w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-ink-3">
-                  <th className="p-3 font-normal">member</th>
-                  <th className="p-3 text-right font-normal">sessions</th>
-                  <th className="p-3 text-right font-normal">clean</th>
-                  <th className="p-3 text-right font-normal">faults</th>
-                  <th className="p-3 text-right font-normal">upkeep</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {[...rep].sort((a, b) => b[1].maint - a[1].maint || b[1].clean - a[1].clean).map(([acc, e]) => (
-                  <tr key={acc}>
-                    <td className="p-3"><Account id={acc} /></td>
-                    <td className="num p-3 text-right">{e.sessions}</td>
-                    <td className="num p-3 text-right">{e.clean}</td>
-                    <td className="num p-3 text-right">{e.faults}</td>
-                    <td className="num p-3 text-right font-semibold text-alive">{e.maint}</td>
+            <div className="panel overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-text-3">
+                    <th className="px-5 py-3 font-normal">Member</th>
+                    <th className="px-3 py-3 text-right font-normal">Sessions</th>
+                    <th className="px-3 py-3 text-right font-normal">Clean</th>
+                    <th className="px-3 py-3 text-right font-normal">Faults</th>
+                    <th className="py-3 pr-5 pl-3 text-right font-normal">Upkeep</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-line border-t border-line">
+                  {[...rep]
+                    .sort((a, b) => b[1].maint - a[1].maint || b[1].clean - a[1].clean)
+                    .map(([acc, e]) => (
+                      <tr key={acc}>
+                        <td className="px-5 py-3">
+                          <Account id={acc} />
+                        </td>
+                        <td className="num px-3 py-3 text-right">{e.sessions}</td>
+                        <td className="num px-3 py-3 text-right">{e.clean}</td>
+                        <td className="num px-3 py-3 text-right">{e.faults}</td>
+                        <td className="num py-3 pr-5 pl-3 text-right font-semibold text-accent">{e.maint}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </Section>
       </div>
 
-      <Section title="Profile" eyebrow="the rules this account enforces">
-        <dl className="tag grid grid-cols-2 gap-x-6 gap-y-3 p-4 text-sm sm:grid-cols-4">
+      <Section title="Profile" note="The rules this account enforces">
+        <dl className="panel grid grid-cols-1 gap-x-8 px-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
           {(
             [
-              ['slot', `${s.profile.slot_minutes} min`],
-              ['max slots', String(s.profile.max_slots_per_reservation)],
-              ['price / slot', `${formatNear(s.profile.price_per_slot)} NEAR`],
-              ['deposit', `${formatNear(s.profile.deposit)} → ${formatNear(s.profile.deposit_trusted)} after ${s.profile.trusted_after} clean`],
-              ['float cap', `${formatNear(s.profile.float_cap)} NEAR`],
-              ['reward quota', `${s.period.rights_minted}/${s.profile.period_reward_quota} rights per ${s.profile.period_days} d`],
-              ['right covers', `${s.profile.right_max_slots} slots · ${s.profile.right_validity_days} d`],
+              ['Slot', `${s.profile.slot_minutes} min`],
+              ['Max slots', String(s.profile.max_slots_per_reservation)],
+              ['Price per slot', `${formatNear(s.profile.price_per_slot)} NEAR`],
+              ['Deposit', `${formatNear(s.profile.deposit)} → ${formatNear(s.profile.deposit_trusted)} after ${s.profile.trusted_after} clean`],
+              ['Float cap', `${formatNear(s.profile.float_cap)} NEAR`],
+              ['Reward quota', `${s.period.rights_minted}/${s.profile.period_reward_quota} rights per ${s.profile.period_days} d`],
+              ['A right covers', `${s.profile.right_max_slots} slots · ${s.profile.right_validity_days} d`],
               ['DAO', s.wiring.dao_id],
-              ['agent', s.wiring.agent_id ?? 'none (revoked)'],
-              ['bridge', s.wiring.bridge_id ?? 'none'],
+              ['Agent', s.wiring.agent_id ?? 'none (revoked)'],
+              ['Bridge', s.wiring.bridge_id ?? 'none'],
               ['code_hash', s.account.code_hash],
-              ['explorer', config.explorerUrl.replace(/^https?:\/\//, '')],
+              ['Explorer', config.explorerUrl.replace(/^https?:\/\//, '')],
             ] as const
           ).map(([k, v]) => (
-            <div key={k} className="min-w-0">
-              <dt className="text-xs text-ink-3">{k}</dt>
-              <dd className="num text-xs break-all">{v}</dd>
+            <div key={k} className="flex min-w-0 items-baseline justify-between gap-4 border-b border-line py-3">
+              <dt className="shrink-0 text-sm text-text-3">{k}</dt>
+              <dd className="num min-w-0 text-right text-sm break-all">{v}</dd>
             </div>
           ))}
         </dl>
@@ -366,41 +376,42 @@ export function AssetPage() {
   );
 }
 
-/** Simulator assets: the button does nothing on-chain; it shows how to run it and the last run. */
+/** Simulator assets: nothing here runs on-chain by itself; it shows how to run the loop and the last run. */
 function SimulationPanel({ assetType, assetId }: { assetType: string; assetId: string }) {
   const evidence = useEvidence();
   // Judge step 15 is the washer's simulate.sh run on testnet; other assets have no such step.
   const run = assetType === 'washer' ? evidence.data?.find((st) => st.step === 15) : undefined;
   const device = deviceOf(assetId);
   return (
-    <div className="tag tag-sim flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-      <div className="min-w-0 flex-1">
-        <p className="flex flex-wrap items-center gap-2 font-medium">
-          <SimulatedBadge assetId={assetId} /> No physical machine behind this account
+    <section aria-label="Simulation" className="grid gap-5 rounded-md bg-bg-alt p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
+      <div className="min-w-0">
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-medium">
+          No physical machine behind this account <SimulatedBadge assetId={assetId} />
         </p>
-        <p className="mt-1 text-sm text-ink-2">
+        <p className="mt-2 text-sm text-text-2">
           {device?.kind === 'emulated' ? (
             <>
-              The real <span className="num">{device.adapter}</span> adapter drives an emulated device that implements the device's API.
+              The real <span className="font-mono text-xs">{device.adapter}</span> adapter drives an emulated device that implements the device's API.
             </>
           ) : (
             <>Telemetry comes from a simulator scenario.</>
           )}{' '}
-          Run the same loop yourself: it starts a local NEAR sandbox with the real contracts, bridge and agent, then reserves, opens the
-          upkeep task, approves it and mints the rights, printing ✅/❌ for every step.
+          The same loop runs locally against a NEAR sandbox with the real contracts, bridge and agent: reserve, upkeep task, approval, rights.
         </p>
-        <code className="mt-2 block rounded-md bg-ink px-3 py-2 font-mono text-xs break-all text-paper">./scripts/simulate.sh {assetType}</code>
       </div>
-      <div className="text-sm sm:w-64">
-        <a href={`${config.repoUrl}#simulation`} target="_blank" rel="noreferrer" className="inline-block rounded-full border border-sim px-4 py-1.5 font-medium text-sim">
-          How to run it
-        </a>
-        {run && (
-          <p className="mt-2 text-xs text-ink-2">
-            Latest testnet run: step {run.step} · {new Date(run.timestamp).toISOString().slice(0, 16).replace('T', ' ')} UTC <TxLink hash={run.txHashes[0]} />
-          </p>
-        )}
+      <div className="min-w-0 space-y-2.5">
+        <code className="code">./scripts/simulate.sh {assetType}</code>
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-3">
+          <a href={`${config.repoUrl}#simulation`} target="_blank" rel="noreferrer" className="text-link">
+            How to run it ↗
+          </a>
+          {run && (
+            <span>
+              Latest testnet run: step {run.step} · {new Date(run.timestamp).toISOString().slice(0, 16).replace('T', ' ')} UTC <TxLink hash={run.txHashes[0]} />
+            </span>
+          )}
+        </p>
       </div>
-    </div>
+    </section>
   );
 }

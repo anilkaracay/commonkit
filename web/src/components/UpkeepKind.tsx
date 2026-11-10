@@ -29,11 +29,11 @@ export function KindIcon({ kind, size = 14 }: { kind: UpkeepKind; size?: number 
   );
 }
 
-/** Icon + label chip shown on every task row. */
+/** Icon + label shown on every task row. */
 export function KindChip({ kind }: { kind: UpkeepKind }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-line-strong px-1.5 py-0.5 text-[11px] font-medium text-ink-2">
-      <KindIcon kind={kind} size={12} />
+    <span className="inline-flex items-center gap-1.5 text-xs text-text-3">
+      <KindIcon kind={kind} size={13} />
       {KIND_LABEL[kind]}
     </span>
   );

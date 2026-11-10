@@ -3,19 +3,19 @@ import type { Task, UpkeepRule } from '../data/types';
 import { KindChip } from './UpkeepKind';
 import { formatNear, toYocto } from '../lib/near';
 import { formatAgo } from '../lib/time';
-import { Pill, SimulatedBadge, type Tone } from './Badges';
+import { Mark, SimulatedBadge, type Tone } from './Badges';
 import { Account, TxLink } from './TxLink';
 import { useDemoLink } from '../demo/demo';
 
-const statusTone: Record<Task['status'], Tone> = {
+export const taskTone: Record<Task['status'], Tone> = {
   Open: 'due',
   Claimed: 'due',
-  Submitted: 'liability',
-  Approved: 'liability',
-  Rewarded: 'alive',
+  Submitted: 'ok',
+  Approved: 'ok',
+  Rewarded: 'ok',
   Rejected: 'danger',
-  Expired: 'muted',
-  Cancelled: 'muted',
+  Expired: 'quiet',
+  Cancelled: 'quiet',
 };
 
 export function TaskRow({
@@ -37,38 +37,35 @@ export function TaskRow({
 }) {
   const link = useDemoLink();
   return (
-    <li className="relative flex items-start gap-3 py-3">
-      <span className="num mt-0.5 w-8 shrink-0 text-xs text-ink-3">#{task.id}</span>
+    <li className="flex items-start gap-4 px-5 py-4">
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <KindChip kind={task.kind} />
-          <Link to={link(`/t/${assetId}/${task.id}`)} className="font-medium hover:underline">
+        <p className="flex flex-wrap items-baseline gap-x-2">
+          <Link to={link(`/t/${assetId}/${task.id}`)} className="font-medium no-underline hover:text-accent">
             {rule?.title ?? task.rule_id}
           </Link>
-          {assetName && <span className="text-sm text-ink-3">· {assetName}</span>}
-          {simulated && <SimulatedBadge />}
-        </div>
-        <p className="mt-0.5 text-xs text-ink-2">
-          reward <span className="num font-semibold text-ink">{task.reward_rights} right{task.reward_rights === 1 ? '' : 's'}</span>
-          {toYocto(task.reward_cash) > 0n && <span className="num"> + {formatNear(task.reward_cash)} NEAR</span>}
+          <span className="num text-sm text-text-3">#{task.id}</span>
+          {assetName && <span className="text-sm text-text-3">· {assetName}</span>}
+        </p>
+        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-3">
+          <KindChip kind={task.kind} />
+          <span>
+            <span className="num font-medium text-text-2">
+              {task.reward_rights} right{task.reward_rights === 1 ? '' : 's'}
+            </span>
+            {toYocto(task.reward_cash) > 0n && <span className="num"> + {formatNear(task.reward_cash)} NEAR</span>}
+          </span>
           {(task.kind === 'Restock' || task.kind === 'Repair') && toYocto(task.expense) > 0n && (
             <span className="num" title={task.receipt_hash ? `receipt sha256 ${task.receipt_hash}` : undefined}>
-              {' '}
-              · expense {formatNear(task.expense)} NEAR{task.receipt_hash ? ` · receipt ${task.receipt_hash.slice(0, 8)}…` : ''}
+              expense {formatNear(task.expense)} NEAR{task.receipt_hash ? ` · receipt ${task.receipt_hash.slice(0, 8)}…` : ''}
             </span>
           )}
-          {task.claimer ? (
-            <>
-              {' '}· by <Account id={task.claimer} />
-            </>
-          ) : (
-            ' · unclaimed'
-          )}{' '}
-          · {formatAgo(task.created_at, nowMs)}
+          <span>{task.claimer ? <>by <Account id={task.claimer} /></> : 'unclaimed'}</span>
+          <span>{formatAgo(task.created_at, nowMs)}</span>
+          {simulated && <SimulatedBadge />}
         </p>
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-1">
-        <Pill tone={statusTone[task.status]}>{task.status}</Pill>
+      <div className="flex shrink-0 flex-col items-end gap-1.5">
+        <Mark tone={taskTone[task.status]}>{task.status}</Mark>
         <TxLink hash={txHash} />
       </div>
     </li>

@@ -5,16 +5,18 @@ import { KIND_LABEL, KindIcon } from '../components/UpkeepKind';
 import { UPKEEP_KINDS } from '../data/types';
 import { useDataSource } from '../data/source';
 import { AssetCard } from '../components/AssetCard';
-import { Pill, SimulatedBadge } from '../components/Badges';
+import { SimulatedBadge } from '../components/Badges';
 import { SameContractStrip } from '../components/SameContractStrip';
-import { Empty, LoadError, Loading, Section } from '../components/Section';
+import { Empty, LoadError, Loading, PageHead, Section } from '../components/Section';
 import { TaskRow } from '../components/TaskRow';
 import { Account, TxLink } from '../components/TxLink';
 import { ProposalRow } from '../components/ProposalRow';
 import { useDemoLink } from '../demo/demo';
 import { formatAgo } from '../lib/time';
 
-/** `/` — the board. No hero: the machines are the page. */
+const WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+
+/** `/` — the board. The machines are the page. */
 export function BoardPage() {
   const ds = useDataSource();
   const dep = useDeployment();
@@ -29,121 +31,111 @@ export function BoardPage() {
   if (!dep.data || !all.data) return <Loading what="the board" />;
 
   const openTasks = all.data.flatMap(({ deployed, snap }) =>
-    snap.tasks
-      .filter((t) => ['Open', 'Claimed', 'Submitted', 'Approved'].includes(t.status))
-      .map((task) => ({ deployed, snap, task })),
+    snap.tasks.filter((t) => ['Open', 'Claimed', 'Submitted', 'Approved'].includes(t.status)).map((task) => ({ deployed, snap, task })),
   );
   const minted = all.data
-    .flatMap(({ deployed, snap }) =>
-      snap.tasks.filter((t) => t.status === 'Rewarded').map((task) => ({ deployed, snap, task })),
-    )
+    .flatMap(({ deployed, snap }) => snap.tasks.filter((t) => t.status === 'Rewarded').map((task) => ({ deployed, snap, task })))
     .sort((a, b) => Number(BigInt(b.task.created_at) - BigInt(a.task.created_at)));
   const proposals = (comms.data ?? [])
     .flatMap((c) => c.proposals.map((p) => ({ c, p })))
     .sort((a, b) => Number(BigInt(b.p.submission_time) - BigInt(a.p.submission_time)))
     .slice(0, 5);
+  const count = all.data.length;
+  const keyless = all.data.every(({ deployed }) => deployed.keyless === true);
 
   return (
-    <div className="space-y-10">
-      <p className="max-w-2xl text-ink-2">
-        Shared things that pay for their own upkeep. Each machine below runs in its own keyless NEAR
-        account; its money and rules live there, not in an admin's spreadsheet.
-      </p>
+    <div className="space-y-16 sm:space-y-20">
+      <PageHead title="Shared machines">
+        {WORDS[count] ?? count} machines, each in its own {keyless ? 'keyless ' : ''}NEAR account. Read live from testnet, no wallet needed.
+      </PageHead>
 
       {/* ≥1280 px: communities side by side, two machines each → four cards across. */}
-      <div className="grid grid-cols-1 gap-10 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-8 gap-y-14 xl:grid-cols-2">
         {dep.data.communities.map((c) => {
           const assets = all.data.filter((a) => a.deployed.community === c.slug);
           return (
-            <Section
-              key={c.slug}
-              id={`community-${c.slug}`}
-              eyebrow="community"
-              sub={c.dao_id}
-              title={c.name}
-              action={
-                <span className="flex items-center gap-2">
+            <section key={c.slug} aria-labelledby={`community-${c.slug}`} className="min-w-0 space-y-5">
+              <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+                <div className="min-w-0">
+                  <h2 id={`community-${c.slug}`} className="text-xl">
+                    <Link to={link(`/c/${c.slug}`)} className="no-underline hover:text-accent">
+                      {c.name}
+                    </Link>
+                  </h2>
+                  <p className="mono-id mt-1">{c.dao_id}</p>
+                </div>
+                <span className="flex items-center gap-4">
                   {c.simulated && <SimulatedBadge />}
-                  <Link to={link(`/c/${c.slug}`)} className="text-sm underline decoration-dotted">
-                    community
+                  <Link to={link(`/c/${c.slug}`)} className="text-link text-sm">
+                    Community →
                   </Link>
                 </span>
-              }
-            >
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              </div>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 {assets.map(({ deployed, snap }) => (
                   <AssetCard key={deployed.asset_id} deployed={deployed} snap={snap} />
                 ))}
               </div>
-            </Section>
+            </section>
           );
         })}
       </div>
 
-      <SameContractStrip
-        assets={all.data.map(({ deployed, snap }) => ({
-          deployed,
-          codeHash: snap.account.code_hash,
-        }))}
-      />
-
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <Section title="Open tasks" eyebrow="upkeep the machines asked for">
+      <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
+        <Section title="Open tasks" note="Upkeep the machines asked for">
           {openTasks.length === 0 ? (
             <Empty>No open upkeep. The agent opens a task only when a profile rule is due.</Empty>
           ) : (
-            UPKEEP_KINDS.filter((k) => openTasks.some((o) => o.task.kind === k)).map((kind) => (
-              <div key={kind} className="space-y-1.5">
-                <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
-                  <KindIcon kind={kind} /> {KIND_LABEL[kind]}
-                </h3>
-                <ul className="tag divide-y divide-line px-4">
-                  {openTasks
-                    .filter((o) => o.task.kind === kind)
-                    .map(({ deployed, snap, task }) => (
-                      <TaskRow
-                        key={`${deployed.asset_id}-${task.id}`}
-                        task={task}
-                        assetId={deployed.asset_id}
-                        assetName={deployed.alias}
-                        rule={snap.profile.rules.find((r) => r.rule_id === task.rule_id)}
-                        simulated={deployed.simulated}
-                        nowMs={now}
-                        txHash={rowTx(`task-${deployed.alias}-${task.id}`)}
-                      />
-                    ))}
-                </ul>
-              </div>
-            ))
+            <div className="space-y-5">
+              {UPKEEP_KINDS.filter((k) => openTasks.some((o) => o.task.kind === k)).map((kind) => (
+                <div key={kind} className="space-y-2">
+                  <h3 className="flex items-center gap-2 text-sm font-medium text-text-2">
+                    <span className="text-slate-400">
+                      <KindIcon kind={kind} />
+                    </span>
+                    {KIND_LABEL[kind]}
+                  </h3>
+                  <ul className="panel divide-y divide-line">
+                    {openTasks
+                      .filter((o) => o.task.kind === kind)
+                      .map(({ deployed, snap, task }) => (
+                        <TaskRow
+                          key={`${deployed.asset_id}-${task.id}`}
+                          task={task}
+                          assetId={deployed.asset_id}
+                          assetName={deployed.alias}
+                          rule={snap.profile.rules.find((r) => r.rule_id === task.rule_id)}
+                          simulated={deployed.simulated}
+                          nowMs={now}
+                          txHash={rowTx(`task-${deployed.alias}-${task.id}`)}
+                        />
+                      ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           )}
         </Section>
 
-        <Section title="Rights earned" eyebrow="latest usage rights minted">
+        <Section title="Rights earned" note="Usage rights minted for upkeep">
           {minted.length === 0 ? (
             <Empty>No rights minted yet.</Empty>
           ) : (
-            <ul className="tag divide-y divide-line px-4">
+            <ul className="panel divide-y divide-line">
               {minted.map(({ deployed, snap, task }) => (
-                <li
-                  key={`${deployed.asset_id}-${task.id}`}
-                  className="flex items-center gap-3 py-3"
-                >
-                  <span className="num grid h-9 min-w-9 place-items-center rounded-lg bg-alive-soft px-2 text-sm font-bold text-alive">
-                    +{task.minted_right_ids.length}
-                  </span>
+                <li key={`${deployed.asset_id}-${task.id}`} className="flex items-center gap-4 px-5 py-4">
+                  <span className="num w-9 shrink-0 text-xl font-semibold text-accent">+{task.minted_right_ids.length}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate">
-                      <Account id={task.claimer} /> <span className="text-ink-3">for</span>{' '}
-                      <Link
-                        to={link(`/t/${deployed.asset_id}/${task.id}`)}
-                        className="hover:underline"
-                      >
-                        {snap.profile.rules.find((r) => r.rule_id === task.rule_id)?.title ??
-                          task.rule_id}
+                      <Account id={task.claimer} /> <span className="text-text-3">for</span>{' '}
+                      <Link to={link(`/t/${deployed.asset_id}/${task.id}`)} className="no-underline hover:text-accent">
+                        {snap.profile.rules.find((r) => r.rule_id === task.rule_id)?.title ?? task.rule_id}
                       </Link>
                     </p>
-                    <p className="flex flex-wrap items-center gap-2 text-xs text-ink-3">
-                      {deployed.alias} · {snap.profile.group_id} · {formatAgo(task.created_at, now)}
+                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-3">
+                      <span>
+                        {deployed.alias} · <span className="font-mono text-xs">{snap.profile.group_id}</span> · {formatAgo(task.created_at, now)}
+                      </span>
                       {deployed.simulated && <SimulatedBadge />}
                     </p>
                   </div>
@@ -155,18 +147,24 @@ export function BoardPage() {
         </Section>
       </div>
 
-      <Section
-        title="Same contract, different commons"
-        eyebrow="every profile in profiles/, by kind of upkeep"
-      >
-        {catalog.data ? <ScenarioMatrix catalog={catalog.data} /> : <Loading what="profiles" />}
+      <Section title="Same contract, different commons" note="One code_hash on every machine account; every profile in profiles/, by kind of upkeep">
+        <div className="space-y-5">
+          <SameContractStrip
+            assets={all.data.map(({ deployed, snap }) => ({
+              deployed,
+              codeHash: snap.account.code_hash,
+              assetType: snap.profile.asset_type,
+            }))}
+          />
+          {catalog.data ? <ScenarioMatrix catalog={catalog.data} /> : <Loading what="profiles" />}
+        </div>
       </Section>
 
-      <Section title="Latest proposals" eyebrow="Sputnik DAO governance">
+      <Section title="Latest proposals" note="Sputnik DAO governance. Proposals opened by a machine are escalations above its cash cap.">
         {proposals.length === 0 ? (
           <Empty>No proposals yet.</Empty>
         ) : (
-          <ul className="tag divide-y divide-line px-4">
+          <ul className="panel divide-y divide-line">
             {proposals.map(({ c, p }) => (
               <ProposalRow
                 key={`${c.community.slug}-${p.id}`}
@@ -179,10 +177,6 @@ export function BoardPage() {
           </ul>
         )}
         {comms.isLoading && <Loading what="proposals" />}
-        <p className="text-xs text-ink-3">
-          <Pill tone="muted">opened by the machine</Pill> marks proposals the asset contract created
-          itself (escalations above its cash cap).
-        </p>
       </Section>
     </div>
   );

@@ -23,12 +23,12 @@ export function ReservationActions({ assetId, r, profile, nowMs }: { assetId: st
   return (
     <>
       {r.holder === wallet.accountId && nowNs < startNs && (
-        <button type="button" onClick={() => send('cancel_reservation')} className="text-xs text-danger underline decoration-dotted">
+        <button type="button" onClick={() => send('cancel_reservation')} className="text-xs text-danger hover:underline">
           cancel
         </button>
       )}
       {nowNs > windowEndNs && (
-        <button type="button" onClick={() => send('mark_no_show')} className="text-xs underline decoration-dotted">
+        <button type="button" onClick={() => send('mark_no_show')} className="text-xs text-accent hover:underline">
           mark no-show
         </button>
       )}

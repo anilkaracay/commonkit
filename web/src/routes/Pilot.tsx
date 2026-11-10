@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router';
 import { useDeployment } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { SimulatedBadge } from '../components/Badges';
+import { PageHead } from '../components/Section';
 import { useToast } from '../components/Toast';
 import { formatNear, parseNear, toYocto } from '../lib/near';
 import { useLang } from '../pilot/lang';
@@ -16,14 +17,14 @@ export function safeNext(next: string | null): string | null {
 
 function Step({ title, done, children }: { title: string; done: boolean; children: ReactNode }) {
   return (
-    <li className="tag p-4">
-      <h2 className="flex items-center gap-2 text-lg font-bold">
-        <span aria-hidden className={`grid size-6 place-items-center rounded-full text-xs ${done ? 'bg-alive text-paper' : 'border border-line-strong text-ink-3'}`}>
-          {done ? '✓' : ''}
-        </span>
-        {title}
-      </h2>
-      <div className="mt-2 space-y-3 text-sm text-ink-2">{children}</div>
+    <li className="flex gap-4 px-5 py-6 sm:px-6">
+      <span aria-hidden className={`grid size-7 shrink-0 place-items-center rounded-full text-sm font-semibold ${done ? 'bg-accent text-on-accent' : 'bg-bg-alt text-text-3'}`}>
+        {done ? '✓' : ''}
+      </span>
+      <div className="min-w-0 flex-1">
+        <h2 className="text-lg">{title}</h2>
+        <div className="mt-2 space-y-3 text-text-2">{children}</div>
+      </div>
     </li>
   );
 }
@@ -57,39 +58,42 @@ export function PilotPage() {
   };
 
   return (
-    <div className="mx-auto max-w-xl space-y-6" lang={lang}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="eyebrow">{t.pilotEyebrow}</p>
-          <h1 className="text-3xl font-extrabold">{t.pilotTitle}</h1>
-        </div>
-        <Link to={switchHref('/pilot')} className="text-sm underline decoration-dotted">
-          {t.langSwitch}
-        </Link>
-      </div>
-      <p className="text-sm text-ink-2">{t.pilotIntro}</p>
+    <div className="mx-auto max-w-xl space-y-10" lang={lang}>
+      <PageHead
+        context={
+          <span className="flex justify-between gap-4">
+            <span>{t.pilotEyebrow}</span>
+            <Link to={switchHref('/pilot')} className="text-link">
+              {t.langSwitch}
+            </Link>
+          </span>
+        }
+        title={t.pilotTitle}
+      >
+        {t.pilotIntro}
+      </PageHead>
 
       {next && account && (
-        <Link to={next} className="block rounded-tag bg-ink px-4 py-3 text-center font-medium text-paper">
+        <Link to={next} className="ck-btn ck-btn--lg w-full">
           {t.backToAction} →
         </Link>
       )}
 
-      <ol className="space-y-4">
+      <ol className="ck-card divide-y divide-line">
         <Step title={t.step1Title} done={!!account}>
           <p>{t.step1Body}</p>
           {account ? (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-ink-3">{t.connectedAs}</span>
-              <span className="mono-id">{account}</span>
-              <button type="button" className="text-xs underline" onClick={() => void wallet.disconnect().catch((e: unknown) => toast.showError(e))}>
+              <span className="text-xs text-text-3">{t.connectedAs}</span>
+              <span className="mono-id text-text">{account}</span>
+              <button type="button" className="text-xs text-accent hover:underline" onClick={() => void wallet.disconnect().catch((e: unknown) => toast.showError(e))}>
                 {t.disconnect}
               </button>
             </div>
           ) : wallet.status === 'unavailable' ? (
-            <p className="text-due">{t.noConnector}</p>
+            <p className="text-text-3">{t.noConnector}</p>
           ) : (
-            <button type="button" className="rounded-full bg-ink px-5 py-2 font-medium text-paper" onClick={() => void wallet.connect().catch((e: unknown) => toast.showError(e))}>
+            <button type="button" className="ck-btn" onClick={() => void wallet.connect().catch((e: unknown) => toast.showError(e))}>
               {t.connect}
             </button>
           )}
@@ -97,13 +101,13 @@ export function PilotPage() {
 
         <Step title={t.step2Title} done={funded}>
           <p>{t.step2Body}</p>
-          <p className="font-medium text-ink">{t.askOrganiser}</p>
+          <p className="font-medium text-text">{t.askOrganiser}</p>
           {account && (
             <>
-              <button type="button" onClick={() => void copy()} className="rounded-full border border-line-strong px-4 py-1.5 text-sm font-medium">
+              <button type="button" onClick={() => void copy()} className="ck-btn ck-btn--sm ck-btn--ghost">
                 {copied ? t.copied : t.copyId}
               </button>
-              <p className="num text-xs">
+              <p className="num text-sm text-text-3">
                 {t.balance}: {balance.data ? `${formatNear(balance.data.amount)} NEAR` : '…'} · {funded ? t.funded : t.notFunded}
               </p>
             </>
@@ -112,14 +116,15 @@ export function PilotPage() {
 
         <Step title={t.step3Title} done={false}>
           <p>{t.step3Body}</p>
-          <p className="text-xs text-ink-3">{t.orPick}</p>
-          <ul className="space-y-2">
+          <p className="text-sm text-text-3">{t.orPick}</p>
+          <ul className="divide-y divide-line border-y border-line">
             {(dep.data?.assets ?? []).map((a) => (
-              <li key={a.asset_id} className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="num font-medium text-ink">{a.alias}</span>
+              <li key={a.asset_id} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 py-3 text-sm">
+                <span className="font-medium text-text">{a.alias}</span>
                 {a.simulated && <SimulatedBadge />}
+                <span className="basis-full" />
                 {(['reserve', 'return', 'fault'] as const).map((action) => (
-                  <Link key={action} to={`/a/${a.asset_id}?action=${action}`} className="rounded-full bg-surface-2 px-2 py-0.5 text-xs hover:underline">
+                  <Link key={action} to={`/a/${a.asset_id}?action=${action}`} className="text-link">
                     {action === 'reserve' ? t.actionReserve : action === 'return' ? t.actionReturn : t.actionFault}
                   </Link>
                 ))}

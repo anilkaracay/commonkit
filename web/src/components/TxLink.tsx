@@ -7,7 +7,7 @@ const isMock = (hash: string) => hash.startsWith('mock');
 /** Small "tx" link on important rows. Mock hashes never link anywhere. */
 export function TxLink({ hash, label = 'tx' }: { hash: string | null | undefined; label?: string }) {
   if (!hash) return null;
-  const cls = 'inline-flex items-center gap-0.5 font-mono text-[11px] text-ink-3 underline decoration-dotted hover:text-ink';
+  const cls = 'inline-flex shrink-0 items-center gap-0.5 text-xs whitespace-nowrap text-text-3 no-underline hover:text-accent';
   if (isMock(hash)) {
     return (
       <span className={`${cls} cursor-help`} title={`Mock hash ${hash}: no real transaction`}>
@@ -27,16 +27,16 @@ export function TxLink({ hash, label = 'tx' }: { hash: string | null | undefined
 /** Account id with the member's name when known; full id on hover and to screen readers. */
 export function Account({ id, link = false, full = false }: { id: string | null | undefined; link?: boolean; full?: boolean }) {
   const members = useMembers();
-  if (!id) return <span className="text-ink-3">—</span>;
+  if (!id) return <span className="text-text-3">—</span>;
   const name = members.get(id);
   const text = full ? id : (name ?? shortAccount(id));
   const inner = (
-    <span className={name && !full ? 'font-medium' : 'font-mono text-[12px]'} title={id}>
+    <span className={name && !full ? 'font-medium' : 'font-mono text-[12px] tracking-[-0.01em]'} title={id}>
       {text}
     </span>
   );
   return link ? (
-    <a href={accountUrl(id)} target="_blank" rel="noreferrer" className="underline decoration-dotted underline-offset-2">
+    <a href={accountUrl(id)} target="_blank" rel="noreferrer" className="hover:text-accent">
       {inner}
     </a>
   ) : (

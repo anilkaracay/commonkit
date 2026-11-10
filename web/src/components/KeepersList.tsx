@@ -1,6 +1,7 @@
 import type { Task, Training } from '../data/types';
 import { formatAgo } from '../lib/time';
 import { Account } from './TxLink';
+import { useMembers } from './useMembers';
 
 interface Keeper {
   account: string;
@@ -35,31 +36,38 @@ export function keepersOf(tasks: Task[], trainings: Training[] = []): Keeper[] {
   return [...map.values()].sort((a, b) => b.maintenances + b.trainings - (a.maintenances + a.trainings) || Number(b.lastNs - a.lastNs));
 }
 
+function initials(name: string): string {
+  const parts = name.replace(/\..*$/, '').split(/[\s._-]+/).filter((w) => /^\p{L}/u.test(w) && w !== 'demo');
+  return ((parts[0]?.[0] ?? '?') + (parts[1]?.[0] ?? '')).toUpperCase();
+}
+
 export function KeepersList({ tasks, trainings, nowMs }: { tasks: Task[]; trainings?: Training[]; nowMs: number }) {
+  const members = useMembers();
   const keepers = keepersOf(tasks, trainings);
   if (keepers.length === 0) {
-    return <p className="text-sm text-ink-3">Nobody yet. The first person to finish a maintenance task shows up here.</p>;
+    return <p className="py-2 text-sm text-text-3">Nobody yet. The first person to finish an upkeep task shows up here.</p>;
   }
   return (
     <ol className="divide-y divide-line">
       {keepers.map((k) => (
-        <li key={k.account} className="flex items-center gap-3 py-2.5">
-          <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-alive-soft font-display text-sm font-bold text-alive">
-            {(k.account[0] ?? '?').toUpperCase()}
+        <li key={k.account} className="flex items-center gap-3.5 py-3.5 first:pt-0 last:pb-0">
+          <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent">
+            {initials(members.get(k.account) ?? k.account)}
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate">
               <Account id={k.account} />
             </p>
-            <p className="text-xs text-ink-2">
-              {[k.maintenances && `${k.maintenances} maintenance${k.maintenances > 1 ? 's' : ''}`, k.trainings && `${k.trainings} training${k.trainings > 1 ? 's' : ''}`]
+            <p className="mt-0.5 text-sm text-text-3">
+              {[k.maintenances && `${k.maintenances} upkeep${k.maintenances > 1 ? 's' : ''}`, k.trainings && `${k.trainings} training${k.trainings > 1 ? 's' : ''}`]
                 .filter(Boolean)
                 .join(' · ')}
               {k.lastNs > 0n && ` · ${formatAgo(k.lastNs, nowMs)}`}
             </p>
           </div>
-          <span className="num shrink-0 text-sm font-semibold text-alive" title="usage rights earned">
-            +{k.rights} <span className="text-xs font-normal text-ink-3">rights</span>
+          <span className="shrink-0 text-right" title="usage rights earned">
+            <span className="num block text-lg leading-none font-semibold">+{k.rights}</span>
+            <span className="text-xs text-text-3">rights</span>
           </span>
         </li>
       ))}
