@@ -75,6 +75,8 @@ export class StepRecorder {
   readonly notes: string[] = [];
   outputs: Record<string, string>;
   noTxReason: string | undefined;
+  /** Passed checks of an earlier attempt (e.g. a refused tx that a rerun must not resend). */
+  private readonly earlier: Assertion[];
 
   constructor(
     readonly meta: { step: number; title: string; core: boolean; simulated: boolean; negative: boolean },
@@ -85,6 +87,7 @@ export class StepRecorder {
     // from them, and the evidence still lists every transaction the step sent.
     this.outputs = { ...(previous?.outputs ?? {}) };
     this.transactions = [...(previous?.transactions ?? [])];
+    this.earlier = (previous?.assertions ?? []).filter((a) => a.ok);
   }
 
   tx(label: string, tx: TxResult, opts: { expectedFailure?: boolean } = {}): TxResult {
@@ -139,6 +142,12 @@ export class StepRecorder {
   }
 
   finish(error?: unknown): DemoStepRecord {
+    // Checks proven by an earlier attempt and not repeated now stay in the record, marked as such.
+    const now = new Set(this.assertions.map((a) => a.what));
+    const kept = this.earlier
+      .filter((a) => !now.has(a.what) && !now.has(`${a.what} (earlier attempt)`))
+      .map((a) => ({ ...a, what: a.what.endsWith('(earlier attempt)') ? a.what : `${a.what} (earlier attempt)` }));
+    const assertions = [...kept, ...this.assertions];
     const failed = error !== undefined || this.assertions.length === 0 || this.assertions.some((a) => !a.ok);
     const hashes = [...new Set(this.transactions.map((t) => t.hash))];
     return {
@@ -147,7 +156,7 @@ export class StepRecorder {
       txHashes: hashes,
       explorerLinks: hashes.map(explorerTx),
       transactions: this.transactions,
-      assertions: this.assertions,
+      assertions,
       notes: this.notes,
       outputs: this.outputs,
       ...(this.noTxReason && hashes.length === 0 ? { no_tx_reason: this.noTxReason } : {}),

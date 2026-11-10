@@ -56,12 +56,13 @@ export const step18: DemoStep = {
     t = await a.task(taskId);
     rec.check('task_submitted with expense 0.4 NEAR and a receipt hash', t?.expense === EXPENSE.toString() && !!t?.receipt_hash, { expense: t?.expense, receipt_hash: t?.receipt_hash });
 
-    if (t?.status === 'Submitted') {
+    if (t?.status === 'Submitted' && !t.verifier) {
       const tx = await ctx.call('Mehmet (verifier) approves', cast.mehmet, cast.printer, 'approve_task', { task_id: taskId });
       rec.check('verifier approval waits for the council (0.4 > council_threshold_cash 0.25)', eventOf(tx, 'task_approved')?.awaiting_council === true);
       t = await a.task(taskId);
     }
-    if (t?.status === 'Approved' && !t.council_approver) {
+    // After the verifier, a task that needs the council stays Submitted with `verifier` set.
+    if (t?.status === 'Submitted' && t.verifier && !t.council_approver) {
       const tx = await ctx.call('council member Elif (≠ Mehmet) gives council approval', cast.makerlab.councilMember, cast.printer, 'council_approve_task', { task_id: taskId });
       rec.check('task_council_approved event', eventOf(tx, 'task_council_approved') !== null);
       rec.eq('nft_mint lists 1 token id', mintedTokenIds(tx).length, 1);

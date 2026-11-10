@@ -565,6 +565,25 @@
     ],
     "assertions": [
       {
+        "what": "bridge accepts the claimer’s signed verification request (earlier attempt)",
+        "ok": true,
+        "detail": "202"
+      },
+      {
+        "what": "calibration print passed (SIMULATED, emulated device) (earlier attempt)",
+        "ok": true,
+        "detail": "{\"type\":\"calibration_print\",\"file\":\"bridge/gcode/calibration_cube.gcode\",\"max_minutes\":15}"
+      },
+      {
+        "what": "verification result on chain (earlier attempt)",
+        "ok": true
+      },
+      {
+        "what": "nft_mint (NEP-171) lists 2 token ids (earlier attempt)",
+        "ok": true,
+        "detail": "right-3, right-4 in one nft_mint event of tx Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx (the first attempt counted events instead of token ids; checked from the tx logs)"
+      },
+      {
         "what": "task Rewarded, reward Done",
         "ok": true,
         "detail": "{\"status\":\"Rewarded\",\"reward\":\"Done\"}"
@@ -1065,6 +1084,21 @@
     ],
     "assertions": [
       {
+        "what": "credential card + trainer right minted (nft_mint token ids) (earlier attempt)",
+        "ok": true,
+        "detail": "2"
+      },
+      {
+        "what": "laser reservation Confirmed with fee 0 (earlier attempt)",
+        "ok": true,
+        "detail": "{\"status\":\"Confirmed\",\"fee\":\"0\"}"
+      },
+      {
+        "what": "right Locked by laser-01 (same group makerlab-fab) (earlier attempt)",
+        "ok": true,
+        "detail": "{\"state\":\"Locked\",\"asset\":\"laser-01.makerlab.commonkit-sxflo.testnet\",\"reservation_id\":\"2\"}"
+      },
+      {
         "what": "precondition: Ayşe holds laser_safety (trained by Elif, approved by Mehmet)",
         "ok": true,
         "detail": "true"
@@ -1455,5 +1489,318 @@
       "proposal:restore printer-01 profile (bed_level threshold) after the duplicate-task demo": "makerlab-ck.sputnikv2.testnet#15"
     },
     "timestamp": "2026-11-10T05:37:00.655Z"
+  },
+  {
+    "step": 17,
+    "title": "Second reward for the same task, claimer self-approval, council revoking a right: all refused",
+    "core": false,
+    "simulated": false,
+    "negative": true,
+    "status": "passed",
+    "txHashes": [
+      "9URscBHQD69i8L1iPRYpUnRrfajERszRpvE8PLsrTtXJ",
+      "8TVggJbHvMecXucRykG7oEPRnt5AmmCQy4XVVo4zPKMj",
+      "35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov",
+      "8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi",
+      "7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/9URscBHQD69i8L1iPRYpUnRrfajERszRpvE8PLsrTtXJ",
+      "https://testnet.nearblocks.io/txns/8TVggJbHvMecXucRykG7oEPRnt5AmmCQy4XVVo4zPKMj",
+      "https://testnet.nearblocks.io/txns/35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov",
+      "https://testnet.nearblocks.io/txns/8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi",
+      "https://testnet.nearblocks.io/txns/7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr"
+    ],
+    "transactions": [
+      {
+        "label": "Ayşe asks for the reward of task #0 again (retry_reward)",
+        "hash": "9URscBHQD69i8L1iPRYpUnRrfajERszRpvE8PLsrTtXJ",
+        "ok": false,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_ALREADY_REWARDED",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_ALREADY_REWARDED: task is not in the reward flow\"}}}}",
+        "expected_failure": true
+      },
+      {
+        "label": "Ayşe, the claimer, tries to approve her own task",
+        "hash": "8TVggJbHvMecXucRykG7oEPRnt5AmmCQy4XVVo4zPKMj",
+        "ok": false,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_SELF_VERIFY",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_SELF_VERIFY: claimer, agent and bridge cannot approve\"}}}}",
+        "expected_failure": true
+      },
+      {
+        "label": "council member Elif tries nft_transfer of Ayşe's right-2 to herself",
+        "hash": "35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov",
+        "ok": false,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "commons.makerlab.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_NON_TRANSFERABLE",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_NON_TRANSFERABLE: COMMONKIT cards cannot be transferred\"}}}}",
+        "expected_failure": true
+      },
+      {
+        "label": "council member Elif looks for a revoke method (revoke_right): none exists",
+        "hash": "8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi",
+        "ok": false,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "commons.makerlab.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": null,
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"MethodResolveError\":\"MethodNotFound\"}}}}",
+        "expected_failure": true
+      },
+      {
+        "label": "council member Elif looks for a burn method (nft_burn): none exists",
+        "hash": "7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr",
+        "ok": false,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "commons.makerlab.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": null,
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"MethodResolveError\":\"MethodNotFound\"}}}}",
+        "expected_failure": true
+      }
+    ],
+    "assertions": [
+      {
+        "what": "precondition: task #0 is Rewarded and claimed by Ayşe",
+        "ok": true,
+        "detail": "{\"status\":\"Rewarded\",\"claimer\":\"ayse.commonkit-sxflo.testnet\"}"
+      },
+      {
+        "what": "Ayşe asks for the reward of task #0 again (retry_reward) → E_ALREADY_REWARDED",
+        "ok": true,
+        "detail": "E_ALREADY_REWARDED expected; got E_ALREADY_REWARDED (tx 9URscBHQD69i8L1iPRYpUnRrfajERszRpvE8PLsrTtXJ)"
+      },
+      {
+        "what": "Ayşe, the claimer, tries to approve her own task → E_SELF_VERIFY",
+        "ok": true,
+        "detail": "E_SELF_VERIFY expected; got E_SELF_VERIFY (tx 8TVggJbHvMecXucRykG7oEPRnt5AmmCQy4XVVo4zPKMj)"
+      },
+      {
+        "what": "council member Elif tries nft_transfer of Ayşe's right-2 to herself → E_NON_TRANSFERABLE",
+        "ok": true,
+        "detail": "E_NON_TRANSFERABLE expected; got E_NON_TRANSFERABLE (tx 35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov)"
+      },
+      {
+        "what": "council member Elif looks for a revoke method (revoke_right): none exists → PROTOCOL:MethodNotFound",
+        "ok": true,
+        "detail": "PROTOCOL:MethodNotFound expected; got PROTOCOL:MethodNotFound (tx 8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi)"
+      },
+      {
+        "what": "council member Elif looks for a burn method (nft_burn): none exists → PROTOCOL:MethodNotFound",
+        "ok": true,
+        "detail": "PROTOCOL:MethodNotFound expected; got PROTOCOL:MethodNotFound (tx 7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr)"
+      },
+      {
+        "what": "the right is unchanged: same owner, same state",
+        "ok": true,
+        "detail": "{\"owner\":\"ayse.commonkit-sxflo.testnet\",\"status\":{\"state\":\"Active\"}}"
+      }
+    ],
+    "notes": [
+      "The DAO has no path either: commons exposes no revoke/burn/transfer method (CONTRACT_SPEC §5.1, invariant 2); suspend_credential on a usage right fails with E_NO_REVOCATION (sandbox test)."
+    ],
+    "outputs": {},
+    "timestamp": "2026-11-10T05:39:10.609Z"
+  },
+  {
+    "step": 18,
+    "title": "Printer Restock: agent opens the filament task; capped reimbursement (0.6 refused, 0.4 paid after verifier + council)",
+    "core": false,
+    "simulated": true,
+    "negative": true,
+    "status": "passed",
+    "txHashes": [
+      "51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk",
+      "272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT",
+      "FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV",
+      "HsdKEEiLQfrP5WNCbKrQKEjZV4ZsDzUktx1mL9cagoZA",
+      "Eo7uzx1NJp8BpFgpJokpBH8PNB4ibmoGFNQnJSjJYHjW",
+      "Ej4HpM7XQG7RaKRCRYf25yPSnUdte52VpHNaYBGQ1JH6",
+      "58w5xba5zoV1QELf11uBUcfqHuJNfD7Rr7xY1VYam1bJ",
+      "4yqekSnycURPTGC42tVYE8TtPjvbqe5AAxd6bbXBR9dX",
+      "42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk",
+      "https://testnet.nearblocks.io/txns/272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT",
+      "https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV",
+      "https://testnet.nearblocks.io/txns/HsdKEEiLQfrP5WNCbKrQKEjZV4ZsDzUktx1mL9cagoZA",
+      "https://testnet.nearblocks.io/txns/Eo7uzx1NJp8BpFgpJokpBH8PNB4ibmoGFNQnJSjJYHjW",
+      "https://testnet.nearblocks.io/txns/Ej4HpM7XQG7RaKRCRYf25yPSnUdte52VpHNaYBGQ1JH6",
+      "https://testnet.nearblocks.io/txns/58w5xba5zoV1QELf11uBUcfqHuJNfD7Rr7xY1VYam1bJ",
+      "https://testnet.nearblocks.io/txns/4yqekSnycURPTGC42tVYE8TtPjvbqe5AAxd6bbXBR9dX",
+      "https://testnet.nearblocks.io/txns/42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG"
+    ],
+    "transactions": [
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#16 demo override filament_spool 5000 (production 330000) on printer-01 — demo-lowered (profile pilot_overrides), emulated Moonraker telemetry",
+        "hash": "51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#16 demo override filament_spool 5000 (production 330000) on printer-01 — demo-lowered (profile pilot_overrides), emulated Moonraker telemetry",
+        "hash": "272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#16 demo override filament_spool 5000 (production 330000) on printer-01 — demo-lowered (profile pilot_overrides), emulated Moonraker telemetry",
+        "hash": "FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV",
+        "ok": true,
+        "by": "burak.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [
+          "profile_updated"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "agent open_upkeep_task(\"filament_spool\")",
+        "hash": "HsdKEEiLQfrP5WNCbKrQKEjZV4ZsDzUktx1mL9cagoZA",
+        "ok": true,
+        "by": "agent.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "Ayşe claims task #2",
+        "hash": "Eo7uzx1NJp8BpFgpJokpBH8PNB4ibmoGFNQnJSjJYHjW",
+        "ok": true,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "task_claimed"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Ayşe submits with expense 0.6 NEAR (> reimbursable_max 0.5)",
+        "hash": "Ej4HpM7XQG7RaKRCRYf25yPSnUdte52VpHNaYBGQ1JH6",
+        "ok": false,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_EXPENSE_CAP",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_EXPENSE_CAP: expense above the rule's reimbursable_max\"}}}}",
+        "expected_failure": true
+      },
+      {
+        "label": "submit task #2 (evidence hash, expense 0.4 NEAR + receipt hash)",
+        "hash": "58w5xba5zoV1QELf11uBUcfqHuJNfD7Rr7xY1VYam1bJ",
+        "ok": true,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "task_submitted"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Mehmet (verifier) approves",
+        "hash": "4yqekSnycURPTGC42tVYE8TtPjvbqe5AAxd6bbXBR9dX",
+        "ok": true,
+        "by": "mehmet.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "task_approved"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "council member Elif (≠ Mehmet) gives council approval",
+        "hash": "42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "task_council_approved",
+          "nft_mint",
+          "rights_minted",
+          "rights_received",
+          "op_created",
+          "op_result",
+          "task_rewarded",
+          "reputation_recorded"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "filament_used_mm (emulated Moonraker) crossed the demo-lowered threshold (earlier attempt)",
+        "ok": true,
+        "detail": "current 322000, threshold 5000, due true"
+      },
+      {
+        "what": "Ayşe submits with expense 0.6 NEAR (> reimbursable_max 0.5) → E_EXPENSE_CAP (earlier attempt)",
+        "ok": true,
+        "detail": "E_EXPENSE_CAP expected; got E_EXPENSE_CAP (tx Ej4HpM7XQG7RaKRCRYf25yPSnUdte52VpHNaYBGQ1JH6)"
+      },
+      {
+        "what": "verifier approval waits for the council (0.4 > council_threshold_cash 0.25) (earlier attempt)",
+        "ok": true
+      },
+      {
+        "what": "task kind Restock, trigger Metric, opened by the agent",
+        "ok": true,
+        "detail": "{\"kind\":\"Restock\",\"trigger\":\"Metric\",\"by\":\"agent.commonkit-sxflo.testnet\"}"
+      },
+      {
+        "what": "task_submitted with expense 0.4 NEAR and a receipt hash",
+        "ok": true,
+        "detail": "{\"expense\":\"400000000000000000000000\",\"receipt_hash\":\"143e6edc48d744094d190855b4220f484224b733b56e9aee2ce30b46c5ca1b08\"}"
+      },
+      {
+        "what": "task_council_approved event",
+        "ok": true
+      },
+      {
+        "what": "nft_mint lists 1 token id",
+        "ok": true,
+        "detail": "1"
+      },
+      {
+        "what": "Reimbursement op Succeeded for 0.4 NEAR, ref_id = task",
+        "ok": true,
+        "detail": "{\"status\":\"Succeeded\",\"amount\":\"0.4 NEAR\",\"ref\":\"2\"}"
+      },
+      {
+        "what": "task Rewarded, expense_state Paid",
+        "ok": true,
+        "detail": "{\"status\":\"Rewarded\",\"expense\":\"Paid\"}"
+      },
+      {
+        "what": "Reimbursement op paid Ayşe from the float",
+        "ok": true,
+        "detail": "{\"kind\":\"Reimbursement\",\"to\":\"ayse.commonkit-sxflo.testnet\",\"amount\":\"400000000000000000000000\",\"status\":\"Succeeded\"}"
+      },
+      {
+        "what": "deposits_held unchanged (deposits are never used for reimbursements)",
+        "ok": true,
+        "detail": "2000000000000000000000000"
+      }
+    ],
+    "notes": [],
+    "outputs": {
+      "proposal:demo override filament_spool 5000 (production 330000) on printer-01 — demo-lowered (profile pilot_overrides), emulated Moonraker telemetry": "makerlab-ck.sputnikv2.testnet#16",
+      "deposits_before": "2000000000000000000000000",
+      "task_id": "2",
+      "cap_refused": "1"
+    },
+    "timestamp": "2026-11-10T05:40:08.468Z"
   }
 ]

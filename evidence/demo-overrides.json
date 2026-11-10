@@ -187,5 +187,26 @@
       "https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX",
       "https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1"
     ]
+  },
+  {
+    "kind": "override",
+    "step": 18,
+    "asset": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "rule_id": "filament_spool",
+    "value": "5000",
+    "production": "330000",
+    "proposal": "makerlab-ck.sputnikv2.testnet#16",
+    "tx_hashes": [
+      "51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk",
+      "272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT",
+      "FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV"
+    ],
+    "label": "demo override filament_spool 5000 (production 330000)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk",
+      "https://testnet.nearblocks.io/txns/272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT",
+      "https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV"
+    ],
+    "at": "2026-11-10T05:39:31.867Z"
   }
 ]

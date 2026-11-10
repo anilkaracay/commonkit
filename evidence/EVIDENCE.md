@@ -5,7 +5,7 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ## Judge flow
 
-14 of 21 steps passed. ★ = one of the five core steps shown in the README.
+16 of 21 steps passed. ★ = one of the five core steps shown in the README.
 
 | # | Step | Result | Transactions |
 | :--- | :--- | :--- | :--- |
@@ -23,6 +23,8 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | 13 | Zeynep (now credentialed) reserves the laser; the bridge switches the emulated Shelly on, then off (simulation) | ✅ | [BA6f822e…](https://testnet.nearblocks.io/txns/BA6f822ewK4NNpa5vmQJ6ANgGP9gWo252zSbHzkk99pV) [6CVR6bgW…](https://testnet.nearblocks.io/txns/6CVR6bgWqps1K2avZZSzUw7QsCpNHjacDdMZ7km66NVW) [ADoxyxM2…](https://testnet.nearblocks.io/txns/ADoxyxM2pNkYxc3AerE4a5LKPPCDxsqSMmqeWt9cRFvq) [HF8cj7Wd…](https://testnet.nearblocks.io/txns/HF8cj7WdXF6tBvfWvdSLMt2Ek2bDjLCnCXirMrF47RpM) |
 | 14 | Ayşe uses a printer-earned right on the laser (same group: OK) and on the dorm-b washer (other community: rejected)  | ✅ | [8gbyxuQM…](https://testnet.nearblocks.io/txns/8gbyxuQM28ReZFvnLs9Ko5en6R9GVFuhu4rEoYGAFbfh) [FT9tyV6n…](https://testnet.nearblocks.io/txns/FT9tyV6nfawavWfD3w1iR9xU5hSWERkji61FeJH1CEe) [5AzDmbHg…](https://testnet.nearblocks.io/txns/5AzDmbHgMeBAnE6d8RKJCHuK1EfMmt6H6pDazf81MAJe) [7pKC2mAB…](https://testnet.nearblocks.io/txns/7pKC2mABEx7w3z6hQJZ2RWzSBpYbTrwZHFNKtNzGiAhC) [5n5JjQUh…](https://testnet.nearblocks.io/txns/5n5JjQUhjiBDfQukYQ7aFocp7Ef34kW9gLRhsLF5rxau) [8wrKVZ3o…](https://testnet.nearblocks.io/txns/8wrKVZ3oBXhQ4hKcTa9ZxJsHChu6EgMXKsA5k9uCNhKm) [U8fudsCe…](https://testnet.nearblocks.io/txns/U8fudsCesicZ48BQvaCupc9pi5qYTDwJMRhHUVjYvpf) [7iWi8ExR…](https://testnet.nearblocks.io/txns/7iWi8ExRkoGvGUDQonPZPy9zpQDMMLvGcNTstYz29eDQ) |
 | 16 | Agent limits: not due, duplicate task, over quota, after revocation — each refused on chain  | ✅ | [C8JkikXo…](https://testnet.nearblocks.io/txns/C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed) [2rCeE2M1…](https://testnet.nearblocks.io/txns/2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG) [nqMmhGWQ…](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) [GvykqdCm…](https://testnet.nearblocks.io/txns/GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino) [PQct6RW7…](https://testnet.nearblocks.io/txns/PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt) [G8Vb1fTc…](https://testnet.nearblocks.io/txns/G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF) [FmDVLwMZ…](https://testnet.nearblocks.io/txns/FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6) [GDwFcx8W…](https://testnet.nearblocks.io/txns/GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq) [621S7Ry7…](https://testnet.nearblocks.io/txns/621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ) [AZ8F2GoD…](https://testnet.nearblocks.io/txns/AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz) [4fuwk6rL…](https://testnet.nearblocks.io/txns/4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6) [8gn7Tw8b…](https://testnet.nearblocks.io/txns/8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4) [4YA4vH9f…](https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw) [Ew52ujzR…](https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26) [2tbnLVXm…](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) [946wLUkg…](https://testnet.nearblocks.io/txns/946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f) [57HaCMJ9…](https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX) [DPWHpngq…](https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1) [CeKXhvUM…](https://testnet.nearblocks.io/txns/CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j) [E5z6dYSt…](https://testnet.nearblocks.io/txns/E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg) [2pTH2ej1…](https://testnet.nearblocks.io/txns/2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a) [BpuNwpok…](https://testnet.nearblocks.io/txns/BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod) [4LTTFcJq…](https://testnet.nearblocks.io/txns/4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc) |
+| 17 | Second reward for the same task, claimer self-approval, council revoking a right: all refused  | ✅ | [9URscBHQ…](https://testnet.nearblocks.io/txns/9URscBHQD69i8L1iPRYpUnRrfajERszRpvE8PLsrTtXJ) [8TVggJbH…](https://testnet.nearblocks.io/txns/8TVggJbHvMecXucRykG7oEPRnt5AmmCQy4XVVo4zPKMj) [35LAjegU…](https://testnet.nearblocks.io/txns/35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov) [8baJx53v…](https://testnet.nearblocks.io/txns/8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi) [7SQ1suu3…](https://testnet.nearblocks.io/txns/7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr) |
+| 18 | Printer Restock: agent opens the filament task; capped reimbursement (0.6 refused, 0.4 paid after verifier + council) (simulation) | ✅ | [51RZ2jTg…](https://testnet.nearblocks.io/txns/51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk) [272p86af…](https://testnet.nearblocks.io/txns/272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT) [FNT5MNsm…](https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV) [HsdKEEiL…](https://testnet.nearblocks.io/txns/HsdKEEiLQfrP5WNCbKrQKEjZV4ZsDzUktx1mL9cagoZA) [Eo7uzx1N…](https://testnet.nearblocks.io/txns/Eo7uzx1NJp8BpFgpJokpBH8PNB4ibmoGFNQnJSjJYHjW) [Ej4HpM7X…](https://testnet.nearblocks.io/txns/Ej4HpM7XQG7RaKRCRYf25yPSnUdte52VpHNaYBGQ1JH6) [58w5xba5…](https://testnet.nearblocks.io/txns/58w5xba5zoV1QELf11uBUcfqHuJNfD7Rr7xY1VYam1bJ) [4yqekSny…](https://testnet.nearblocks.io/txns/4yqekSnycURPTGC42tVYE8TtPjvbqe5AAxd6bbXBR9dX) [42VT5eby…](https://testnet.nearblocks.io/txns/42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG) |
 
 ### Step 1 — DAO proposal registers printer-01, sets its profile and funds its float
 
@@ -135,6 +137,10 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ✅ passed · 2026-11-10 05:31:57 UTC · core step
 
+- ✅ bridge accepts the claimer’s signed verification request (earlier attempt) — `202`
+- ✅ calibration print passed (SIMULATED, emulated device) (earlier attempt) — `{"type":"calibration_print","file":"bridge/gcode/calibration_cube.gcode","max_minutes":15}`
+- ✅ verification result on chain (earlier attempt)
+- ✅ nft_mint (NEP-171) lists 2 token ids (earlier attempt) — `right-3, right-4 in one nft_mint event of tx Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx (the first attempt counted events instead of token ids; checked from the tx logs)`
 - ✅ task Rewarded, reward Done — `{"status":"Rewarded","reward":"Done"}`
 - ✅ 2 rights minted — `2`
 - ✅ Ayşe owns them; source = this maintenance task; group makerlab-fab — `[{"id":"right-3","source":{"type":"Maintenance","asset":"printer-01.makerlab.commonkit-sxflo.testnet","task_id":"0"},"group":"makerlab-fab"},{"id":"right-4","source":{"type":"Maintenance","asset":"printer-01.makerlab.commonkit-sxflo.testnet","task_id":"0"},"group":"makerlab-fab"}]`
@@ -220,6 +226,9 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ✅ passed · 2026-11-10 05:34:26 UTC
 
+- ✅ credential card + trainer right minted (nft_mint token ids) (earlier attempt) — `2`
+- ✅ laser reservation Confirmed with fee 0 (earlier attempt) — `{"status":"Confirmed","fee":"0"}`
+- ✅ right Locked by laser-01 (same group makerlab-fab) (earlier attempt) — `{"state":"Locked","asset":"laser-01.makerlab.commonkit-sxflo.testnet","reservation_id":"2"}`
 - ✅ precondition: Ayşe holds laser_safety (trained by Elif, approved by Mehmet) — `true`
 - ✅ after cancelling, the right is Active again (not consumed) — `Active`
 - ✅ washer rejects the foreign right: reservation_rejected E_RIGHT_NOT_ACTIVE (the card does not exist in dorm-b's commons) — `E_RIGHT_NOT_ACTIVE`
@@ -285,6 +294,55 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | [BpuNwpok…](https://testnet.nearblocks.io/txns/BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod) | agent key: quota_exceeded (E_QUOTA_EXCEEDED) | agent.commonkit-sxflo.testnet | failed (see tx) |
 | [4LTTFcJq…](https://testnet.nearblocks.io/txns/4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc) | agent key: not_agent_after_revocation (E_NOT_AGENT) | agent.commonkit-sxflo.testnet | failed (see tx) |
 
+### Step 17 — Second reward for the same task, claimer self-approval, council revoking a right: all refused
+
+✅ passed · 2026-11-10 05:39:10 UTC
+
+- ✅ precondition: task #0 is Rewarded and claimed by Ayşe — `{"status":"Rewarded","claimer":"ayse.commonkit-sxflo.testnet"}`
+- ✅ Ayşe asks for the reward of task #0 again (retry_reward) → E_ALREADY_REWARDED — `E_ALREADY_REWARDED expected; got E_ALREADY_REWARDED (tx 9URscBHQD69i8L1iPRYpUnRrfajERszRpvE8PLsrTtXJ)`
+- ✅ Ayşe, the claimer, tries to approve her own task → E_SELF_VERIFY — `E_SELF_VERIFY expected; got E_SELF_VERIFY (tx 8TVggJbHvMecXucRykG7oEPRnt5AmmCQy4XVVo4zPKMj)`
+- ✅ council member Elif tries nft_transfer of Ayşe's right-2 to herself → E_NON_TRANSFERABLE — `E_NON_TRANSFERABLE expected; got E_NON_TRANSFERABLE (tx 35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov)`
+- ✅ council member Elif looks for a revoke method (revoke_right): none exists → PROTOCOL:MethodNotFound — `PROTOCOL:MethodNotFound expected; got PROTOCOL:MethodNotFound (tx 8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi)`
+- ✅ council member Elif looks for a burn method (nft_burn): none exists → PROTOCOL:MethodNotFound — `PROTOCOL:MethodNotFound expected; got PROTOCOL:MethodNotFound (tx 7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr)`
+- ✅ the right is unchanged: same owner, same state — `{"owner":"ayse.commonkit-sxflo.testnet","status":{"state":"Active"}}`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [9URscBHQ…](https://testnet.nearblocks.io/txns/9URscBHQD69i8L1iPRYpUnRrfajERszRpvE8PLsrTtXJ) | Ayşe asks for the reward of task #0 again (retry_reward) | ayse.commonkit-sxflo.testnet | refused as expected (E_ALREADY_REWARDED) |
+| [8TVggJbH…](https://testnet.nearblocks.io/txns/8TVggJbHvMecXucRykG7oEPRnt5AmmCQy4XVVo4zPKMj) | Ayşe, the claimer, tries to approve her own task | ayse.commonkit-sxflo.testnet | refused as expected (E_SELF_VERIFY) |
+| [35LAjegU…](https://testnet.nearblocks.io/txns/35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov) | council member Elif tries nft_transfer of Ayşe's right-2 to herself | elif.makerlab.commonkit-sxflo.testnet | refused as expected (E_NON_TRANSFERABLE) |
+| [8baJx53v…](https://testnet.nearblocks.io/txns/8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi) | council member Elif looks for a revoke method (revoke_right): none exists | elif.makerlab.commonkit-sxflo.testnet | refused as expected (protocol) |
+| [7SQ1suu3…](https://testnet.nearblocks.io/txns/7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr) | council member Elif looks for a burn method (nft_burn): none exists | elif.makerlab.commonkit-sxflo.testnet | refused as expected (protocol) |
+- Note: The DAO has no path either: commons exposes no revoke/burn/transfer method (CONTRACT_SPEC §5.1, invariant 2); suspend_credential on a usage right fails with E_NO_REVOCATION (sandbox test).
+
+### Step 18 — Printer Restock: agent opens the filament task; capped reimbursement (0.6 refused, 0.4 paid after verifier + council) (simulation)
+
+✅ passed · 2026-11-10 05:40:08 UTC
+
+- ✅ filament_used_mm (emulated Moonraker) crossed the demo-lowered threshold (earlier attempt) — `current 322000, threshold 5000, due true`
+- ✅ Ayşe submits with expense 0.6 NEAR (> reimbursable_max 0.5) → E_EXPENSE_CAP (earlier attempt) — `E_EXPENSE_CAP expected; got E_EXPENSE_CAP (tx Ej4HpM7XQG7RaKRCRYf25yPSnUdte52VpHNaYBGQ1JH6)`
+- ✅ verifier approval waits for the council (0.4 > council_threshold_cash 0.25) (earlier attempt)
+- ✅ task kind Restock, trigger Metric, opened by the agent — `{"kind":"Restock","trigger":"Metric","by":"agent.commonkit-sxflo.testnet"}`
+- ✅ task_submitted with expense 0.4 NEAR and a receipt hash — `{"expense":"400000000000000000000000","receipt_hash":"143e6edc48d744094d190855b4220f484224b733b56e9aee2ce30b46c5ca1b08"}`
+- ✅ task_council_approved event
+- ✅ nft_mint lists 1 token id — `1`
+- ✅ Reimbursement op Succeeded for 0.4 NEAR, ref_id = task — `{"status":"Succeeded","amount":"0.4 NEAR","ref":"2"}`
+- ✅ task Rewarded, expense_state Paid — `{"status":"Rewarded","expense":"Paid"}`
+- ✅ Reimbursement op paid Ayşe from the float — `{"kind":"Reimbursement","to":"ayse.commonkit-sxflo.testnet","amount":"400000000000000000000000","status":"Succeeded"}`
+- ✅ deposits_held unchanged (deposits are never used for reimbursements) — `2000000000000000000000000`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [51RZ2jTg…](https://testnet.nearblocks.io/txns/51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk) | makerlab-ck.sputnikv2.testnet#16 demo override filament_spool 5000 (production 330000) on printer-01 — demo-lowered (profile pilot_overrides), emulated Moonraker telemetry | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [272p86af…](https://testnet.nearblocks.io/txns/272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT) | makerlab-ck.sputnikv2.testnet#16 demo override filament_spool 5000 (production 330000) on printer-01 — demo-lowered (profile pilot_overrides), emulated Moonraker telemetry | elif.makerlab.commonkit-sxflo.testnet | ok |
+| [FNT5MNsm…](https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV) | makerlab-ck.sputnikv2.testnet#16 demo override filament_spool 5000 (production 330000) on printer-01 — demo-lowered (profile pilot_overrides), emulated Moonraker telemetry | burak.makerlab.commonkit-sxflo.testnet | ok |
+| [HsdKEEiL…](https://testnet.nearblocks.io/txns/HsdKEEiLQfrP5WNCbKrQKEjZV4ZsDzUktx1mL9cagoZA) | agent open_upkeep_task("filament_spool") | agent.commonkit-sxflo.testnet | ok |
+| [Eo7uzx1N…](https://testnet.nearblocks.io/txns/Eo7uzx1NJp8BpFgpJokpBH8PNB4ibmoGFNQnJSjJYHjW) | Ayşe claims task #2 | ayse.commonkit-sxflo.testnet | ok |
+| [Ej4HpM7X…](https://testnet.nearblocks.io/txns/Ej4HpM7XQG7RaKRCRYf25yPSnUdte52VpHNaYBGQ1JH6) | Ayşe submits with expense 0.6 NEAR (> reimbursable_max 0.5) | ayse.commonkit-sxflo.testnet | refused as expected (E_EXPENSE_CAP) |
+| [58w5xba5…](https://testnet.nearblocks.io/txns/58w5xba5zoV1QELf11uBUcfqHuJNfD7Rr7xY1VYam1bJ) | submit task #2 (evidence hash, expense 0.4 NEAR + receipt hash) | ayse.commonkit-sxflo.testnet | ok |
+| [4yqekSny…](https://testnet.nearblocks.io/txns/4yqekSnycURPTGC42tVYE8TtPjvbqe5AAxd6bbXBR9dX) | Mehmet (verifier) approves | mehmet.commonkit-sxflo.testnet | ok |
+| [42VT5eby…](https://testnet.nearblocks.io/txns/42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG) | council member Elif (≠ Mehmet) gives council approval | elif.makerlab.commonkit-sxflo.testnet | ok |
+
 ## Demo overrides (`evidence/demo-overrides.json`)
 
 Every value changed for the demo went through a DAO proposal. **live** = still in force on chain.
@@ -300,6 +358,7 @@ Every value changed for the demo went through a DAO proposal. **live** = still i
 | 2026-11-10 05:36:33 | 16 | washer-01 | restore filter_clean 30 (production 30) | dorm-b-ck.sputnikv2.testnet#11 | [4YA4vH9f…](https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw) [Ew52ujzR…](https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26) [2tbnLVXm…](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) |
 | 2026-11-10 05:36:33 | 16 | washer-01 | restore period_reward_quota 12 (production 12) | dorm-b-ck.sputnikv2.testnet#11 | [4YA4vH9f…](https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw) [Ew52ujzR…](https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26) [2tbnLVXm…](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) |
 | 2026-11-10 05:36:47 | 16 | printer-01 | restore bed_level 50 (production 50) | makerlab-ck.sputnikv2.testnet#15 | [946wLUkg…](https://testnet.nearblocks.io/txns/946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f) [57HaCMJ9…](https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX) [DPWHpngq…](https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1) |
+| 2026-11-10 05:39:31 | 18 | printer-01 | demo override filament_spool 5000 (production 330000) **live** | makerlab-ck.sputnikv2.testnet#16 | [51RZ2jTg…](https://testnet.nearblocks.io/txns/51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk) [272p86af…](https://testnet.nearblocks.io/txns/272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT) [FNT5MNsm…](https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV) |
 
 ## Agent limits (`evidence/agent-limits.json`)
 
