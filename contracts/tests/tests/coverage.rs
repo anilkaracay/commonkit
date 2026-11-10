@@ -69,3 +69,46 @@ fn every_asset_method_has_tests() {
 fn every_commons_method_has_tests() {
     check("commonkit_commons", "commons");
 }
+
+/// Every `module::test_name` listed in COVERAGE.md tables must be a real test function.
+#[test]
+fn every_listed_test_exists() {
+    fn collect(dir: &std::path::Path, out: &mut String) {
+        for entry in std::fs::read_dir(dir).unwrap().flatten() {
+            let p = entry.path();
+            if p.is_dir() {
+                collect(&p, out);
+            } else if p.extension().is_some_and(|e| e == "rs") {
+                out.push_str(&std::fs::read_to_string(&p).unwrap());
+            }
+        }
+    }
+    let mut sources = String::new();
+    for dir in [
+        "contracts/asset/src",
+        "contracts/commons/src",
+        "contracts/types/src",
+        "contracts/tests/tests",
+    ] {
+        collect(&root().join(dir), &mut sources);
+    }
+    let doc = std::fs::read_to_string(root().join("contracts/tests/COVERAGE.md")).unwrap();
+    let mut missing = Vec::new();
+    for line in doc.lines().filter(|l| l.starts_with("| `")) {
+        for cell in line.split('|').skip(2) {
+            for token in cell.split(|c: char| c == ',' || c.is_whitespace()) {
+                let token =
+                    token.trim_matches(|c: char| !(c.is_alphanumeric() || c == '_' || c == ':'));
+                if let Some((_, name)) = token.split_once("::") {
+                    if !name.is_empty() && !sources.contains(&format!("fn {name}(")) {
+                        missing.push(token.to_string());
+                    }
+                }
+            }
+        }
+    }
+    assert!(
+        missing.is_empty(),
+        "COVERAGE.md lists tests that do not exist: {missing:?}"
+    );
+}

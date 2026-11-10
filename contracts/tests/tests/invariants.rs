@@ -98,8 +98,14 @@ async fn inv_custody_float_cap_sweeps_excess() -> Result<()> {
 }
 
 #[tokio::test]
+/// Deposits never fund bonds or cash rewards: with 2 N of deposits held and a short float,
+/// neither an escalation bond nor a task's cash reward can be reserved; a large inflow is
+/// swept without touching the deposits; once funded, the cash reward is paid from the float.
 async fn inv_custody_deposits_never_swept() -> Result<()> {
-    let env = Env::new().await?;
+    let env = Env::with(EnvOptions {
+        tweak: bed_level_cash,
+    })
+    .await?;
     let start = env.now_slot(&env.printer).await? + 2;
     reservation_id(
         env.reserve(&env.printer, &env.alice, start, 1, None)
@@ -108,8 +114,8 @@ async fn inv_custody_deposits_never_swept() -> Result<()> {
     .await?;
     let l = env.ledger(&env.printer).await?;
     assert_eq!(u128_of(&l["deposits_held"]), 2 * N);
-    assert!(u128_of(&l["float_free"]) < BOND);
-    // a bond can only come from the float, never from deposits
+    assert!(u128_of(&l["float_free"]) < N / 2);
+    // a bond can only come from the float
     refresh_policy(&env, &env.printer).await?;
     let r = env
         .call(
@@ -121,12 +127,69 @@ async fn inv_custody_deposits_never_swept() -> Result<()> {
         )
         .await?;
     fails_with(&r, "E_INSUFFICIENT_FLOAT");
+    // a cash reward can only be reserved from the float
+    env.telemetry(&env.printer, json!([["jobs_total", 51]]))
+        .await?;
+    let open = || {
+        env.call(
+            &env.agent,
+            &env.printer,
+            "open_upkeep_task",
+            json!({"rule_id": "bed_level", "rationale": "50 jobs"}),
+        )
+    };
+    fails_with(&open().await?, "E_INSUFFICIENT_FLOAT");
+    let l = env.ledger(&env.printer).await?;
+    assert_eq!(u128_of(&l["deposits_held"]), 2 * N);
+    assert_eq!(u128_of(&l["rewards_reserved"]), 0);
     // sweeping a large inflow leaves the deposit liability untouched
     env.fund_float(&env.printer, 10 * N).await?;
     let l = env.ledger(&env.printer).await?;
     assert_eq!(u128_of(&l["deposits_held"]), 2 * N);
     assert_eq!(u128_of(&l["float_free"]), 3 * N);
-    assert!(u128_of(&l["balance"]) >= 5 * N + 3 * N + 2 * N);
+    assert!(u128_of(&l["total_swept"]) >= 7 * N);
+    // now the cash reward is reserved and paid from the float
+    let t = u64_of(&ok(open().await?)?.json::<Value>()?);
+    ok(env
+        .call(
+            &env.bob,
+            &env.printer,
+            "claim_task",
+            json!({"task_id": t.to_string()}),
+        )
+        .await?)?;
+    ok(env
+        .call(
+            &env.bob,
+            &env.printer,
+            "submit_task",
+            json!({"task_id": t.to_string(), "evidence_hash": HASH}),
+        )
+        .await?)?;
+    env.pass_test(&env.printer, t).await?;
+    ok(env
+        .call(
+            &env.verifier,
+            &env.printer,
+            "approve_task",
+            json!({"task_id": t.to_string()}),
+        )
+        .await?)?;
+    // 0.5 N is above council_threshold_cash (0.25 N): council approval completes it
+    assert_eq!(env.task(&env.printer, t).await?["status"], "Submitted");
+    ok(env
+        .call(
+            &env.council[0],
+            &env.printer,
+            "council_approve_task",
+            json!({"task_id": t.to_string()}),
+        )
+        .await?)?;
+    assert_eq!(env.task(&env.printer, t).await?["status"], "Rewarded");
+    let l = env.ledger(&env.printer).await?;
+    assert_eq!(u128_of(&l["total_rewards_paid"]), N / 2);
+    assert_eq!(u128_of(&l["deposits_held"]), 2 * N);
+    assert_eq!(u128_of(&l["float_free"]), 3 * N - N / 2);
     env.assert_invariant(&env.printer).await
 }
 
@@ -894,7 +957,7 @@ async fn inv_ledger_balance_covers_obligations() -> Result<()> {
     let task = env.task(&env.printer, t).await?;
     assert_eq!(task["expense_state"], "Paid");
     check().await?;
-    // washer: rejected reservation with a right from another group, then a normal one
+    // washer: a normal booking (deposit-free profile)
     let w = env.now_slot(&env.washer).await? + 2;
     reservation_id(env.reserve(&env.washer, &env.bob, w, 1, None).await?).await?;
     check().await?;
@@ -1012,7 +1075,11 @@ async fn inv_credential_required() -> Result<()> {
     let env = Env::new().await?;
     let before = env.balance(env.alice.id()).await?;
     let start = env.now_slot(&env.laser).await? + 2;
-    let r = env.reserve(&env.laser, &env.alice, start, 1, None).await?;
+    let r = ok(env.reserve(&env.laser, &env.alice, start, 1, None).await?)?;
+    assert_eq!(
+        events(&r, "reservation_rejected")[0]["reason"],
+        "E_CREDENTIAL_MISSING"
+    );
     let id = reservation_id(r).await?;
     let res = env.reservation(&env.laser, id).await?;
     assert_eq!(res["status"], "Rejected");
@@ -1038,22 +1105,51 @@ async fn inv_credential_required() -> Result<()> {
 
 #[tokio::test]
 async fn inv_restock_expense_capped_and_not_from_deposits() -> Result<()> {
-    let env = Env::new().await?;
+    let env = Env::with(EnvOptions {
+        tweak: spool_up_to_2n,
+    })
+    .await?;
     // bob's future booking puts 2 N of deposits on the account; the float is ~0.3 N
     let s = env.now_slot(&env.printer).await? + 4;
     reservation_id(env.reserve(&env.printer, &env.bob, s, 1, None).await?).await?;
-    env.telemetry(&env.printer, json!([["filament_used_mm", 330_001]]))
-        .await?;
-    // above reimbursable_max (0.5 N) is refused at submit
-    let r = ok(env
-        .call(
+    env.telemetry(
+        &env.printer,
+        json!([["filament_used_mm", 330_001], ["nozzle_seconds", 720_001]]),
+    )
+    .await?;
+    let open = |rule: &'static str| {
+        env.call(
             &env.agent,
             &env.printer,
             "open_upkeep_task",
-            json!({"rule_id": "filament_spool", "rationale": "due"}),
+            json!({"rule_id": rule, "rationale": "due"}),
+        )
+    };
+    let submit = |t: u64, amount: u128, receipt: Option<&'static str>| {
+        env.call(
+            &env.alice,
+            &env.printer,
+            "submit_task",
+            json!({"task_id": t.to_string(), "evidence_hash": HASH,
+                   "expense": amount.to_string(), "receipt_hash": receipt}),
+        )
+    };
+    // only Restock/Repair tasks may claim an expense
+    let tn = u64_of(&ok(open("nozzle_clean").await?)?.json::<Value>()?);
+    ok(env
+        .call(
+            &env.alice,
+            &env.printer,
+            "claim_task",
+            json!({"task_id": tn.to_string()}),
         )
         .await?)?;
-    let t = u64_of(&r.json::<Value>()?);
+    fails_with(
+        &submit(tn, N / 10, Some(HASH2)).await?,
+        "E_NOT_REIMBURSABLE",
+    );
+    // a restock expense needs a receipt and stays within reimbursable_max (2 N here)
+    let t = u64_of(&ok(open("filament_spool").await?)?.json::<Value>()?);
     ok(env
         .call(
             &env.alice,
@@ -1062,16 +1158,9 @@ async fn inv_restock_expense_capped_and_not_from_deposits() -> Result<()> {
             json!({"task_id": t.to_string()}),
         )
         .await?)?;
-    let submit = |amount: u128| {
-        env.call(
-            &env.alice,
-            &env.printer,
-            "submit_task",
-            json!({"task_id": t.to_string(), "evidence_hash": HASH, "expense": amount.to_string(), "receipt_hash": HASH2}),
-        )
-    };
-    fails_with(&submit(N / 2 + 1).await?, "E_EXPENSE_CAP");
-    ok(submit(9 * N / 20).await?)?; // 0.45 N: above council threshold and above the float
+    fails_with(&submit(t, N / 10, None).await?, "E_INVALID_ARGS");
+    fails_with(&submit(t, 2 * N + 1, Some(HASH2)).await?, "E_EXPENSE_CAP");
+    ok(submit(t, 9 * N / 20, Some(HASH2)).await?)?; // 0.45 N: above council threshold and the float
     ok(env
         .call(
             &env.verifier,
@@ -1091,6 +1180,7 @@ async fn inv_restock_expense_capped_and_not_from_deposits() -> Result<()> {
     fails_with(&r, "E_INSUFFICIENT_FLOAT");
     let l = env.ledger(&env.printer).await?;
     assert_eq!(u128_of(&l["deposits_held"]), 2 * N);
+    assert_eq!(u128_of(&l["rewards_reserved"]), 0);
     // once the DAO funds the float, the expense is paid from it — deposits untouched
     env.fund_float(&env.printer, N).await?;
     let alice_before = env.balance(env.alice.id()).await?;
@@ -1102,11 +1192,71 @@ async fn inv_restock_expense_capped_and_not_from_deposits() -> Result<()> {
             json!({"task_id": t.to_string()}),
         )
         .await?)?;
-    let task = env.task(&env.printer, t).await?;
-    assert_eq!(task["expense_state"], "Paid");
+    assert_eq!(env.task(&env.printer, t).await?["expense_state"], "Paid");
     assert!(env.balance(env.alice.id()).await? + GAS_SLACK > alice_before + 9 * N / 20);
     let l = env.ledger(&env.printer).await?;
     assert_eq!(u128_of(&l["deposits_held"]), 2 * N);
+    assert_eq!(u128_of(&l["total_reimbursed"]), 9 * N / 20);
+    // exactly one Reimbursement op; retries cannot add another
+    let ops = env.view(&env.printer, "get_ops", json!({})).await?;
+    let reimb: Vec<&Value> = ops
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|o| {
+            o["kind"] == "Reimbursement"
+                && o["ref_id"].as_str().and_then(|r| r.parse::<u64>().ok()) == Some(t)
+        })
+        .collect();
+    assert_eq!(reimb.len(), 1);
+    assert_eq!(reimb[0]["status"], "Succeeded");
+    fails_with(
+        &env.call(
+            &env.bob,
+            &env.printer,
+            "retry_reward",
+            json!({"task_id": t.to_string()}),
+        )
+        .await?,
+        "E_ALREADY_REWARDED",
+    );
+    fails_with(
+        &env.call(
+            &env.bob,
+            &env.printer,
+            "retry_op",
+            json!({"op_id": reimb[0]["id"]}),
+        )
+        .await?,
+        "E_OP_NOT_RETRYABLE",
+    );
+    // above auto_reward_cash_cap (0.5 N): only the DAO can pay — nothing leaves the float
+    env.telemetry(&env.printer, json!([["filament_used_mm", 700_000]]))
+        .await?;
+    let float_before = u128_of(&env.ledger(&env.printer).await?["float_free"]);
+    let t2 = u64_of(&ok(open("filament_spool").await?)?.json::<Value>()?);
+    ok(env
+        .call(
+            &env.alice,
+            &env.printer,
+            "claim_task",
+            json!({"task_id": t2.to_string()}),
+        )
+        .await?)?;
+    ok(submit(t2, N, Some(HASH2)).await?)?;
+    ok(env
+        .call(
+            &env.verifier,
+            &env.printer,
+            "approve_task",
+            json!({"task_id": t2.to_string()}),
+        )
+        .await?)?;
+    let task = env.task(&env.printer, t2).await?;
+    assert_eq!(task["expense_state"], "NeedsEscalation");
+    assert_eq!(task["status"], "Rewarded");
+    let l = env.ledger(&env.printer).await?;
+    assert_eq!(u128_of(&l["float_free"]), float_before);
     assert_eq!(u128_of(&l["total_reimbursed"]), 9 * N / 20);
     env.assert_invariant(&env.printer).await
 }
@@ -1114,6 +1264,7 @@ async fn inv_restock_expense_capped_and_not_from_deposits() -> Result<()> {
 #[tokio::test]
 async fn inv_out_of_service_blocks_access_and_refunds() -> Result<()> {
     let env = Env::new().await?;
+    let (_, ids) = earn_printer_rights(&env).await?;
     // the current slot (already started: normally neither cancellable nor fee-refundable)
     let slot_ns = env.slot_ns(&env.printer).await?;
     let now = env.now().await?;
@@ -1127,6 +1278,11 @@ async fn inv_out_of_service_blocks_access_and_refunds() -> Result<()> {
             .await?,
     )
     .await?;
+    let with_right = reservation_id(
+        env.reserve(&env.printer, &env.alice, start + 4, 1, Some(&ids[0]))
+            .await?,
+    )
+    .await?;
     let before = env.balance(env.alice.id()).await?;
     ok(env
         .call(
@@ -1136,13 +1292,12 @@ async fn inv_out_of_service_blocks_access_and_refunds() -> Result<()> {
             json!({"out": true, "reason_hash": HASH}),
         )
         .await?)?;
-    let s2 = env.now_slot(&env.printer).await? + 4;
+    let s2 = env.now_slot(&env.printer).await? + 6;
     fails_with(
         &env.reserve(&env.printer, &env.bob, s2, 1, None).await?,
         "E_OUT_OF_SERVICE",
     );
-    env.advance_to(start * env.slot_ns(&env.printer).await? + 1)
-        .await?;
+    env.advance_to(start * slot_ns + 1).await?;
     let access = env
         .view(
             &env.printer,
@@ -1171,16 +1326,26 @@ async fn inv_out_of_service_blocks_access_and_refunds() -> Result<()> {
             json!({"id": id.to_string()}),
         )
         .await?)?;
-    assert_eq!(
-        events(&r, "reservation_cancelled")[0]["reason"],
-        "out_of_service"
-    );
     let c = &events(&r, "reservation_cancelled")[0];
+    assert_eq!(c["reason"], "out_of_service");
     assert_eq!(c["fee_refunded"], (N / 2).to_string());
     assert_eq!(c["deposit_refunded"], (2 * N).to_string());
     let got = env.balance(env.alice.id()).await? + GAS_SLACK - before;
     assert!(got >= N / 2 + 2 * N, "fee + deposit refunded: {got}");
-    // only council/DAO (or a rewarded repair) restore service
+    // a booking made with a right gives the right back (Active, not consumed)
+    ok(env
+        .call(
+            &env.alice,
+            &env.printer,
+            "cancel_reservation",
+            json!({"id": with_right.to_string()}),
+        )
+        .await?)?;
+    let card = env
+        .view(&env.commons, "get_card", json!({"token_id": ids[0]}))
+        .await?;
+    assert_eq!(card["kind"]["status"]["state"], "Active");
+    // only council/DAO or a rewarded Repair restore service; a rewarded non-Repair does not
     fails_with(
         &env.call(
             &env.steward,
@@ -1191,20 +1356,81 @@ async fn inv_out_of_service_blocks_access_and_refunds() -> Result<()> {
         .await?,
         "E_MISSING_ROLE",
     );
+    env.telemetry(&env.printer, json!([["jobs_total", 51]]))
+        .await?;
+    let t = env
+        .submitted_task(&env.printer, "bed_level", &env.bob, None)
+        .await?;
+    env.pass_test(&env.printer, t).await?;
     ok(env
         .call(
-            &env.council[0],
+            &env.verifier,
             &env.printer,
-            "set_out_of_service",
-            json!({"out": false, "reason_hash": HASH}),
+            "approve_task",
+            json!({"task_id": t.to_string()}),
         )
         .await?)?;
+    assert_eq!(env.task(&env.printer, t).await?["status"], "Rewarded");
+    let svc = env
+        .view(&env.printer, "get_service_status", json!({}))
+        .await?;
+    assert_eq!(
+        svc["in_service"], false,
+        "a non-Repair reward does not restore service"
+    );
+    let repair = u64_of(&ok(env
+        .call(&env.council[0], &env.printer, "open_upkeep_task",
+              json!({"rule_id": "fault_repair", "rationale": "laser head misaligned", "manual": true}))
+        .await?)?
+    .json::<Value>()?);
+    ok(env
+        .call(
+            &env.bob,
+            &env.printer,
+            "claim_task",
+            json!({"task_id": repair.to_string()}),
+        )
+        .await?)?;
+    ok(env
+        .call(
+            &env.bob,
+            &env.printer,
+            "submit_task",
+            json!({"task_id": repair.to_string(), "evidence_hash": HASH}),
+        )
+        .await?)?;
+    env.pass_test(&env.printer, repair).await?;
+    ok(env
+        .call(
+            &env.verifier,
+            &env.printer,
+            "approve_task",
+            json!({"task_id": repair.to_string()}),
+        )
+        .await?)?;
+    assert_eq!(env.task(&env.printer, repair).await?["status"], "Rewarded");
+    let svc = env
+        .view(&env.printer, "get_service_status", json!({}))
+        .await?;
+    assert_eq!(svc["in_service"], true);
+    let log = env.view(&env.printer, "get_service_log", json!({})).await?;
+    assert_eq!(log[0]["started_by"], env.steward.id().as_str());
+    assert_eq!(
+        log[0]["ended_by"]["RepairRewarded"]["task_id"],
+        repair.to_string()
+    );
     env.assert_invariant(&env.printer).await
 }
 
 #[tokio::test]
+/// The 14-day expiry of fault-report eligibility is covered at unit level only
+/// (`service::inv_fault_report_requires_recent_session`): fast-forwarding 14 days is not
+/// practical in the sandbox.
 async fn inv_fault_report_requires_recent_session() -> Result<()> {
-    let env = Env::new().await?;
+    let env = Env::with(EnvOptions {
+        tweak: repair_needs_two_reports,
+    })
+    .await?;
     let report = |who| {
         env.call(
             who,
@@ -1213,7 +1439,6 @@ async fn inv_fault_report_requires_recent_session() -> Result<()> {
             json!({"rule_id": null, "note_hash": HASH}),
         )
     };
-    fails_with(&report(&env.bob).await?, "E_NO_RECENT_SESSION");
     let open = || {
         env.call(
             &env.agent,
@@ -1222,41 +1447,98 @@ async fn inv_fault_report_requires_recent_session() -> Result<()> {
             json!({"rule_id": "fault_repair", "rationale": "reported"}),
         )
     };
+    fails_with(&report(&env.bob).await?, "E_NO_RECENT_SESSION");
+    fails_with(&report(&env.agent).await?, "E_UNAUTHORIZED");
+    fails_with(&report(&env.bridge).await?, "E_UNAUTHORIZED");
     fails_with(&open().await?, "E_RULE_NOT_DUE");
     env.session(&env.printer, &env.bob, json!([])).await?;
     ok(report(&env.bob).await?)?;
     fails_with(&report(&env.bob).await?, "E_ALREADY_REPORTED");
+    fails_with(&open().await?, "E_RULE_NOT_DUE"); // 1 of 2 distinct reporters
+    env.session(&env.printer, &env.carol, json!([])).await?;
+    ok(report(&env.carol).await?)?;
     let faults = env.view(&env.printer, "get_faults", json!({})).await?;
-    assert_eq!(faults[0]["reports"].as_array().unwrap().len(), 1);
-    ok(open().await?)?;
+    assert_eq!(faults[0]["reports"].as_array().unwrap().len(), 2);
+    let t = u64_of(&ok(open().await?)?.json::<Value>()?);
+    ok(env
+        .call(
+            &env.steward,
+            &env.printer,
+            "claim_task",
+            json!({"task_id": t.to_string()}),
+        )
+        .await?)?;
+    ok(env
+        .call(
+            &env.steward,
+            &env.printer,
+            "submit_task",
+            json!({"task_id": t.to_string(), "evidence_hash": HASH}),
+        )
+        .await?)?;
+    env.pass_test(&env.printer, t).await?;
+    ok(env
+        .call(
+            &env.verifier,
+            &env.printer,
+            "approve_task",
+            json!({"task_id": t.to_string()}),
+        )
+        .await?)?;
+    assert_eq!(env.task(&env.printer, t).await?["status"], "Rewarded");
+    let faults = env.view(&env.printer, "get_faults", json!({})).await?;
+    assert!(
+        faults[0]["reports"].as_array().unwrap().is_empty(),
+        "reports cleared on reward"
+    );
+    let rep = env
+        .view(
+            &env.printer,
+            "get_reputation",
+            json!({"account": env.bob.id()}),
+        )
+        .await?;
+    assert_eq!(rep["fault_reports"], 1);
+    fails_with(&open().await?, "E_RULE_NOT_DUE");
     Ok(())
 }
 
 /// The laser's `monthly_safety_check` (720 h) is shortened to 1 h for the sandbox via
 /// `EnvOptions::tweak`, so the test fast-forwards one hour instead of a month.
 #[tokio::test]
+/// The laser's `monthly_safety_check` (720 h) is shortened to 1 h for the sandbox via
+/// `EnvOptions::tweak`, so the test fast-forwards one hour instead of a month.
 async fn inv_schedule_rule_due_only_after_interval() -> Result<()> {
     let env = Env::with(EnvOptions {
-        tweak: |file, p| {
-            if file == "laser_cutter" {
-                for r in p["rules"].as_array_mut().unwrap() {
-                    if r["rule_id"] == "monthly_safety_check" {
-                        r["trigger"] = json!({"Schedule": {"every_hours": 1}});
-                    }
-                }
-            }
-        },
+        tweak: hourly_safety_check,
     })
     .await?;
-    let status = env.view(&env.laser, "get_rule_status", json!({})).await?;
-    let row = status
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|r| r["rule_id"] == "monthly_safety_check")
-        .unwrap()
-        .clone();
-    let due_at = u64_of(&row["next_due_estimate"]);
+    // due one interval after `new` (the default baseline)
+    let r0 = safety_check_row(&env).await?;
+    let created = u64_of(&r0["baseline"]);
+    let now = env.now().await?;
+    assert!(
+        created <= now && now - created < 600_000_000_000,
+        "baseline = new() time"
+    );
+    let due_at = u64_of(&r0["next_due_estimate"]);
+    assert_eq!(due_at, created + 3_600_000_000_000);
+    assert_eq!(r0["due"], false);
+    // a council member may bypass the due check; it is recorded on the task
+    let m = u64_of(
+        &ok(env
+            .call(
+                &env.council[0],
+                &env.laser,
+                "open_upkeep_task",
+                json!({"rule_id": "lens_clean", "rationale": "visible residue", "manual": true}),
+            )
+            .await?)?
+        .json::<Value>()?,
+    );
+    let manual = env.task(&env.laser, m).await?;
+    assert_eq!(manual["manual"], true);
+    assert_eq!(manual["opened_by"], env.council[0].id().as_str());
     let open = || {
         env.call(
             &env.agent,
@@ -1271,5 +1553,110 @@ async fn inv_schedule_rule_due_only_after_interval() -> Result<()> {
     env.advance_to(due_at).await?;
     let t = u64_of(&ok(open().await?)?.json::<Value>()?);
     assert_eq!(env.task(&env.laser, t).await?["due_value_at_open"], 1);
+    // the reward restarts the interval at reward time
+    ok(env
+        .call(
+            &env.alice,
+            &env.laser,
+            "claim_task",
+            json!({"task_id": t.to_string()}),
+        )
+        .await?)?;
+    ok(env
+        .call(
+            &env.alice,
+            &env.laser,
+            "submit_task",
+            json!({"task_id": t.to_string(), "evidence_hash": HASH}),
+        )
+        .await?)?;
+    env.pass_test(&env.laser, t).await?;
+    let before = env.now().await?;
+    ok(env
+        .call(
+            &env.verifier,
+            &env.laser,
+            "approve_task",
+            json!({"task_id": t.to_string()}),
+        )
+        .await?)?;
+    let after = env.now().await?;
+    assert_eq!(env.task(&env.laser, t).await?["status"], "Rewarded");
+    let r1 = safety_check_row(&env).await?;
+    let baseline = u64_of(&r1["baseline"]);
+    assert!(
+        baseline >= before && baseline <= after,
+        "baseline = reward time"
+    );
+    assert_eq!(
+        u64_of(&r1["next_due_estimate"]),
+        baseline + 3_600_000_000_000
+    );
+    assert_eq!(r1["due"], false);
+    fails_with(&open().await?, "E_RULE_NOT_DUE");
     Ok(())
+}
+
+// ---- profile tweaks used by single tests (sandbox only) ----
+
+fn set_rule(p: &mut Value, rule: &str, field: &str, value: Value) {
+    for r in p["rules"].as_array_mut().unwrap() {
+        if r["rule_id"] == rule {
+            r[field] = value.clone();
+        }
+    }
+}
+
+/// bed_level pays 0.5 N cash (= auto_reward_cash_cap) so a cash reward can be tested.
+fn bed_level_cash(file: &str, p: &mut Value) {
+    if file == "printer_3d" {
+        set_rule(p, "bed_level", "reward_cash", json!((N / 2).to_string()));
+    }
+}
+
+/// filament_spool may claim up to 2 N, above auto_reward_cash_cap (0.5 N).
+fn spool_up_to_2n(file: &str, p: &mut Value) {
+    if file == "printer_3d" {
+        set_rule(
+            p,
+            "filament_spool",
+            "reimbursable_max",
+            json!((2 * N).to_string()),
+        );
+    }
+}
+
+/// fault_repair needs two distinct reporters.
+fn repair_needs_two_reports(file: &str, p: &mut Value) {
+    if file == "printer_3d" {
+        set_rule(
+            p,
+            "fault_repair",
+            "trigger",
+            json!({"Report": {"min_reports": 2}}),
+        );
+    }
+}
+
+/// monthly_safety_check every hour instead of every 720 h (sandbox fast-forward cost).
+fn hourly_safety_check(file: &str, p: &mut Value) {
+    if file == "laser_cutter" {
+        set_rule(
+            p,
+            "monthly_safety_check",
+            "trigger",
+            json!({"Schedule": {"every_hours": 1}}),
+        );
+    }
+}
+
+async fn safety_check_row(env: &Env) -> Result<Value> {
+    let status = env.view(&env.laser, "get_rule_status", json!({})).await?;
+    Ok(status
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|r| r["rule_id"] == "monthly_safety_check")
+        .unwrap()
+        .clone())
 }

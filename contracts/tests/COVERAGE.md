@@ -4,7 +4,7 @@ TEST_PLAN §3. One section per contract; each engineer edits only their own sect
 
 ## commons (unit: `cargo test -p commonkit-commons`, file `contracts/commons/src/tests/<area>.rs`)
 
-Sandbox tests (M1c) are not written yet; `inv_*` names below are the unit-level versions.
+`inv_*` names in this table are the commons unit-level versions; the sandbox versions (exact TEST_PLAN §2 names) are in `contracts/tests/tests/invariants.rs` and listed in the table below.
 
 | Method | Unit tests |
 | :--- | :--- |
@@ -61,7 +61,7 @@ Invariants (unit level): `inv_no_retroactive_revocation` (rights), `inv_no_self_
 
 ## asset (unit: `cargo test -p commonkit-asset`, files `contracts/asset/src/tests/<area>.rs`)
 
-Sandbox: `pnpm test:contracts:int` (files `contracts/tests/tests/<file>.rs`, real Sputnik DAO v2). All TEST_PLAN §2 `inv_*` tests are in `invariants.rs`; the four D-017 ones also exist at unit level in `service.rs`. `#[private]` checks are sandbox-only (D-211). `coverage.rs` fails if an ABI method has no row with unit tests.
+Sandbox: `pnpm test:contracts:int` (files `contracts/tests/tests/<file>.rs`, real Sputnik DAO v2). All TEST_PLAN §2 `inv_*` tests are in `invariants.rs`; the four D-017 ones also exist at unit level in `service.rs`. `#[private]` checks are sandbox-only (D-211). The sandbox harness caps every asset's `slot_minutes` at 15 (= the start window) and shortens the laser's 720 h safety check to 1 h in one test, because sandbox fast-forward is slow (D-215). Unit-only (time travel impractical in the sandbox): the 14-day fault-report eligibility expiry, `force_close_session` (end + 1 h grace), lazy 7-day escalation expiry, the stuck-mint retry after 10 min, and `claim_timeout_hours` expiry. `coverage.rs` fails if an ABI method has no row with unit tests or if a listed test does not exist.
 
 | Method | Unit tests | Sandbox tests |
 | :--- | :--- | :--- |

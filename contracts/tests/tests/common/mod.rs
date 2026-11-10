@@ -566,6 +566,13 @@ impl Env {
         if (start + 1) * slot_ns - now < 60_000_000_000 {
             start += 1;
         }
+        // the current slot may already hold someone else's session: take the next one
+        let owner = self
+            .view(asset, "get_slot_owner", json!({"slot": start.to_string()}))
+            .await?;
+        if !owner.is_null() {
+            start += 1;
+        }
         let r = ok(self.reserve(asset, who, start, 1, None).await?)?;
         let id = u64_of(&r.json::<Value>()?);
         self.advance_to(start * slot_ns).await?;
