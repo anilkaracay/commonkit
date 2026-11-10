@@ -1,0 +1,213 @@
+[
+  {
+    "step": 1,
+    "title": "DAO proposal registers printer-01, sets its profile and funds its float",
+    "core": false,
+    "simulated": false,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "3PC2DYqHLS8259wSAkipxtDZh43L37gBRHxYhm5WztvT",
+      "7M8WNZwpjKidbwjmUaVz325m1HTVHHXY5f5aN3RKB1kr",
+      "BnQTJSQMZxFrVFzbHg5bUGzTNNxfHseR8QnPHsGnHogD",
+      "7h4Wk4c9SQNKDXgSK1MH5t76dFeLd9PCd9ikJeAV4L8G",
+      "HBnxKompVkzckacs3GcUEUz2N7y3kTcsfU83dFunvkYL",
+      "GvGnSMRXCGhtxzeYrV8vDZb5tebayjR8gSCxH4fQVLmG",
+      "At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/3PC2DYqHLS8259wSAkipxtDZh43L37gBRHxYhm5WztvT",
+      "https://testnet.nearblocks.io/txns/7M8WNZwpjKidbwjmUaVz325m1HTVHHXY5f5aN3RKB1kr",
+      "https://testnet.nearblocks.io/txns/BnQTJSQMZxFrVFzbHg5bUGzTNNxfHseR8QnPHsGnHogD",
+      "https://testnet.nearblocks.io/txns/7h4Wk4c9SQNKDXgSK1MH5t76dFeLd9PCd9ikJeAV4L8G",
+      "https://testnet.nearblocks.io/txns/HBnxKompVkzckacs3GcUEUz2N7y3kTcsfU83dFunvkYL",
+      "https://testnet.nearblocks.io/txns/GvGnSMRXCGhtxzeYrV8vDZb5tebayjR8gSCxH4fQVLmG",
+      "https://testnet.nearblocks.io/txns/At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA"
+    ],
+    "transactions": [
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#8 register_asset printer-01 in makerlab-fab",
+        "hash": "3PC2DYqHLS8259wSAkipxtDZh43L37gBRHxYhm5WztvT",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#8 register_asset printer-01 in makerlab-fab",
+        "hash": "7M8WNZwpjKidbwjmUaVz325m1HTVHHXY5f5aN3RKB1kr",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#8 register_asset printer-01 in makerlab-fab",
+        "hash": "BnQTJSQMZxFrVFzbHg5bUGzTNNxfHseR8QnPHsGnHogD",
+        "ok": true,
+        "by": "burak.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [
+          "asset_registered",
+          "roles_synced"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "treasury top-up makerlab-ck.sputnikv2.testnet +2.0092 NEAR from the team root (plain transfer, research C10)",
+        "hash": "7h4Wk4c9SQNKDXgSK1MH5t76dFeLd9PCd9ikJeAV4L8G",
+        "ok": true,
+        "by": "commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#9 printer-01 profile (demo override nozzle_clean 1800 s, from the profile's pilot_overrides) + fund_float 2 NEAR",
+        "hash": "HBnxKompVkzckacs3GcUEUz2N7y3kTcsfU83dFunvkYL",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#9 printer-01 profile (demo override nozzle_clean 1800 s, from the profile's pilot_overrides) + fund_float 2 NEAR",
+        "hash": "GvGnSMRXCGhtxzeYrV8vDZb5tebayjR8gSCxH4fQVLmG",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "makerlab-ck.sputnikv2.testnet#9 printer-01 profile (demo override nozzle_clean 1800 s, from the profile's pilot_overrides) + fund_float 2 NEAR",
+        "hash": "At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA",
+        "ok": true,
+        "by": "burak.makerlab.commonkit-sxflo.testnet",
+        "receiver": "makerlab-ck.sputnikv2.testnet",
+        "events": [
+          "profile_updated",
+          "float_funded"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "printer-01 registered and active in its group",
+        "ok": true,
+        "detail": "{\"active\":true,\"group\":\"makerlab-fab\"}"
+      },
+      {
+        "what": "nozzle_clean threshold (demo override, labelled)",
+        "ok": true,
+        "detail": "1800"
+      },
+      {
+        "what": "float funded with 2 NEAR (plus reconciled account slack, D-204) and ≤ cap 3 NEAR",
+        "ok": true,
+        "detail": "float_free 2.0499 NEAR, cap 3 NEAR"
+      },
+      {
+        "what": "ledger invariant holds",
+        "ok": true
+      },
+      {
+        "what": "profile_version advanced by the DAO",
+        "ok": true,
+        "detail": "profile_version 2"
+      },
+      {
+        "what": "commons pushed the community roles to printer-01 (steward present)",
+        "ok": true,
+        "detail": "[\"steward\",\"council\"]"
+      },
+      {
+        "what": "DAO treasury decreased by the float",
+        "ok": true,
+        "detail": "7.6511 NEAR → 5.6511 NEAR"
+      }
+    ],
+    "notes": [],
+    "outputs": {
+      "proposal:register_asset printer-01 in makerlab-fab": "makerlab-ck.sputnikv2.testnet#8",
+      "proposal:printer-01 profile (demo override nozzle_clean 1800 s, from the profile's pilot_overrides) + fund_float 2 NEAR": "makerlab-ck.sputnikv2.testnet#9",
+      "float_after_step1": "2049959398775000000000000"
+    },
+    "timestamp": "2026-11-10T05:13:59.116Z"
+  },
+  {
+    "step": 2,
+    "title": "Ali reserves 2 printer slots and pays fee + refundable deposit",
+    "core": true,
+    "simulated": false,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz"
+    ],
+    "transactions": [
+      {
+        "label": "Ali reserves printer-01 (2 slots from slot 996827; fee 0.5 NEAR + deposit 2 NEAR)",
+        "hash": "3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz",
+        "ok": true,
+        "by": "ali.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "reservation_confirmed"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "reservation Confirmed (commons authorized it in the callback)",
+        "ok": true,
+        "detail": "Confirmed"
+      },
+      {
+        "what": "reservation_confirmed event",
+        "ok": true
+      },
+      {
+        "what": "fee paid = 2 × 0.25 NEAR",
+        "ok": true,
+        "detail": "0.5 NEAR"
+      },
+      {
+        "what": "deposit paid (untrusted member) = 2 NEAR",
+        "ok": true,
+        "detail": "2 NEAR"
+      },
+      {
+        "what": "float_free +fee (fee is revenue)",
+        "ok": true,
+        "detail": "2.0499 NEAR → 2.5499 NEAR"
+      },
+      {
+        "what": "deposits_held +deposit (deposit is a liability, not revenue)",
+        "ok": true,
+        "detail": "2 NEAR"
+      },
+      {
+        "what": "ledger invariant holds",
+        "ok": true
+      }
+    ],
+    "notes": [
+      "printer-01: booked the next slot; its start window opens in 15 min (chain time)"
+    ],
+    "outputs": {
+      "reservation_id": "0",
+      "start_slot": "996827"
+    },
+    "timestamp": "2026-11-10T05:14:18.774Z"
+  }
+]
