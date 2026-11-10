@@ -22,8 +22,8 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 
 | Gate | Content | State |
 | :--- | :--- | :--- |
-| G1 Core live | ◐ contracts + keyless + verify.sh ✅; bridge washer loop + agent on testnet running; hosted app waits on H11 | evidence/verify-2026-11-10.txt |
-| G2 Proof complete | ◐ 21/21 steps ✅, simulate.sh 12/12 ✅, pilot kit ✅, landing 1–13 ✅; plug waits on H2; verifier review pending | evidence/ |
+| G1 Core live | ◐ verifier: pass — contracts, keyless, verify.sh, bridge + agent on testnet proven. **Human-blocked:** hosted app (H11) | evidence/verify-step21.txt |
+| G2 Proof complete | ◐ verifier: pass with fixes (fixes in progress: check [11] on-chain, landing hero override label, minors). Lead-side done: 21/21 steps, simulate 12/12, pilot kit, landing 1–13. **Human-blocked:** plug clips (H2) | evidence/ |
 | G3 Real world | pilot run; plug clips; evidence + consents (or plainly skipped) | ☐ |
 | G4 Feature freeze | after G3 (or G2 if no pilot) | ☐ |
 | G5 Ship-ready | landing 1–13 + quality bar; README final; video; fresh-clone audit | ☐ |
@@ -38,22 +38,21 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | M0 Research + scaffold | ✅ (verifier pending) | docs/RESEARCH_RESULTS.md (C8 contract-as-proposer proven on testnet, D-101); `pnpm validate:profiles` 12/12 ✅ |
 | M1a asset contract | ✅ (verifier: pass with fixes → fixed, D-213) | 279 unit tests (`cargo test -p commonkit-asset`), wasm sha256 24132b0a…ec8e, code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h |
 | M1b commons contract | ✅ (verifier: pass with fixes → fixed) | 120 unit tests, code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn |
-| M1c sandbox + invariants | ✅ all verifier findings fixed, no contract bug found (99545d9) | 37 sandbox tests incl. 20/20 inv_* (467 s); storage measured (D-217: keep 7 NEAR reserve); reproducible build hashes documented, deployed host build kept (D-218) |
+| M1c sandbox + invariants | ✅ all verifier findings fixed, no contract bug found (99545d9) | sandbox suite incl. 20/20 inv_* (exact count from the lead rerun — see latest log entry); storage measured (D-217: keep 7 NEAR reserve); reproducible build hashes documented, deployed host build kept (D-218) |
 | M2 testnet setup | ✅ 4 assets + 2 commons live and keyless | strict `./scripts/verify.sh` exit 0, 48 ✅ (evidence/verify-2026-11-10.txt); delete-key txs in evidence/setup.json (e.g. printer-01 Bf6gbxyT…); D-709 margin repair via DAO transfers |
-| M3 bridge + adapters | ◐ simulator, NEP-413 (full-access only, D-019), signer wiring done; emulators + real adapters in progress | `pnpm --filter @commonkit/bridge test` |
-| M4 agent | ◐ offline ✅ (68 tests); signer wiring in progress | `pnpm --filter @commonkit/agent test` |
-| M5 web skeleton | ✅ on mock data, verifier pending | `pnpm --filter @commonkit/web test` 46 ✅; screenshots web/screenshots |
+| M3 bridge + adapters | ✅ simulator, NEP-413 (full-access only, D-019/D-414), emulators + real adapters (D-413), device:add (D-415), signer | 202 bridge tests; used on testnet in steps 3, 8, 13 and evidence/bridge-washer-loop.json |
+| M4 agent | ✅ on testnet via sdk signer | 76 agent tests; steps 7, 16, 19, 20; evidence/agent-limits.json |
+| M5 web skeleton | ✅ superseded by M7 | |
 | M6 e2e + evidence | ✅ 21/21 on testnet | evidence/steps.json, evidence/verify-step21.txt, evidence/agent-limits.json |
-| M7 web on testnet + hosting | ☐ | |
-| M8 emulators (no hardware, D-022) | ◐ in progress | |
+| M7 web on testnet + hosting | ◐ app under /app on testnet RPC + evidence (71 tests), landing at / (31 tests), `pnpm build:site` ✅; hosting waits on H11 | web/screenshots, landing/screenshots |
+| M8 emulators + simulated e2e + real-world layer (D-022/D-024) | ◐ emulators ✅, simulate.sh 12/12 ✅ (D-420); real plug waits on H2, pilot on H1 | evidence/simulate-all-2026-11-10.txt |
 | M9 README + submission prep | ☐ | |
 
 ## Blockers / questions for the human
 
-- No hardware will be bought (D-022): everything simulated via real adapters + device emulators. Pilot: not planned unless the human asks.
-- GitHub Actions do not start on the private repo: "recent account payments have failed or your spending limit needs to be increased" (account billing). Public repos run free.
-- Before submission the human provides: lead name, email, team size, mainnet payout account, consent; posts on X; makes the repo public.
-- Testnet NEAR: root `commonkit-sxflo.testnet` has 10 NEAR; setup needs more (amount reported by chain-ops in M2).
+- All open human items are in the HUMAN TODO table at the top (H1–H11). Hardware for judges stays optional (D-022); a real plug stand-in (H2) and a real-users manual_qr pilot (H1) are planned (D-024).
+- GitHub Actions do not start on the private repo (account billing, H3); CI runs locally at each gate (D-027, evidence/ci-local/).
+- Testnet NEAR: root ~9.9 NEAR after the 21-step run; pilot funding (10) + pilot-item asset (~9, D-028) need H4.
 
 ## Log
 
