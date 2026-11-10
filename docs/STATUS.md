@@ -23,7 +23,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | Gate | Content | State |
 | :--- | :--- | :--- |
 | G1 Core live | ◐ contracts + keyless + verify.sh ✅; bridge washer loop + agent on testnet running; hosted app waits on H11 | evidence/verify-2026-11-10.txt |
-| G2 Proof complete | 21/21 judge steps with evidence; simulate.sh × 12; pilot kit + runbook; plug onboarded if delivered; landing §1–9 | ☐ |
+| G2 Proof complete | ◐ 21/21 steps ✅, simulate.sh 12/12 ✅, pilot kit ✅, landing 1–13 ✅; plug waits on H2; verifier review pending | evidence/ |
 | G3 Real world | pilot run; plug clips; evidence + consents (or plainly skipped) | ☐ |
 | G4 Feature freeze | after G3 (or G2 if no pilot) | ☐ |
 | G5 Ship-ready | landing 1–13 + quality bar; README final; video; fresh-clone audit | ☐ |
@@ -43,7 +43,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | M3 bridge + adapters | ◐ simulator, NEP-413 (full-access only, D-019), signer wiring done; emulators + real adapters in progress | `pnpm --filter @commonkit/bridge test` |
 | M4 agent | ◐ offline ✅ (68 tests); signer wiring in progress | `pnpm --filter @commonkit/agent test` |
 | M5 web skeleton | ✅ on mock data, verifier pending | `pnpm --filter @commonkit/web test` 46 ✅; screenshots web/screenshots |
-| M6 e2e + evidence | ☐ | |
+| M6 e2e + evidence | ✅ 21/21 on testnet | evidence/steps.json, evidence/verify-step21.txt, evidence/agent-limits.json |
 | M7 web on testnet + hosting | ☐ | |
 | M8 emulators (no hardware, D-022) | ◐ in progress | |
 | M9 README + submission prep | ☐ | |
@@ -58,6 +58,8 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 ## Log
 
 <!-- YYYY-MM-DD HH:MM UTC — what changed, what was verified (tx hashes / test names), what is next -->
+
+- 2026-11-10 ~09:45 UTC — M6 ✅: 21/21 judge steps passed on testnet (evidence/steps.json, EVIDENCE.md; step 21 verify.sh with checks 1–11 exit 0 → evidence/verify-step21.txt; agent limits → evidence/agent-limits.json; demo overrides → evidence/demo-overrides.json). simulate.sh 12/12 on local sandbox (evidence/simulate-all-2026-11-10.txt, D-420). Root ~9.9 NEAR left; pilot funding needs 10 (H4). Next: verifier G1/G2 review, README from evidence, hosting (H11).
 
 - 2026-11-10 ~06:30 UTC — M2 ✅ (6 contract accounts keyless; strict verify.sh 48 ✅, evidence/verify-2026-11-10.txt). Bridge washer loop on testnet (evidence/bridge-washer-loop.json). Judge steps on testnet with evidence (evidence/steps.json): 1, 2, 3, 4, 5, 6, 7, 8, 11, 12 — core steps 2/3 (reserve 3hHS1wra…, session ARRc2y3M…/597JnHej…), 4 (403, no tx by design), 6 (sweep DBTLyXkr…), 7/8 (task AbQSVeSa…, approve Gr7bwqmC…, rights right-3/right-4) passed; 21 runs last. Web on testnet under /app (62 tests), landing 13/13 sections (Lighthouse 100/100/100/100 mobile). Running: remaining judge steps, simulate.sh × 12 (sandbox mode), web review fixes. Blocked on human: H1, H2, H3, H4 (13 NEAR), H10, H11.
 

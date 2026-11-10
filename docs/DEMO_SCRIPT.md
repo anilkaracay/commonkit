@@ -42,7 +42,7 @@ Numbering (D-801): steps 1–17 are unchanged from the earlier 18-step flow. The
 | 11 | Zeynep reserves the laser without credential | Reservation Rejected; full refund | ✓ |
 | 12 | Ayşe proposes training; Mehmet approves | Zeynep gets `laser_safety`; Ayşe gets 1 laser-group right | |
 | 13 | Zeynep reserves laser; access via bridge | The bridge's smart_plug adapter switches the emulated Shelly on; session; switch off (SIMULATED) | |
-| 14 | Ayşe uses printer-earned right on laser (same group) / on washer (other community) | Laser OK; washer `E_RIGHT_WRONG_GROUP` | ✓ (second half) |
+| 14 | Ayşe uses printer-earned right on laser (same group) / on washer (other community) | Laser OK; washer refuses with `E_RIGHT_NOT_ACTIVE` — dorm-b's commons has no such card, rights never cross communities (D-750). The same-commons wrong-group case (`E_RIGHT_WRONG_GROUP`) is shown in step 19 | ✓ (second half) |
 | 15 | `simulate.sh washer` in dorm-b | Full loop on simulated washer; same asset `code_hash` | |
 | 16 | Agent tries: task not due, duplicate task, over quota; agent after revocation | `E_RULE_NOT_DUE`, `E_TASK_ALREADY_OPEN`, `E_QUOTA_EXCEEDED`, `E_NOT_AGENT` | ✓ |
 | 17 | Second reward claim for same task; claimer self-approve; council attempts to revoke a right (no method exists — show `nft_transfer`/any admin path fails) | `E_ALREADY_REWARDED`, `E_SELF_VERIFY`, `E_NON_TRANSFERABLE` / no such method | ✓ |
