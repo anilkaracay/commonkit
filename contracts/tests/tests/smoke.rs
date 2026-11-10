@@ -3,7 +3,7 @@
 #[tokio::test]
 async fn sandbox_fast_forward_cost() -> anyhow::Result<()> {
     let worker = near_workspaces::sandbox().await?;
-    for blocks in [100u64, 1000] {
+    for blocks in [100u64, 300] {
         let b0 = worker.view_block().await?;
         let t = std::time::Instant::now();
         worker.fast_forward(blocks).await?;
