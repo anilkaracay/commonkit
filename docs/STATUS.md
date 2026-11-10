@@ -9,7 +9,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | H1 | Pick pilot item, 4–5 people, place, time | ASAP | Lane E, pilot | open |
 | H2 | Order smart plug (Shelly Gen2/Gen3 or Tasmota); send model + IP when it arrives | ASAP | plug onboarding, video | open |
 | H3 | Fix GitHub billing / Actions spending limit | ASAP | green CI | open |
-| H4 | Send testnet NEAR to `commonkit-sxflo.testnet` (exact amount below) | ASAP | asset deploys, pilot funding | open — **12 NEAR**: 21-step run ~6.3 + pilot funding 10 + pilot-item asset deploy ~8 (7.05 storage + float) = ~24.3 needed vs 18.2 on root → short ~6.1, plus ~6 buffer for retries |
+| H4 | Send testnet NEAR to `commonkit-sxflo.testnet` (exact amount below) | ASAP | asset deploys, pilot funding | open — **13 NEAR** (D-028 adds 1): 21-step run ~6.3 + pilot funding 10 + pilot-item asset deploy ~8 (7.05 storage + float) = ~24.3 needed vs 18.2 on root → short ~6.1, plus ~6 buffer for retries |
 | H5 | Test member flow once with the pilot wallet (NEP-413 sign → bridge) | before pilot | pilot | open |
 | H6 | Provide project name confirmation, lead name, email, team size, mainnet payout account | before G6 | form checklist (kept out of git) | open |
 | H7 | Make repo public (checklist provided) | G6 | public CI, submission | later |
@@ -38,7 +38,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | M0 Research + scaffold | ✅ (verifier pending) | docs/RESEARCH_RESULTS.md (C8 contract-as-proposer proven on testnet, D-101); `pnpm validate:profiles` 12/12 ✅ |
 | M1a asset contract | ✅ (verifier: pass with fixes → fixed, D-213) | 279 unit tests (`cargo test -p commonkit-asset`), wasm sha256 24132b0a…ec8e, code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h |
 | M1b commons contract | ✅ (verifier: pass with fixes → fixed) | 120 unit tests, code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn |
-| M1c sandbox + invariants | ✅ verifier: pass with fixes → priority fixes done (864a222) | 34 sandbox incl. 20/20 inv_*; reproducible build works but differs from deployed host build — deployed code kept, both hashes documented (D-216/D-218) |
+| M1c sandbox + invariants | ✅ all verifier findings fixed, no contract bug found (99545d9) | 37 sandbox tests incl. 20/20 inv_* (467 s); storage measured (D-217: keep 7 NEAR reserve); reproducible build hashes documented, deployed host build kept (D-218) |
 | M2 testnet setup | ✅ 4 assets + 2 commons live and keyless | strict `./scripts/verify.sh` exit 0, 48 ✅ (evidence/verify-2026-11-10.txt); delete-key txs in evidence/setup.json (e.g. printer-01 Bf6gbxyT…); D-709 margin repair via DAO transfers |
 | M3 bridge + adapters | ◐ simulator, NEP-413 (full-access only, D-019), signer wiring done; emulators + real adapters in progress | `pnpm --filter @commonkit/bridge test` |
 | M4 agent | ◐ offline ✅ (68 tests); signer wiring in progress | `pnpm --filter @commonkit/agent test` |

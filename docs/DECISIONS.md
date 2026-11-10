@@ -577,3 +577,8 @@ Decision: D-709's "keep ≥ 0.001 NEAR of slack" applies only before the key-del
 ## D-513 — Web RPC load budget
 2026-11-10 · accepted (after testnet RPC 429s hit the judge-step runs)
 Decision: The web never polls per component. A view cache in the RPC source coalesces identical in-flight calls and keeps results 10 s (single views), 30 s (lists), longer for static views (`get_profile` 60 s, `get_policy` 5 min, `get_dao_list` 10 min); errors are not cached. One page-level cycle (`data/poll.ts`) refreshes the active queries every 30 s and only while the tab is visible. 429/5xx and CORS-less network failures back off exponentially with full jitter (600 ms × 2^n × 0.5–1.5, ≤ 15 s, honouring Retry-After). Unit tests run with `fetch` disabled, so they can never reach the live RPC. Local previews and screenshot runs are started only when needed and stopped right after.
+
+## D-028 — Pilot-item asset gets an 8 NEAR storage reserve
+2026-11-10 · accepted
+Context: D-217 measured ~1 KB per full session; a pilot load of ~100 sessions reaches ~85 % of a 7 NEAR reserve and trips verify.sh's 80 % warning.
+Decision: the pilot-item profile (manual_qr, created once H1 is answered) uses `storage_reserve = 8 NEAR`; the four demo assets keep 7 NEAR. H4 rises by ~1 NEAR.
