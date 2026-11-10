@@ -11,24 +11,31 @@ import type { AccountId, U128, U64 } from './types';
 
 export type MemberKind = 'team' | 'pilot' | 'demo-bot';
 
+/** Keyless state from deployments/testnet.json: `pending` until the full-access key is deleted. */
+export type Keyless = boolean | 'pending';
+
 export interface DeployedAsset {
   asset_id: AccountId;
   alias: string; // "printer-01"
   community: string; // community slug
   profile_file: string; // "printer_3d.json"
-  simulated: boolean; // adapter === "simulator"
-  keyless: true;
+  group_id: string;
+  /** D-022: every testnet asset is a simulation (emulated device or simulator). */
+  simulated: boolean;
+  keyless: Keyless;
   code_hash: string;
+  deploy_tx: string | null;
 }
 
 export interface DeployedCommunity {
   slug: string; // "makerlab"
   name: string;
   dao_id: AccountId;
+  dao_council: AccountId[];
   commons_id: AccountId;
   commons_code_hash: string;
-  agent_id: AccountId;
-  bridge_id: AccountId;
+  agent_id: AccountId | null;
+  bridge_id: AccountId | null;
   simulated: boolean;
 }
 
@@ -36,21 +43,29 @@ export interface DeployedMember {
   account_id: AccountId;
   display_name: string;
   kind: MemberKind;
-  community: string;
+  role: string;
+  community: string | null;
 }
 
+export interface CodeRecord {
+  code_hash: string;
+  sha256: string;
+  /** "reproducible" | "non-reproducible" */
+  build: string;
+}
+
+/** Normalized view of deployments/testnet.json (see data/deployment.ts). */
 export interface Deployment {
   network: 'testnet';
   root: AccountId;
   sputnik_factory: AccountId;
-  /** sha256 of the reproducible asset.wasm build, as recorded by setup (null if not reproducible). */
-  asset_wasm_sha256: string | null;
-  commons_wasm_sha256: string | null;
+  updated_at: string;
+  code: { asset: CodeRecord; commons: CodeRecord };
   communities: DeployedCommunity[];
   assets: DeployedAsset[];
   members: DeployedMember[];
-  /** Every account that must have an empty access key list. */
-  keyless_accounts: AccountId[];
+  /** Accounts that must end with an empty access key list (`keyless: true | "pending"`). */
+  keyless_accounts: { account_id: AccountId; keyless: Keyless; role: string }[];
 }
 
 /** Non-chain profile `meta` block (docs/PROFILES.md). */
@@ -137,7 +152,7 @@ export interface EvidenceAssertion {
   detail?: string;
 }
 
-/** One entry of evidence/steps.json (TEST_PLAN §5). */
+/** One judge-flow step from evidence/steps.json (TEST_PLAN §5). */
 export interface EvidenceStep {
   step: number;
   title: string;
@@ -145,6 +160,20 @@ export interface EvidenceStep {
   explorerLinks: string[];
   assertions: EvidenceAssertion[];
   timestamp: string; // ISO 8601
+}
+
+/** One transaction recorded by the setup / seed / funding scripts (evidence/{setup,seed,funding}.json). */
+export interface EvidenceTx {
+  at: string;
+  label: string;
+  hash: string;
+  signer: string;
+  receiver: string;
+  ok: boolean;
+  explorer: string;
+  events: string[];
+  /** which evidence file it came from */
+  source?: string;
 }
 
 /** One entry of evidence/agent-limits.json (AGENT_SPEC §5). */

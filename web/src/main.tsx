@@ -7,10 +7,10 @@ import '@fontsource-variable/jetbrains-mono';
 import './styles/index.css';
 import { AppProviders, makeQueryClient } from './App';
 import { routes } from './routes';
-import { createMockSource } from './data/mock/mockSource';
+import { createRpcSource } from './data/rpc/rpcSource';
 
-// M5: the mock source is the only source; M7 swaps in the RPC source built on @commonkit/sdk.
-const source = createMockSource();
+// Testnet views via NEAR RPC + files bundled at build time. The mock source is for tests only.
+const source = createRpcSource({ rpcUrl: import.meta.env.VITE_NEAR_RPC as string | undefined });
 // Routes are written relative to the app root; the basename puts them under /app (D-025).
 const router = createBrowserRouter(routes, { basename: import.meta.env.BASE_URL.replace(/\/$/, '') || '/' });
 

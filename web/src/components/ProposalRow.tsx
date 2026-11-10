@@ -3,11 +3,13 @@ import { formatNear } from '../lib/near';
 import { formatAgo } from '../lib/time';
 import { variantOf } from '../lib/enums';
 import { Pill, type Tone } from './Badges';
-import { Account } from './TxLink';
+import { Account, TxLink } from './TxLink';
+import { useDataSource } from '../data/source';
 
 const tone: Record<string, Tone> = { Approved: 'alive', InProgress: 'due', Rejected: 'danger', Failed: 'danger', Expired: 'muted', Removed: 'muted', Moved: 'muted' };
 
 export function ProposalRow({ proposal: p, daoId, assetIds, nowMs }: { proposal: Proposal; daoId: string; assetIds: string[]; nowMs: number }) {
+  const ds = useDataSource();
   const kind = variantOf(p.kind as Record<string, unknown>);
   const byMachine = assetIds.includes(p.proposer);
   const transfer = 'Transfer' in p.kind ? (p.kind as { Transfer: { amount: string; receiver_id: string } }).Transfer : null;
@@ -31,7 +33,10 @@ export function ProposalRow({ proposal: p, daoId, assetIds, nowMs }: { proposal:
           <span className="sr-only">in {daoId}</span>
         </p>
       </div>
-      <Pill tone={tone[p.status] ?? 'muted'}>{p.status}</Pill>
+      <div className="flex shrink-0 flex-col items-end gap-1">
+        <Pill tone={tone[p.status] ?? 'muted'}>{p.status}</Pill>
+        <TxLink hash={ds.rowTx(`proposal-${daoId}-${p.id}`)} />
+      </div>
     </li>
   );
 }

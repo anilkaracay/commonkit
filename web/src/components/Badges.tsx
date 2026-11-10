@@ -56,3 +56,20 @@ export function MockBanner() {
     </div>
   );
 }
+
+/** D-022: printer/laser run real adapters against emulated devices; washer/fridge use the simulator. */
+export function DeviceBadge({ adapter }: { adapter: string }) {
+  const sim = adapter === 'simulator';
+  return (
+    <span
+      className="inline-flex items-center rounded-full border border-dashed border-sim px-2 py-0.5 font-mono text-[10px] font-semibold tracking-[0.06em] text-sim uppercase"
+      title={sim ? 'Telemetry from a simulator scenario file' : `Real ${adapter} adapter talking to an emulated device (no physical machine)`}
+    >
+      {sim ? 'simulator' : 'emulated device'}
+    </span>
+  );
+}
+
+export function keylessLabel(keyless: boolean | 'pending'): string {
+  return keyless === true ? 'keyless' : keyless === 'pending' ? 'key deletion pending' : 'has keys';
+}

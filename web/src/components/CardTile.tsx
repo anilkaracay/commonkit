@@ -8,25 +8,25 @@ import { NonTransferableBadge, SimulatedBadge } from './Badges';
  * non-transferable mark, status stamp. Consumed rights stay visible: earned history is kept.
  */
 export function CardTile({ card, simulated = false, communityName }: { card: Card; simulated?: boolean; communityName?: string }) {
-  const isRight = 'UsageRight' in card.kind;
-  const right = 'UsageRight' in card.kind ? card.kind.UsageRight : null;
-  const cred = 'Credential' in card.kind ? card.kind.Credential : null;
-  const status = right ? rightStatusLabel(right.status) : cred?.suspended ? 'Suspended' : 'Valid';
-  const faded = status === 'Consumed' || status === 'Suspended';
+  const isRight = card.kind.type === 'UsageRight';
+  const right = card.kind.type === 'UsageRight' ? card.kind : null;
+  const cred = card.kind.type === 'Credential' ? card.kind : null;
+  const status = card.expired ? 'Expired' : right ? rightStatusLabel(right.status) : cred?.suspended ? 'Suspended' : 'Valid';
+  const faded = status === 'Consumed' || status === 'Suspended' || status === 'Expired';
   // The card face is always dark (like a printed token), so its colours are fixed, not themed.
   const accent = isRight ? (simulated ? '#86bde6' : '#7cc79f') : '#f2846c';
 
   let source = '';
   if (right) {
     const s = right.source;
-    source = 'Maintenance' in s ? `earned · task #${s.Maintenance.task_id} on ${shortAccount(s.Maintenance.asset)}` : `earned · training #${s.Training.training_id}`;
+    source = s.type === 'Maintenance' ? `earned · task #${s.task_id} on ${shortAccount(s.asset)}` : `earned · training #${s.training_id}`;
   } else if (cred) {
     source = `issued · training #${cred.issued_by_training}`;
   }
   let statusDetail = '';
-  if (right && typeof right.status !== 'string') {
-    const st = 'Locked' in right.status ? right.status.Locked : right.status.Consumed;
-    statusDetail = `${'Locked' in right.status ? 'locked for' : 'used on'} reservation #${st.reservation_id} · ${shortAccount(st.asset)}`;
+  if (right && right.status.state !== 'Active') {
+    const st = right.status;
+    statusDetail = `${st.state === 'Locked' ? 'locked for' : 'used on'} reservation #${st.reservation_id} · ${shortAccount(st.asset)}`;
   }
 
   return (

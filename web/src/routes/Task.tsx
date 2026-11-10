@@ -20,7 +20,7 @@ import { NotFoundPage } from './NotFound';
 
 function expenseLabel(e: ExpenseState): string {
   if (typeof e !== 'string') return `escalated to the DAO (#${e.Escalated.escalation_id})`;
-  return { None: 'awaiting approval', Reserved: 'reserved from float', NeedsEscalation: 'needs a DAO proposal', Paid: 'paid' }[e];
+  return { None: 'awaiting approval', Reserved: 'reserved from float', NeedsEscalation: 'needs a DAO proposal', Paid: 'paid', Denied: 'denied' }[e];
 }
 
 async function sha256Hex(file: File): Promise<string> {

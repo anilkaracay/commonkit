@@ -50,7 +50,26 @@ export function useAssetSnapshot(assetId: AccountId | undefined) {
   });
 }
 
-/** Every deployed asset with its snapshot (board, agent feed, proof). */
+/** The lighter snapshot the board, approvals and agent feed need (8 views instead of 16). */
+export async function loadBoardSnapshot(ds: DataSource, assetId: AccountId) {
+  const a = ds.asset(assetId);
+  const [profile, wiring, ledger, rules, tasks, reservations, escalations, service, meta, account] = await Promise.all([
+    a.get_profile(),
+    a.get_wiring(),
+    a.get_ledger(),
+    a.get_rule_status(),
+    a.get_tasks(0, PAGE),
+    a.get_reservations(0, PAGE),
+    a.get_escalations(0, PAGE),
+    a.get_service_status(),
+    ds.getProfileMeta(assetId),
+    ds.viewAccount(assetId),
+  ]);
+  return { assetId, profile, wiring, ledger, rules, tasks, reservations, escalations, service, meta, account };
+}
+export type BoardSnapshot = Awaited<ReturnType<typeof loadBoardSnapshot>>;
+
+/** Every deployed asset with its board snapshot (board, approvals, agent feed). */
 export function useAllAssets() {
   const ds = useDataSource();
   const dep = useDeployment();
@@ -59,7 +78,7 @@ export function useAllAssets() {
     enabled: !!dep.data,
     queryFn: async () => {
       const list = (dep.data as NonNullable<typeof dep.data>).assets;
-      const snaps = await Promise.all(list.map((d) => loadAssetSnapshot(ds, d.asset_id)));
+      const snaps = await Promise.all(list.map((d) => loadBoardSnapshot(ds, d.asset_id)));
       return snaps.map((snap, i) => ({ deployed: list[i] as DeployedAsset, snap }));
     },
     refetchInterval: ds.kind === 'rpc' ? POLL_MS : false,

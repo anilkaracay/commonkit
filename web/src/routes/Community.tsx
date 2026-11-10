@@ -24,7 +24,7 @@ export function CommunityPage() {
   const council = c.policy.roles.find((r) => r.name === 'council');
   const councilMembers = council && typeof council.kind === 'object' && 'Group' in council.kind ? council.kind.Group : [];
   const groups = new Map<string, string[]>();
-  for (const [assetId, entry] of c.assets) groups.set(entry.group_id, [...(groups.get(entry.group_id) ?? []), assetId]);
+  for (const a of c.assets) groups.set(a.group_id, [...(groups.get(a.group_id) ?? []), a.asset_id]);
 
   return (
     <div className="space-y-10">
@@ -100,7 +100,7 @@ export function CommunityPage() {
 
       <Section title="Roles" eyebrow="set only by DAO proposals">
         <ul className="tag divide-y divide-line px-4">
-          {c.roles.map(([account, roles]) => (
+          {c.roles.map(({ account_id: account, roles }) => (
             <li key={account} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
               <Account id={account} />
               <span className="flex flex-wrap gap-1">
@@ -118,7 +118,7 @@ export function CommunityPage() {
       <Section title="Governance" eyebrow="recent Sputnik proposals">
         <ul className="tag divide-y divide-line px-4">
           {[...c.proposals].reverse().map((p) => (
-            <ProposalRow key={p.id} proposal={p} daoId={c.community.dao_id} assetIds={c.assets.map(([id]) => id)} nowMs={ds.now()} />
+            <ProposalRow key={p.id} proposal={p} daoId={c.community.dao_id} assetIds={c.assets.map((a) => a.asset_id)} nowMs={ds.now()} />
           ))}
         </ul>
       </Section>

@@ -37,15 +37,18 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
 
   // 1. keyless
   const keyItems = await Promise.all(
-    dep.keyless_accounts.map(async (id): Promise<ProofItem> => {
+    dep.keyless_accounts.map(async ({ account_id: id, keyless }): Promise<ProofItem> => {
       const keys = await ds.viewAccessKeyList(id);
-      return { label: id, value: keys.length === 0 ? 'no access keys' : `${keys.length} access key(s)`, ok: keys.length === 0, account: id };
+      const value =
+        keys.length === 0 ? 'no access keys' : `${keys.length} access key(s)${keyless === 'pending' ? ' · key deletion pending' : ''}`;
+      return { label: id, value, ok: keys.length === 0, account: id };
     }),
   );
   checks.push({ id: 1, title: 'Asset and commons accounts are keyless', status: statusOf(keyItems), summary: `${keyItems.filter((i) => i.ok).length}/${keyItems.length} accounts have an empty access key list`, items: keyItems });
 
   // 2 & 3. same code hash
-  const hashCheck = async (id: number, title: string, accounts: string[], expected: string | null): Promise<ProofCheck> => {
+  const hashCheck = async (id: number, title: string, accounts: string[], rec: { code_hash: string; build: string }): Promise<ProofCheck> => {
+    const expected = rec.code_hash || null;
     const states = await Promise.all(accounts.map((a) => ds.viewAccount(a)));
     const first = states[0]?.code_hash ?? '';
     const items: ProofItem[] = states.map((s, i) => ({
@@ -59,14 +62,19 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
     let summary = allSame ? `${accounts.length} accounts share code_hash ${first}` : 'code_hash differs between accounts';
     if (allSame && expected === null) {
       status = 'warn';
-      summary += '; no reproducible-build hash recorded, so it is printed but not compared';
-    } else if (allSame && expected !== null) {
-      summary += first === expected ? ' = reproducible build' : ` ≠ reproducible build ${expected}`;
+      summary += '; no build hash recorded, so it is printed but not compared';
+    } else if (allSame && first !== expected) {
+      summary += ` ≠ recorded ${expected}`;
+    } else if (allSame && rec.build !== 'reproducible') {
+      status = 'warn';
+      summary += ' = hash recorded at deployment; the build is not reproducible, so it is not compared with a rebuilt wasm';
+    } else if (allSame) {
+      summary += ' = reproducible build';
     }
     return { id, title, status, summary, items };
   };
-  checks.push(await hashCheck(2, 'All assets run the same code', dep.assets.map((a) => a.asset_id), dep.asset_wasm_sha256));
-  checks.push(await hashCheck(3, 'All commons run the same code', dep.communities.map((c) => c.commons_id), dep.commons_wasm_sha256));
+  checks.push(await hashCheck(2, 'All assets run the same code', dep.assets.map((a) => a.asset_id), dep.code.asset));
+  checks.push(await hashCheck(3, 'All commons run the same code', dep.communities.map((c) => c.commons_id), dep.code.commons));
 
   // 4. DAO created by the factory
   const daoList = new Set(await ds.getDaoList(dep.sputnik_factory));
@@ -124,17 +132,17 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
   const rightsItems: ProofItem[] = [];
   for (const c of dep.communities) {
     const cv = ds.commons(c.commons_id);
-    const tokens = await cv.nft_tokens('0', 1000);
+    const tokens = await cv.nft_tokens(0, 100);
     const owners = [...new Set(tokens.map((t) => t.owner_id))];
     const cards: Card[] = (await Promise.all(owners.map((o) => cv.get_cards_for_owner(o)))).flat();
     const byId = new Map(cards.map((card) => [card.token_id, card]));
     const tasksByAsset = new Map<string, Task[]>(assetData.filter((d) => d.a.community === c.slug).map((d) => [d.a.asset_id, d.tasks]));
     const seen = new Set<string>();
     for (const card of cards) {
-      if (!('UsageRight' in card.kind)) continue;
-      const src = card.kind.UsageRight.source;
-      if (!('Maintenance' in src)) continue;
-      const task = tasksByAsset.get(src.Maintenance.asset)?.find((t) => t.id === src.Maintenance.task_id);
+      if (card.kind.type !== 'UsageRight') continue;
+      const src = card.kind.source;
+      if (src.type !== 'Maintenance') continue;
+      const task = tasksByAsset.get(src.asset)?.find((t) => t.id === src.task_id);
       const ok = !!task && task.status === 'Rewarded' && task.minted_right_ids.includes(card.token_id);
       rightsItems.push({ label: `${c.slug} ${card.token_id}`, value: task ? `task #${task.id} ${task.status}` : 'source task missing', ok });
     }

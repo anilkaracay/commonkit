@@ -4,7 +4,7 @@ import { useAssetSnapshot, useCommunities, useDeployment, useEvidence } from '..
 import { useDataSource } from '../data/source';
 import type { Reservation } from '../data/types';
 import { AssetIcon } from '../components/AssetIcon';
-import { Pill, SimulatedBadge, type Tone } from '../components/Badges';
+import { DeviceBadge, keylessLabel, Pill, SimulatedBadge, type Tone } from '../components/Badges';
 import { KasaBar } from '../components/KasaBar';
 import { KeepersList } from '../components/KeepersList';
 import { UpkeepGauge, RuleBars } from '../components/UpkeepGauge';
@@ -92,7 +92,11 @@ export function AssetPage() {
                 <Pill tone={status.tone}>{status.label}</Pill>
                 {sim && <SimulatedBadge />}
                 {s.profile.required_credential && <Pill tone="danger">needs {s.profile.required_credential}</Pill>}
-                <Pill tone="muted">keyless · {s.profile.adapter}</Pill>
+                <DeviceBadge adapter={s.profile.adapter} />
+                <Pill tone={deployed.keyless === true ? 'alive' : 'due'}>
+                  {keylessLabel(deployed.keyless)} · {s.profile.adapter} adapter
+                </Pill>
+                <TxLink hash={deployed.deploy_tx} label="deploy tx" />
               </div>
               <p className="mt-3 max-w-xl text-sm text-ink-2">{s.meta.scenario_story_en}</p>
             </div>
@@ -150,7 +154,7 @@ export function AssetPage() {
             <KasaBar ledger={s.ledger} floatCap={s.profile.float_cap} />
             <p className={`mt-3 text-xs ${s.ledger.invariant_ok ? 'text-alive' : 'text-danger'}`}>
               {s.ledger.invariant_ok ? 'Balance covers every obligation (invariant_ok).' : 'Ledger invariant is broken.'}{' '}
-              <span className="text-ink-3">balance {formatNear(s.ledger.account_balance)} NEAR incl. {formatNear(s.ledger.storage_reserve)} storage reserve</span>
+              <span className="text-ink-3">balance {formatNear(s.ledger.balance)} NEAR incl. {formatNear(s.ledger.storage_reserve)} storage reserve</span>
             </p>
           </div>
         </Section>

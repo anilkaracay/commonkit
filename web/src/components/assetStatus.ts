@@ -1,4 +1,4 @@
-import type { AssetSnapshot } from '../data/hooks';
+import type { BoardSnapshot } from '../data/hooks';
 import type { Tone } from './Badges';
 
 export interface AssetStatus {
@@ -7,7 +7,7 @@ export interface AssetStatus {
 }
 
 /** Character status for the nameplate, from chain data only. */
-export function assetStatus(snap: AssetSnapshot): AssetStatus {
+export function assetStatus(snap: Pick<BoardSnapshot, 'service' | 'reservations' | 'rules'>): AssetStatus {
   if (!snap.service.in_service) return { label: 'out of service', tone: 'danger' };
   const inSession = snap.reservations.find((r) => r.status === 'InSession');
   const openTask = snap.rules.find((r) => r.open_task !== null);

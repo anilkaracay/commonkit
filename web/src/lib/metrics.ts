@@ -59,19 +59,18 @@ export function ruleProgress(rule: RuleStatus): RuleProgress {
   let threshold: bigint;
   let format: (v: bigint) => string;
   let caption: string;
+  // `due_value` is computed by the contract per trigger: Metric delta, Schedule hours, Report count.
+  used = BigInt(rule.due_value);
   if ('Metric' in t) {
-    used = BigInt(rule.current) - BigInt(rule.baseline);
     threshold = BigInt(t.Metric.threshold);
     const m = t.Metric.metric;
     format = (v) => (m.endsWith('_seconds') ? formatMetric(m, v) : `${formatMetric(m, v)} ${metricLabel(m)}`);
     caption = `${metricLabel(m)} since last upkeep`;
   } else if ('Schedule' in t) {
-    used = BigInt(rule.current);
     threshold = BigInt(t.Schedule.every_hours);
     format = formatHours;
     caption = 'time since last done';
   } else {
-    used = BigInt(rule.current);
     threshold = BigInt(t.Report.min_reports);
     format = (v) => `${v} report${v === 1n ? '' : 's'}`;
     caption = 'active fault reports';

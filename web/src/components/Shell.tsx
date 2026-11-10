@@ -56,6 +56,18 @@ function ThemeToggle() {
   );
 }
 
+/** Where every number on the current route comes from (shown in the footer). */
+export function sourceNote(pathname: string, kind: 'mock' | 'rpc'): string {
+  if (kind === 'mock') return 'Data: MOCK fixtures (tests and design only).';
+  const rpc = 'NEAR testnet RPC views';
+  if (pathname.startsWith('/proof')) return `Data: ${rpc} · deployments/testnet.json · evidence/*.json.`;
+  if (pathname.startsWith('/agent')) return `Data: ${rpc} (tasks, escalations) · evidence/agent-limits.json.`;
+  if (pathname.startsWith('/c/')) return `Data: ${rpc} (commons, Sputnik DAO) · deployments/testnet.json.`;
+  if (pathname.startsWith('/pilot')) return 'Pilot onboarding: static text; your account is read from your wallet.';
+  if (pathname === '/' || pathname === '') return `Data: ${rpc} · deployments/testnet.json · scenario matrix from profiles/*.json in the repo.`;
+  return `Data: ${rpc} · profile text from profiles/*.json · tx links from evidence/*.json.`;
+}
+
 function Frame() {
   const ds = useDataSource();
   const link = useDemoLink();
@@ -101,7 +113,7 @@ function Frame() {
         <div className="mx-auto flex max-w-6xl flex-wrap gap-x-4 gap-y-1 px-4 py-4 text-xs text-ink-3">
           <NavLink to={link('/train')}>Trainings</NavLink>
           <NavLink to={link('/approvals')}>Approvals</NavLink>
-          <span>Reads NEAR testnet without a wallet.</span>
+          <span>{sourceNote(pathname, ds.kind)}</span>
           <span className="ml-auto">
             <ThemeToggle />
           </span>

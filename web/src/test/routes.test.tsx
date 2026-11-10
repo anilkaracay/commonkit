@@ -38,12 +38,13 @@ describe('every route renders with the mock source', () => {
     expect(screen.getByText(/MOCK DATA/)).toBeInTheDocument();
   });
 
-  it('board shows the three demo assets, the washer marked SIMULATED', async () => {
+  it('board shows the demo assets, each marked SIMULATED', async () => {
     renderAt('/');
     const washer = await screen.findByRole('article', { name: 'Dorm washer' });
     expect(within(washer).getByText('SIMULATED')).toBeInTheDocument();
     expect(screen.getByRole('article', { name: 'Prusa MK4' })).toBeInTheDocument();
-    expect(within(screen.getByRole('article', { name: 'CO₂ laser cutter' })).queryByText('SIMULATED')).toBeNull();
+    // D-022: every testnet asset is a simulation, so the laser carries the badge too.
+    expect(within(screen.getByRole('article', { name: 'CO₂ laser cutter' })).getByText('SIMULATED')).toBeInTheDocument();
     expect(screen.getByText('3 accounts · 1 code_hash')).toBeInTheDocument();
   });
 
@@ -70,7 +71,7 @@ describe('every route renders with the mock source', () => {
 
   it('proof page lists every verify.sh check', async () => {
     renderAt('/proof');
-    expect(await screen.findByText(/11 pass/)).toBeInTheDocument();
+    expect(await screen.findByText(/9 pass/)).toBeInTheDocument();
   });
 
   it('task page shows minted cards as non-transferable', async () => {

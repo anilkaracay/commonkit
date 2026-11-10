@@ -6,19 +6,19 @@ export function variantOf(v: string | Record<string, unknown>): string {
 }
 
 export function rightStatusLabel(s: RightStatus): 'Active' | 'Locked' | 'Consumed' {
-  return variantOf(s) as 'Active' | 'Locked' | 'Consumed';
+  return s.state;
 }
 
 export function rewardStateLabel(s: RewardState): string {
   return typeof s === 'string' ? s : `Failed: ${s.Failed.reason}`;
 }
 
-export function isUsageRight(card: Card): card is Card & { kind: Extract<Card['kind'], { UsageRight: unknown }> } {
-  return 'UsageRight' in card.kind;
+export function isUsageRight(card: Card): card is Card & { kind: Extract<Card['kind'], { type: 'UsageRight' }> } {
+  return card.kind.type === 'UsageRight';
 }
 
-export function isCredential(card: Card): card is Card & { kind: Extract<Card['kind'], { Credential: unknown }> } {
-  return 'Credential' in card.kind;
+export function isCredential(card: Card): card is Card & { kind: Extract<Card['kind'], { type: 'Credential' }> } {
+  return card.kind.type === 'Credential';
 }
 
 export function shortAccount(id: string): string {

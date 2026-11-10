@@ -1,8 +1,9 @@
 /**
  * The only door between the UI and data. Every method maps 1:1 to a contract view
- * (CONTRACT_SPEC §3.6 / §5.2), a NEAR RPC query, a Sputnik DAO view, or a shipped
- * evidence/deployment file. `MockSource` implements it for M5; the RPC implementation
- * on top of packages/sdk replaces it in M7 without touching components.
+ * (contracts/{asset,commons}/src/views.rs), a NEAR RPC query, a Sputnik DAO view, or a file bundled at
+ * build time (deployments/testnet.json, evidence/, profiles/). `createRpcSource` (testnet) is
+ * the app's source; `createMockSource` exists for tests only. Pagination args are plain
+ * numbers here; the RPC source sends them in each contract's JSON type (U64 string or u64).
  */
 import { createContext, useContext } from 'react';
 import type {
@@ -11,7 +12,10 @@ import type {
   Card,
   CredentialKindConfig,
   Escalation,
-  AssetEntry,
+  AssetView,
+  CommonsWiring,
+  RoleEntry,
+  SlotInfo,
   LedgerView,
   OutboundOp,
   Profile,
@@ -41,6 +45,7 @@ import type {
   Policy,
   ProfileMeta,
   CatalogEntry,
+  EvidenceTx,
   Proposal,
 } from './offchain';
 
@@ -52,8 +57,7 @@ export interface AssetViews {
   get_reservation(id: U64): Promise<Reservation | null>;
   get_reservations(from_index: number, limit: number): Promise<Reservation[]>;
   get_reservations_by_holder(account: AccountId, from_index: number, limit: number): Promise<Reservation[]>;
-  /** One entry per slot in [from_slot, from_slot + count): the holding reservation id or null. */
-  get_availability(from_slot: U64, count: number): Promise<(U64 | null)[]>;
+  get_availability(from_slot: U64, count: number): Promise<SlotInfo[]>;
   can_access(account: AccountId, reservation_id: U64): Promise<AccessCheck>;
   get_telemetry(): Promise<Telemetry>;
   get_rule_status(): Promise<RuleStatus[]>;
@@ -67,22 +71,25 @@ export interface AssetViews {
   get_reputation(account: AccountId): Promise<Reputation>;
   get_reputation_log(from_index: number, limit: number): Promise<ReputationRecord[]>;
   get_period(): Promise<RewardPeriod>;
+  /** Last session start/finish of `account` (fault-report eligibility, 14 days). */
+  get_last_session_at(account: AccountId): Promise<U64 | null>;
   get_roles(account: AccountId): Promise<Role[]>;
   version(): Promise<string>;
 }
 
 /** Views of one `commons` contract. */
 export interface CommonsViews {
-  get_assets(): Promise<[AccountId, AssetEntry][]>;
+  get_wiring(): Promise<CommonsWiring>;
+  get_assets(): Promise<AssetView[]>;
   get_group(group_id: string): Promise<AccountId[]>;
   get_roles(account: AccountId): Promise<Role[]>;
-  get_all_roles(from_index: number, limit: number): Promise<[AccountId, Role[]][]>;
+  get_all_roles(from_index: number, limit: number): Promise<RoleEntry[]>;
   get_credential_kinds(): Promise<CredentialKindConfig[]>;
   get_trainings(from_index: number, limit: number): Promise<Training[]>;
   has_credential(account: AccountId, kind: string): Promise<boolean>;
   get_cards_for_owner(account: AccountId): Promise<Card[]>;
   /** NEP-171 enumeration (only the fields the app needs). */
-  nft_tokens(from_index: U64, limit: number): Promise<{ token_id: string; owner_id: AccountId }[]>;
+  nft_tokens(from_index: number, limit: number): Promise<{ token_id: string; owner_id: AccountId }[]>;
   version(): Promise<string>;
 }
 
@@ -120,6 +127,8 @@ export interface DataSource {
    * evidence index / explorer. null when unknown — the row then shows no tx link.
    */
   rowTx(key: string): string | null;
+  /** evidence/{setup,seed,funding}.json: every recorded setup transaction. */
+  getTxLog(): Promise<EvidenceTx[]>;
   /** evidence/agent-limits.json */
   getAgentLimits(): Promise<AgentLimitAttempt[]>;
 }

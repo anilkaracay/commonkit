@@ -78,51 +78,42 @@ const ASSET_CODE_HASH = mockHash('AssetCodeHash7Rk2');
 const COMMONS_CODE_HASH = mockHash('CommonsCodeHash3Qm');
 
 // ---------- deployment ----------
+const council = (...ids: string[]) => ids;
+
 export const deployment: Deployment = {
   network: 'testnet',
   root: ROOT,
   sputnik_factory: 'sputnikv2.testnet',
-  asset_wasm_sha256: ASSET_CODE_HASH,
-  commons_wasm_sha256: COMMONS_CODE_HASH,
+  updated_at: '2026-11-12T09:00:00.000Z',
+  code: {
+    asset: { code_hash: ASSET_CODE_HASH, sha256: hex('a5'), build: 'non-reproducible' },
+    commons: { code_hash: COMMONS_CODE_HASH, sha256: hex('c0'), build: 'non-reproducible' },
+  },
   communities: [
-    {
-      slug: 'makerlab',
-      name: 'Makerlab',
-      dao_id: A.makerDao,
-      commons_id: A.makerCommons,
-      commons_code_hash: COMMONS_CODE_HASH,
-      agent_id: A.makerAgent,
-      bridge_id: A.makerBridge,
-      simulated: false,
-    },
-    {
-      slug: 'dorm-b',
-      name: 'Dorm B laundry',
-      dao_id: A.dormDao,
-      commons_id: A.dormCommons,
-      commons_code_hash: COMMONS_CODE_HASH,
-      agent_id: A.dormAgent,
-      bridge_id: A.dormBridge,
-      simulated: true,
-    },
+    { slug: 'makerlab', name: 'Makerlab', dao_id: A.makerDao, dao_council: council(A.mehmet, A.hakan), commons_id: A.makerCommons, commons_code_hash: COMMONS_CODE_HASH, agent_id: A.makerAgent, bridge_id: A.makerBridge, simulated: true },
+    { slug: 'dorm-b', name: 'Dorm B laundry', dao_id: A.dormDao, dao_council: council(A.elif, A.ozan), commons_id: A.dormCommons, commons_code_hash: COMMONS_CODE_HASH, agent_id: A.dormAgent, bridge_id: A.dormBridge, simulated: true },
   ],
   assets: [
-    { asset_id: A.printer, alias: 'printer-01', community: 'makerlab', profile_file: 'printer_3d.json', simulated: false, keyless: true, code_hash: ASSET_CODE_HASH },
-    { asset_id: A.laser, alias: 'laser-01', community: 'makerlab', profile_file: 'laser_cutter.json', simulated: false, keyless: true, code_hash: ASSET_CODE_HASH },
-    { asset_id: A.washer, alias: 'washer-01', community: 'dorm-b', profile_file: 'washer.json', simulated: true, keyless: true, code_hash: ASSET_CODE_HASH },
+    { asset_id: A.printer, alias: 'printer-01', community: 'makerlab', profile_file: 'printer_3d.json', group_id: 'makerlab-fab', simulated: true, keyless: true, code_hash: ASSET_CODE_HASH, deploy_tx: mockHash('DeployPrinter') },
+    { asset_id: A.laser, alias: 'laser-01', community: 'makerlab', profile_file: 'laser_cutter.json', group_id: 'makerlab-fab', simulated: true, keyless: true, code_hash: ASSET_CODE_HASH, deploy_tx: mockHash('DeployLaser') },
+    { asset_id: A.washer, alias: 'washer-01', community: 'dorm-b', profile_file: 'washer.json', group_id: 'dorm-b-laundry', simulated: true, keyless: true, code_hash: ASSET_CODE_HASH, deploy_tx: mockHash('DeployWasher') },
   ],
   members: [
-    { account_id: A.ali, display_name: 'Ali', kind: 'pilot', community: 'makerlab' },
-    { account_id: A.can, display_name: 'Can', kind: 'pilot', community: 'makerlab' },
-    { account_id: A.ayse, display_name: 'Ayşe', kind: 'pilot', community: 'makerlab' },
-    { account_id: A.mehmet, display_name: 'Mehmet', kind: 'team', community: 'makerlab' },
-    { account_id: A.zeynep, display_name: 'Zeynep', kind: 'pilot', community: 'makerlab' },
-    { account_id: A.hakan, display_name: 'Hakan', kind: 'team', community: 'makerlab' },
-    { account_id: A.deniz, display_name: 'Deniz (bot)', kind: 'demo-bot', community: 'dorm-b' },
-    { account_id: A.elif, display_name: 'Elif (bot)', kind: 'demo-bot', community: 'dorm-b' },
-    { account_id: A.ozan, display_name: 'Ozan (bot)', kind: 'demo-bot', community: 'dorm-b' },
+    { account_id: A.ali, display_name: 'Ali', kind: 'pilot', role: 'member', community: 'makerlab' },
+    { account_id: A.can, display_name: 'Can', kind: 'pilot', role: 'member', community: 'makerlab' },
+    { account_id: A.ayse, display_name: 'Ayşe', kind: 'pilot', role: 'member', community: 'makerlab' },
+    { account_id: A.mehmet, display_name: 'Mehmet', kind: 'team', role: 'council', community: 'makerlab' },
+    { account_id: A.zeynep, display_name: 'Zeynep', kind: 'pilot', role: 'member', community: 'makerlab' },
+    { account_id: A.hakan, display_name: 'Hakan', kind: 'team', role: 'council', community: 'makerlab' },
+    { account_id: A.deniz, display_name: 'Deniz (bot)', kind: 'demo-bot', role: 'member', community: 'dorm-b' },
+    { account_id: A.elif, display_name: 'Elif (bot)', kind: 'demo-bot', role: 'council', community: 'dorm-b' },
+    { account_id: A.ozan, display_name: 'Ozan (bot)', kind: 'demo-bot', role: 'council', community: 'dorm-b' },
   ],
-  keyless_accounts: [A.printer, A.laser, A.washer, A.makerCommons, A.dormCommons],
+  keyless_accounts: [A.printer, A.laser, A.washer, A.makerCommons, A.dormCommons].map((account_id) => ({
+    account_id,
+    keyless: true as const,
+    role: account_id.startsWith('commons') ? 'commons' : 'asset',
+  })),
 };
 
 // ---------- profiles ----------
@@ -232,10 +223,56 @@ export const profileMeta: Record<AccountId, ProfileMeta> = {
 };
 
 // ---------- per-asset state ----------
+type TaskInput = Omit<
+  Task,
+  | 'trigger'
+  | 'reimbursable_max'
+  | 'right_max_slots'
+  | 'right_validity_days'
+  | 'requires_verification_test'
+  | 'claim_timeout_hours'
+  | 'metric_value_at_approval'
+  | 'cash_op_id'
+  | 'reimbursement_op_id'
+  | 'reward_started_at'
+>;
+
+function task(p: Profile, t: TaskInput): Task {
+  const r = p.rules.find((x) => x.rule_id === t.rule_id);
+  if (!r) throw new Error(`mock: no rule ${t.rule_id}`);
+  return {
+    ...t,
+    trigger: r.trigger,
+    reimbursable_max: r.reimbursable_max,
+    right_max_slots: p.right_max_slots,
+    right_validity_days: p.right_validity_days,
+    requires_verification_test: r.requires_verification_test,
+    claim_timeout_hours: r.claim_timeout_hours,
+    metric_value_at_approval: null,
+    cash_op_id: null,
+    reimbursement_op_id: null,
+    reward_started_at: null,
+  };
+}
+
 function status(p: Profile, rule_id: string, current: number, baseline: number, due: boolean, open_task: string | null): RuleStatus {
   const r = p.rules.find((x) => x.rule_id === rule_id);
   if (!r) throw new Error(`mock: no rule ${rule_id}`);
-  return { rule_id, kind: r.kind, trigger: r.trigger, current, baseline, due, next_due_estimate: null, open_task };
+  const due_value = 'Metric' in r.trigger ? current - baseline : current;
+  return {
+    rule_id,
+    kind: r.kind,
+    trigger: r.trigger,
+    current: String(current),
+    baseline: String(baseline),
+    due_value: String(due_value),
+    due,
+    next_due_estimate: null,
+    open_task,
+    reward_rights: r.reward_rights,
+    reward_cash: r.reward_cash,
+    reimbursable_max: r.reimbursable_max,
+  };
 }
 
 const inService: ServiceState = { in_service: true, since: t('2026-11-09T12:00:00Z'), reason_hash: null };
@@ -259,26 +296,39 @@ export interface MockAsset {
   roles: Record<AccountId, Role[]>;
 }
 
-const ledger = (l: Partial<LedgerView> & Pick<LedgerView, 'float_free' | 'deposits_held' | 'account_balance'>): LedgerView => ({
+const ledger = (l: Partial<LedgerView> & Pick<LedgerView, 'float_free' | 'deposits_held' | 'balance' | 'float_cap'>): LedgerView => ({
   rewards_reserved: '0',
+  pending_in: '0',
+  protocol_fees_owed: '0',
+  fee_refunds_owed: '0',
   pending_out: '0',
+  bonds_outstanding: '0',
   total_fees_in: '0',
   total_swept: '0',
   total_refunded: '0',
   total_rewards_paid: '0',
+  total_reimbursed: '0',
   total_bonds_paid: '0',
+  total_bonds_returned: '0',
+  total_bonds_lost: '0',
   total_protocol_fees: '0',
   storage_reserve: n('1'),
   storage_usage: '48210',
   storage_byte_cost: '10000000000000000000',
+  storage_cost: '482100000000000000000000',
   invariant_ok: true,
+  storage_ok: true,
   ...l,
 });
 
 const res = (r: Partial<Reservation> & Pick<Reservation, 'id' | 'holder' | 'start_slot' | 'slots' | 'status' | 'created_at'>): Reservation => ({
   fee_paid: '0',
+  protocol_fee: '0',
   deposit_paid: '0',
   right_id: null,
+  right_op_id: null,
+  storage_cost: '0',
+  fee_refund_owed: '0',
   session_started_at: null,
   session_finished_at: null,
   metrics_delta: null,
@@ -298,25 +348,26 @@ const dormRoles: Record<AccountId, Role[]> = {
 
 const printer: MockAsset = {
   profile: printerProfile,
-  wiring: { dao_id: A.makerDao, commons_id: A.makerCommons, bridge_id: A.makerBridge, agent_id: A.makerAgent, profile_version: 1, roles_version: '4' },
+  wiring: { dao_id: A.makerDao, commons_id: A.makerCommons, bridge_id: A.makerBridge, agent_id: A.makerAgent, profile_version: 1, roles_version: '4', telemetry_epoch: '0', dao_proposal_bond: n('0.1'), dao_proposal_period: '3600000000000', open_escalations: 0 },
   // funded 3 · fees 0.5+0.5+0.5+0.25 each swept back to cap · bond 0.1 → float 2.9
   ledger: ledger({
     float_free: n('2.9'),
     deposits_held: n('4'),
-    account_balance: n('7.95'),
+    balance: n('7.95'),
+    float_cap: n('3'),
     total_fees_in: n('1.75'),
     total_swept: n('1.75'),
     total_refunded: n('6'),
     total_bonds_paid: n('0.1'),
   }),
   reservations: [
-    res({ id: '1', holder: A.ali, start_slot: slot('2026-11-10T09:00:00Z', 30), slots: 2, fee_paid: n('0.5'), deposit_paid: n('2'), status: 'Closed', created_at: t('2026-11-10T08:41:00Z'), session_started_at: t('2026-11-10T09:02:00Z'), session_finished_at: t('2026-11-10T09:58:00Z'), metrics_delta: [['nozzle_seconds', '3360'], ['jobs_total', '1']], return_result: 'Clean' }),
+    res({ id: '1', holder: A.ali, start_slot: slot('2026-11-10T09:00:00Z', 30), slots: 2, fee_paid: n('0.5'), deposit_paid: n('2'), status: 'Closed', created_at: t('2026-11-10T08:41:00Z'), session_started_at: t('2026-11-10T09:02:00Z'), session_finished_at: t('2026-11-10T09:58:00Z'), metrics_delta: [['nozzle_seconds', 3360], ['jobs_total', 1]], return_result: 'Clean' }),
     res({ id: '2', holder: A.ali, start_slot: slot('2026-11-10T14:00:00Z', 30), slots: 2, fee_paid: n('0.5'), deposit_paid: n('2'), status: 'Closed', created_at: t('2026-11-10T12:10:00Z'), session_started_at: t('2026-11-10T14:01:00Z'), session_finished_at: t('2026-11-10T14:55:00Z'), return_result: 'Clean' }),
     res({ id: '3', holder: A.ayse, start_slot: slot('2026-11-11T16:00:00Z', 30), slots: 2, deposit_paid: n('2'), right_id: 'right-1', status: 'Closed', created_at: t('2026-11-11T15:20:00Z'), session_started_at: t('2026-11-11T16:03:00Z'), session_finished_at: t('2026-11-11T16:50:00Z'), return_result: 'Clean' }),
     res({ id: '4', holder: A.ali, start_slot: slot('2026-11-12T09:30:00Z', 30), slots: 2, fee_paid: n('0.5'), deposit_paid: n('2'), status: 'InSession', created_at: t('2026-11-12T08:05:00Z'), session_started_at: t('2026-11-12T09:31:00Z') }),
     res({ id: '5', holder: A.zeynep, start_slot: slot('2026-11-12T15:00:00Z', 30), slots: 1, fee_paid: n('0.25'), deposit_paid: n('2'), status: 'Confirmed', created_at: t('2026-11-12T09:12:00Z') }),
   ],
-  telemetry: { metrics: [['nozzle_seconds', '2950'], ['jobs_total', '58'], ['filament_mm', '341500']], updated_at: t('2026-11-12T09:58:00Z'), reports: '41' },
+  telemetry: { metrics: [['nozzle_seconds', 2950], ['jobs_total', 58], ['filament_mm', 341500]], updated_at: t('2026-11-12T09:58:00Z'), reports: '41', epoch: '0', reset_pending: false },
   rules: [
     status(printerProfile, 'nozzle_clean', 2950, 1830, false, null),
     status(printerProfile, 'bed_level', 58, 0, true, '2'),
@@ -326,42 +377,42 @@ const printer: MockAsset = {
   service: inService,
   serviceLog: [],
   tasks: [
-    {
+    task(printerProfile, {
       id: '1', rule_id: 'nozzle_clean', opened_by: A.makerAgent,
       rationale: 'Nozzle time since last cleaning: 30.3 min (threshold 30 min, pilot value). 9 prints since then, 1 failed (11%). Opening "Nozzle cleaning" with reward: 2 usage rights.',
       kind: 'Maintenance', due_value_at_open: 1820, manual: false, expense: '0', receipt_hash: null, expense_state: 'None', reward_rights: 2, reward_cash: '0', needs_council: false, status: 'Rewarded',
       claimer: A.ayse, claimed_at: t('2026-11-11T08:20:00Z'), evidence_hash: hex('3fa9c1'), evidence_uri: null,
       verification: { passed: true, details_hash: hex('b07e'), reported_at: t('2026-11-11T09:05:00Z') },
       verifier: A.mehmet, council_approver: A.hakan, reward_state: 'Done', minted_right_ids: ['right-1', 'right-2'], created_at: t('2026-11-11T08:00:00Z'),
-    },
-    {
+    }),
+    task(printerProfile, {
       id: '2', rule_id: 'bed_level', opened_by: A.makerAgent,
       rationale: 'Jobs since last bed levelling: 58 (threshold 50). Last two prints reported first-layer adhesion warnings. Opening "Bed levelling" with reward: 1 usage right.',
       kind: 'Maintenance', due_value_at_open: 52, manual: false, expense: '0', receipt_hash: null, expense_state: 'None', reward_rights: 1, reward_cash: '0', needs_council: false, status: 'Open',
       claimer: null, claimed_at: null, evidence_hash: null, evidence_uri: null, verification: null,
       verifier: null, council_approver: null, reward_state: 'NotStarted', minted_right_ids: [], created_at: t('2026-11-12T07:40:00Z'),
-    },
-    {
+    }),
+    task(printerProfile, {
       id: '3', rule_id: 'filament_spool', kind: 'Restock', opened_by: A.makerAgent,
       rationale: 'Filament used since the last spool change: 341,500 mm (threshold 330,000 mm). Opening "Replace the filament spool" with reward: 1 usage right; documented cost reimbursable up to 1.5 NEAR.',
       due_value_at_open: 330400, manual: false, reward_rights: 1, reward_cash: '0', needs_council: false, status: 'Submitted',
       claimer: A.ali, claimed_at: t('2026-11-12T06:30:00Z'), evidence_hash: hex('c4f1'), evidence_uri: null,
       expense: n('1.2'), receipt_hash: hex('e7a0'), expense_state: 'None', verification: null,
       verifier: null, council_approver: null, reward_state: 'NotStarted', minted_right_ids: [], created_at: t('2026-11-12T06:00:00Z'),
-    },
+    }),
   ],
   escalations: [
-    { id: '1', requested_by: A.makerAgent, kind: 'purchase', receiver: A.supplier, amount: n('4'), reason: 'Replacement nozzle kit after the first cleaning showed wear (purchase hint nozzle_clean, pilot).', task_id: '1', proposal_id: '7', status: 'Approved', bond_paid: n('0.1') },
+    { id: '1', requested_by: A.makerAgent, kind: 'purchase', receiver: A.supplier, amount: n('4'), reason: 'Replacement nozzle kit after the first cleaning showed wear (purchase hint nozzle_clean, pilot).', task_id: '1', proposal_id: '7', status: 'Approved', bond_paid: n('0.1'), bond_op_id: '8', bond_settled: true, bond_lost: false, submission_time: t('2026-11-11T10:00:00Z'), dao_status: 'Approved', submitted_at: t('2026-11-11T10:00:00Z') },
   ],
   ops: [
-    { id: '1', kind: 'Sweep', to: A.makerDao, amount: n('0.5'), ref_id: null, status: 'Succeeded', attempts: 1 },
-    { id: '2', kind: 'Refund', to: A.ali, amount: n('2'), ref_id: '1', status: 'Succeeded', attempts: 1 },
-    { id: '3', kind: 'Sweep', to: A.makerDao, amount: n('0.5'), ref_id: null, status: 'Succeeded', attempts: 1 },
-    { id: '4', kind: 'Refund', to: A.ali, amount: n('2'), ref_id: '2', status: 'Succeeded', attempts: 1 },
-    { id: '5', kind: 'Refund', to: A.ayse, amount: n('2'), ref_id: '3', status: 'Succeeded', attempts: 1 },
-    { id: '6', kind: 'Sweep', to: A.makerDao, amount: n('0.5'), ref_id: null, status: 'Succeeded', attempts: 1 },
-    { id: '7', kind: 'Sweep', to: A.makerDao, amount: n('0.25'), ref_id: null, status: 'Succeeded', attempts: 1 },
-    { id: '8', kind: 'Bond', to: A.makerDao, amount: n('0.1'), ref_id: '1', status: 'Succeeded', attempts: 1 },
+    { id: '1', kind: 'Sweep', to: A.makerDao, amount: n('0.5'), ref_id: null, status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
+    { id: '2', kind: 'Refund', to: A.ali, amount: n('2'), ref_id: '1', status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
+    { id: '3', kind: 'Sweep', to: A.makerDao, amount: n('0.5'), ref_id: null, status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
+    { id: '4', kind: 'Refund', to: A.ali, amount: n('2'), ref_id: '2', status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
+    { id: '5', kind: 'Refund', to: A.ayse, amount: n('2'), ref_id: '3', status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
+    { id: '6', kind: 'Sweep', to: A.makerDao, amount: n('0.5'), ref_id: null, status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
+    { id: '7', kind: 'Sweep', to: A.makerDao, amount: n('0.25'), ref_id: null, status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
+    { id: '8', kind: 'Bond', to: A.makerDao, amount: n('0.1'), ref_id: '1', status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
   ],
   reputation: {
     [A.ali]: { sessions: 3, clean_returns: 2, damages: 0, upkeeps: 0, fault_reports: 0 },
@@ -376,27 +427,28 @@ const printer: MockAsset = {
     { seq: '6', account: A.ayse, kind: 'session', ref_id: '3', at: t('2026-11-11T16:50:00Z') },
     { seq: '7', account: A.ayse, kind: 'clean_return', ref_id: '3', at: t('2026-11-11T17:00:00Z') },
   ],
-  period: { started_at: t('2026-11-09T12:00:00Z'), rights_minted: 2 },
+  period: { started_at: t('2026-11-09T12:00:00Z'), rights_minted: 2, rights_reserved: 0 },
   roles: makerRoles,
 };
 
 const laser: MockAsset = {
   profile: laserProfile,
-  wiring: { dao_id: A.makerDao, commons_id: A.makerCommons, bridge_id: A.makerBridge, agent_id: A.makerAgent, profile_version: 1, roles_version: '4' },
+  wiring: { dao_id: A.makerDao, commons_id: A.makerCommons, bridge_id: A.makerBridge, agent_id: A.makerAgent, profile_version: 1, roles_version: '4', telemetry_epoch: '0', dao_proposal_bond: n('0.1'), dao_proposal_period: '3600000000000', open_escalations: 0 },
   // funded 1 · fees 0.2 (reservation 2) → float 1.2 · deposits: reservation 3 (Ayşe, right)
   ledger: ledger({
     float_free: n('1.2'),
     deposits_held: n('3'),
-    account_balance: n('5.25'),
+    balance: n('5.25'),
+    float_cap: n('3'),
     total_fees_in: n('0.2'),
     total_refunded: n('6.1'),
   }),
   reservations: [
     res({ id: '1', holder: A.zeynep, start_slot: slot('2026-11-11T10:00:00Z', 15), slots: 1, fee_paid: n('0.1'), deposit_paid: n('3'), status: 'Rejected', created_at: t('2026-11-11T09:30:00Z') }),
-    res({ id: '2', holder: A.zeynep, start_slot: slot('2026-11-11T15:00:00Z', 15), slots: 2, fee_paid: n('0.2'), deposit_paid: n('3'), status: 'Closed', created_at: t('2026-11-11T14:10:00Z'), session_started_at: t('2026-11-11T15:01:00Z'), session_finished_at: t('2026-11-11T15:28:00Z'), metrics_delta: [['run_seconds', '420']], return_result: 'Clean' }),
+    res({ id: '2', holder: A.zeynep, start_slot: slot('2026-11-11T15:00:00Z', 15), slots: 2, fee_paid: n('0.2'), deposit_paid: n('3'), status: 'Closed', created_at: t('2026-11-11T14:10:00Z'), session_started_at: t('2026-11-11T15:01:00Z'), session_finished_at: t('2026-11-11T15:28:00Z'), metrics_delta: [['run_seconds', 420]], return_result: 'Clean' }),
     res({ id: '3', holder: A.ayse, start_slot: slot('2026-11-12T11:00:00Z', 15), slots: 2, deposit_paid: n('3'), right_id: 'right-2', status: 'Confirmed', created_at: t('2026-11-12T09:40:00Z') }),
   ],
-  telemetry: { metrics: [['run_seconds', '420'], ['energy_wh', '312']], updated_at: t('2026-11-11T15:28:00Z'), reports: '6' },
+  telemetry: { metrics: [['run_seconds', 420], ['energy_wh', 312]], updated_at: t('2026-11-11T15:28:00Z'), reports: '6', epoch: '0', reset_pending: false },
   rules: [
     status(laserProfile, 'lens_clean', 420, 0, false, null),
     { ...status(laserProfile, 'safety_check', 47, 0, false, null), next_due_estimate: t('2026-11-17T11:00:00Z') },
@@ -407,35 +459,36 @@ const laser: MockAsset = {
   tasks: [],
   escalations: [],
   ops: [
-    { id: '1', kind: 'Refund', to: A.zeynep, amount: n('3.1'), ref_id: '1', status: 'Succeeded', attempts: 1 },
-    { id: '2', kind: 'Refund', to: A.zeynep, amount: n('3'), ref_id: '2', status: 'Succeeded', attempts: 1 },
+    { id: '1', kind: 'Refund', to: A.zeynep, amount: n('3.1'), ref_id: '1', status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
+    { id: '2', kind: 'Refund', to: A.zeynep, amount: n('3'), ref_id: '2', status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
   ],
   reputation: { [A.zeynep]: { sessions: 1, clean_returns: 1, damages: 0, upkeeps: 0, fault_reports: 0 } },
   reputationLog: [
     { seq: '1', account: A.zeynep, kind: 'session', ref_id: '2', at: t('2026-11-11T15:28:00Z') },
     { seq: '2', account: A.zeynep, kind: 'clean_return', ref_id: '2', at: t('2026-11-11T15:40:00Z') },
   ],
-  period: { started_at: t('2026-11-09T12:00:00Z'), rights_minted: 0 },
+  period: { started_at: t('2026-11-09T12:00:00Z'), rights_minted: 0, rights_reserved: 0 },
   roles: makerRoles,
 };
 
 const washer: MockAsset = {
   profile: washerProfile,
-  wiring: { dao_id: A.dormDao, commons_id: A.dormCommons, bridge_id: A.dormBridge, agent_id: A.dormAgent, profile_version: 1, roles_version: '2' },
+  wiring: { dao_id: A.dormDao, commons_id: A.dormCommons, bridge_id: A.dormBridge, agent_id: A.dormAgent, profile_version: 1, roles_version: '2', telemetry_epoch: '0', dao_proposal_bond: n('0.1'), dao_proposal_period: '3600000000000', open_escalations: 0 },
   // funded 0.5 · 41 simulated cycles × 0.2 = 8.2 fees · float 0.8 → swept 7.9
   ledger: ledger({
     float_free: n('0.8'),
     deposits_held: '0',
-    account_balance: n('1.85'),
+    balance: n('1.85'),
+    float_cap: n('1'),
     total_fees_in: n('8.2'),
     total_swept: n('7.9'),
   }),
   reservations: [
-    res({ id: '40', holder: A.deniz, start_slot: slot('2026-11-12T07:00:00Z', 60), slots: 1, fee_paid: n('0.2'), status: 'Closed', created_at: t('2026-11-12T06:30:00Z'), session_started_at: t('2026-11-12T07:00:00Z'), session_finished_at: t('2026-11-12T07:52:00Z'), metrics_delta: [['cycles', '1']], return_result: 'Clean' }),
-    res({ id: '41', holder: A.ozan, start_slot: slot('2026-11-12T06:00:00Z', 60), slots: 1, fee_paid: n('0.2'), status: 'Closed', created_at: t('2026-11-12T05:40:00Z'), session_started_at: t('2026-11-12T06:01:00Z'), session_finished_at: t('2026-11-12T06:50:00Z'), metrics_delta: [['cycles', '1']], return_result: 'Clean' }),
+    res({ id: '40', holder: A.deniz, start_slot: slot('2026-11-12T07:00:00Z', 60), slots: 1, fee_paid: n('0.2'), status: 'Closed', created_at: t('2026-11-12T06:30:00Z'), session_started_at: t('2026-11-12T07:00:00Z'), session_finished_at: t('2026-11-12T07:52:00Z'), metrics_delta: [['cycles', 1]], return_result: 'Clean' }),
+    res({ id: '41', holder: A.ozan, start_slot: slot('2026-11-12T06:00:00Z', 60), slots: 1, fee_paid: n('0.2'), status: 'Closed', created_at: t('2026-11-12T05:40:00Z'), session_started_at: t('2026-11-12T06:01:00Z'), session_finished_at: t('2026-11-12T06:50:00Z'), metrics_delta: [['cycles', 1]], return_result: 'Clean' }),
     res({ id: '42', holder: A.deniz, start_slot: slot('2026-11-12T18:00:00Z', 60), slots: 1, fee_paid: n('0.2'), status: 'Confirmed', created_at: t('2026-11-12T07:30:00Z') }),
   ],
-  telemetry: { metrics: [['cycles', '41'], ['energy_wh', '30750']], updated_at: t('2026-11-12T09:55:00Z'), reports: '82' },
+  telemetry: { metrics: [['cycles', 41], ['energy_wh', 30750]], updated_at: t('2026-11-12T09:55:00Z'), reports: '82', epoch: '0', reset_pending: false },
   rules: [
     status(washerProfile, 'filter_clean', 41, 31, false, null),
     status(washerProfile, 'descale', 41, 0, false, null),
@@ -445,32 +498,32 @@ const washer: MockAsset = {
     {
       rule_id: 'fault_repair',
       reports: [
-        { reporter: A.ozan, note_hash: hex('0a1b'), at: t('2026-11-12T07:58:00Z') },
-        { reporter: A.deniz, note_hash: hex('2c3d'), at: t('2026-11-12T08:05:00Z') },
+        { seq: '1', reporter: A.ozan, note_hash: hex('0a1b'), at: t('2026-11-12T07:58:00Z') },
+        { seq: '2', reporter: A.deniz, note_hash: hex('2c3d'), at: t('2026-11-12T08:05:00Z') },
       ],
     },
   ],
   service: { in_service: false, since: t('2026-11-12T08:15:00Z'), reason_hash: hex('5e6f') },
   serviceLog: [{ seq: '1', started_at: t('2026-11-12T08:15:00Z'), started_by: A.elif, reason_hash: hex('5e6f'), ended_at: null, ended_by: null }],
   tasks: [
-    {
+    task(washerProfile, {
       id: '1', rule_id: 'filter_clean', opened_by: A.dormAgent,
       rationale: 'Cycles since last filter cleaning: 30 (threshold 30). Simulated scenario washer.yaml. Opening "Filter cleaning" with reward: 3 usage rights.',
       kind: 'Cleaning', due_value_at_open: 30, manual: false, expense: '0', receipt_hash: null, expense_state: 'None', reward_rights: 3, reward_cash: '0', needs_council: false, status: 'Rewarded',
       claimer: A.deniz, claimed_at: t('2026-11-11T19:10:00Z'), evidence_hash: hex('9d2e'), evidence_uri: null, verification: null,
       verifier: A.elif, council_approver: null, reward_state: 'Done', minted_right_ids: ['right-1', 'right-2', 'right-3'], created_at: t('2026-11-11T19:00:00Z'),
-    },
-    {
+    }),
+    task(washerProfile, {
       id: '2', rule_id: 'fault_repair', kind: 'Repair', opened_by: A.dormAgent,
       rationale: 'Active fault reports: 2 from 2 recent users (threshold 2). The washer was taken out of service by a steward. Opening "Fix the reported fault" with reward: 4 usage rights; parts reimbursable up to 2 NEAR. Simulated scenario.',
       due_value_at_open: 2, manual: false, reward_rights: 4, reward_cash: '0', needs_council: false, status: 'Open',
       claimer: null, claimed_at: null, evidence_hash: null, evidence_uri: null, expense: '0', receipt_hash: null, expense_state: 'None', verification: null,
       verifier: null, council_approver: null, reward_state: 'NotStarted', minted_right_ids: [], created_at: t('2026-11-12T08:20:00Z'),
-    },
+    }),
   ],
   escalations: [],
   ops: [
-    { id: '1', kind: 'Sweep', to: A.dormDao, amount: n('7.9'), ref_id: null, status: 'Succeeded', attempts: 1 },
+    { id: '1', kind: 'Sweep', to: A.dormDao, amount: n('7.9'), ref_id: null, status: 'Succeeded', attempts: 1, created_at: t('2026-11-10T09:00:00Z'), updated_at: t('2026-11-10T09:00:00Z') },
   ],
   reputation: {
     [A.deniz]: { sessions: 22, clean_returns: 22, damages: 0, upkeeps: 1, fault_reports: 1 },
@@ -482,7 +535,7 @@ const washer: MockAsset = {
     { seq: '82', account: A.ozan, kind: 'fault_report', ref_id: '0', at: t('2026-11-12T07:58:00Z') },
     { seq: '83', account: A.deniz, kind: 'fault_report', ref_id: '0', at: t('2026-11-12T08:05:00Z') },
   ],
-  period: { started_at: t('2026-11-09T12:00:00Z'), rights_minted: 3 },
+  period: { started_at: t('2026-11-09T12:00:00Z'), rights_minted: 3, rights_reserved: 0 },
   roles: dormRoles,
 };
 
@@ -510,10 +563,10 @@ export const commons: Record<AccountId, MockCommons> = {
       { id: '1', trainer: A.ayse, trainee: A.zeynep, kind: 'laser_safety', notes_hash: hex('51ab'), status: 'Approved', approver: A.mehmet, minted: ['cred-1', 'right-3'], created_at: t('2026-11-11T11:00:00Z') },
     ],
     cards: [
-      { token_id: 'right-1', owner_id: A.ayse, kind: { UsageRight: { group_id: 'makerlab-fab', max_slots: 2, source: { Maintenance: { asset: A.printer, task_id: '1' } }, status: { Consumed: { asset: A.printer, reservation_id: '3' } } } }, issued_at: t('2026-11-11T09:40:00Z'), expires_at: t('2027-01-10T09:40:00Z') },
-      { token_id: 'right-2', owner_id: A.ayse, kind: { UsageRight: { group_id: 'makerlab-fab', max_slots: 2, source: { Maintenance: { asset: A.printer, task_id: '1' } }, status: { Locked: { asset: A.laser, reservation_id: '3' } } } }, issued_at: t('2026-11-11T09:40:00Z'), expires_at: t('2027-01-10T09:40:00Z') },
-      { token_id: 'cred-1', owner_id: A.zeynep, kind: { Credential: { kind: 'laser_safety', issued_by_training: '1', suspended: false } }, issued_at: t('2026-11-11T12:30:00Z'), expires_at: t('2027-11-11T12:30:00Z') },
-      { token_id: 'right-3', owner_id: A.ayse, kind: { UsageRight: { group_id: 'makerlab-fab', max_slots: 2, source: { Training: { training_id: '1' } }, status: 'Active' } }, issued_at: t('2026-11-11T12:30:00Z'), expires_at: t('2027-01-10T12:30:00Z') },
+      { token_id: 'right-1', owner_id: A.ayse, kind: { type: 'UsageRight', group_id: 'makerlab-fab', max_slots: 2, source: { type: 'Maintenance', asset: A.printer, task_id: '1' }, status: { state: 'Consumed', asset: A.printer, reservation_id: '3' } }, issued_at: t('2026-11-11T09:40:00Z'), expires_at: t('2027-01-10T09:40:00Z'), expired: false },
+      { token_id: 'right-2', owner_id: A.ayse, kind: { type: 'UsageRight', group_id: 'makerlab-fab', max_slots: 2, source: { type: 'Maintenance', asset: A.printer, task_id: '1' }, status: { state: 'Locked', asset: A.laser, reservation_id: '3' } }, issued_at: t('2026-11-11T09:40:00Z'), expires_at: t('2027-01-10T09:40:00Z'), expired: false },
+      { token_id: 'cred-1', owner_id: A.zeynep, kind: { type: 'Credential', kind: 'laser_safety', issued_by_training: '1', suspended: false }, issued_at: t('2026-11-11T12:30:00Z'), expires_at: t('2027-11-11T12:30:00Z'), expired: false },
+      { token_id: 'right-3', owner_id: A.ayse, kind: { type: 'UsageRight', group_id: 'makerlab-fab', max_slots: 2, source: { type: 'Training', training_id: '1' }, status: { state: 'Active' } }, issued_at: t('2026-11-11T12:30:00Z'), expires_at: t('2027-01-10T12:30:00Z'), expired: false },
     ],
   },
   [A.dormCommons]: {
@@ -523,9 +576,9 @@ export const commons: Record<AccountId, MockCommons> = {
     credentialKinds: [],
     trainings: [],
     cards: [
-      { token_id: 'right-1', owner_id: A.deniz, kind: { UsageRight: { group_id: 'dorm-b-laundry', max_slots: 1, source: { Maintenance: { asset: A.washer, task_id: '1' } }, status: { Consumed: { asset: A.washer, reservation_id: '40' } } } }, issued_at: t('2026-11-11T19:40:00Z'), expires_at: t('2027-01-10T19:40:00Z') },
-      { token_id: 'right-2', owner_id: A.deniz, kind: { UsageRight: { group_id: 'dorm-b-laundry', max_slots: 1, source: { Maintenance: { asset: A.washer, task_id: '1' } }, status: 'Active' } }, issued_at: t('2026-11-11T19:40:00Z'), expires_at: t('2027-01-10T19:40:00Z') },
-      { token_id: 'right-3', owner_id: A.deniz, kind: { UsageRight: { group_id: 'dorm-b-laundry', max_slots: 1, source: { Maintenance: { asset: A.washer, task_id: '1' } }, status: 'Active' } }, issued_at: t('2026-11-11T19:40:00Z'), expires_at: t('2027-01-10T19:40:00Z') },
+      { token_id: 'right-1', owner_id: A.deniz, kind: { type: 'UsageRight', group_id: 'dorm-b-laundry', max_slots: 1, source: { type: 'Maintenance', asset: A.washer, task_id: '1' }, status: { state: 'Consumed', asset: A.washer, reservation_id: '40' } }, issued_at: t('2026-11-11T19:40:00Z'), expires_at: t('2027-01-10T19:40:00Z'), expired: false },
+      { token_id: 'right-2', owner_id: A.deniz, kind: { type: 'UsageRight', group_id: 'dorm-b-laundry', max_slots: 1, source: { type: 'Maintenance', asset: A.washer, task_id: '1' }, status: { state: 'Active' } }, issued_at: t('2026-11-11T19:40:00Z'), expires_at: t('2027-01-10T19:40:00Z'), expired: false },
+      { token_id: 'right-3', owner_id: A.deniz, kind: { type: 'UsageRight', group_id: 'dorm-b-laundry', max_slots: 1, source: { type: 'Maintenance', asset: A.washer, task_id: '1' }, status: { state: 'Active' } }, issued_at: t('2026-11-11T19:40:00Z'), expires_at: t('2027-01-10T19:40:00Z'), expired: false },
     ],
   },
 };

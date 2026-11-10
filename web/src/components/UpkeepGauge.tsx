@@ -74,9 +74,8 @@ export function UpkeepGauge({
           {Math.round(p.fraction * 100)}%
         </span>
         <span className="mt-1 text-[11px] leading-tight text-ink-2">{label}</span>
-        <span className="flex items-center gap-1 text-[11px] leading-tight font-medium text-ink">
-          <KindIcon kind={p.rule.kind} size={11} />
-          {title}
+        <span className="line-clamp-2 text-[11px] leading-tight font-medium text-ink" title={title}>
+          <KindIcon kind={p.rule.kind} size={11} /> {title}
         </span>
       </figcaption>
     </figure>

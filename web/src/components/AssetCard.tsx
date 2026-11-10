@@ -1,8 +1,8 @@
 import { Link } from 'react-router';
-import type { AssetSnapshot } from '../data/hooks';
+import type { BoardSnapshot } from '../data/hooks';
 import type { DeployedAsset } from '../data/offchain';
 import { AssetIcon } from './AssetIcon';
-import { Pill, SimulatedBadge } from './Badges';
+import { DeviceBadge, Pill, SimulatedBadge } from './Badges';
 import { KasaBar } from './KasaBar';
 import { UpkeepGauge } from './UpkeepGauge';
 import { assetStatus } from './assetStatus';
@@ -19,7 +19,7 @@ export function OutOfServiceBand({ detail }: { detail?: string }) {
 }
 
 /** The machine nameplate used on the board: name, account, status, dial, cash box. */
-export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: AssetSnapshot }) {
+export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: BoardSnapshot }) {
   const status = assetStatus(snap);
   const sim = deployed.simulated || snap.profile.adapter === 'simulator';
   const link = useDemoLink();
@@ -37,6 +37,7 @@ export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: A
               </Link>
             </h3>
             {sim && <SimulatedBadge />}
+            <DeviceBadge adapter={snap.profile.adapter} />
           </div>
           <p className="mono-id truncate">{deployed.asset_id}</p>
         </div>

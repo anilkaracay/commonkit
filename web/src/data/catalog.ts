@@ -14,7 +14,7 @@ const files = import.meta.glob<RawFile>('../../../profiles/*.json', { eager: tru
 
 export function normalizeRule(r: RawRule): UpkeepRule {
   const kind: UpkeepKind = r.kind && (UPKEEP_KINDS as readonly string[]).includes(r.kind) ? r.kind : 'Maintenance';
-  const trigger: Trigger = r.trigger ?? { Metric: { metric: r.metric ?? 'unknown', threshold: r.threshold ?? 0 } };
+  const trigger: Trigger = r.trigger ?? { Metric: { metric: r.metric ?? 'unknown', threshold: Number(r.threshold ?? 0) } };
   return {
     rule_id: r.rule_id,
     kind,

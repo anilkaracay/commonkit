@@ -43,7 +43,7 @@ function assetViews(a: MockAsset, nowMs: number): AssetViews {
             s >= BigInt(x.start_slot) &&
             s < BigInt(x.start_slot) + BigInt(x.slots),
         );
-        return r ? r.id : null;
+        return { slot: s.toString(), reservation_id: r ? r.id : null };
       });
     },
     can_access: async (account, reservationId) => {
@@ -76,6 +76,10 @@ function assetViews(a: MockAsset, nowMs: number): AssetViews {
       clone(a.reputation[account] ?? { sessions: 0, clean_returns: 0, damages: 0, upkeeps: 0, fault_reports: 0 }),
     get_reputation_log: async (from, limit) => clone(page(a.reputationLog, from, limit)),
     get_period: async () => clone(a.period),
+    get_last_session_at: async (account) => {
+      const mine = a.reservations.filter((r) => r.holder === account && r.session_started_at);
+      return mine.at(-1)?.session_finished_at ?? mine.at(-1)?.session_started_at ?? null;
+    },
     get_roles: async (account) => clone(a.roles[account] ?? []),
     version: async () => '0.1.0-mock',
   };
@@ -84,23 +88,30 @@ function assetViews(a: MockAsset, nowMs: number): AssetViews {
 function commonsViews(id: AccountId): CommonsViews {
   const c = need(commons[id], `commons ${id}`);
   return {
+    get_wiring: async () => ({
+      dao_id: id.replace(/^commons\./, ''),
+      name: id,
+      roles_version: c.roles_version,
+      next_training_id: String(c.trainings.length + 1),
+      next_token_seq: String(c.cards.length + 1),
+      total_supply: String(c.cards.length),
+      version: 'mock',
+    }),
     get_assets: async () =>
       Object.entries(c.groups).flatMap(([group_id, ids]) =>
-        ids.map((assetId): [AccountId, { group_id: string; active: boolean; registered_at: string }] => [
-          assetId,
-          { group_id, active: true, registered_at: '1762689600000000000' },
-        ]),
+        ids.map((asset_id) => ({ asset_id, group_id, active: true, registered_at: '1762689600000000000' })),
       ),
     get_group: async (groupId) => clone(c.groups[groupId] ?? []),
     get_roles: async (account) => clone(c.roles[account] ?? []),
-    get_all_roles: async (from, limit) => clone(page(Object.entries(c.roles), from, limit)),
+    get_all_roles: async (from, limit) =>
+      page(Object.entries(c.roles), from, limit).map(([account_id, roles]) => ({ account_id, roles: [...roles] })),
     get_credential_kinds: async () => clone(c.credentialKinds),
     get_trainings: async (from, limit) => clone(page(c.trainings, from, limit)),
     has_credential: async (account, kind) =>
-      c.cards.some((card) => card.owner_id === account && 'Credential' in card.kind && card.kind.Credential.kind === kind),
+      c.cards.some((card) => card.owner_id === account && card.kind.type === 'Credential' && card.kind.kind === kind),
     get_cards_for_owner: async (account) => clone(c.cards.filter((card) => card.owner_id === account)),
     nft_tokens: async (from, limit) =>
-      page(c.cards, Number(from), limit).map((card) => ({ token_id: card.token_id, owner_id: card.owner_id })),
+      page(c.cards, from, limit).map((card) => ({ token_id: card.token_id, owner_id: card.owner_id })),
     version: async () => '0.1.0-mock',
   };
 }
@@ -140,7 +151,7 @@ export function createMockSource(opts: MockSourceOptions = {}): DataSource {
     dao: daoViews,
     getDaoList: async () => dep.communities.map((c) => c.dao_id),
     viewAccount: async (id): Promise<AccountState> => ({
-      amount: daos[id]?.balance ?? assets[id]?.ledger.account_balance ?? '0',
+      amount: daos[id]?.balance ?? assets[id]?.ledger.balance ?? '0',
       locked: '0',
       code_hash: codeHashOf(id),
       storage_usage: 48210,
@@ -151,6 +162,7 @@ export function createMockSource(opts: MockSourceOptions = {}): DataSource {
     getProfileMeta: async (id) => clone(need(profileMeta[id], `profile meta ${id}`)),
     getEvidenceSteps: async () => clone(evidenceSteps),
     getAgentLimits: async () => clone(agentLimits),
+    getTxLog: async () => [],
     rowTx: (key) => mockTxFor(key),
   };
 }

@@ -1,18 +1,18 @@
 /**
- * JSON shapes returned by the contract views in docs/CONTRACT_SPEC.md (§2, §3.6, §4, §5.2),
- * as they arrive over RPC (serde_json):
- *  - u128 amounts and u64 ids/timestamps/counters are strings (U128 / U64),
- *  - u32 / u16 are numbers,
- *  - unit enum variants are strings, data-carrying variants are `{ Variant: {...} }`,
- *  - Rust tuples are JSON arrays.
- * u64 values the spec shows as JSON numbers (trigger thresholds, rule status counters) are typed
- * `U64Num` (string | number) and always read through BigInt().
- * When packages/sdk publishes its types (M7), these must be replaced by re-exports from it.
+ * JSON shapes returned by the deployed contract views (contracts/asset/src/views.rs,
+ * contracts/commons/src/views.rs; checked against testnet on 2026-11-10):
+ *  - U128 / U64 wrappers are strings; raw u64 fields (trigger thresholds, metric counters in
+ *    tuples, `due_value_at_open`) are JSON numbers; u32 / u16 are numbers,
+ *  - asset enums are externally tagged (`"Unit"` or `{ Variant: {...} }`),
+ *  - commons `CardKind` / `RightSource` are tagged by `type`, `RightStatus` by `state`,
+ *  - `#[serde(flatten)]` views (`CardView`, `AssetView`) arrive as one flat object.
+ * Read every u64/u128 through BigInt(); `U64Num` covers fields that are numbers on chain.
  */
 
 export type U128 = string;
 export type U64 = string;
-export type U64Num = string | number;
+/** A raw u64 on chain: a JSON number (exact below 2^53, which these counters stay under). */
+export type U64Num = number | string;
 export type AccountId = string;
 export type GroupId = string;
 export type CredentialKind = string;
@@ -23,7 +23,7 @@ export const UPKEEP_KINDS = ['Maintenance', 'Restock', 'Cleaning', 'Inspection',
 export type UpkeepKind = (typeof UPKEEP_KINDS)[number];
 
 export type Trigger =
-  | { Metric: { metric: string; threshold: U64Num } }
+  | { Metric: { metric: string; threshold: number } }
   | { Schedule: { every_hours: number } }
   | { Report: { min_reports: number } };
 
@@ -69,7 +69,7 @@ export interface Profile {
   protocol_fee_receiver: AccountId | null;
 }
 
-/** `get_wiring` — dao, commons, bridge, agent, versions. */
+/** asset `get_wiring` */
 export interface Wiring {
   dao_id: AccountId;
   commons_id: AccountId;
@@ -77,29 +77,40 @@ export interface Wiring {
   agent_id: AccountId | null;
   profile_version: number;
   roles_version: U64;
+  telemetry_epoch: U64;
+  dao_proposal_bond: U128 | null;
+  dao_proposal_period: U64 | null;
+  open_escalations: number;
 }
 
 // ---------- asset §2.2 ----------
-export interface Ledger {
+/** asset `get_ledger` */
+export interface LedgerView {
   float_free: U128;
   deposits_held: U128;
   rewards_reserved: U128;
+  pending_in: U128;
+  protocol_fees_owed: U128;
+  fee_refunds_owed: U128;
   pending_out: U128;
+  bonds_outstanding: U128;
   total_fees_in: U128;
   total_swept: U128;
   total_refunded: U128;
   total_rewards_paid: U128;
+  total_reimbursed: U128;
   total_bonds_paid: U128;
+  total_bonds_returned: U128;
+  total_bonds_lost: U128;
   total_protocol_fees: U128;
-}
-
-/** `get_ledger` — Ledger + balance, storage usage, byte cost, invariant flag. */
-export interface LedgerView extends Ledger {
-  account_balance: U128;
+  float_cap: U128;
   storage_reserve: U128;
+  balance: U128;
   storage_usage: U64;
   storage_byte_cost: U128;
+  storage_cost: U128;
   invariant_ok: boolean;
+  storage_ok: boolean;
 }
 
 // ---------- asset §2.3 ----------
@@ -122,14 +133,24 @@ export interface Reservation {
   start_slot: U64;
   slots: number;
   fee_paid: U128;
+  protocol_fee: U128;
   deposit_paid: U128;
   right_id: string | null;
   status: ReservationStatus;
   created_at: U64;
   session_started_at: U64 | null;
   session_finished_at: U64 | null;
-  metrics_delta: [string, U64][] | null;
+  metrics_delta: [string, number][] | null;
   return_result: ReturnResult | null;
+  right_op_id: U64 | null;
+  storage_cost: U128;
+  fee_refund_owed: U128;
+}
+
+/** One element of `get_availability(from_slot, count)`. */
+export interface SlotInfo {
+  slot: U64;
+  reservation_id: U64 | null;
 }
 
 /** `can_access(account, reservation_id)` */
@@ -142,9 +163,11 @@ export interface AccessCheck {
 
 // ---------- asset §2.4 ----------
 export interface Telemetry {
-  metrics: [string, U64][];
+  metrics: [string, number][];
   updated_at: U64;
   reports: U64;
+  epoch: U64;
+  reset_pending: boolean;
 }
 
 /**
@@ -155,15 +178,22 @@ export interface RuleStatus {
   rule_id: string;
   kind: UpkeepKind;
   trigger: Trigger;
-  current: U64Num;
-  baseline: U64Num;
+  current: U64;
+  /** Metric: value at last reward; Schedule: ns timestamp of last reward; Report: 0. */
+  baseline: U64;
+  /** Metric: delta since baseline; Schedule: hours since last; Report: active reports. */
+  due_value: U64;
   due: boolean;
   next_due_estimate: U64 | null;
   open_task: U64 | null;
+  reward_rights: number;
+  reward_cash: U128;
+  reimbursable_max: U128;
 }
 
 // ---------- asset §2.4a ----------
 export interface FaultReport {
+  seq: U64;
   reporter: AccountId;
   note_hash: string;
   at: U64;
@@ -216,19 +246,25 @@ export type RewardState =
   | 'Done'
   | { Failed: { reason: string } };
 
-export type ExpenseState = 'None' | 'Reserved' | 'NeedsEscalation' | { Escalated: { escalation_id: U64 } } | 'Paid';
+export type ExpenseState = 'None' | 'Reserved' | 'NeedsEscalation' | { Escalated: { escalation_id: U64 } } | 'Paid' | 'Denied';
 
 export interface Task {
   id: U64;
   rule_id: string;
   kind: UpkeepKind;
+  trigger: Trigger;
   opened_by: AccountId;
+  manual: boolean;
   rationale: string;
   /** Metric: delta since baseline; Schedule: hours since last; Report: active reports. */
   due_value_at_open: U64Num;
-  manual: boolean;
   reward_rights: number;
   reward_cash: U128;
+  reimbursable_max: U128;
+  right_max_slots: number;
+  right_validity_days: number;
+  requires_verification_test: boolean;
+  claim_timeout_hours: number;
   needs_council: boolean;
   status: TaskStatus;
   claimer: AccountId | null;
@@ -241,14 +277,19 @@ export interface Task {
   verification: VerificationResult | null;
   verifier: AccountId | null;
   council_approver: AccountId | null;
+  metric_value_at_approval: number | null;
   reward_state: RewardState;
   minted_right_ids: string[];
+  cash_op_id: U64 | null;
+  reimbursement_op_id: U64 | null;
+  reward_started_at: U64 | null;
   created_at: U64;
 }
 
 export interface RewardPeriod {
   started_at: U64;
   rights_minted: number;
+  rights_reserved: number;
 }
 
 // ---------- asset §2.6 ----------
@@ -257,7 +298,8 @@ export type EscalationStatus = 'Submitting' | 'Submitted' | 'Approved' | 'Reject
 export interface Escalation {
   id: U64;
   requested_by: AccountId;
-  kind: 'purchase' | 'cash_reward' | 'reimbursement' | 'other';
+  /** "purchase" | "cash_reward" | "reimbursement" | "other" */
+  kind: string;
   receiver: AccountId;
   amount: U128;
   reason: string;
@@ -265,10 +307,16 @@ export interface Escalation {
   proposal_id: U64 | null;
   status: EscalationStatus;
   bond_paid: U128;
+  bond_op_id: U64 | null;
+  bond_settled: boolean;
+  bond_lost: boolean;
+  submission_time: U64 | null;
+  dao_status: string | null;
+  submitted_at: U64;
 }
 
 // ---------- asset §2.7 ----------
-export type OpKind = 'Refund' | 'Sweep' | 'CashReward' | 'Reimbursement' | 'Bond' | 'ProtocolFee';
+export type OpKind = 'Refund' | 'Sweep' | 'CashReward' | 'Reimbursement' | 'Bond' | 'ProtocolFee' | 'RightRelease' | 'RightFinalize';
 export type OpStatus = 'Pending' | 'Succeeded' | 'Failed';
 
 export interface OutboundOp {
@@ -279,6 +327,8 @@ export interface OutboundOp {
   ref_id: U64 | null;
   status: OpStatus;
   attempts: number;
+  created_at: U64;
+  updated_at: U64;
 }
 
 // ---------- asset §2.8 ----------
@@ -305,6 +355,28 @@ export interface AssetEntry {
   registered_at: U64;
 }
 
+/** commons `get_assets` element (AssetEntry flattened next to the id). */
+export interface AssetView extends AssetEntry {
+  asset_id: AccountId;
+}
+
+/** commons `get_all_roles` element. */
+export interface RoleEntry {
+  account_id: AccountId;
+  roles: string[];
+}
+
+/** commons `get_wiring` */
+export interface CommonsWiring {
+  dao_id: AccountId;
+  name: string;
+  roles_version: U64;
+  next_training_id: U64;
+  next_token_seq: U64;
+  total_supply: U64;
+  version: string;
+}
+
 export interface CredentialKindConfig {
   kind: CredentialKind;
   title: string;
@@ -316,24 +388,26 @@ export interface CredentialKindConfig {
 }
 
 export type RightSource =
-  | { Maintenance: { asset: AccountId; task_id: U64 } }
-  | { Training: { training_id: U64 } };
+  | { type: 'Maintenance'; asset: AccountId; task_id: U64 }
+  | { type: 'Training'; training_id: U64 };
 
 export type RightStatus =
-  | 'Active'
-  | { Locked: { asset: AccountId; reservation_id: U64 } }
-  | { Consumed: { asset: AccountId; reservation_id: U64 } };
+  | { state: 'Active' }
+  | { state: 'Locked'; asset: AccountId; reservation_id: U64 }
+  | { state: 'Consumed'; asset: AccountId; reservation_id: U64 };
 
 export type CardKind =
-  | { UsageRight: { group_id: GroupId; max_slots: number; source: RightSource; status: RightStatus } }
-  | { Credential: { kind: CredentialKind; issued_by_training: U64; suspended: boolean } };
+  | { type: 'UsageRight'; group_id: GroupId; max_slots: number; source: RightSource; status: RightStatus }
+  | { type: 'Credential'; kind: CredentialKind; issued_by_training: U64; suspended: boolean };
 
+/** commons `get_cards_for_owner` element (`CardView`: Card flattened + `expired`). */
 export interface Card {
   token_id: string;
   owner_id: AccountId;
   kind: CardKind;
   issued_at: U64;
   expires_at: U64 | null;
+  expired: boolean;
 }
 
 export type TrainingStatus = 'Proposed' | 'Approved' | 'Rejected';
