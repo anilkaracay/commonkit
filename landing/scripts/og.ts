@@ -1,68 +1,50 @@
 /**
- * Renders the social card (public/og.png, 1200 × 630) and the favicon PNGs from the built CSS and the same
- * build-time data as the page. Run after `vite build`: tsx scripts/og.ts
+ * Social card public/og.png (1200 × 630) and the favicons, in the D-030 style: white page, ink headline in
+ * CK Sans, the printer poster from the live scene. Numbers on the card come from the testnet snapshot.
+ * Usage: tsx scripts/og.ts   (run scripts/posters.ts first)
  */
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { color } from '@commonkit/design';
 import { loadData } from '../render/data.ts';
-import { art, LOGO_MARK } from '../render/art.ts';
-import { machineCard } from '../src/lib/cards.ts';
+import { utcStamp } from '../src/lib/format.ts';
 
 const root = resolve(import.meta.dirname, '..');
-// the build inlines the page CSS; reuse that <style> block
-const builtHtml = readFileSync(resolve(root, 'dist/index.html'), 'utf8');
-const css = /<style>([\s\S]*?)<\/style>/.exec(builtHtml)?.[1];
-if (!css) throw new Error('run vite build first');
+const design = resolve(root, '../packages/design');
+const b64 = (p: string) => readFileSync(p).toString('base64');
 const d = loadData();
-const a = d.snapshot.assets.find((x) => x.asset_type === 'printer_3d')!;
-const p = d.profiles.find((x) => x.asset_type === 'printer_3d')!;
-const card = machineCard(a, {
-  titles: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.title])),
-  fileTriggers: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.trigger])),
-  overrides: d.overrides[a.account] ?? [],
-  featuredTask: d.steps.find((x) => x.step === 7 && x.status === 'passed')?.outputs.task_id as string | null ?? null,
-  rightValidityDays: p.right_validity_days,
-  icon: art('printer', ''),
-  live: false,
-  at: d.snapshot.taken_at,
-});
+const printer = d.snapshot.assets.find((a) => a.asset_type === 'printer_3d')!;
+const fixed = (y: string) => { const s = 10n ** 22n, r = (BigInt(y) + s / 2n) / s; return `${r / 100n}.${(r % 100n).toString().padStart(2, '0')}`; };
 
-const og = `<!doctype html><html data-hero="a"><head><meta charset="utf-8"><style>${css}</style>
-<style>
-  body { width: 1200px; height: 630px; overflow: hidden; margin: 0; }
-  .og { position: relative; height: 630px; padding: 48px 64px 72px; display: grid; grid-template-columns: 1fr 390px; gap: 40px; align-items: center;
-    background: radial-gradient(rgba(240,236,227,.09) 1px, transparent 1.2px) 0 0 / 26px 26px, radial-gradient(60% 70% at 78% 50%, rgba(232,169,72,.22), transparent 70%), var(--ink-0); }
-  .og .brand { margin: 0 0 34px; font-size: 22px; } .og .mark { width: 34px; height: 34px; }
-  .og h1 { font-size: 60px; } .og h1 .line { text-wrap: nowrap; }
-  .og .sub { margin-top: 24px; font-size: 20px; color: var(--fg-2); max-width: 30ch; }
-  .og .og-foot { position: absolute; left: 64px; bottom: 34px; font: 500 15px var(--f-mono); color: var(--fg-3); }
-  .og .mcard { transform: rotate(-2deg); } .og .mcard-foot { display: none; }
-</style></head><body>
-<div class="og"><div><div class="brand">${LOGO_MARK}<span>COMMONKIT</span></div>
-<h1 class="display"><span class="line">Shared things that pay</span><span class="line grad">for their own upkeep.</span></h1>
-<p class="sub">Every shared machine gets its own keyless NEAR account. Its fees fund its upkeep.</p></div>
-<div>${card}</div><p class="og-foot">NEAR testnet · simulated assets · built at NEAR HACKATHON 2026</p></div></body></html>`;
+const MARK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="${color.cobalt600}"/><rect x="9" y="9" width="14" height="14" rx="3.5" fill="${color.white}"/></svg>`;
+writeFileSync(resolve(root, 'public/favicon.svg'), MARK + '\n');
 
-const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#0d0e10"/>${LOGO_MARK.replace(/<svg[^>]*>|<\/svg>/g, '')
-  .replace('class="mark-tag"', 'fill="#e8a948"')
-  .replace('class="mark-hole"', 'fill="#0d0e10"')
-  .replace('class="mark-line"', 'stroke="#1a1205" stroke-width="1.8" stroke-linecap="round" fill="none"')}</svg>`;
-writeFileSync(resolve(root, 'public/favicon.svg'), favicon + '\n');
+const fonts = `@font-face{font-family:'CK Sans';src:url(data:font/woff2;base64,${b64(resolve(design, 'fonts/ck-sans.woff2'))}) format('woff2');font-weight:400 640;font-stretch:100% 112%}`;
+const card = `<!doctype html><html><head><style>${fonts}
+*{margin:0;box-sizing:border-box}body{width:1200px;height:630px;background:${color.white};font-family:'CK Sans';color:${color.ink};display:grid;grid-template-columns:560px 640px;overflow:hidden}
+.l{padding:64px 0 56px 72px;display:flex;flex-direction:column}
+.mark{font-stretch:112%;font-weight:640;letter-spacing:.09em;font-size:20px}
+h1{margin-top:auto;font-stretch:112%;font-weight:560;font-size:72px;line-height:.98;letter-spacing:-.042em}
+p{margin-top:24px;font-size:22px;color:${color.slate600}}
+.f{margin-top:36px;font-size:16px;color:${color.slate500};display:flex;gap:10px;align-items:center}
+.f i{width:10px;height:10px;border:1.6px solid ${color.slate600};border-radius:2px}
+img{width:640px;height:640px;margin-top:-10px}
+</style></head><body><div class="l"><span class="mark">COMMONKIT</span><h1>Machines that pay their own upkeep.</h1>
+<p>Float ${fixed(printer.ledger.float_free)} / ${fixed(printer.ledger.float_cap)} NEAR · keyless · NEAR testnet</p>
+<span class="f"><i></i>Simulated device · state read ${utcStamp(d.snapshot.taken_at)}</span></div>
+<img src="data:image/webp;base64,${b64(resolve(root, 'public/posters/hero-1200.webp'))}" alt=""></body></html>`;
 
-// The built page must be served (vite preview, default :4180) so the CSS and font URLs resolve.
-const origin = process.env.LANDING_URL ?? 'http://localhost:4180/';
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
-await page.goto(origin);
-await page.setContent(og, { waitUntil: 'networkidle' });
+await page.setContent(card, { waitUntil: 'load' });
 await page.evaluate(() => document.fonts.ready);
-await page.waitForTimeout(300);
 await page.screenshot({ path: resolve(root, 'public/og.png') });
-for (const [size, name] of [[32, 'favicon-32.png'], [180, 'apple-touch-icon.png']] as const) {
-  const fp = await browser.newPage({ viewport: { width: size, height: size } });
-  await fp.setContent(`<style>body{margin:0}svg{width:${size}px;height:${size}px;display:block}</style>${favicon}`);
-  await fp.screenshot({ path: resolve(root, `public/${name}`), omitBackground: true });
+for (const [file, size] of [['favicon-32.png', 32], ['apple-touch-icon.png', 180]] as const) {
+  const p = await browser.newPage({ viewport: { width: size, height: size } });
+  await p.setContent(`<style>*{margin:0}svg{display:block;width:${size}px;height:${size}px}</style>${MARK}`);
+  await p.screenshot({ path: resolve(root, 'public', file), omitBackground: true });
+  await p.close();
 }
 await browser.close();
-console.log('wrote public/og.png, favicon.svg, favicon-32.png, apple-touch-icon.png');
+console.log('og.png, favicon.svg, favicon-32.png, apple-touch-icon.png written');

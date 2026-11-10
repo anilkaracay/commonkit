@@ -2,7 +2,7 @@ import { defineConfig, type Plugin } from 'vite';
 import { loadData } from './render/data.ts';
 import { renderSlots } from './render/render.ts';
 
-/** Fills the <!--ck:slot--> markers of index.html with build-time HTML and preloads the two first-paint fonts. */
+/** Fills the <!--ck:slot--> markers of index.html with build-time HTML and preloads the headline font. */
 function commonkitPage(): Plugin {
   return {
     name: 'commonkit-page',
@@ -14,9 +14,8 @@ function commonkitPage(): Plugin {
           if (!(k in slots) && k !== 'preload') throw new Error(`unknown slot ${k}`);
           return slots[k] ?? '';
         });
-        const fonts = ctx.bundle
-          ? Object.keys(ctx.bundle).filter((f) => /\/(display|text)-[\w-]+\.woff2$/.test(f) && !f.includes('-ext'))
-          : ['src/fonts/display.woff2', 'src/fonts/text.woff2'];
+        // Preload the one font every headline uses (CK Sans, from @commonkit/design).
+        const fonts = ctx.bundle ? Object.keys(ctx.bundle).filter((f) => /\/ck-sans-[\w-]+\.woff2$/.test(f) && !/ck-sans-tr/.test(f)) : [];
         // Inline the single stylesheet (about 11 kB gzipped): one fewer render-blocking request.
         if (ctx.bundle) {
           const cssName = Object.keys(ctx.bundle).find((f) => f.endsWith('.css'));
@@ -42,6 +41,8 @@ export default defineConfig({
     outDir: 'dist',
     assetsInlineLimit: 0,
     cssCodeSplit: false,
+    // The three.js chunk (~150 kB gzip) is lazy: it loads after interaction, never before first paint.
+    chunkSizeWarningLimit: 700,
   },
   server: { port: 5180 },
   preview: { port: 4180 },

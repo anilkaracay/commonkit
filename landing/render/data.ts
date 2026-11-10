@@ -7,7 +7,6 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Snapshot } from '../src/lib/chain.ts';
 import type { Trigger } from '../src/lib/format.ts';
-import type { DemoOverride } from '../src/lib/cards.ts';
 
 export const REPO = resolve(import.meta.dirname, '../..');
 const read = (p: string) => readFileSync(resolve(REPO, p), 'utf8');
@@ -182,6 +181,15 @@ function allEvidenceTxs(): EvidenceTx[] {
   return all;
 }
 
+export interface DemoOverride {
+  kind: 'override' | 'restore';
+  rule_id: string;
+  value: string;
+  proposal: string;
+  tx: string | null;
+  at: string;
+}
+
 /** evidence/demo-overrides.json grouped by asset account (oldest first). Absent file → no overrides. */
 export type Overrides = Record<string, DemoOverride[]>;
 function readOverrides(): Overrides {
@@ -191,7 +199,7 @@ function readOverrides(): Overrides {
   const out: Overrides = {};
   for (const e of [...raw].sort((x, y) => x.at.localeCompare(y.at))) {
     if (e.kind !== 'override' && e.kind !== 'restore') continue;
-    (out[e.asset] ??= []).push({ kind: e.kind, rule_id: e.rule_id, value: String(e.value), proposal: e.proposal, tx: e.tx_hashes?.at(-1) ?? null, at: e.at });
+    (out[e.asset] ??= []).push({ kind: e.kind as DemoOverride['kind'], rule_id: e.rule_id, value: String(e.value), proposal: e.proposal, tx: e.tx_hashes?.at(-1) ?? null, at: e.at });
   }
   return out;
 }
@@ -236,8 +244,16 @@ export interface LimitsReport {
 
 // ---------- everything ----------
 
+export interface StepTx {
+  label: string;
+  hash: string;
+  ok: boolean;
+  error_code: string | null;
+}
+
 export interface JudgeStep {
   step: number;
+  txs: StepTx[];
   outputs: Record<string, unknown>;
   title: string;
   status: string;
@@ -248,8 +264,8 @@ export interface JudgeStep {
 function readSteps(): JudgeStep[] {
   const path = resolve(REPO, 'evidence/steps.json');
   if (!existsSync(path)) return [];
-  const raw = json<{ step: number; title: string; status: string; simulated?: boolean; txHashes?: string[]; outputs?: Record<string, unknown> }[]>('evidence/steps.json');
-  return raw.map((s) => ({ step: s.step, outputs: s.outputs ?? {}, title: s.title, status: s.status, simulated: s.simulated === true, tx: s.txHashes?.at(-1) ?? null }));
+  const raw = json<{ step: number; title: string; status: string; simulated?: boolean; txHashes?: string[]; outputs?: Record<string, unknown>; transactions?: StepTx[] }[]>('evidence/steps.json');
+  return raw.map((s) => ({ step: s.step, txs: (s.transactions ?? []).map((t) => ({ label: t.label, hash: t.hash, ok: t.ok, error_code: t.error_code ?? null })), outputs: s.outputs ?? {}, title: s.title, status: s.status, simulated: s.simulated === true, tx: s.txHashes?.at(-1) ?? null }));
 }
 
 export interface LandingData {

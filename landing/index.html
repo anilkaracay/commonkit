@@ -1,239 +1,168 @@
 <!doctype html>
-<html lang="en" data-hero="a">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>COMMONKIT — shared things that pay for their own upkeep</title>
-    <meta name="description" content="Every shared machine gets its own keyless NEAR account. It funds its own upkeep from usage fees, opens the upkeep task itself, and gives access to the members who keep it alive. Testnet project, built at NEAR HACKATHON." />
-    <meta name="theme-color" content="#0e0f11" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="COMMONKIT — shared things that pay for their own upkeep" />
-    <meta property="og:description" content="A shared machine with its own keyless NEAR account: it collects fees, asks for its own upkeep, and opens up to the people who keep it alive." />
-    <meta property="og:image" content="/og.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="COMMONKIT: Shared things that pay for their own upkeep. A 3D printer wearing its own account tag." />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="COMMONKIT — shared things that pay for their own upkeep" />
-    <meta name="twitter:description" content="A shared machine with its own keyless NEAR account. Testnet project, built at NEAR HACKATHON." />
-    <meta name="twitter:image" content="/og.png" />
-    <!--ck:preload-->
-    <script>
-      document.documentElement.classList.add('js');
-      try {
-        var h = new URLSearchParams(location.search).get('hero');
-        if (h === 'a' || h === 'b') document.documentElement.dataset.hero = h;
-      } catch (e) {}
-    </script>
-  </head>
-  <body>
-    <a class="skip" href="#main">Skip to content</a>
-    <div class="dots" aria-hidden="true"></div>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COMMONKIT — machines that pay their own upkeep</title>
+<meta name="description" content="Every shared machine runs its own keyless NEAR account. Fees pay for upkeep, the rest goes to the community DAO, and members who maintain it earn access no one can take back. NEAR testnet.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="COMMONKIT — machines that pay their own upkeep">
+<meta property="og:description" content="Every shared machine runs its own keyless NEAR account. Members who maintain it earn access no one can take back.">
+<meta property="og:image" content="/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="image" type="image/webp" href="/posters/hero-1200.webp" imagesrcset="/posters/hero-600.webp 600w, /posters/hero-800.webp 800w, /posters/hero-1200.webp 1200w" imagesizes="(min-width: 1024px) 54vw, 100vw" fetchpriority="high">
+<link rel="stylesheet" href="./src/styles/main.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav wrap">
+  <a class="mark" href="/" aria-label="COMMONKIT home">COMMONKIT</a>
+  <nav aria-label="Primary">
+    <a href="#how">How it works</a>
+    <a href="#proof">Proof</a>
+    <a class="ck-btn nav-cta" href="/app">Open the app</a>
+  </nav>
+</header>
 
-    <header class="nav" id="top">
-      <div class="wrap nav-in">
-        <a class="brand" href="/" aria-label="COMMONKIT home"><!--ck:logo--><span>COMMONKIT</span></a>
-        <nav class="nav-links" aria-label="Sections">
-          <a href="#how">How it works</a>
-          <a href="#upkeep">Upkeep</a>
-          <a href="#why">Why onchain</a>
-          <a href="#proof">Proof</a>
-        </nav>
-        <span class="pill pill-net" title="Everything on this page runs on NEAR testnet. Testnet NEAR has no value."><i></i>Testnet</span>
-        <a class="btn btn-primary btn-sm magnetic" href="/app">Open COMMONKIT</a>
+<main id="main">
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <h1 id="hero-title" class="ck-display">Machines that pay their own upkeep.</h1>
+      <p class="lede">Every shared machine runs its own keyless NEAR account. Members who maintain it earn access.</p>
+      <div class="ctas">
+        <a class="ck-btn ck-btn--lg" href="/app">Open the app</a>
+        <a class="ck-link" href="/app/proof">See the proof <span aria-hidden="true">→</span></a>
       </div>
+    </div>
+    <figure class="stage" id="stage" aria-label="Makerlab 3D printer with its state read from NEAR testnet">
+      <img class="poster" src="/posters/hero-1200.webp" srcset="/posters/hero-600.webp 600w, /posters/hero-800.webp 800w, /posters/hero-1200.webp 1200w" sizes="(min-width: 1024px) 54vw, 100vw" width="1200" height="1200" alt="" fetchpriority="high" decoding="async">
+      <svg class="leaders" aria-hidden="true" viewBox="0 0 1000 1000" preserveAspectRatio="none"><path data-leader="screen"/><path data-leader="nozzle"/><path data-leader="task"/></svg>
+      <ul class="callouts"><!--ck:hero-callouts--></ul>
+      <figcaption class="stage-note"><span class="ck-sim">Simulated device</span><span data-live="read">State from NEAR testnet, read <!--ck:read-at--></span></figcaption>
+    </figure>
+  </section>
+
+  <section class="problem" aria-labelledby="problem-title">
+    <div class="wrap problem-grid">
+      <div class="problem-copy">
+        <h2 id="problem-title" class="ck-display h2">One spreadsheet. One admin.</h2>
+        <p class="lede">Today a shared machine’s money and rules live in one person’s spreadsheet.</p>
+      </div>
+      <figure class="sheet" aria-label="Example: a shared printer fund kept in a spreadsheet">
+        <div class="sheet-bar"><span>Printer fund.xlsx</span><span class="example">Example</span></div>
+        <table>
+          <thead><tr><th scope="col">Member</th><th scope="col">Hours</th><th scope="col">Paid</th><th scope="col">Upkeep credit</th></tr></thead>
+          <tbody>
+            <tr><td>Member A</td><td class="ck-num">6</td><td class="ck-num">€18</td><td class="ck-num">2 h</td></tr>
+            <tr class="edited"><td>Member B</td><td class="ck-num">4</td><td class="ck-num">€12</td><td class="ck-num"><s>3 h</s> <ins>0 h</ins></td></tr>
+            <tr><td>Member C</td><td class="ck-num">9</td><td class="ck-num">€27</td><td class="ck-num">—</td></tr>
+            <tr class="total"><td>Balance</td><td></td><td class="ck-num">€57</td><td class="ck-num">?</td></tr>
+          </tbody>
+        </table>
+        <figcaption><span class="cursor" aria-hidden="true">admin</span>Edited by the only admin. No history, no one else can check.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="how wrap" id="how" aria-labelledby="how-title">
+    <header class="head">
+      <h2 id="how-title" class="ck-display h2">The machine keeps the rules.</h2>
+      <p class="lede">Reserve, unlock, upkeep, earned access: each step is a transaction on its own account.</p>
     </header>
+    <ol class="how-steps"><!--ck:how--></ol>
+  </section>
 
-    <main id="main">
-      <!-- 2 · Hero -->
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="wrap hero-in">
-          <div class="hero-copy">
-            <p class="eyebrow"><span class="eyebrow-dot"></span>Social money for shared things</p>
-            <h1 id="hero-title" class="display">
-              <span class="line">Shared things that pay</span>
-              <span class="line grad">for their own upkeep.</span>
-            </h1>
-            <p class="lede">
-              COMMONKIT gives every shared machine its own keyless NEAR account. It funds its upkeep from usage fees,
-              opens the upkeep task itself, and opens up to the people who keep it alive.
-            </p>
-            <div class="cta-row">
-              <a class="btn btn-primary magnetic" href="/app">Open COMMONKIT <span aria-hidden="true">→</span></a>
-              <a class="btn btn-ghost" href="#how">See how it works</a>
-            </div>
-            <!--ck:hero-stats-->
-          </div>
-          <div class="hero-visual hero-a" aria-label="printer-01 read from NEAR testnet">
-            <!--ck:hero-a-->
-          </div>
-          <div class="hero-visual hero-b" aria-label="printer-01 read from NEAR testnet">
-            <!--ck:hero-b-->
-          </div>
-        </div>
-      </section>
+  <section class="care" aria-labelledby="care-title">
+    <div class="wrap">
+      <header class="head center">
+        <h2 id="care-title" class="ck-display h2">One contract, every kind of care.</h2>
+        <p class="lede">The same code runs every commons; only the profile and the device adapter change.</p>
+      </header>
+      <ul class="care-grid"><!--ck:care--></ul>
+      <p class="ck-note center-note">Status as in the README scenario table. “simulation”: runs on testnet or in <span class="ck-mono">simulate.sh</span> with a simulated or emulated device.</p>
+    </div>
+  </section>
 
-      <!-- 3 · Ticker -->
-      <section class="ticker" aria-label="Recent testnet transactions">
-        <!--ck:ticker-->
-      </section>
+  <section class="money wrap" id="money" aria-labelledby="money-title">
+    <header class="head center">
+      <h2 id="money-title" class="ck-display h2">Fees in. Upkeep out.</h2>
+      <p class="lede">Each machine keeps a capped float; everything above the cap goes to the community treasury.</p>
+    </header>
+    <ol class="lineup"><!--ck:money-lineup--></ol>
+    <div class="stats"><!--ck:money-stats--></div>
+  </section>
 
-      <!-- 4 · Problem -->
-      <section class="sec" aria-labelledby="problem-title">
-        <div class="wrap">
-          <div class="panel panel-paper problem">
-            <div class="problem-copy">
-              <p class="kicker">The problem</p>
-              <h2 id="problem-title" class="h2" data-reveal>In a group chat, the person who fixed it disappears.</h2>
-              <ol class="points">
-                <li data-reveal>
-                  <span class="num">01</span>
-                  <div><h3>Upkeep is invisible</h3><p>Someone cleans the nozzle at midnight. A week later nobody remembers who, and nobody thanks them with anything that lasts.</p></div>
-                </li>
-                <li data-reveal>
-                  <span class="num">02</span>
-                  <div><h3>The money sits with one admin</h3><p>Fees and spare parts run through one person's pocket and spreadsheet. When they leave, the system leaves with them.</p></div>
-                </li>
-                <li data-reveal>
-                  <span class="num">03</span>
-                  <div><h3>Rules nobody can enforce</h3><p>"Only trained people on the laser" holds as long as someone happens to be in the room.</p></div>
-                </li>
-              </ol>
-            </div>
-            <!--ck:chat-->
-          </div>
-        </div>
-      </section>
-
-      <!-- 5 · Idea -->
-      <section class="sec idea" aria-labelledby="idea-title">
-        <div class="wrap idea-in">
-          <div class="idea-copy">
-            <p class="kicker kicker-dark">The idea</p>
-            <h2 id="idea-title" class="h2" data-reveal>Give the machine its own account.</h2>
-            <p class="body-lg" data-reveal>
-              Not a wallet someone holds. A keyless NEAR account that runs the same contract on every machine. People
-              reserve it, the bridge next to it only unlocks for a valid reservation, the machine asks for upkeep when
-              its own counters say so, and the person who does the work earns access to it.
-            </p>
-            <ul class="idea-legend" data-reveal>
-              <li><span class="swatch sw-brass"></span>Money: fees in, capped float, the rest to the DAO</li>
-              <li><span class="swatch sw-sage"></span>Access: reservations and earned rights</li>
-            </ul>
-          </div>
-          <!--ck:loop-->
-        </div>
-      </section>
-
-      <!-- 6 · How it works -->
-      <section class="sec how" id="how" aria-labelledby="how-title">
-        <div class="wrap">
-          <p class="kicker kicker-dark">How it works</p>
-          <h2 id="how-title" class="h2 h2-wide" data-reveal>Four steps, every one a transaction you can open.</h2>
-          <!--ck:steps-->
-        </div>
-      </section>
-
-      <!-- 7 · Every kind of care -->
-      <section class="sec care" id="upkeep" aria-labelledby="care-title">
-        <div class="wrap">
-          <p class="kicker kicker-dark">Every kind of care</p>
-          <h2 id="care-title" class="h2 h2-wide" data-reveal>Fix it, refill it, clean it, check it, teach it.</h2>
-          <p class="body-lg care-lede" data-reveal>
-            Twelve commons, one contract. Each tile shows the upkeep rule from its profile file. Only four run as
-            simulated assets on testnet today; the other eight are profile examples with a simulator scenario.
-          </p>
-          <!--ck:care-->
-        </div>
-      </section>
-
-      <!-- 8 · Money flow -->
-      <section class="sec money" aria-labelledby="money-title">
-        <div class="wrap">
-          <p class="kicker kicker-dark">Where the money goes</p>
-          <h2 id="money-title" class="h2 h2-wide" data-reveal>The machine keeps a small float. The rest goes home.</h2>
-          <!--ck:sankey-->
-        </div>
-      </section>
-
-      <!-- 9 · Why onchain -->
-      <section class="sec" id="why" aria-labelledby="why-title">
-        <div class="wrap">
-          <div class="panel panel-paper why">
-            <p class="kicker">Why onchain</p>
-            <h2 id="why-title" class="h2" data-reveal>Access nobody can quietly take back.</h2>
-            <!--ck:why-->
-          </div>
-        </div>
-      </section>
-
-      <!-- 10 · Bounded agent -->
-      <section class="sec agent" aria-labelledby="agent-title">
-        <div class="wrap agent-in">
-          <div>
-            <p class="kicker kicker-dark">A bounded agent</p>
-            <h2 id="agent-title" class="h2" data-reveal>The agent can ask. The contract decides.</h2>
-            <p class="body-lg" data-reveal>
-              Each asset has an operations agent with a function-call key. It can open an upkeep task only when the
-              machine's own on-chain counters crossed the rule's threshold, within the reward caps and the period
-              quota. It can never approve work, move money or mint rights.
-            </p>
-          </div>
-          <!--ck:agent-->
-        </div>
-      </section>
-
-      <!-- 11 · Why NEAR -->
-      <section class="sec near" aria-labelledby="near-title">
-        <div class="wrap">
-          <p class="kicker kicker-dark">Why NEAR</p>
-          <h2 id="near-title" class="h2 h2-wide" data-reveal>A machine needs a name, a narrow key and a treasury it can't empty.</h2>
-          <!--ck:near-->
-        </div>
-      </section>
-
-      <!-- 12 · Pilot & proof -->
-      <section class="sec proof" id="proof" aria-labelledby="proof-title">
-        <div class="wrap">
-          <p class="kicker kicker-dark">Pilot and proof</p>
-          <h2 id="proof-title" class="h2 h2-wide" data-reveal>Don't trust this page. Check it.</h2>
-          <!--ck:proof-->
-        </div>
-      </section>
-
-      <!-- 13 · Final CTA -->
-      <section class="final" aria-labelledby="final-title">
-        <div class="wrap">
-          <!--ck:final-art-->
-          <h2 id="final-title" class="display final-title" data-reveal>Shared things deserve <span class="grad">a keeper.</span></h2>
-          <div class="cta-row cta-center" data-reveal>
-            <a class="btn btn-primary magnetic" href="/app">Open COMMONKIT <span aria-hidden="true">→</span></a>
-            <a class="btn btn-ghost" href="/app/proof">See the proof</a>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="foot">
-      <div class="wordmark" aria-hidden="true">COMMONKIT</div>
-      <div class="wrap foot-in">
-        <nav class="foot-links" aria-label="Footer">
-          <a href="/app">App</a>
-          <a href="/app/proof">Proof</a>
-          <a href="/app/pilot">Pilot</a>
-          <a href="https://github.com/anilkaracay/commonkit">Repository</a>
-        </nav>
-        <p class="foot-note">Built at NEAR HACKATHON 2026 · Social Money track</p>
-        <p class="foot-fine">
-          COMMONKIT runs on NEAR testnet only; testnet NEAR has no value. Every machine on this page is simulated
-          or a profile example; no physical device is involved. Cards marked "Example" are illustrations.
-          <!--ck:build-stamp-->
-        </p>
+  <section class="rights" id="rights" aria-labelledby="rights-title">
+    <div class="wrap rights-grid">
+      <div class="rights-copy">
+        <h2 id="rights-title" class="ck-display h2">Earned access, never taken back.</h2>
+        <p class="lede">Maintain the machine, an independent member verifies, and you receive rights no admin can revoke.</p>
+        <ul class="refused" aria-label="Attempts to take the right back, refused on testnet"><!--ck:rights-refused--></ul>
       </div>
-    </footer>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+      <div class="pass-wrap"><!--ck:rights-pass--></div>
+    </div>
+  </section>
+
+  <section class="agent wrap" id="agent" aria-labelledby="agent-title">
+    <header class="head">
+      <h2 id="agent-title" class="ck-display h2">An agent with hard limits.</h2>
+      <p class="lede">It opens a task only when telemetry crosses a rule; the contract refuses everything else.</p>
+    </header>
+    <div class="agent-card ck-card"><!--ck:agent--></div>
+  </section>
+
+  <section class="proof" id="proof" aria-labelledby="proof-title">
+    <div class="wrap">
+      <header class="head center">
+        <h2 id="proof-title" class="ck-display h2">Check it yourself.</h2>
+        <p class="lede">One read-only script with no keys checks the on-chain claims against testnet.</p>
+      </header>
+      <div class="proof-card ck-card">
+        <p class="cmd ck-mono">./scripts/verify.sh</p>
+        <ol class="checks"><!--ck:proof-checks--></ol>
+        <p class="proof-meta"><!--ck:proof-meta--></p>
+      </div>
+      <p class="center-cta"><a class="ck-btn ck-btn--ghost" href="/app/proof">Open the proof page</a></p>
+    </div>
+  </section>
+
+  <section class="near wrap" id="near" aria-labelledby="near-title">
+    <header class="head">
+      <h2 id="near-title" class="ck-display h2">Why this needs NEAR.</h2>
+      <p class="lede">Accounts, keys and DAOs the protocol already provides, measured on our deployment.</p>
+    </header>
+    <!--ck:near-->
+  </section>
+
+  <section class="pilot wrap" aria-labelledby="pilot-title">
+    <div class="pilot-band">
+      <h2 id="pilot-title">Pilot: pending.</h2>
+      <p>No physical device has been tested yet. Every machine on this page is simulated or emulated, and labelled so.</p>
+      <!--ck:pilot-->
+    </div>
+  </section>
+
+  <section class="final wrap" aria-labelledby="final-title">
+    <h2 id="final-title" class="ck-display">Open the machine’s books.</h2>
+    <p class="lede">Read-only without a wallet. Every number links to testnet.</p>
+    <a class="ck-btn ck-btn--lg" href="/app">Open the app</a>
+  </section>
+</main>
+
+<footer class="foot wrap">
+  <div class="foot-row">
+    <span class="mark">COMMONKIT</span>
+    <nav aria-label="Footer"><a href="/app">App</a><a href="/app/proof">Proof</a><a href="<!--ck:repo-url-->">Source</a><a href="/llms.txt">llms.txt</a></nav>
+  </div>
+  <p class="foot-note">Built at NEAR HACKATHON 2026 · Social Money track · NEAR testnet only, testnet NEAR has no value · asset code_hash <span class="ck-mono"><!--ck:code-hash--></span> · built <!--ck:build-stamp--></p>
+</footer>
+<!--ck:live-config-->
+<script type="module" src="./src/main.ts"></script>
+</body>
 </html>
