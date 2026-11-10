@@ -1,13 +1,13 @@
 /**
  * React Query hooks. Composite "snapshot" queries keep pages simple; each still only calls
- * DataSource methods, so the RPC source drops in unchanged. Asset pages poll (FRONTEND_SPEC §3).
+ * DataSource methods. No hook polls on its own: one page-level cycle refreshes the active
+ * queries (data/poll.ts), and the RPC source's view cache absorbs repeats.
  */
 import { useQuery } from '@tanstack/react-query';
 import { useDataSource, type DataSource } from './source';
 import type { AccountId } from './types';
 import type { DeployedAsset, DeployedCommunity } from './offchain';
 
-const POLL_MS = 8_000;
 const PAGE = 100;
 
 export function useDeployment() {
@@ -46,7 +46,6 @@ export function useAssetSnapshot(assetId: AccountId | undefined) {
     queryKey: ['asset', ds.kind, assetId],
     queryFn: () => loadAssetSnapshot(ds, assetId as AccountId),
     enabled: !!assetId,
-    refetchInterval: ds.kind === 'rpc' ? POLL_MS : false,
   });
 }
 
@@ -81,7 +80,6 @@ export function useAllAssets() {
       const snaps = await Promise.all(list.map((d) => loadBoardSnapshot(ds, d.asset_id)));
       return snaps.map((snap, i) => ({ deployed: list[i] as DeployedAsset, snap }));
     },
-    refetchInterval: ds.kind === 'rpc' ? POLL_MS : false,
   });
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { useDataSource } from '../data/source';
+import { usePagePoll } from '../data/poll';
 import { DemoOverlay, DemoProvider, useDemo, useDemoLink } from '../demo/demo';
 import { useWallet } from '../wallet/wallet';
 import { MockBanner } from './Badges';
@@ -74,6 +75,7 @@ function Frame() {
   const ds = useDataSource();
   const link = useDemoLink();
   const { pathname } = useLocation();
+  usePagePoll();
   useEffect(() => window.scrollTo?.(0, 0), [pathname]);
   return (
     <div className="flex min-h-dvh flex-col">

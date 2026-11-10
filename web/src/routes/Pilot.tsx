@@ -43,7 +43,6 @@ export function PilotPage() {
     queryKey: ['balance', ds.kind, account],
     enabled: !!account,
     queryFn: () => ds.viewAccount(account as string),
-    refetchInterval: 10_000,
   });
   const funded = !!balance.data && toYocto(balance.data.amount) >= parseNear('0.1');
 

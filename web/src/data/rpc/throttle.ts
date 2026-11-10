@@ -29,6 +29,8 @@ export function throttledFetch(
     else active -= 1;
   };
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  /** Exponential backoff with full jitter: 0.5–1.5 × 600 ms × 2^attempt, capped at 15 s. */
+  const backoff = (attempt: number) => Math.min(15_000, 600 * 2 ** attempt * (0.5 + Math.random()));
 
   return async (input: string, init?: RequestInit): Promise<Response> => {
     await acquire();
@@ -49,12 +51,12 @@ export function throttledFetch(
         } catch (e) {
           // A rate-limited reply without CORS headers surfaces as a network TypeError.
           if (attempt >= retries) throw e;
-          await sleep(500 * 2 ** attempt);
+          await sleep(backoff(attempt));
           continue;
         }
         if ((res.status !== 429 && res.status < 500) || attempt >= retries) return res;
         const retryAfter = Number(res.headers.get('retry-after'));
-        await sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter * 1000, 5000) : 500 * 2 ** attempt);
+        await sleep(Math.max(backoff(attempt), Number.isFinite(retryAfter) ? Math.min(retryAfter * 1000, 10_000) : 0));
       }
     } finally {
       release();

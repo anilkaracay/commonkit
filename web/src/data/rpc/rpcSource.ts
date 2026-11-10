@@ -6,6 +6,7 @@
  */
 import { NearRpc } from '@commonkit/sdk';
 import { throttledFetch } from './throttle';
+import { ViewCache } from './cache';
 import type { AssetViews, CommonsViews, DaoViews, DataSource } from '../source';
 import type { AccessKeyInfo, AccountState, Policy, Proposal } from '../offchain';
 import type { AccountId } from '../types';
@@ -31,7 +32,9 @@ export interface RpcSourceOptions {
 export function createRpcSource(opts: RpcSourceOptions = {}): DataSource {
   const url = opts.rpcUrl ?? DEFAULT_TESTNET_RPC;
   const rpc = opts.rpc ?? new NearRpc(url, throttledFetch(3, 6, 8, undefined, FALLBACK_TESTNET_RPC));
-  const v = <T,>(account: string, method: string, args: object = {}) => rpc.view<T>(account, method, args);
+  const cache = new ViewCache();
+  const v = <T,>(account: string, method: string, args: object = {}) =>
+    cache.get<T>(`${account}|${method}|${JSON.stringify(args)}`, method, () => rpc.view<T>(account, method, args));
   const txLog = bundledTxLog();
   const profileFiles = new Map(bundledDeployment.assets.map((a) => [a.asset_id, a.profile_file]));
 
@@ -93,10 +96,11 @@ export function createRpcSource(opts: RpcSourceOptions = {}): DataSource {
     dao,
     getDaoList: (factory) => v<AccountId[]>(factory, 'get_dao_list'),
     viewAccount: async (id): Promise<AccountState> => {
-      const a = await rpc.viewAccount(id);
+      const a = await cache.get(`${id}|view_account`, 'view_account', () => rpc.viewAccount(id));
       return { amount: a.amount, locked: (a as { locked?: string }).locked ?? '0', code_hash: a.code_hash, storage_usage: a.storage_usage };
     },
-    viewAccessKeyList: async (id) => (await rpc.viewAccessKeyList(id)).keys as AccessKeyInfo[],
+    viewAccessKeyList: async (id) =>
+      (await cache.get(`${id}|view_access_key_list`, 'view_access_key_list', () => rpc.viewAccessKeyList(id))).keys as AccessKeyInfo[],
     getDeployment: async () => bundledDeployment,
     getProfileCatalog: async () => loadCatalog(),
     getProfileMeta: async (id) => {

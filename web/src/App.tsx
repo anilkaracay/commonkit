@@ -5,7 +5,7 @@ import { ToastProvider } from './components/Toast';
 import { WalletContext, unavailableWallet, type WalletProvider } from './wallet/wallet';
 
 export function makeQueryClient(): QueryClient {
-  return new QueryClient({ defaultOptions: { queries: { retry: 2, staleTime: 20_000, refetchOnWindowFocus: false } } });
+  return new QueryClient({ defaultOptions: { queries: { retry: 2, staleTime: 30_000, refetchOnWindowFocus: false, refetchIntervalInBackground: false } } });
 }
 
 export function AppProviders({
