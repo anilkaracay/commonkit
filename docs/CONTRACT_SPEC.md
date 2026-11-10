@@ -583,6 +583,7 @@ Each event `data` includes the ids needed to link it (reservation_id, task_id, t
 3. Delete the full-access key. **Verify** `view_access_key_list` is empty → record in `deployments/testnet.json` with `code_hash`.
 4. All further changes only through DAO proposals.
 5. No upgrade method in v1 (immutable). Record in DECISIONS (trade-off: bug fix = redeploy to a new account + DAO re-registration).
+6. Code provenance (D-218): the deployed WASM is the host `non-reproducible-wasm` build (rustc 1.98.1, cargo-near 0.23.0) whose hashes are recorded in `deployments/testnet.json` and reproduced by a rebuild on that toolchain; the Docker `reproducible-wasm` build of the same source has different, stable hashes, which `verify.sh` prints as information only.
 
 ## 12. Required test coverage (see TEST_PLAN for the matrix)
 

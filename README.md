@@ -112,6 +112,8 @@ pnpm test:contracts          # 402 unit + 34 sandbox tests (lead rerun 2026-11-1
 ./scripts/verify.sh          # read-only checks against testnet (keyless check still pending, see limits)
 ```
 
+The deployed WASM is a host build (rustc 1.98.1, cargo-near 0.23.0) that a rebuild on that toolchain reproduces byte for byte; the Docker `reproducible-wasm` build of the same source gives different hashes, which `verify.sh` prints for information only ([D-218](docs/DECISIONS.md)).
+
 Invariant tests ([`contracts/tests/tests/invariants.rs`](contracts/tests/tests/invariants.rs), all passing): `inv_custody_float_cap_sweeps_excess`, `inv_custody_deposits_never_swept`, `inv_no_retroactive_revocation`, `inv_no_self_verification_task`, `inv_no_self_verification_training`, `inv_exactly_once_reward_retry`, `inv_failed_refund_keeps_claim`, `inv_no_double_booking_concurrent`, `inv_slots_released_on_rejection`, `inv_agent_bounded_rule_not_due`, `inv_agent_bounded_quota`, `inv_agent_revoked`, `inv_ledger_balance_covers_obligations`, `inv_rights_group_scope`, `inv_non_transferable`, `inv_credential_required`, `inv_restock_expense_capped_and_not_from_deposits`, `inv_out_of_service_blocks_access_and_refunds`, `inv_fault_report_requires_recent_session`, `inv_schedule_rule_due_only_after_interval`.
 
 `./scripts/simulate.sh <asset_type>` for all 12 profiles is pending.
