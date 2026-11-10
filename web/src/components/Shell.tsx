@@ -76,7 +76,10 @@ function Frame() {
   const link = useDemoLink();
   const { pathname } = useLocation();
   usePagePoll();
-  useEffect(() => window.scrollTo?.(0, 0), [pathname]);
+  useEffect(() => {
+    // Braces matter: an effect must return nothing or a cleanup function.
+    window.scrollTo?.(0, 0);
+  }, [pathname]);
   return (
     <div className="flex min-h-dvh flex-col">
       {ds.kind === 'mock' && <MockBanner />}
