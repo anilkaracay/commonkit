@@ -11,6 +11,19 @@ export function metricLabel(metric: string): string {
   return metric.replace(/_total$/, '').replace(/_/g, ' ');
 }
 
+const enPlural = new Intl.PluralRules('en');
+
+/**
+ * The counter's unit for a given count: "1 job", "13 jobs", "1 cycle", "330,000 filament used mm".
+ * Labels are plural nouns; the singular drops a trailing "s" (unit words that do not end in "s"
+ * stay as they are).
+ */
+export function unitWord(metric: string, count: bigint | number): string {
+  const label = metricLabel(metric);
+  const one = enPlural.select(Number(count)) === 'one';
+  return one && label.endsWith('s') && !label.endsWith('ss') ? label.slice(0, -1) : label;
+}
+
 /** Seconds counters render as hours/minutes, everything else as a grouped integer. */
 export function formatMetric(metric: string, value: U64Num | bigint): string {
   const v = BigInt(value);
@@ -73,7 +86,7 @@ export function ruleProgress(rule: RuleStatus): RuleProgress {
   if ('Metric' in t) {
     threshold = BigInt(t.Metric.threshold);
     const m = t.Metric.metric;
-    format = (v) => (m.endsWith('_seconds') ? formatMetric(m, v) : `${formatMetric(m, v)} ${metricLabel(m)}`);
+    format = (v) => (m.endsWith('_seconds') ? formatMetric(m, v) : `${formatMetric(m, v)} ${unitWord(m, v)}`);
     bare = (v) => formatMetric(m, v);
     long = (v) => (m.endsWith('_seconds') ? `${formatMetric(m, v)} ${metricLabel(m)}` : format(v));
     ruleText = `rule every ${format(threshold)}`;

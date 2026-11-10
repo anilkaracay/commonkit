@@ -37,3 +37,22 @@ describe('upkeep rule progress per trigger', () => {
     expect(formatMetric('run_seconds', 7380)).toBe('2 h');
   });
 });
+
+describe('unit words agree with the count', () => {
+  it('uses the singular for one and the plural otherwise', async () => {
+    const { unitWord } = await import('../lib/metrics');
+    expect(unitWord('jobs_total', 1)).toBe('job');
+    expect(unitWord('jobs_total', 13n)).toBe('jobs');
+    expect(unitWord('cycles', 1)).toBe('cycle');
+    expect(unitWord('cycles', 0)).toBe('cycles');
+    expect(unitWord('filament_used_mm', 1)).toBe('filament used mm');
+  });
+
+  it('reads "rule every 1 job" for a lowered demo threshold', () => {
+    const r: RuleStatus = { ...base, rule_id: 'bed', kind: 'Maintenance', trigger: { Metric: { metric: 'jobs_total', threshold: 1 } }, current: '13', baseline: '0', due_value: '13', ...rw };
+    const p = ruleProgress(r);
+    expect(`${p.long(p.used)} · ${p.ruleText}`).toBe('13 jobs · rule every 1 job');
+    const c: RuleStatus = { ...r, trigger: { Metric: { metric: 'cycles', threshold: 1 } } };
+    expect(ruleProgress(c).ruleText).toBe('rule every 1 cycle');
+  });
+});
