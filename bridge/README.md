@@ -11,10 +11,20 @@ pnpm --filter @commonkit/bridge dev         # SIMULATION: fake chain + simulated
 pnpm --filter @commonkit/bridge gen:vectors # regenerate test/fixtures/nep413-vectors.json (deterministic)
 ```
 
+```bash
+pnpm --filter @commonkit/bridge dev:emulated   # SIMULATION: real adapters -> device emulators (config.emulated.yaml)
+pnpm --filter @commonkit/bridge emulate moonraker --port 7125 --speed 60 --api-key k   # one emulated device
+```
+
+`dev:emulated` starts an emulated Moonraker and an emulated Shelly Gen2 (a lamp-class load, the
+laser cutter stand-in), then the bridge: printer-01 → `moonraker` adapter, laser-01 → `smart_plug`
+adapter, washer-01 and fridge-01 → simulator. No hardware is involved anywhere (D-022). Every asset is
+labelled simulated, and every emulator response carries `x-commonkit-emulated`.
+
 `dev` uses an **in-memory fake chain**: nothing is written to NEAR. Every log line, event and evidence
 line is labelled `simulated: true`, and sim evidence goes to `state/sim/evidence/`, never to `evidence/`.
-`chain: near` reads through `@commonkit/sdk`. Writes still need the bridge transaction signer (not built
-yet); until then the NEAR client refuses every write.
+`chain: near` reads through `@commonkit/sdk` and writes through `@commonkit/sdk/signer`, with one
+function-call key per asset (`signer_env` or the keychain key listed in `deployments/testnet.json`; D-412).
 
 ## HTTP API
 
@@ -83,10 +93,22 @@ A session locked early adds its linear share but no step counters. Every report 
 
 ## Adapters
 
-`src/adapters/types.ts` defines the interface. Every adapter must pass `test/adapter.contract.ts`
-(`describeAdapterContract`). This build has `simulator` only. `moonraker`, `octoprint`, `smart_plug` and
-`manual_qr` are accepted in config but fail at startup until they are implemented.
+`src/adapters/types.ts` defines the interface. Every adapter passes `test/adapter.contract.ts`:
+
+| Adapter | Tested against | Metrics |
+| :--- | :--- | :--- |
+| `simulator` | 5 scenarios | per scenario (+ gauges) |
+| `moonraker` | Moonraker emulator | `print_seconds`, `nozzle_seconds`, `jobs_total`, `jobs_failed`, `filament_used_mm` |
+| `octoprint` | OctoPrint emulator | same, counted by the adapter |
+| `smart_plug` | Shelly Gen2, Shelly Gen1, Tasmota emulators | `energy_wh`, `run_seconds`, `cycles` (+ `temperature_c` gauge, Gen2) |
+| `manual_qr` | steward confirmations | `uses` |
 
 Safety: an asset with `safety.dangerous: true` and a real adapter does not load unless it has a
 labelled `safety.stand_in` (shown in events) or `human_present_confirmed: true`, which an operator sets
-only while a person is physically at the device.
+only while a person is physically at the device. The demo laser is an emulated lamp-class load.
+
+## Emulators
+
+`src/emulators/`: Moonraker, OctoPrint, Shelly Gen2, Shelly Gen1 and Tasmota, each implementing only the
+documented API subset the adapters use (research E1–E9). Faults can be switched at runtime:
+`POST /__emulator/faults {"offline"|"auth_fail"|"job_error"|"stuck": true}`. See BRIDGE_AND_ADAPTERS §4.7.

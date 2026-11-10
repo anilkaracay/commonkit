@@ -46,10 +46,13 @@ Per-asset keys added by the bridge decisions: `verification_tests: {<rule_id>: {
 | :--- | :--- | :--- | :--- |
 | GET | `/health` | — | adapters status |
 | GET | `/assets` | — | configured assets + live device state |
-| POST | `/access/challenge` | `{asset_id, account_id, action: access\|finish\|verify (default access), reservation_id \| task_id}` (D-403) | `{nonce (32 bytes b64), message, recipient: "commonkit-bridge:<bridge_account>", expires_at}` |
-| POST | `/access` | `{asset_id, reservation_id, account_id, public_key, signature, nonce, message}` + optional multipart job file | `{ok, session_id, reason?}` |
+| POST | `/access/challenge` | `{asset_id, account_id, action: access\|finish\|verify\|confirm (default access), reservation_id \| task_id}` (D-403) | `{nonce (32 bytes b64), message, recipient: "commonkit-bridge:<bridge_account>", expires_at}` |
+| POST | `/access` | `{asset_id, reservation_id, account_id, public_key, signature, nonce, message}` (multipart job upload: not yet; printers print the configured `default_job`) | `{ok, session_id, resumed, key_permission, device, simulated}`; `device` = adapter session info (manual_qr handover code) |
+| GET | `/sessions/:id` | — | session state (chain-time start and deadline, txs, metrics) |
 | POST | `/sessions/:id/finish` | signed like `/access` (holder can end early) | `{ok}` |
 | POST | `/verification/:asset/:task_id/run` | signed by the task claimer (action `verify`) | checks on chain: task `Submitted`, signer is the claimer, no result yet; returns 202 `{run_id}`; progress over SSE and `GET /verification/runs/:id` (D-407) |
+| GET | `/verification/runs/:id` | — | run status, `passed`, `details_hash`, `tx` |
+| POST | `/manual/:asset/:session_id/confirm` | signed by a steward (action `confirm`), `{step: handover\|return, code?}` | manual_qr only: steward role checked with `get_roles`; the holder can never confirm (D-413) |
 | GET | `/events` | — | Server-Sent Events of bridge actions (for the live demo screen) |
 
 ### 3.1 NEP-413 verification (must all pass)
@@ -78,34 +81,37 @@ export interface Adapter {
 }
 ```
 
-Every adapter has unit tests with a fake HTTP server (msw or nock) and one contract test (`adapter.contract.test.ts`) shared by all adapters.
+Every adapter passes the shared contract suite (`bridge/test/adapter.contract.ts`) — the simulator with five scenarios, `moonraker` / `octoprint` / `smart_plug` (all three vendors) against their device emulators (§4.7), `manual_qr` with steward confirmations — plus adapter-specific failure-mode tests. Device responses are zod-validated; network failures become `AdapterOfflineError`, HTTP errors `DeviceHttpError` (401/403 = "authentication failed"). Secrets are named by env var in `adapter_config` (`api_key_env`, `password_env`), never stored in config.
 
 ### 4.1 `moonraker` (3D printer, Klipper)
 
-- `unlock(session)`: upload job file with print=true (`POST /server/files/upload`, research E1). If no file (interactive session), just mark ready.
+- `unlock(session)`: upload the job (member file, else `default_job`) with `print=true` and the sha256 `checksum` (`POST /server/files/upload`, research E1); refuses if the printer is printing or `print_started` is false. Without any job the session is interactive (holder or deadline ends it).
+- `lock()` at a forced end (deadline) cancels a print that is still running (`POST /printer/print/cancel`): the slot is over.
 - `lock()`: printers are "locked" by the fact that only the bridge holds the API key and member-facing UIs are disabled or password-protected (research E5). Document exactly how in README.
 - `readMetrics()`: from `GET /server/history/totals` → `job_totals {total_jobs, total_print_time, total_filament_used}` in seconds and mm (research E3) → `jobs_total`, `print_seconds`, `filament_used_mm` (the Restock rule `filament_spool`); `jobs_failed` from job history / `print_stats.state == error` (E2). `nozzle_seconds` = print_seconds since last nozzle change (simplest: `nozzle_seconds = print_seconds`; the on-chain rule baseline handles resets). E3 is from the Moonraker docs; in the demo the adapter reads it from the emulated Moonraker (§4.7), never a real printer (D-022).
-- `runVerification({type: "calibration_print", file: "verify/calibration_cube.gcode", max_minutes})`: run print, wait for `complete` state without errors → passed. `detailsHash` = sha256 of the job record JSON.
-- `sessionDone`: `print_stats.state in {complete, cancelled, error}`.
+- `jobs_failed` is counted by the adapter, once per job, when it sees `print_stats.state == error` for its own job (Moonraker totals have no failure count).
+- `runVerification({type: "calibration_print", file: "gcode/calibration_cube.gcode", max_minutes})`: upload + print, poll until terminal (`max_minutes` scaled by `time_scale` for emulators), cancel on timeout; passed only on `complete`. `detailsHash` = sha256 of the canonical JSON of the run details.
+- `sessionDone`: `print_stats.state in {complete, cancelled, error}` for the session's own file.
 
 ### 4.2 `octoprint` (fallback printer)
 
-Same contract using OctoPrint REST (research E6).
+Same contract using OctoPrint REST (research E6): `POST /api/files/local` (`select`, `print`), `GET /api/job`, `POST /api/job {"command":"cancel"}`, `X-Api-Key`. OctoPrint core has no cumulative totals endpoint, so the adapter adds each finished session job to persisted counters exactly once (`jobs_total`, `jobs_failed`, `print_seconds`, `filament_used_mm` × completion).
 
 ### 4.3 `smart_plug` (any electric device)
 
 - Vendors: `shelly_gen2` (RPC: `Switch.Set`, `Switch.GetStatus` → `apower`, `aenergy.total`), `shelly_gen1` (`/relay/0`, `/meter/0`), `tasmota` (`Power`, `Status 8`). Verify endpoints (research E7–E9).
-- `lock()` = power off; `unlock()` = power on.
-- `readMetrics()` → `energy_wh` (cumulative), `run_seconds` (seconds with power > `active_watts_threshold`), `cycles` (count of active→idle transitions lasting > `min_cycle_seconds`). Cycle detection runs in the bridge on a 1–5 s poll loop; persisted to `bridge/state/<asset>.json` so restarts keep counters monotonic.
-- `sessionDone`: session timer elapsed, or (for cycle devices) a cycle ended.
+- `lock()` = power off; `unlock()` = power on; both read the relay back, and a relay that does not follow is an error (`relay stuck`), never a silent success.
+- `readMetrics()` → `energy_wh` (cumulative), `run_seconds` (seconds with power > `active_watts_threshold`), `cycles` (count of active→idle transitions lasting > `min_cycle_seconds`). Cycle detection runs in the adapter on a `poll_ms` loop (default 2 s); persisted to `bridge/state/<asset>.smart_plug.json`. An idle dip shorter than `idle_grace_seconds` (wash pause) does not end a cycle, and a sampling gap longer than 5 polls is never counted as running time. The detector is a pure function tested on synthetic power traces (`bridge/test/fixtures/traces/`, generated, labelled synthetic).
+- `sessionDone`: `session_end: cycle` → a new cycle ended since unlock; `manual` (laser, lamp) → never; the holder or the chain-time deadline ends the session.
 - `runVerification({type: "power_profile", expect: {min_watts, max_watts, seconds}})` → passed if observed profile within bounds.
 - Optional `temperature_c` gauge (community_fridge `temperature_check`) when the device exposes a temperature sensor. Research E7 verified only switch, power and energy fields, so no plug temperature read is claimed; in the demo the gauge comes from the emulator or the simulator, labelled simulation (D-022).
 - **Safety:** a laser cutter is powered on only when a human is present. In the demo `laser-01` drives an emulated Shelly plug (§4.7), so nothing is energized (D-022). Enforced in config (D-408): a `dangerous` asset on a real adapter fails validation unless it has a labelled `stand_in` (copied into unlock events) or `human_present_confirmed: true`, which an operator sets only while a person is at the device and never commits.
 
 ### 4.4 `manual_qr` (no electronics)
 
-- `unlock`: returns a one-time QR code the steward scans to hand over the item; `lock`: steward scans return QR.
-- Metrics: `uses` only.
+- `unlock` creates a one-time handover code, returned to the holder in the `/access` response (`device.manual_qr.handover_code`, shown as a QR).
+- The steward confirms the handover (scanning the holder's code) and later the return with `POST /manual/:asset/:session_id/confirm`, NEP-413 signed (action `confirm`). The bridge checks the steward role on the asset (`get_roles`), and the adapter refuses the holder. The return ends the session (`sessionDone`).
+- Metrics: `uses` (counted once, on return). No automated verification test: the verifier inspects the item in person.
 
 ### 4.5 `simulator` (judges, CI, scenario 3+)
 
@@ -117,16 +123,23 @@ Same contract using OctoPrint REST (research E6).
 
 `report_telemetry` accepts only monotonic counters (`E_TELEMETRY_NOT_MONOTONIC`). Levels that go up and down (`temperature_c`, `fuel_level`) come from `readGauges()` and are never sent raw. Per asset, config `gauges` derives counters on every telemetry tick: `samples_above` / `samples_below` a limit (× `telemetry_interval_sec` ≈ time out of range), `decrease_sum` (× `scale`) and `increase_count` (rises ≥ `min_step`, e.g. refills). The profiles use the derived names: community_fridge `temp_high_samples ≥ 6`, emergency_generator `fuel_used_dl ≥ 200`. Derived counters get the normal monotonic protection (D-406); state in `bridge/state/<asset>.gauges.json`. Live gauge values appear in bridge events and `/assets` only, so a live temperature display reads the bridge, not the chain.
 
-### 4.7 Device emulators (D-022; in progress, the bridge engineer refines this section)
+### 4.7 Device emulators (D-022, D-413)
 
-No physical device is used in the hackathon. To keep the real code paths, the production adapters (`moonraker`, `octoprint`, `smart_plug` for Shelly Gen2 / Gen1 / Tasmota, `manual_qr`) run unchanged against **device emulators**: local HTTP servers that implement only the documented API subset these adapters call (research E1–E9), with:
+No physical device is used in the hackathon. The production adapters run unchanged against **device emulators** in `bridge/src/emulators/`: Fastify servers that implement only the documented API subset the adapters call (research E1–E9).
 
-- the device state machine (Moonraker `print_stats.state` standby → printing → complete / cancelled / error; Shelly switch on/off),
-- cumulative counters the adapters read (`history/totals` jobs, print time, filament mm; `aenergy.total` Wh, `apower` W),
-- the same auth as the device (Moonraker `X-Api-Key`; Shelly digest auth if enabled),
-- failure modes (offline, job error, failed calibration, wrong key) driven by the scenario file, deterministic with a seed.
+| Emulator | Endpoints | State and counters | Auth |
+| :--- | :--- | :--- | :--- |
+| `moonraker` | `POST /server/files/upload` (multipart, `checksum` → 422 on mismatch, `print`), `POST /printer/print/start\|cancel`, `GET /printer/objects/query?print_stats&virtual_sdcard`, `GET /server/history/totals` | `print_stats.state` standby → printing → complete / cancelled / error; duration and filament from slicer comments in the G-code; totals incl. `total_filament_used` (mm) | `X-Api-Key` (401) |
+| `octoprint` | `POST /api/files/local`, `GET /api/job`, `POST /api/job {cancel}` | state Operational / Printing / Error; completion, printTime | `X-Api-Key` (403) |
+| `shelly-gen2` | `GET /rpc/Switch.Set`, `GET /rpc/Switch.GetStatus` | `output`, `apower`, `aenergy.total` (Wh), `temperature.tC` | 401 on the `auth_fail` fault (digest auth itself is not emulated) |
+| `shelly-gen1` | `GET /relay/0[?turn=]`, `GET /meter/0` | `ison`; `power`, `total` (watt-minutes) | optional basic auth |
+| `tasmota` | `GET /cm?cmnd=Power …`, `Status 8` | `POWER`; `ENERGY.Total` (kWh), `Power` | optional `user`/`password` |
 
-The bridge config points the adapter's `base_url` at the emulator; nothing else changes. Every emulator response path, bridge log line, event and UI badge says SIMULATED / emulated device, and the `simulated = 1` metric goes on chain as for the simulator (D-401). The adapter tests run against the same emulators. Honest limit: an emulator follows the documentation, not a real device, so no claim is made about real Moonraker or Shelly firmware (§5).
+- Time: an injectable clock (`ManualClock` in tests, `ScaledClock(speed)` in the CLI). Loads are piecewise-constant power profiles integrated exactly: `lamp_60w` (the laser stand-in: the emulator never models a laser being on), `washer_cycle`, `fridge_compressor`.
+- Failure modes via `POST /__emulator/faults`: `offline` (connections dropped), `auth_fail`, `job_error` (next print errors half-way), `stuck` (relay ignores commands). `GET /__emulator` shows state; the control plane stays reachable when "offline".
+- Labels: every response carries `x-commonkit-emulated: <device>`; every emulator log line has `emulated: true, simulated: true`. In the bridge, `emulated_device: true` marks the asset simulated everywhere, including the on-chain `simulated = 1` metric (D-401).
+- Run one: `pnpm --filter @commonkit/bridge emulate <moonraker|octoprint|shelly-gen2|shelly-gen1|tasmota> --port N --speed 60 [--api-key K] [--load lamp_60w]`. Whole stack: `pnpm --filter @commonkit/bridge dev:emulated` (§6).
+- Honest limit: an emulator follows the documentation, not a real device, so no claim is made about real Moonraker, OctoPrint, Shelly or Tasmota firmware (§5).
 
 ## 5. Device-side lock assumptions (honest limits)
 
@@ -136,7 +149,7 @@ The bridge config points the adapter's `base_url` at the emulator; nothing else 
 
 ## 6. Ops
 
-- `pnpm dev:bridge` (local), `pnpm start:bridge` (Pi). Systemd unit example in `bridge/deploy/`.
+- `pnpm dev:bridge` (simulator + fake chain), `pnpm --filter @commonkit/bridge dev:emulated` (the four demo assets: printer-01 → moonraker → emulated Moonraker, laser-01 → smart_plug → emulated Shelly Gen2 with a lamp-class load, washer-01 and fridge-01 → simulator; fake chain by default, `BRIDGE_CHAIN=near` for testnet).
 - Clock: bridge uses chain time (final block `timestamp_nanosec`, cached ≤ 5 s) for challenge expiry and session deadlines, not the local clock (D-405).
 - Retries: on RPC errors, exponential backoff; contract panics with an `E_*` code are not retried, they are deterministic (D-410). Never re-send `mark_session_started` or `mark_session_finished` for the same reservation (view check first). Chain writes for one asset are serialized (D-405).
 - Counters: `bridge/state/<asset>.counters.json` keeps the highest value per metric, applies an offset when a device counter goes backwards, and seeds its floor from `get_telemetry` at start (D-406).
