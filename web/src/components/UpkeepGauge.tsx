@@ -97,8 +97,8 @@ export function RuleBars({ rules, ruleDefs }: { rules: RuleStatus[]; ruleDefs: U
                 <KindIcon kind={rule.kind} />
                 {def?.title ?? rule.rule_id}
               </span>
-              <span className="num shrink-0 text-xs text-ink-2">
-                {p.format(p.used)} / {p.format(p.threshold)}
+              <span className="num min-w-0 text-right text-xs break-words text-ink-2">
+                {p.bare(p.used)} / {p.format(p.threshold)}
               </span>
             </div>
             <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(100, Math.round(p.fraction * 100))} aria-label={`${def?.title ?? rule.rule_id} progress`}>

@@ -66,7 +66,7 @@ describe('every route renders with the mock source', () => {
   it('simulated asset page carries the SIMULATED badge and the simulate.sh command', async () => {
     renderAt(`/a/${A.washer}`);
     expect((await screen.findAllByText('SIMULATED')).length).toBeGreaterThan(0);
-    expect(screen.getByText('./scripts/simulate.sh washer')).toBeInTheDocument();
+    expect(screen.getByText(/simulate\.sh washer/)).toBeInTheDocument();
   });
 
   it('proof page lists every verify.sh check', async () => {

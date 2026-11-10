@@ -49,6 +49,8 @@ export interface RuleProgress {
   fraction: number;
   /** Formats a quantity of this rule's unit ("18 min", "3 d", "2 reports", "41 cycles"). */
   format(v: bigint): string;
+  /** Same quantity without a trailing word unit ("41" instead of "41 cycles"); time units stay. */
+  bare(v: bigint): string;
   /** "nozzle time since last upkeep" etc. */
   caption: string;
 }
@@ -58,6 +60,7 @@ export function ruleProgress(rule: RuleStatus): RuleProgress {
   let used: bigint;
   let threshold: bigint;
   let format: (v: bigint) => string;
+  let bare: (v: bigint) => string;
   let caption: string;
   // `due_value` is computed by the contract per trigger: Metric delta, Schedule hours, Report count.
   used = BigInt(rule.due_value);
@@ -65,20 +68,23 @@ export function ruleProgress(rule: RuleStatus): RuleProgress {
     threshold = BigInt(t.Metric.threshold);
     const m = t.Metric.metric;
     format = (v) => (m.endsWith('_seconds') ? formatMetric(m, v) : `${formatMetric(m, v)} ${metricLabel(m)}`);
+    bare = (v) => formatMetric(m, v);
     caption = `${metricLabel(m)} since last upkeep`;
   } else if ('Schedule' in t) {
     threshold = BigInt(t.Schedule.every_hours);
     format = formatHours;
+    bare = formatHours;
     caption = 'time since last done';
   } else {
     threshold = BigInt(t.Report.min_reports);
     format = (v) => `${v} report${v === 1n ? '' : 's'}`;
+    bare = (v) => String(v);
     caption = 'active fault reports';
   }
   if (used < 0n) used = 0n;
   const remaining = threshold > used ? threshold - used : 0n;
   const fraction = threshold === 0n ? 1 : Number((used * 10_000n) / threshold) / 10_000;
-  return { rule, used, threshold, remaining, fraction, format, caption };
+  return { rule, used, threshold, remaining, fraction, format, bare, caption };
 }
 
 /** The rule closest to (or furthest past) its threshold: what the gauge shows. */

@@ -146,7 +146,7 @@ export function AssetPage() {
 
       {action && <AssetAction action={action} snap={s} />}
 
-      {sim && <SimulationPanel />}
+      {sim && <SimulationPanel assetType={s.profile.asset_type} adapter={s.profile.adapter} />}
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <Section title="Kasa" eyebrow="what this machine holds">
@@ -359,9 +359,10 @@ export function AssetPage() {
 }
 
 /** Simulator assets: the button does nothing on-chain; it shows how to run it and the last run. */
-function SimulationPanel() {
+function SimulationPanel({ assetType, adapter }: { assetType: string; adapter: string }) {
   const evidence = useEvidence();
   const run = evidence.data?.find((st) => st.step === 15);
+  const emulated = adapter !== 'simulator';
   return (
     <div className="tag tag-sim flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
       <div className="flex-1">
@@ -369,9 +370,20 @@ function SimulationPanel() {
           <SimulatedBadge /> This machine is simulated
         </p>
         <p className="mt-1 text-sm text-ink-2">
-          Telemetry comes from <span className="num">scenarios/washer.yaml</span>, not hardware. Run the full loop yourself:
+          {emulated ? (
+            <>
+              The real <span className="num">{adapter}</span> adapter talks to an emulated device; no physical machine is involved. Run the emulated stack yourself:
+            </>
+          ) : (
+            <>
+              Telemetry comes from a simulator scenario for <span className="num">{assetType}</span>, not hardware.
+            </>
+          )}
         </p>
-        <code className="mt-2 block rounded-md bg-ink px-3 py-2 font-mono text-xs text-paper">./scripts/simulate.sh washer</code>
+        <code className="mt-2 block rounded-md bg-ink px-3 py-2 font-mono text-xs break-all text-paper">
+          {emulated ? 'pnpm --filter @commonkit/bridge dev:emulated' : `./scripts/simulate.sh ${assetType}`}
+        </code>
+        {!emulated && <p className="mt-1 text-xs text-ink-3">simulate.sh is still being written (README); until then the bridge simulator runs this scenario.</p>}
       </div>
       <div className="text-sm sm:w-64">
         <a href={`${config.repoUrl}#simulation`} target="_blank" rel="noreferrer" className="inline-block rounded-full border border-sim px-4 py-1.5 font-medium text-sim">
