@@ -32,6 +32,8 @@ export interface FakeTask {
   ruleId: string;
   status: TaskStatus;
   claimer: string | null;
+  requiresVerificationTest?: boolean;
+  verifier?: string | null;
   verification?: { passed: boolean; detailsHash: string } | null;
 }
 
@@ -124,14 +126,17 @@ export class FakeChainClient implements ChainClient {
       windowStart: r?.windowStart ?? 0n,
       windowEnd: r?.windowEnd ?? 0n,
     });
+    // Mirrors contracts/asset/src/views.rs can_access (reasons and order).
+    if (!r) return deny("unknown_reservation");
+    if (r.holder !== accountId) return deny("not_holder");
     if (!this.asset(assetId).inService) return deny("out_of_service");
-    if (!r) return deny("reservation not found");
-    if (r.holder !== accountId) return deny("account is not the reservation holder");
-    if (r.status === "InSession") return { ok: true, reason: null, windowStart: r.windowStart, windowEnd: r.windowEnd };
-    if (r.status !== "Confirmed") return deny(`reservation is ${r.status}`);
-    if (this.nowNs < r.windowStart) return deny("start window not open yet");
-    if (this.nowNs > r.windowEnd) return deny("start window closed");
-    return { ok: true, reason: null, windowStart: r.windowStart, windowEnd: r.windowEnd };
+    const ok = (reason: string): AccessCheck => ({ ok: true, reason, windowStart: r.windowStart, windowEnd: r.windowEnd });
+    if (r.status === "InSession") return ok("session_active");
+    if (r.status === "PendingAuthorization") return deny("pending_authorization");
+    if (r.status !== "Confirmed") return deny("not_active");
+    if (this.nowNs < r.windowStart) return deny("too_early");
+    if (this.nowNs > r.windowEnd) return deny("start_window_closed");
+    return ok("ok");
   }
 
   async getReservation(assetId: string, reservationId: bigint): Promise<ReservationView | null> {
@@ -151,7 +156,15 @@ export class FakeChainClient implements ChainClient {
   async getTask(assetId: string, taskId: bigint): Promise<TaskView | null> {
     const t = this.asset(assetId).tasks.get(taskId);
     if (!t) return null;
-    return { id: t.id, ruleId: t.ruleId, status: t.status, claimer: t.claimer, verification: t.verification ?? null };
+    return {
+      id: t.id,
+      ruleId: t.ruleId,
+      status: t.status,
+      claimer: t.claimer,
+      requiresVerificationTest: t.requiresVerificationTest ?? true,
+      verifier: t.verifier ?? null,
+      verification: t.verification ?? null,
+    };
   }
 
   async getTelemetry(assetId: string): Promise<TelemetryView> {
@@ -199,7 +212,12 @@ export class FakeChainClient implements ChainClient {
     this.maybeFail("submitVerificationResult");
     const t = this.asset(assetId).tasks.get(taskId);
     if (!t) throw new ChainError("E_BAD_STATE: task not found", "E_BAD_STATE");
-    if (t.status !== "Submitted") throw new ChainError(`E_BAD_STATE: task is ${t.status}`, "E_BAD_STATE");
+    if (t.status !== "Submitted" || t.verifier) {
+      throw new ChainError("E_BAD_STATE: task is not awaiting verification", "E_BAD_STATE");
+    }
+    if (!/^[0-9a-f]{64}$/.test(detailsHash)) {
+      throw new ChainError("E_INVALID_ARGS: details_hash must be a hex sha256", "E_INVALID_ARGS");
+    }
     t.verification = { passed, detailsHash };
     return this.record("submit_verification_result", assetId, { task_id: taskId, passed, details_hash: detailsHash }, ctx);
   }

@@ -8,6 +8,7 @@
     "ttl_sec": 300,
     "member_seed_hex": "b5efcbe05192c7957275bcdc439f9ccaad49ec70db378bf02a481d2a197de51f",
     "stranger_seed_hex": "4db48edaadce47b247791a2bcace85c0cd598427285eac49597a781d4c0a5bdb",
+    "function_call_seed_hex": "bbdeeed87d01598373472cddd7a88536d38a6b31f957f2170fd09db54a4b650e",
     "tag": 2147484061
   },
   "cases": [
@@ -90,6 +91,22 @@
       "submit_offset_ns": "0",
       "replay_of": null,
       "expect": "KEY_NOT_ON_ACCOUNT"
+    },
+    {
+      "name": "function_call_key",
+      "description": "valid signature by a key the account holds only as a function-call key (D-019)",
+      "account_id": "alice.testnet",
+      "public_key": "ed25519:E1JNeh6Af7vuWhtqsKwu5TdevLnBhWDM4GSocKVRUJZT",
+      "signed_recipient": "commonkit-bridge:bridge-01.makerlab.testnet",
+      "nonce_b64": "A4lzNGQf0YJXULEso44C5ZBWgHINPtpkBmSLsPKd4OA=",
+      "message": "COMMONKIT bridge request\naction: access\nasset: washer-01.dorm-b.testnet\naccount: alice.testnet\nreservation: 7\nnonce: A4lzNGQf0YJXULEso44C5ZBWgHINPtpkBmSLsPKd4OA=\nexpires_at: 2027-01-15T08:05:00.000Z (chain time)",
+      "callback_url": null,
+      "payload_borsh_hex": "9d010080d3000000434f4d4d4f4e4b49542062726964676520726571756573740a616374696f6e3a206163636573730a61737365743a207761736865722d30312e646f726d2d622e746573746e65740a6163636f756e743a20616c6963652e746573746e65740a7265736572766174696f6e3a20370a6e6f6e63653a2041346c7a4e47516630594a58554c45736f343443355a42576748494e5074706b426d534c73504b64344f413d0a657870697265735f61743a20323032372d30312d31355430383a30353a30302e3030305a2028636861696e2074696d652903897334641fd1825750b12ca38e02e5905680720d3eda6406648bb0f29de0e02b000000636f6d6d6f6e6b69742d6272696467653a6272696467652d30312e6d616b65726c61622e746573746e657400",
+      "payload_sha256_hex": "25a4aa884dcfd7701ba6d8e6cae82a55a85eae2458db898dc566e662df6f0c6d",
+      "signature_b64": "8ezEffj6T3ubvWNXpSpLf9DCs6er8KeR5pidluwZdV95Pr9Y/vaU7ZBM8Q0FO1jH8UtPfU06eAwySHgymvwhCQ==",
+      "submit_offset_ns": "0",
+      "replay_of": null,
+      "expect": "KEY_NOT_FULL_ACCESS"
     }
   ]
 }

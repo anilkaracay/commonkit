@@ -36,6 +36,9 @@ export interface TaskView {
   ruleId: string;
   status: TaskStatus;
   claimer: string | null;
+  requiresVerificationTest: boolean;
+  /** Set once a verifier approved; after that no new verification result is accepted. */
+  verifier: string | null;
   verification: { passed: boolean; detailsHash: string } | null;
 }
 

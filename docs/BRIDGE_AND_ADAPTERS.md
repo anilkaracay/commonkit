@@ -57,8 +57,8 @@ Per-asset keys added by the bridge decisions: `verification_tests: {<rule_id>: {
 1. `nonce` was issued by `/access/challenge` for this action, unused, not expired (300 s, chain time); it is marked used on its first submission even if later checks fail. Nonces live in memory, so a restart invalidates them (D-403).
 2. `recipient` equals our recipient string; `message` equals the issued message (contains asset, reservation id, nonce, expiry).
 3. Signature valid for the NEP-413 payload (borsh-serialized per the NEP — use a vetted library or implement exactly per spec; add test vectors).
-4. `public_key` is a current access key of `account_id` (RPC `view_access_key`). Full-access or function-call key both accepted (record which).
-5. `can_access(account_id, reservation_id).ok == true`. While the asset is out of service (CONTRACT_SPEC §3.3) `can_access` returns `ok=false, reason="out_of_service"`; the bridge answers 403 `OUT_OF_SERVICE` and the device stays locked. `E_OUT_OF_SERVICE` from `mark_session_started` (service changed between view and write) gives the same 403, and because the chain write comes first the device was never unlocked (D-404, D-410).
+4. `public_key` is a current **full-access** key of `account_id` (RPC `view_access_key`, final). A function-call key is refused with `KEY_NOT_FULL_ACCESS` (D-019): a key handed to some dapp must never open a physical device.
+5. `can_access(account_id, reservation_id).ok == true` (reason `ok`, or `session_active` for resumption). `out_of_service` → 403 `OUT_OF_SERVICE`; any other reason → 403 `RESERVATION_NOT_ACCESSIBLE` with the contract's reason. While the asset is out of service (CONTRACT_SPEC §3.3) `can_access` returns `ok=false, reason="out_of_service"`; the bridge answers 403 `OUT_OF_SERVICE` and the device stays locked. `E_OUT_OF_SERVICE` from `mark_session_started` (service changed between view and write) gives the same 403, and because the chain write comes first the device was never unlocked (D-404, D-410).
 
 Any failure → 403 with the precise reason; log it and emit `access_rejected` (these rejections are demo evidence: "no reservation → printer does not print").
 

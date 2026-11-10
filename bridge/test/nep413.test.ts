@@ -126,6 +126,11 @@ describe("POST /access: the five checks against fixed vectors", () => {
     h = await makeHarness({ chain: new FakeChainClient(VECTOR_ENV.chainTimeNs) });
     h.chain.addAccessKey(VECTOR_ENV.accountId, byName("valid").public_key, { kind: "full_access" });
     // stranger key deliberately NOT added: view_access_key returns null.
+    h.chain.addAccessKey(VECTOR_ENV.accountId, byName("function_call_key").public_key, {
+      kind: "function_call",
+      receiverId: VECTOR_ENV.assetId,
+      methodNames: [],
+    });
     h.chain.addReservation(VECTOR_ENV.assetId, {
       id: VECTOR_ENV.reservationId,
       holder: VECTOR_ENV.accountId,
@@ -175,7 +180,7 @@ describe("POST /access: the five checks against fixed vectors", () => {
     }
   });
 
-  it("valid -> 200 and a session; replay -> NONCE_USED; wrong recipient; expired; key not on account", async () => {
+  it("valid -> 200 and a session; replay; wrong recipient; key not on account; function-call key; expired", async () => {
     for (let i = 0; i < ISSUE_ORDER.length; i++) await challenge();
 
     const ok = await submit(byName("valid"));
@@ -194,13 +199,17 @@ describe("POST /access: the five checks against fixed vectors", () => {
     expect(stranger.statusCode).toBe(403);
     expect(stranger.json()).toMatchObject({ ok: false, reason: "KEY_NOT_ON_ACCOUNT" });
 
+    const fc = await submit(byName("function_call_key"));
+    expect(fc.statusCode).toBe(403);
+    expect(fc.json()).toMatchObject({ ok: false, reason: "KEY_NOT_FULL_ACCESS" });
+
     h.chain.setTime(VECTOR_ENV.chainTimeNs + BigInt(byName("expired").submit_offset_ns));
     const expired = await submit(byName("expired"));
     expect(expired.statusCode).toBe(403);
     expect(expired.json()).toMatchObject({ ok: false, reason: "NONCE_EXPIRED" });
 
     const rejected = h.bridge.bus.history().filter((e) => e.type === "access_rejected").map((e) => e.data.reason);
-    expect(rejected).toEqual(["NONCE_USED", "RECIPIENT_MISMATCH", "KEY_NOT_ON_ACCOUNT", "NONCE_EXPIRED"]);
+    expect(rejected).toEqual(["NONCE_USED", "RECIPIENT_MISMATCH", "KEY_NOT_ON_ACCOUNT", "KEY_NOT_FULL_ACCESS", "NONCE_EXPIRED"]);
   });
 
   it("wrong recipient without the optional recipient field fails the signature check", async () => {
@@ -221,7 +230,7 @@ describe("POST /access: the five checks against fixed vectors", () => {
     await challenge();
     const res = await submit(byName("valid"));
     expect(res.statusCode).toBe(403);
-    expect(res.json()).toMatchObject({ reason: "RESERVATION_NOT_ACCESSIBLE", detail: "account is not the reservation holder" });
+    expect(res.json()).toMatchObject({ reason: "RESERVATION_NOT_ACCESSIBLE", detail: "not_holder" });
     expect(h.chain.calls).toHaveLength(0);
   });
 
@@ -233,7 +242,7 @@ describe("POST /access: the five checks against fixed vectors", () => {
     expect(edited.json()).toMatchObject({ reason: "MESSAGE_MISMATCH" });
   });
 
-  it("function-call keys are accepted and recorded", async () => {
+  it("D-019: the member's own key as a function-call key is refused with KEY_NOT_FULL_ACCESS", async () => {
     h.chain.addAccessKey(VECTOR_ENV.accountId, byName("valid").public_key, {
       kind: "function_call",
       receiverId: VECTOR_ENV.assetId,
@@ -241,6 +250,8 @@ describe("POST /access: the five checks against fixed vectors", () => {
     });
     await challenge();
     const res = await submit(byName("valid"));
-    expect(res.json()).toMatchObject({ ok: true, key_permission: "function_call" });
+    expect(res.statusCode).toBe(403);
+    expect(res.json()).toMatchObject({ ok: false, reason: "KEY_NOT_FULL_ACCESS" });
+    expect(h.chain.calls).toHaveLength(0);
   });
 });

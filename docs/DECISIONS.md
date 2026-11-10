@@ -419,3 +419,7 @@ Consequences: The "real physical asset" differentiator is replaced by a faithful
 2026-11-09 · accepted
 Context: The human's X account is not premium.
 Decision: The demo post draft is ≤ 280 characters (URLs count as 23 each) with the video attached; extra detail goes into the README, not a thread, unless the human asks for one.
+
+## D-411 — Bridge follows the final asset contract (M1c): reasons, re-verification, hashes
+2026-11-10 · accepted
+Decision: (1) D-019 is applied: NEP-413 check 4 requires a FullAccess key; a function-call key gets 403 `KEY_NOT_FULL_ACCESS`. The fixed vector `function_call_key` was added (it replaces the D-402 acceptance of function-call keys). (2) The fake chain mirrors `can_access` exactly (`unknown_reservation`, `not_holder`, `out_of_service`, `session_active`, `pending_authorization`, `not_active`, `too_early`, `start_window_closed`, `ok`) and `submit_verification_result` (only `Submitted` with no verifier; `details_hash` must be 64-char hex). (3) The contract accepts a new verification result until a verifier decides, so the bridge allows a re-run after a failed result and refuses one after a passing result (`ALREADY_VERIFIED`) or once a verifier exists. (4) `TaskView.requiresVerificationTest` is read and shown in the `NO_VERIFICATION_TEST` reason. Argument names were checked against `commonkit_asset_abi.json`.

@@ -102,7 +102,8 @@ export class AccessVerifier {
     );
     if (!ok) return reject("BAD_SIGNATURE", "signature does not verify for the NEP-413 payload");
 
-    // 4. the key currently belongs to the account (full-access or function-call; recorded).
+    // 4. the key is a current FULL-ACCESS key of the account (D-019): a function-call key handed to
+    //    some dapp must never open a physical device.
     let permission: AccessKeyPermission | null;
     try {
       permission = await this.chain.viewAccessKey(req.account_id, req.public_key);
@@ -110,6 +111,9 @@ export class AccessVerifier {
       return reject("CHAIN_UNAVAILABLE", `view_access_key failed: ${(err as Error).message}`, 503);
     }
     if (!permission) return reject("KEY_NOT_ON_ACCOUNT", `${req.public_key} is not an access key of ${req.account_id}`);
+    if (permission.kind !== "full_access") {
+      return reject("KEY_NOT_FULL_ACCESS", "NEP-413 requests must be signed with a full-access key (function-call keys are refused)");
+    }
 
     // 5. the asset contract agrees (access only; finish/verify have their own ownership checks).
     if (action === "access") {

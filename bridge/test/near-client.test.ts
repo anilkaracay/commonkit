@@ -46,19 +46,34 @@ describe("NearChainClient (reads via @commonkit/sdk NearRpc)", () => {
     const { rpc } = rpcWith((_m, p) => {
       switch (p.method_name) {
         case "can_access":
-          return viewResult({ ok: false, reason: "start window closed", window_start: "10", window_end: "20" });
+          return viewResult({ ok: false, reason: "start_window_closed", window_start: "10", window_end: "20" });
         case "get_reservation":
           return viewResult({ id: "7", holder: "alice.testnet", start_slot: "99", slots: 2, status: "InSession", session_started_at: "5", session_finished_at: null, extra: 1 });
         case "get_task":
-          return viewResult({ id: "3", rule_id: "filter_clean", status: "Submitted", claimer: "alice.testnet", verification: null });
+          return viewResult({
+            id: "3",
+            rule_id: "filter_clean",
+            status: "Submitted",
+            claimer: "alice.testnet",
+            requires_verification_test: true,
+            verifier: null,
+            verification: null,
+          });
         default:
           return viewResult({ metrics: [["cycles", 31], ["simulated", 1]], updated_at: "5", reports: "2", epoch: "0", reset_pending: false });
       }
     });
     const c = new NearChainClient(rpc);
-    expect(await c.canAccess("w.testnet", "alice.testnet", 7n)).toEqual({ ok: false, reason: "start window closed", windowStart: 10n, windowEnd: 20n });
+    expect(await c.canAccess("w.testnet", "alice.testnet", 7n)).toEqual({ ok: false, reason: "start_window_closed", windowStart: 10n, windowEnd: 20n });
     expect(await c.getReservation("w.testnet", 7n)).toMatchObject({ id: 7n, status: "InSession", startSlot: 99n, sessionStartedAt: 5n });
-    expect(await c.getTask("w.testnet", 3n)).toMatchObject({ id: 3n, ruleId: "filter_clean", claimer: "alice.testnet", verification: null });
+    expect(await c.getTask("w.testnet", 3n)).toMatchObject({
+      id: 3n,
+      ruleId: "filter_clean",
+      claimer: "alice.testnet",
+      requiresVerificationTest: true,
+      verifier: null,
+      verification: null,
+    });
     expect((await c.getTelemetry("w.testnet")).metrics).toEqual({ cycles: 31n, simulated: 1n });
   });
 

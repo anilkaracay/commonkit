@@ -19,9 +19,17 @@ export const VECTOR_ENV = {
 const sha = (s: string) => new Uint8Array(createHash("sha256").update(s).digest());
 export const MEMBER_SEED = sha("commonkit/nep413/test-vector/member/v1");
 export const STRANGER_SEED = sha("commonkit/nep413/test-vector/stranger/v1");
+/** A key that IS on the account, but only as a function-call key (D-019: refused). */
+export const FUNCTION_CALL_SEED = sha("commonkit/nep413/test-vector/function-call/v1");
 export const nonceFor = (name: string) => sha(`commonkit/nep413/test-vector/nonce/${name}`);
 
-export type ExpectedReason = "ok" | "RECIPIENT_MISMATCH" | "NONCE_USED" | "NONCE_EXPIRED" | "KEY_NOT_ON_ACCOUNT";
+export type ExpectedReason =
+  | "ok"
+  | "RECIPIENT_MISMATCH"
+  | "NONCE_USED"
+  | "NONCE_EXPIRED"
+  | "KEY_NOT_ON_ACCOUNT"
+  | "KEY_NOT_FULL_ACCESS";
 
 export interface VectorCase {
   name: string;
@@ -76,10 +84,16 @@ const specs: Spec[] = [
     seed: STRANGER_SEED,
     expect: "KEY_NOT_ON_ACCOUNT",
   },
+  {
+    name: "function_call_key",
+    description: "valid signature by a key the account holds only as a function-call key (D-019)",
+    seed: FUNCTION_CALL_SEED,
+    expect: "KEY_NOT_FULL_ACCESS",
+  },
 ];
 
 /** Nonce names in the order the challenge store issues them during the test. */
-export const ISSUE_ORDER = ["valid", "wrong_recipient", "expired", "key_not_on_account"];
+export const ISSUE_ORDER = ["valid", "wrong_recipient", "expired", "key_not_on_account", "function_call_key"];
 
 export function buildVectors(): { env: Record<string, string | number>; cases: VectorCase[] } {
   const ours = recipientFor(VECTOR_ENV.bridgeAccount);
@@ -133,6 +147,7 @@ export function buildVectors(): { env: Record<string, string | number>; cases: V
       ttl_sec: VECTOR_ENV.ttlSec,
       member_seed_hex: Buffer.from(MEMBER_SEED).toString("hex"),
       stranger_seed_hex: Buffer.from(STRANGER_SEED).toString("hex"),
+      function_call_seed_hex: Buffer.from(FUNCTION_CALL_SEED).toString("hex"),
       tag: 2147484061,
     },
     cases: [...built.values()],

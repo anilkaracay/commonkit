@@ -53,6 +53,8 @@ const taskSchema = z.object({
   rule_id: z.string(),
   status: taskStatus,
   claimer: z.string().nullable().optional(),
+  requires_verification_test: z.boolean(),
+  verifier: z.string().nullable().optional(),
   verification: z.object({ passed: z.boolean(), details_hash: z.string() }).nullable().optional(),
 });
 const telemetrySchema = z.object({ metrics: metricPairs, updated_at: u64, reports: u64 });
@@ -150,6 +152,8 @@ export class NearChainClient implements ChainClient {
       ruleId: t.rule_id,
       status: t.status,
       claimer: t.claimer ?? null,
+      requiresVerificationTest: t.requires_verification_test,
+      verifier: t.verifier ?? null,
       verification: t.verification ? { passed: t.verification.passed, detailsHash: t.verification.details_hash } : null,
     };
   }

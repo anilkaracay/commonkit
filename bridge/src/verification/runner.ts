@@ -65,9 +65,14 @@ export class VerificationRunner {
     if (!task) throw new BridgeError(404, "TASK_NOT_FOUND", `task ${taskId}`);
     if (task.status !== "Submitted") throw new BridgeError(409, "TASK_NOT_SUBMITTED", `task is ${task.status}`);
     if (task.claimer !== accountId) throw new BridgeError(403, "NOT_TASK_CLAIMER", "only the task claimer can start verification");
-    if (task.verification) throw new BridgeError(409, "ALREADY_VERIFIED", "a verification result is already recorded");
+    if (task.verifier) throw new BridgeError(409, "TASK_NOT_SUBMITTED", "a verifier already decided this task");
+    // The contract accepts a new result while no verifier decided; re-running only makes sense after a failure.
+    if (task.verification?.passed) throw new BridgeError(409, "ALREADY_VERIFIED", "a passing verification result is already recorded");
     const test = rt.config.verification_tests[task.ruleId] ?? (rt.adapter.simulated ? { type: "simulated" as const } : null);
-    if (!test) throw new BridgeError(422, "NO_VERIFICATION_TEST", `no verification test configured for rule ${task.ruleId}`);
+    if (!test) {
+      const why = task.requiresVerificationTest ? "the rule requires one but" : "the rule does not require one and";
+      throw new BridgeError(422, "NO_VERIFICATION_TEST", `${why} no test is configured for rule ${task.ruleId}`);
+    }
     if (rt.occupancy) throw new BridgeError(409, "DEVICE_BUSY", `device is busy (${rt.occupancy.kind})`);
 
     const run: VerificationRun = {

@@ -237,6 +237,14 @@ describe("simulated washer: full session against the fake chain", () => {
     await h.bridge.verification.wait(ok.body.run_id as string);
     const twice = await signedPost(app, `/verification/${WASHER}/3/run`, { asset_id: WASHER, task_id: "3", account_id: ALICE, action: "verify" }, MEMBER_SEED);
     expect(twice.body).toMatchObject({ reason: "ALREADY_VERIFIED" });
+    // After a FAILED result the claimer may fix and re-run (the contract accepts a new result until a verifier decides).
+    h.chain.addTask(WASHER, { id: 5n, ruleId: "filter_clean", status: "Submitted", claimer: ALICE, verification: { passed: false, detailsHash: "0".repeat(64) } });
+    const rerun = await signedPost(app, `/verification/${WASHER}/5/run`, { asset_id: WASHER, task_id: "5", account_id: ALICE, action: "verify" }, MEMBER_SEED);
+    expect(rerun.statusCode).toBe(202);
+    expect((await h.bridge.verification.wait(rerun.body.run_id as string)).status).toBe("reported");
+    h.chain.addTask(WASHER, { id: 6n, ruleId: "filter_clean", status: "Submitted", claimer: ALICE, verifier: "vera.testnet" });
+    const decided = await signedPost(app, `/verification/${WASHER}/6/run`, { asset_id: WASHER, task_id: "6", account_id: ALICE, action: "verify" }, MEMBER_SEED);
+    expect(decided.body).toMatchObject({ reason: "TASK_NOT_SUBMITTED" });
   });
 
   it("a challenge for one action cannot be used for another", async () => {
