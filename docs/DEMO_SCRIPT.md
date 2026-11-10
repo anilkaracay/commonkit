@@ -2,7 +2,9 @@
 
 ## 1. The 90-second video (English voice-over or captions)
 
-Screen recording only (D-022): the web app, the bridge/emulator console with its SIMULATED labels, and explorer tabs. No physical device and no camera shots of people or machines. Every shot that shows a simulated asset or an emulated device carries the caption "simulated" (or the on-screen SIMULATED badge plus that caption).
+**Superseded by [VIDEO_SHOTLIST.md](VIDEO_SHOTLIST.md) (D-024):** landing hero + app screen recording + one real smart-plug clip with a labelled stand-in lamp + pilot clips of consenting people only. If the plug or the pilot does not happen, the fallback is the screen-only cut described below (D-022). In every version, a shot of a simulated asset or emulated device carries the caption "simulated", and the plug clip carries "stand-in".
+
+Fallback (screen-only, D-022): the web app, the bridge/emulator console with its SIMULATED labels, and explorer tabs.
 
 | Time | Shot | Caption / VO |
 | :--- | :--- | :--- |
