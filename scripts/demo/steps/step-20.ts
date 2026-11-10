@@ -37,7 +37,12 @@ export const step20: DemoStep = {
     }
     let taskId = ctx.own('task_id') ?? (await a.rule('weekly_clean')).open_task;
     if (!taskId) {
-      const st = await a.rule('weekly_clean');
+      let st = await a.rule('weekly_clean');
+      // The baseline is the asset's creation (or the last reward); wait for the demo interval to pass.
+      if (!st.due && st.next_due_estimate) {
+        await ctx.waitChain(BigInt(st.next_due_estimate) + 5_000_000_000n, 'for the 1 h demo interval to pass');
+        st = await a.rule('weekly_clean');
+      }
       rec.check(`after: ${DEMO_INTERVAL_H} h since the baseline → due`, st.due, st);
       const { result } = await runAgentUntil(f, cast.agent, 'step20', async (ev) => ev.find((e) => e.type === 'task_opened' && e.data.rule_id === 'weekly_clean') ?? null);
       rec.externalTx('agent open_upkeep_task("weekly_clean")', String(result.data.tx_hash), cast.agent);

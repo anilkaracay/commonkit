@@ -1802,5 +1802,114 @@
       "cap_refused": "1"
     },
     "timestamp": "2026-11-10T05:40:08.468Z"
+  },
+  {
+    "step": 20,
+    "title": "Fridge Schedule cleaning (simulation): refused before the interval, opened by the agent after it",
+    "core": false,
+    "simulated": true,
+    "negative": true,
+    "status": "passed",
+    "txHashes": [
+      "DQB7f6cDKswiuR5sbFRaBaz5fzeav2zVpGqphSCiEE8G",
+      "P973x4zLpq8PcBHXoZJzH6xuQHHDaGEc267ZAS8n646",
+      "GzM8sBy2efNGKfFtx9Yx5Dv6iUZqE5BjsmaSszKZ16NA",
+      "7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7",
+      "2vUsX2Qaqtwj5LLRRKfUb2ursPv8v5QVgHNfuv4Nr5oC"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/DQB7f6cDKswiuR5sbFRaBaz5fzeav2zVpGqphSCiEE8G",
+      "https://testnet.nearblocks.io/txns/P973x4zLpq8PcBHXoZJzH6xuQHHDaGEc267ZAS8n646",
+      "https://testnet.nearblocks.io/txns/GzM8sBy2efNGKfFtx9Yx5Dv6iUZqE5BjsmaSszKZ16NA",
+      "https://testnet.nearblocks.io/txns/7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7",
+      "https://testnet.nearblocks.io/txns/2vUsX2Qaqtwj5LLRRKfUb2ursPv8v5QVgHNfuv4Nr5oC"
+    ],
+    "transactions": [
+      {
+        "label": "agent key: open_upkeep_task(\"weekly_clean\") before the interval",
+        "hash": "DQB7f6cDKswiuR5sbFRaBaz5fzeav2zVpGqphSCiEE8G",
+        "ok": false,
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_RULE_NOT_DUE",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_RULE_NOT_DUE: the rule's trigger has not fired\"}}}}",
+        "expected_failure": true
+      },
+      {
+        "label": "dorm-b-ck.sputnikv2.testnet#12 demo override weekly_clean 1h (production 168h) on fridge-01 — D-018: testnet time cannot be fast-forwarded; 168 h covered by sandbox test inv_schedule_rule_due_only_after_interval",
+        "hash": "P973x4zLpq8PcBHXoZJzH6xuQHHDaGEc267ZAS8n646",
+        "ok": true,
+        "by": "nil.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "dorm-b-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "dorm-b-ck.sputnikv2.testnet#12 demo override weekly_clean 1h (production 168h) on fridge-01 — D-018: testnet time cannot be fast-forwarded; 168 h covered by sandbox test inv_schedule_rule_due_only_after_interval",
+        "hash": "GzM8sBy2efNGKfFtx9Yx5Dv6iUZqE5BjsmaSszKZ16NA",
+        "ok": true,
+        "by": "nil.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "dorm-b-ck.sputnikv2.testnet",
+        "events": [],
+        "error_code": null
+      },
+      {
+        "label": "dorm-b-ck.sputnikv2.testnet#12 demo override weekly_clean 1h (production 168h) on fridge-01 — D-018: testnet time cannot be fast-forwarded; 168 h covered by sandbox test inv_schedule_rule_due_only_after_interval",
+        "hash": "7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7",
+        "ok": true,
+        "by": "ozan.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "dorm-b-ck.sputnikv2.testnet",
+        "events": [
+          "profile_updated"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "agent open_upkeep_task(\"weekly_clean\")",
+        "hash": "2vUsX2Qaqtwj5LLRRKfUb2ursPv8v5QVgHNfuv4Nr5oC",
+        "ok": true,
+        "by": "agent.commonkit-sxflo.testnet"
+      }
+    ],
+    "assertions": [
+      {
+        "what": "before: get_rule_status weekly_clean due=false with next_due_estimate (168 h interval) (earlier attempt)",
+        "ok": true,
+        "detail": "{\"rule_id\":\"weekly_clean\",\"kind\":\"Cleaning\",\"trigger\":{\"Schedule\":{\"every_hours\":168}},\"current\":\"0\",\"baseline\":\"1794286046062014543\",\"due_value\":\"0\",\"due\":false,\"next_due_estimate\":\"1794890846062014543\",\"open_task\":null,\"reward_rights\":2,\"reward_cash\":\"0\",\"reimbursable_max\":\"0\"}"
+      },
+      {
+        "what": "agent key: open_upkeep_task(\"weekly_clean\") before the interval → E_RULE_NOT_DUE (earlier attempt)",
+        "ok": true,
+        "detail": "E_RULE_NOT_DUE expected; got E_RULE_NOT_DUE (tx DQB7f6cDKswiuR5sbFRaBaz5fzeav2zVpGqphSCiEE8G)"
+      },
+      {
+        "what": "after: 1 h since the baseline → due",
+        "ok": true,
+        "detail": "{\"rule_id\":\"weekly_clean\",\"kind\":\"Cleaning\",\"trigger\":{\"Schedule\":{\"every_hours\":1}},\"current\":\"1\",\"baseline\":\"1794286046062014543\",\"due_value\":\"1\",\"due\":true,\"next_due_estimate\":\"1794289646062014543\",\"open_task\":null,\"reward_rights\":2,\"reward_cash\":\"0\",\"reimbursable_max\":\"0\"}"
+      },
+      {
+        "what": "task_opened kind Cleaning, trigger Schedule, opened by the agent",
+        "ok": true,
+        "detail": "{\"kind\":\"Cleaning\",\"trigger\":\"Schedule\",\"by\":\"agent.commonkit-sxflo.testnet\"}"
+      },
+      {
+        "what": "due_value ≥ 1 h",
+        "ok": true,
+        "detail": "due_value_at_open 1 h"
+      },
+      {
+        "what": "rationale stored on chain",
+        "ok": true,
+        "detail": "No cleaning recorded in the last 1 h (every 1 h). Opening 'Empty, clean and sanitize the fridge' with reward: 2 usage rights. [rationale: template]"
+      }
+    ],
+    "notes": [],
+    "outputs": {
+      "before_refused": "1",
+      "proposal:demo override weekly_clean 1h (production 168h) on fridge-01 — D-018: testnet time cannot be fast-forwarded; 168 h covered by sandbox test inv_schedule_rule_due_only_after_interval": "dorm-b-ck.sputnikv2.testnet#12",
+      "task_id": "0"
+    },
+    "timestamp": "2026-11-10T05:47:40.498Z"
   }
 ]

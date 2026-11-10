@@ -208,5 +208,26 @@
       "https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV"
     ],
     "at": "2026-11-10T05:39:31.867Z"
+  },
+  {
+    "kind": "override",
+    "step": 20,
+    "asset": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+    "rule_id": "weekly_clean",
+    "value": "1h",
+    "production": "168h",
+    "proposal": "dorm-b-ck.sputnikv2.testnet#12",
+    "tx_hashes": [
+      "P973x4zLpq8PcBHXoZJzH6xuQHHDaGEc267ZAS8n646",
+      "GzM8sBy2efNGKfFtx9Yx5Dv6iUZqE5BjsmaSszKZ16NA",
+      "7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7"
+    ],
+    "label": "demo override weekly_clean 1h (production 168h)",
+    "explorer_links": [
+      "https://testnet.nearblocks.io/txns/P973x4zLpq8PcBHXoZJzH6xuQHHDaGEc267ZAS8n646",
+      "https://testnet.nearblocks.io/txns/GzM8sBy2efNGKfFtx9Yx5Dv6iUZqE5BjsmaSszKZ16NA",
+      "https://testnet.nearblocks.io/txns/7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7"
+    ],
+    "at": "2026-11-10T05:41:07.685Z"
   }
 ]
