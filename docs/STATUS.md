@@ -9,7 +9,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | H1 | Pick pilot item, 4–5 people, place, time | ASAP | Lane E, pilot | open |
 | H2 | Order smart plug (Shelly Gen2/Gen3 or Tasmota); send model + IP when it arrives | ASAP | plug onboarding, video | open |
 | H3 | Fix GitHub billing / Actions spending limit | ASAP | green CI | open |
-| H4 | Send testnet NEAR to `commonkit-sxflo.testnet` (exact amount below) | ASAP | asset deploys, pilot funding | open — ~25 NEAR (pilot funding 5×2 + 21-step run + buffer; exact figure after Lane D estimate); root holds 18.18 NEAR |
+| H4 | Send testnet NEAR to `commonkit-sxflo.testnet` (exact amount below) | ASAP | asset deploys, pilot funding | open — **12 NEAR**: 21-step run ~6.3 + pilot funding 10 + pilot-item asset deploy ~8 (7.05 storage + float) = ~24.3 needed vs 18.2 on root → short ~6.1, plus ~6 buffer for retries |
 | H5 | Test member flow once with the pilot wallet (NEP-413 sign → bridge) | before pilot | pilot | open |
 | H6 | Provide project name confirmation, lead name, email, team size, mainnet payout account | before G6 | form checklist (kept out of git) | open |
 | H7 | Make repo public (checklist provided) | G6 | public CI, submission | later |
