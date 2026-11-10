@@ -5,8 +5,8 @@
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { Snapshot } from '../src/lib/chain';
-import type { Trigger } from '../src/lib/format';
+import type { Snapshot } from '../src/lib/chain.ts';
+import type { Trigger } from '../src/lib/format.ts';
 
 export const REPO = resolve(import.meta.dirname, '../..');
 const read = (p: string) => readFileSync(resolve(REPO, p), 'utf8');
@@ -88,9 +88,11 @@ export interface TickerItem {
   account: string;
   hash: string;
   url: string;
+  simulated: boolean;
 }
 
 interface EvidenceTx {
+  simulated?: boolean;
   at: string;
   label: string;
   hash: string;
@@ -103,6 +105,17 @@ interface EvidenceTx {
 const EVENT_TEXT: Record<string, [string, string]> = {
   reservation_confirmed: ['reserved', 'Reservation confirmed'],
   session_started: ['unlocked', 'Unlocked for a valid reservation'],
+  mark_session_started: ['unlocked', 'Bridge unlocked a valid reservation'],
+  session_finished: ['session', 'Session finished'],
+  mark_session_finished: ['session', 'Session finished'],
+  telemetry_reported: ['telemetry', 'Telemetry reported by the bridge'],
+  report_telemetry: ['telemetry', 'Telemetry reported by the bridge'],
+  reserve: ['reserved', 'Reservation confirmed'],
+  task_claimed: ['upkeep', 'Upkeep task claimed'],
+  verification_submitted: ['upkeep', 'Verification test submitted'],
+  reward_paid: ['rights', 'Reward paid'],
+  escalated: ['dao', 'Escalated to a DAO proposal'],
+  profile_updated: ['profile', 'Profile updated by DAO vote'],
   task_opened: ['upkeep', 'Upkeep task opened'],
   task_approved: ['approved', 'Upkeep approved by an independent member'],
   rights_minted: ['rights', 'Usage rights minted'],
@@ -121,33 +134,50 @@ function tickerItem(e: EvidenceTx): TickerItem | null {
   if (!e.ok || !e.hash || /faucet helper|top up|top-up/i.test(e.label)) return null;
   const evs = (e.events ?? []).map((x) => x.replace(/^[a-z0-9]+:/, ''));
   const main = EVENT_PRIORITY.find((k) => evs.includes(k));
-  const url = e.explorer ?? `https://testnet.nearblocks.io/txns/${e.hash}`;
+  const url = `https://testnet.nearblocks.io/txns/${e.hash}`;
+  const simulated = e.simulated === true;
   const accountIn = (s: string) => /([a-z0-9-]+\.)+testnet/.exec(s)?.[0];
   if (main) {
     const [kind, text] = EVENT_TEXT[main]!;
     const subject = /\b((?:printer|laser|washer|fridge)-\d+)\b/.exec(e.label)?.[1];
-    return { at: e.at, kind, text, account: subject ?? accountIn(e.label) ?? e.receiver ?? '', hash: e.hash, url };
+    return { at: e.at, kind, text, account: subject ?? accountIn(e.label) ?? e.receiver ?? '', hash: e.hash, url, simulated };
   }
   let m: RegExpExecArray | null;
   if ((m = /^create \+ deploy \+ init (\S+)/.exec(e.label)))
-    return { at: e.at, kind: 'deployed', text: 'Contract account deployed', account: m[1]!, hash: e.hash, url };
+    return { at: e.at, kind: 'deployed', text: 'Contract account deployed', account: m[1]!, hash: e.hash, url, simulated };
   if ((m = /^delete key \S+ on (\S+)/.exec(e.label)))
-    return { at: e.at, kind: 'keyless', text: 'Last full-access key deleted', account: m[1]!, hash: e.hash, url };
+    return { at: e.at, kind: 'keyless', text: 'Last full-access key deleted', account: m[1]!, hash: e.hash, url, simulated };
   if ((m = /^(bridge|agent) function-call key → (\S+)/.exec(e.label)))
-    return { at: e.at, kind: 'key', text: `${m[1] === 'bridge' ? 'Bridge' : 'Agent'} function-call key added`, account: m[2]!, hash: e.hash, url };
+    return { at: e.at, kind: 'key', text: `${m[1] === 'bridge' ? 'Bridge' : 'Agent'} function-call key added`, account: m[2]!, hash: e.hash, url, simulated };
   if ((m = /^create DAO (\S+)/.exec(e.label)))
-    return { at: e.at, kind: 'dao', text: 'Sputnik DAO created', account: m[1]!, hash: e.hash, url };
+    return { at: e.at, kind: 'dao', text: 'Sputnik DAO created', account: m[1]!, hash: e.hash, url, simulated };
   return null;
+}
+
+/** Walks any evidence file and collects tx records; `at`/`timestamp`/`simulated` are inherited from parents. */
+function collectTxs(node: unknown, at: string | undefined, sim: boolean, out: EvidenceTx[]): void {
+  if (Array.isArray(node)) {
+    for (const x of node) collectTxs(x, at, sim, out);
+    return;
+  }
+  if (!node || typeof node !== 'object') return;
+  const o = node as Record<string, unknown>;
+  const here = typeof o.at === 'string' ? o.at : typeof o.timestamp === 'string' ? o.timestamp : at;
+  const s = typeof o.simulated === 'boolean' ? o.simulated : sim;
+  if (typeof o.hash === 'string' && typeof o.label === 'string' && here)
+    out.push({ at: here, label: o.label, hash: o.hash, ok: o.ok !== false, receiver: typeof o.receiver === 'string' ? o.receiver : undefined, events: Array.isArray(o.events) ? (o.events as string[]) : [], simulated: s });
+  if (o.txs && typeof o.txs === 'object' && !Array.isArray(o.txs) && here) {
+    const asset = typeof o.asset_id === 'string' ? o.asset_id : '';
+    for (const [k, h] of Object.entries(o.txs as Record<string, unknown>))
+      if (typeof h === 'string') out.push({ at: here, label: `${k} ${asset}`, hash: h, ok: true, events: [k], simulated: s });
+  }
+  for (const [k, v] of Object.entries(o)) if (k !== 'txs' && v && typeof v === 'object') collectTxs(v, here, s, out);
 }
 
 function readTicker(): { items: TickerItem[]; total: number } {
   const dir = resolve(REPO, 'evidence');
   const all: EvidenceTx[] = [];
-  for (const f of readdirSync(dir).filter((f) => f.endsWith('.json'))) {
-    const d = json<unknown>(`evidence/${f}`);
-    const arr = Array.isArray(d) ? d : Array.isArray((d as { txs?: unknown }).txs) ? (d as { txs: unknown[] }).txs : [];
-    for (const x of arr) if (x && typeof x === 'object' && 'hash' in x && 'at' in x) all.push(x as EvidenceTx);
-  }
+  for (const f of readdirSync(dir).filter((f) => f.endsWith('.json') && f !== 'agent-limits.json')) collectTxs(json<unknown>(`evidence/${f}`), undefined, false, all);
   const seen = new Set<string>();
   const unique = all.filter((e) => e.ok && !seen.has(e.hash) && seen.add(e.hash));
   const items = unique
@@ -186,6 +216,21 @@ export interface LimitsReport {
 
 // ---------- everything ----------
 
+export interface JudgeStep {
+  step: number;
+  title: string;
+  status: string;
+  simulated: boolean;
+  tx: string | null;
+}
+
+function readSteps(): JudgeStep[] {
+  const path = resolve(REPO, 'evidence/steps.json');
+  if (!existsSync(path)) return [];
+  const raw = json<{ step: number; title: string; status: string; simulated?: boolean; txHashes?: string[] }[]>('evidence/steps.json');
+  return raw.map((s) => ({ step: s.step, title: s.title, status: s.status, simulated: s.simulated === true, tx: s.txHashes?.at(-1) ?? null }));
+}
+
 export interface LandingData {
   built_at: string;
   dep: Deployments;
@@ -194,6 +239,7 @@ export interface LandingData {
   ticker: TickerItem[];
   evidence_txs: number;
   excerpts: { transfer: Excerpt; revoke: Excerpt; constant: Excerpt };
+  steps: JudgeStep[];
   limits: LimitsReport | null;
   pilot: unknown | null;
 }
@@ -236,8 +282,9 @@ export function loadData(): LandingData {
     excerpts: {
       constant: excerpt('contracts/commons/src/nft.rs', 'const NON_TRANSFERABLE', 1),
       transfer: excerpt('contracts/commons/src/nft.rs', '#[payable]', 4),
-      revoke: excerpt('contracts/commons/src/credentials.rs', 'E_NO_REVOCATION', 1),
+      revoke: excerpt('contracts/commons/src/credentials.rs', 'panic_str("E_NO_REVOCATION', 1),
     },
+    steps: readSteps(),
     limits: existsSync(limitsPath) ? json<LimitsReport>('evidence/agent-limits.json') : null,
     pilot: existsSync(pilotPath) ? json<unknown>('evidence/pilot.json') : null,
   };

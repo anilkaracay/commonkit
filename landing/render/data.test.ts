@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadData } from './data';
+import { loadData } from './data.ts';
 
 describe('landing build data', () => {
   const d = loadData();

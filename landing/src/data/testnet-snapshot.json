@@ -1,5 +1,5 @@
 {
-  "taken_at": "2026-11-10T05:02:57.764Z",
+  "taken_at": "2026-11-10T05:16:51.634Z",
   "network": "testnet",
   "assets": [
     {
@@ -10,11 +10,11 @@
       "display_name": "Makerlab 3D printer",
       "in_service": true,
       "ledger": {
-        "float_free": "0",
+        "float_free": "2549959398775000000000000",
         "float_cap": "3000000000000000000000000",
-        "deposits_held": "0",
+        "deposits_held": "2000000000000000000000000",
         "rewards_reserved": "0",
-        "total_fees_in": "0",
+        "total_fees_in": "500000000000000000000000",
         "total_swept": "0",
         "total_rewards_paid": "0",
         "invariant_ok": true
@@ -26,13 +26,13 @@
           "trigger": {
             "Metric": {
               "metric": "nozzle_seconds",
-              "threshold": 720000
+              "threshold": 1800
             }
           },
-          "current": "0",
+          "current": "14400",
           "baseline": "0",
-          "due_value": "0",
-          "due": false,
+          "due_value": "14400",
+          "due": true,
           "next_due_estimate": null,
           "open_task": null,
           "reward_rights": 2,
@@ -48,9 +48,9 @@
               "threshold": 50
             }
           },
-          "current": "0",
+          "current": "12",
           "baseline": "0",
-          "due_value": "0",
+          "due_value": "12",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,
@@ -67,9 +67,9 @@
               "threshold": 330000
             }
           },
-          "current": "0",
+          "current": "318000",
           "baseline": "0",
-          "due_value": "0",
+          "due_value": "318000",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,
@@ -172,8 +172,8 @@
         "float_cap": "1000000000000000000000000",
         "deposits_held": "0",
         "rewards_reserved": "0",
-        "total_fees_in": "0",
-        "total_swept": "50000000000000000000000",
+        "total_fees_in": "200000000000000000000000",
+        "total_swept": "250959398775000000000000",
         "total_rewards_paid": "0",
         "invariant_ok": true
       },
@@ -187,9 +187,9 @@
               "threshold": 30
             }
           },
-          "current": "0",
+          "current": "28",
           "baseline": "0",
-          "due_value": "0",
+          "due_value": "28",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,
@@ -206,9 +206,9 @@
               "threshold": 120
             }
           },
-          "current": "0",
+          "current": "28",
           "baseline": "0",
-          "due_value": "0",
+          "due_value": "28",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,
@@ -225,9 +225,9 @@
               "threshold": 40
             }
           },
-          "current": "0",
+          "current": "28",
           "baseline": "0",
-          "due_value": "0",
+          "due_value": "28",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,

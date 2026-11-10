@@ -38,29 +38,36 @@ interface Unit {
   label: string;
 }
 
-const METRIC_UNITS: Record<string, Unit> = {
-  nozzle_seconds: { div: 3600, label: 'h of printing' },
-  run_seconds: { div: 3600, label: 'h of cutting' },
-  engine_seconds: { div: 3600, label: 'engine h' },
-  gpu_hours: { div: 1, label: 'GPU h' },
-  filament_used_mm: { div: 1000, label: 'm of filament' },
-  fuel_used_dl: { div: 10, label: 'L of fuel' },
-  jobs_total: { div: 1, label: 'jobs' },
-  cycles: { div: 1, label: 'cycles' },
-  temp_high_samples: { div: 1, label: 'warm readings' },
-  km: { div: 1, label: 'km' },
-  sessions: { div: 1, label: 'sessions' },
-  uses: { div: 1, label: 'loans' },
+/** Units per metric, largest first; the largest unit that keeps the threshold ≥ 1 is used. */
+const METRIC_UNITS: Record<string, Unit[]> = {
+  nozzle_seconds: [{ div: 3600, label: 'h of printing' }, { div: 60, label: 'min of printing' }, { div: 1, label: 's of printing' }],
+  run_seconds: [{ div: 3600, label: 'h of cutting' }, { div: 60, label: 'min of cutting' }, { div: 1, label: 's of cutting' }],
+  engine_seconds: [{ div: 3600, label: 'engine h' }, { div: 60, label: 'engine min' }, { div: 1, label: 'engine s' }],
+  gpu_hours: [{ div: 1, label: 'GPU h' }],
+  filament_used_mm: [{ div: 1000, label: 'm of filament' }, { div: 1, label: 'mm of filament' }],
+  fuel_used_dl: [{ div: 10, label: 'L of fuel' }, { div: 1, label: 'dL of fuel' }],
+  jobs_total: [{ div: 1, label: 'jobs' }],
+  cycles: [{ div: 1, label: 'cycles' }],
+  temp_high_samples: [{ div: 1, label: 'warm readings' }],
+  km: [{ div: 1, label: 'km' }],
+  sessions: [{ div: 1, label: 'sessions' }],
+  uses: [{ div: 1, label: 'loans' }],
 };
 
-export function metricValue(metric: string, raw: number | string | bigint): string {
-  const u = METRIC_UNITS[metric] ?? { div: 1, label: metric };
-  const v = Number(raw) / u.div;
-  return int(Math.floor(v));
+export function metricUnit(metric: string, threshold: number): Unit {
+  const units = METRIC_UNITS[metric] ?? [{ div: 1, label: metric.replace(/_/g, ' ') }];
+  return units.find((u) => threshold / u.div >= 1) ?? units[units.length - 1]!;
 }
 
-export function metricLabel(metric: string): string {
-  return (METRIC_UNITS[metric] ?? { div: 1, label: metric }).label;
+function num(v: number): string {
+  const r = v >= 10 || Number.isInteger(v) ? Math.floor(v) : Math.floor(v * 10) / 10;
+  return Number.isInteger(r) ? int(r) : r.toFixed(1);
+}
+
+/** Value and threshold of a Metric rule in the same readable unit. */
+export function metricPair(metric: string, value: number, threshold: number): { cur: string; of: string; label: string } {
+  const u = metricUnit(metric, threshold);
+  return { cur: num(value / u.div), of: num(threshold / u.div), label: u.label };
 }
 
 export type Trigger =
@@ -76,7 +83,10 @@ export function hoursText(h: number): string {
 
 /** "every 200 h of printing", "every 30 days", "after 2 fault reports" */
 export function triggerText(t: Trigger): string {
-  if ('Metric' in t) return `every ${metricValue(t.Metric.metric, t.Metric.threshold)} ${metricLabel(t.Metric.metric)}`;
+  if ('Metric' in t) {
+    const m = metricPair(t.Metric.metric, 0, t.Metric.threshold);
+    return `every ${m.of} ${m.label}`;
+  }
   if ('Schedule' in t) return hoursText(t.Schedule.every_hours);
   const n = t.Report.min_reports;
   return n === 1 ? 'after a fault report' : `after ${n} fault reports`;

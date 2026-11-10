@@ -1,5 +1,5 @@
 /** Shapes of the testnet views the landing page reads (subset of CONTRACT_SPEC §3.6) and the reader itself. */
-import type { Trigger } from './format';
+import type { Trigger } from './format.ts';
 
 export interface RuleStatus {
   rule_id: string;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { near, triggerText, int, shortAccount, relTime } from './format';
+import { near, triggerText, int, shortAccount, relTime } from './format.ts';
 
 describe('format', () => {
   it('formats yoctoNEAR with bigint math', () => {

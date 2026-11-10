@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { NearRpc } from '@commonkit/sdk';
-import { politeFetch, readAsset, RPC_URLS, type Snapshot } from '../src/lib/chain';
+import { politeFetch, readAsset, RPC_URLS, type Snapshot } from '../src/lib/chain.ts';
 
 const here = new URL('.', import.meta.url).pathname;
 const repo = resolve(here, '../..');
