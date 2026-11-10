@@ -27,7 +27,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | G3 Real world | pilot run; plug clips; evidence + consents (or plainly skipped) | ☐ |
 | G4 Feature freeze | after G3 (or G2 if no pilot) | ☐ |
 | G5 Ship-ready | landing 1–13 + quality bar; README final; video; fresh-clone audit | ☐ |
-| G6 Handover | SUBMISSION_PACKAGE.md: repo-public checklist, X post, form checklist, idea | ☐ |
+| G6 Handover | ◐ drafts ready (docs/SUBMISSION_PACKAGE.md, docs/PITCH.md; X post 279/280, idea 1508/2000, tracks ["social"]); personal fields wait on H6; final pass after G5 | cfb1245 |
 | G7 After "repo public" | CI green; tag `hackathon-submission` | ☐ |
 | G8 After "submitted" | record time; code freeze; keep demo up to 2026-11-25; PITCH.md | ☐ |
 
