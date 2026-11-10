@@ -48,7 +48,6 @@ function liveConfig(d: LandingData): string {
     dao: a.dao,
     titles: ctx.titles,
     rightValidityDays: p.right_validity_days,
-    assets: d.snapshot.assets.map((x) => x.account),
   };
   return `<script type="application/json" id="ck-live">${JSON.stringify(cfg).replace(/</g, '\\u003c')}</script>`;
 }
@@ -416,18 +415,22 @@ export function why(d: LandingData): string {
       </table>
       <p class="db-sql mono"><span class="prompt">admin&gt;</span> DELETE FROM rights WHERE member = 'ayse';</p>
       <p class="db-after">1 row deleted. No trace, no notice, no appeal.</p>
+      <div class="db-next">
+        <p class="db-next-k mono">next morning · printer door</p>
+        <p class="db-next-v"><span class="mono">ayse</span> → access denied: no rights found</p>
+      </div>
       <p class="dbcard-foot">Your access lasts as long as whoever runs the database agrees.</p>
     </div>
     <div class="codecard">
       <header class="codecard-head"><span class="mono">${esc(ex.transfer.path)}</span><span class="pill pill-ok">No revoke method</span></header>
       <pre class="code" aria-label="Excerpt of the commons contract"><code>${code(ex.constant)}<span class="cl gap">⋮</span>${code(ex.transfer)}<span class="cl gap">⋮ ${esc(ex.revoke.path)}</span>${code(ex.revoke)}</code></pre>
       <ul class="checks">
-        <li><a href="/app/proof"><span class="ck" data-check="keyless">${keyless ? '✓' : '·'}</span><span><b>Keyless accounts</b><em data-check-text="keyless">${keyless ? `0 access keys on all ${assets.length} asset accounts` : 'keyless step pending'}</em></span></a></li>
-        <li><a href="/app/proof"><span class="ck" data-check="code">${hashes.size === 1 ? '✓' : '·'}</span><span><b>Same code on every machine</b><em class="mono" data-check-text="code">${hashes.size === 1 ? `code_hash ${shortHash([...hashes][0]!)} × ${assets.length}` : `${hashes.size} different code hashes`}</em></span></a></li>
+        <li><a href="/app/proof"><span class="ck">${keyless ? '✓' : '·'}</span><span><b>Keyless accounts</b><em>${keyless ? `0 access keys on all ${assets.length} asset accounts` : 'keyless step pending'}</em></span></a></li>
+        <li><a href="/app/proof"><span class="ck">${hashes.size === 1 ? '✓' : '·'}</span><span><b>Same code on every machine</b><em class="mono">${hashes.size === 1 ? `code_hash ${shortHash([...hashes][0]!)} × ${assets.length}` : `${hashes.size} different code hashes`}</em></span></a></li>
         <li><a href="/app/proof"><span class="ck">✓</span><span><b>Custody in Sputnik DAO</b><em class="mono">${daos.map(esc).join(' · ')}</em></span></a></li>
         <li><a href="${acctUrl(a.account)}" target="_blank" rel="noopener"><span class="ck">✓</span><span><b>Every action on the explorer</b><em class="mono">${esc(firstLabel(a.account))} on testnet.nearblocks.io ↗</em></span></a></li>
       </ul>
-      <p class="codecard-foot">Checks as of ${utcStamp(d.snapshot.taken_at)}; refreshed live from testnet when this page loads.</p>
+      <p class="codecard-foot">Read from testnet ${utcStamp(d.snapshot.taken_at)}. The app's proof page runs the same checks live.</p>
     </div>
   </div>
   <p class="why-fine">Precisely: no method deletes, downgrades or transfers a usage-right card once granted. The DAO can still make a card unusable in practice, by deactivating the asset, moving it to another group or adding a credential requirement; the README lists this under honest limits.</p>`;

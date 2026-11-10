@@ -3,8 +3,7 @@
  * labelled snapshot simply stays on screen. */
 import { NearRpc } from '@commonkit/sdk';
 import { machineCard, taskCard, type CardCtx } from './lib/cards.ts';
-import { politeFetch, readAsset, RPC_URLS } from './lib/chain.ts';
-import { shortHash } from './lib/format.ts';
+import { politeFetch, readLive, RPC_URLS } from './lib/chain.ts';
 
 interface LiveConfig {
   account: string;
@@ -12,13 +11,12 @@ interface LiveConfig {
   dao: string;
   titles: Record<string, string>;
   rightValidityDays: number;
-  assets: string[];
 }
 
-const rpc = new NearRpc(RPC_URLS[0], politeFetch(2));
+const rpc = new NearRpc(RPC_URLS[0], politeFetch(1, 2));
 
 async function refreshHero(cfg: LiveConfig): Promise<void> {
-  const a = await readAsset(rpc, cfg.account, cfg.community, cfg.dao);
+  const a = await readLive(rpc, cfg.account, cfg.community, cfg.dao);
   const now = Date.now();
   for (const slot of document.querySelectorAll<HTMLElement>('[data-live-slot="hero"]')) {
     const icon = slot.querySelector('.mcard-icon')?.innerHTML ?? '';
@@ -30,33 +28,32 @@ async function refreshHero(cfg: LiveConfig): Promise<void> {
   }
 }
 
-async function refreshChecks(cfg: LiveConfig): Promise<void> {
-  const rows = await Promise.all(
-    cfg.assets.map(async (id) => {
-      const [acct, keys] = await Promise.all([rpc.viewAccount(id), rpc.viewAccessKeyList(id)]);
-      return { code: acct.code_hash, keys: keys.keys.length };
-    }),
-  );
-  const hashes = new Set(rows.map((r) => r.code));
-  const keyless = rows.every((r) => r.keys === 0);
-  const set = (k: string, ok: boolean, text: string) => {
-    const mark = document.querySelector(`[data-check="${k}"]`);
-    const label = document.querySelector(`[data-check-text="${k}"]`);
-    if (mark) mark.textContent = ok ? '✓' : '·';
-    if (label) label.textContent = `${text} · live`;
-  };
-  set('keyless', keyless, keyless ? `0 access keys on all ${rows.length} asset accounts` : 'an asset account still has a key');
-  const [only] = [...hashes];
-  set('code', hashes.size === 1, hashes.size === 1 && only ? `code_hash ${shortHash(only)} × ${rows.length}` : `${hashes.size} different code hashes`);
+/** Live reads are skipped under automation (screenshots, video capture, tests) and with `?live=0`. */
+export function liveAllowed(): boolean {
+  if (navigator.webdriver) return false;
+  return new URLSearchParams(location.search).get('live') !== '0';
 }
 
 export async function startLive(): Promise<void> {
   const el = document.getElementById('ck-live');
-  if (!el?.textContent) return;
+  if (!el?.textContent || !liveAllowed()) return;
   const cfg = JSON.parse(el.textContent) as LiveConfig;
-  const run = () => Promise.allSettled([refreshHero(cfg), refreshChecks(cfg)]);
-  await run();
-  window.setInterval(() => {
-    if (document.visibilityState === 'visible') void refreshHero(cfg).catch(() => undefined);
-  }, 90_000);
+  // One read in flight at a time; after a failure (e.g. HTTP 429) wait longer, with jitter, up to 10 min.
+  let inFlight = false;
+  let delay = 60_000;
+  const tick = async () => {
+    if (!inFlight && document.visibilityState === 'visible') {
+      inFlight = true;
+      try {
+        await refreshHero(cfg);
+        delay = 60_000;
+      } catch {
+        delay = Math.min(delay * 2, 600_000);
+      } finally {
+        inFlight = false;
+      }
+    }
+    window.setTimeout(() => void tick(), delay + Math.random() * 10_000);
+  };
+  await tick();
 }

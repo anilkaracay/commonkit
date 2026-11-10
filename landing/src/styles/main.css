@@ -294,7 +294,7 @@ html[data-hero='b'] .hero-foot { margin-top: 28px; }
 .tcard-k { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 11px; letter-spacing: 0.06em; color: var(--paper-mute); }
 .tcard .status { color: var(--paper-mute); font-size: 12px; }
 .tcard .status.due { color: var(--brass-deep); }
-.tcard h4 { font: 680 16.5px/1.25 var(--f-display); letter-spacing: -0.015em; margin-top: 10px; }
+.tcard-title { font: 680 16.5px/1.25 var(--f-display); letter-spacing: -0.015em; margin-top: 10px; }
 .tcard-why { font-size: 13.5px; color: var(--paper-mute); margin-top: 6px; line-height: 1.5; }
 .tcard-reward { margin-top: 10px; font-size: 13px; color: var(--paper-ink); }
 .tcard-reward .mono { color: var(--brass-deep); font-weight: 600; }
@@ -322,6 +322,7 @@ html[data-hero='b'] .hero-foot { margin-top: 28px; }
 
 /* ---------- sections ---------- */
 .sec { padding: clamp(72px, 10vw, 140px) 0; position: relative; }
+.final, .foot { content-visibility: auto; contain-intrinsic-size: auto 800px; }
 .panel { border-radius: var(--r-xl); padding: clamp(28px, 5vw, 72px); }
 .panel-paper { background: var(--paper); color: var(--paper-ink); background-image: radial-gradient(rgba(27, 26, 22, 0.07) 1px, transparent 1.2px); background-size: 22px 22px; box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.8); }
 .panel-paper .h2 { color: var(--paper-ink); }
@@ -450,7 +451,7 @@ html[data-hero='b'] .hero-foot { margin-top: 28px; }
 .approvals { margin-top: 16px; display: grid; gap: 8px; }
 .approvals li { display: grid; grid-template-columns: 70px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--ink-2); font-size: 14px; }
 .approvals span { font-family: var(--f-mono); font-size: 13px; }
-.approvals em { font-style: normal; color: var(--fg-3); font-size: 13px; }
+.approvals em { font-style: normal; color: var(--fg-2); font-size: 13px; }
 .approvals .no b { color: var(--fg-3); font-weight: 500; text-decoration: line-through; text-decoration-color: var(--danger); }
 .approvals .yes { background: rgba(143, 211, 187, 0.1); outline: 1px solid rgba(143, 211, 187, 0.45); }
 .approvals .yes b { color: var(--sage); }
@@ -544,13 +545,18 @@ html[data-hero='b'] .hero-foot { margin-top: 28px; }
 .db-sql .prompt { color: var(--clay); }
 .db-after { margin-top: 10px; color: #a43d22; font-size: 14px; font-weight: 500; opacity: 0; transition: opacity 0.5s 1.4s; }
 .played .db-after, html:not(.js) .db-after { opacity: 1; }
+.db-next { margin-top: 16px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--paper-line); background: var(--paper-2); opacity: 0; transition: opacity 0.5s 2s; }
+.played .db-next, html:not(.js) .db-next { opacity: 1; }
+.db-next-k { font-size: 11px; color: var(--paper-mute); text-transform: uppercase; letter-spacing: 0.05em; }
+.db-next-v { margin-top: 4px; font-size: 15px; }
+.db-next-v .mono { font-size: 13.5px; color: #a43d22; }
 .dbcard-foot { margin-top: auto; padding-top: 18px; color: var(--paper-mute); font-size: 15px; }
 .codecard { background: #121417; color: var(--fg); border-radius: 24px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; }
 .codecard-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 16px 18px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--fg-2); }
 .code { margin: 0; padding: 16px 0; font: 400 12.5px/1.75 var(--f-mono); overflow-x: auto; border-bottom: 1px solid var(--line); }
 .cl { display: block; padding: 0 18px 0 0; white-space: pre; }
 .cl.gap { color: var(--fg-3); padding-left: 18px; }
-.ln-n { display: inline-block; width: 46px; padding-right: 14px; text-align: right; color: #6c6a64; user-select: none; }
+.ln-n { display: inline-block; width: 46px; padding-right: 14px; text-align: right; color: #8f8b82; user-select: none; }
 .c-kw { color: #f1b3a0; }
 .c-str { color: var(--sage); }
 .c-attr { color: var(--sim); }
@@ -676,5 +682,5 @@ html[data-hero='b'] .hero-foot { margin-top: 28px; }
   .loop { --p: 1 !important; }
   .dots { transform: none; }
   .victim td::after { transform: scaleX(1); }
-  .db-after { opacity: 1; }
+  .db-after, .db-next { opacity: 1; }
 }

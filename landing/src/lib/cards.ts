@@ -48,7 +48,7 @@ export function machineCard(a: AssetSnap, ctx: CardCtx, variant: 'ink' | 'paper'
   <header class="mcard-head">
     <span class="mcard-icon">${ctx.icon}</span>
     <div class="mcard-id">
-      <h3 class="mcard-name">${esc(a.display_name)}</h3>
+      <p class="mcard-name">${esc(a.display_name)}</p>
       <p class="mono mcard-acct">${esc(a.account)}</p>
     </div>
   </header>
@@ -80,7 +80,7 @@ export function taskCard(a: AssetSnap, ctx: CardCtx): string {
   if (t) {
     return `<article class="tcard">
   <p class="tcard-k"><span class="mono">UPKEEP TASK #${esc(t.id)}</span><span class="status due"><i></i>${esc(t.status)}</span></p>
-  <h4>${esc(ctx.titles[t.rule_id] ?? t.rule_id)}</h4>
+  <p class="tcard-title">${esc(ctx.titles[t.rule_id] ?? t.rule_id)}</p>
   <p class="tcard-why">${esc(t.rationale)}</p>
   <p class="tcard-reward"><span class="mono">${t.reward_rights}×</span> usage right${t.reward_rights === 1 ? '' : 's'} · valid ${ctx.rightValidityDays} days · non-transferable</p>
   <p class="tcard-by mono">opened by ${esc(firstLabel(t.opened_by))}${t.claimer ? ` · claimed by ${esc(firstLabel(t.claimer))}` : ''}</p>
@@ -90,7 +90,7 @@ export function taskCard(a: AssetSnap, ctx: CardCtx): string {
   const rule = md?.rule;
   return `<article class="tcard">
   <p class="tcard-k"><span class="mono">UPKEEP TASK</span><span class="status idle"><i></i>None open</span></p>
-  <h4>${rule ? esc(ctx.titles[rule.rule_id] ?? rule.rule_id) : 'No rule'}</h4>
+  <p class="tcard-title">${rule ? esc(ctx.titles[rule.rule_id] ?? rule.rule_id) : 'No rule'}</p>
   <p class="tcard-why">${rule ? (rule.due ? `Due now: the printer's own counter crossed the rule (${esc(triggerText(rule.trigger))}), so its agent may open this task.` : `Opens by itself ${esc(triggerText(rule.trigger))}. The agent can only open it once the printer's own counter crosses that line.`) : ''}</p>
   ${rule ? `<p class="tcard-reward"><span class="mono">${rule.reward_rights}×</span> usage right${rule.reward_rights === 1 ? '' : 's'} for whoever does it · valid ${ctx.rightValidityDays} days</p>` : ''}
 </article>`;

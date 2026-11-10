@@ -105,6 +105,29 @@ export async function readAsset(rpc: RpcLike, account: string, community: string
   };
 }
 
+/** The five views the hero card needs (fewer calls than readAsset; the page must stay under public RPC limits). */
+export async function readLive(rpc: RpcLike, account: string, community: string, dao: string): Promise<AssetSnap> {
+  const ledger = await rpc.view<LedgerLite>(account, 'get_ledger');
+  const service = await rpc.view<{ in_service: boolean }>(account, 'get_service_status');
+  const rules = await rpc.view<RuleStatus[]>(account, 'get_rule_status');
+  const tasks = await rpc.view<TaskLite[]>(account, 'get_tasks', { from_index: '0', limit: 50 });
+  const profile = await rpc.view<{ asset_type: string; display_name: string }>(account, 'get_profile');
+  const keys = await rpc.viewAccessKeyList(account);
+  return {
+    account,
+    community,
+    dao,
+    asset_type: profile.asset_type,
+    display_name: profile.display_name,
+    in_service: service.in_service,
+    ledger,
+    rules,
+    tasks,
+    code_hash: '',
+    full_access_keys: keys.keys.filter((k) => (k.access_key as { permission?: unknown }).permission === 'FullAccess').length,
+  };
+}
+
 /** The open (or most recent) upkeep task and the people a rewarded task names. */
 export function openTask(a: AssetSnap): TaskLite | null {
   return a.tasks.find((t) => ['Open', 'Claimed', 'Submitted'].includes(t.status)) ?? null;
@@ -139,8 +162,8 @@ export const RPC_URLS = ['https://test.rpc.fastnear.com', 'https://rpc.testnet.n
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
- * fetch for NearRpc: at most `concurrency` requests in flight, retry on HTTP 429/5xx with backoff, and switch
- * to the next RPC URL after the retries on one endpoint are spent.
+ * fetch for NearRpc: at most `concurrency` requests in flight, retry on HTTP 429/5xx with exponential backoff
+ * and jitter; then give up (callers keep their snapshot). One endpoint only: hammering a second one helps nobody.
  */
 export function politeFetch(concurrency = 2, retries = 3): (input: string, init?: RequestInit) => Promise<Response> {
   let active = 0;
@@ -157,7 +180,7 @@ export function politeFetch(concurrency = 2, retries = 3): (input: string, init?
     await acquire();
     try {
       let last: Response | Error = new Error('no RPC endpoint');
-      for (const url of [input, ...RPC_URLS.filter((u) => u !== input)]) {
+      for (const url of [input]) {
         for (let i = 0; i <= retries; i++) {
           try {
             const res = await fetch(url, init);
@@ -166,7 +189,7 @@ export function politeFetch(concurrency = 2, retries = 3): (input: string, init?
           } catch (e) {
             last = e as Error;
           }
-          await sleep(400 * 2 ** i);
+          await sleep(500 * 2 ** i + Math.random() * 400);
         }
       }
       if (last instanceof Response) return last;

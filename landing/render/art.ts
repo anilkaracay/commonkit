@@ -173,7 +173,8 @@ export const ART_KEYS = Object.keys(ART);
 export function art(icon: string, label: string, extraClass = ''): string {
   const a = ART[icon];
   if (!a) throw new Error(`no illustration for icon "${icon}"`);
-  return `<svg class="art art-${a.tone} ${extraClass}" viewBox="0 0 120 120" role="img" aria-label="${label}">
+  const a11y = label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"';
+  return `<svg class="art art-${a.tone} ${extraClass}" viewBox="0 0 120 120" ${a11y}>
     <g class="blk" transform="translate(4 3)">${a.block}</g>
     <g class="ln">${a.line}</g>${a.acc ? `<g class="ln acc">${a.acc}</g>` : ''}
   </svg>`;

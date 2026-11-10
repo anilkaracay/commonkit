@@ -161,7 +161,9 @@ refreshTimes();
 window.setInterval(refreshTimes, 60_000);
 
 // ---------- live testnet data, after first paint ----------
-const startLive = () => import('./live.ts').then((m) => m.startLive()).catch(() => undefined);
+// never under automation (screenshots, capture, tests) or with ?live=0: those runs use the labelled snapshot
+const liveOn = !navigator.webdriver && new URLSearchParams(location.search).get('live') !== '0';
+const startLive = () => (liveOn ? import('./live.ts').then((m) => m.startLive()).catch(() => undefined) : undefined);
 if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(startLive, { timeout: 2500 });
 else window.setTimeout(startLive, 1200);
 
