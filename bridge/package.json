@@ -23,11 +23,14 @@
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "gen:vectors": "tsx test/gen-nep413-vectors.ts"
+    "gen:vectors": "tsx test/gen-nep413-vectors.ts",
+    "emulate": "tsx src/emulators/cli.ts",
+    "dev:emulated": "tsx src/emulated-stack.ts"
   },
   "dependencies": {
     "@commonkit/sdk": "workspace:*",
     "@fastify/cors": "11.4.1",
+    "@fastify/multipart": "10.1.8",
     "@scure/base": "2.4.0",
     "fastify": "5.12.8",
     "pino": "10.4.0",
