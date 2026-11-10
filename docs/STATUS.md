@@ -2,6 +2,37 @@
 
 Updated by Claude Code after every milestone. Newest entry on top. Only verified facts.
 
+## HUMAN TODO (kept current by the lead; open items listed in every update)
+
+| # | Task | When | Unblocks | State |
+| :--- | :--- | :--- | :--- | :--- |
+| H1 | Pick pilot item, 4–5 people, place, time | ASAP | Lane E, pilot | open |
+| H2 | Order smart plug (Shelly Gen2/Gen3 or Tasmota); send model + IP when it arrives | ASAP | plug onboarding, video | open |
+| H3 | Fix GitHub billing / Actions spending limit | ASAP | green CI | open |
+| H4 | Send testnet NEAR to `commonkit-sxflo.testnet` (exact amount below) | ASAP | asset deploys, pilot funding | open — amount: see latest log entry |
+| H5 | Test member flow once with the pilot wallet (NEP-413 sign → bridge) | before pilot | pilot | open |
+| H6 | Provide project name confirmation, lead name, email, team size, mainnet payout account | before G6 | form checklist (kept out of git) | open |
+| H7 | Make repo public (checklist provided) | G6 | public CI, submission | later |
+| H8 | Publish X post with video (text + file provided) | G6 | demoUrl | later |
+| H9 | Submit form on nearhackathon.com (filled checklist provided) | after H7+H8 | done | later |
+| H10 | Approve landing hero direction (2 screenshots sent to chat) | Lane G step 3 | landing build | later |
+| H11 | Log in to Vercel once (`npx vercel login`) or give a deploy token in .env (VERCEL_TOKEN) | ASAP | hosted preview (Lane C/G) | open |
+
+## Gates
+
+| Gate | Content | State |
+| :--- | :--- | :--- |
+| G1 Core live | M1c verified; 4 assets live + keyless; verify.sh green; bridge + agent on testnet; hosted app with real data | ◐ |
+| G2 Proof complete | 21/21 judge steps with evidence; simulate.sh × 12; pilot kit + runbook; plug onboarded if delivered; landing §1–9 | ☐ |
+| G3 Real world | pilot run; plug clips; evidence + consents (or plainly skipped) | ☐ |
+| G4 Feature freeze | after G3 (or G2 if no pilot) | ☐ |
+| G5 Ship-ready | landing 1–13 + quality bar; README final; video; fresh-clone audit | ☐ |
+| G6 Handover | SUBMISSION_PACKAGE.md: repo-public checklist, X post, form checklist, idea | ☐ |
+| G7 After "repo public" | CI green; tag `hackathon-submission` | ☐ |
+| G8 After "submitted" | record time; code freeze; keep demo up to 2026-11-25; PITCH.md | ☐ |
+
+## Milestones
+
 | Milestone | State | Evidence |
 | :--- | :--- | :--- |
 | M0 Research + scaffold | ✅ (verifier pending) | docs/RESEARCH_RESULTS.md (C8 contract-as-proposer proven on testnet, D-101); `pnpm validate:profiles` 12/12 ✅ |
