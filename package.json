@@ -23,6 +23,8 @@
     "seed:testnet": "pnpm --filter @commonkit/scripts exec tsx seed-testnet.ts",
     "demo:step": "pnpm --filter @commonkit/scripts exec tsx demo/run.ts",
     "demo:all": "pnpm --filter @commonkit/scripts exec tsx demo/run.ts all",
+    "build:site": "bash scripts/build-site.sh",
+    "serve:site": "node scripts/serve-site.mjs",
     "dev:web": "pnpm --filter @commonkit/web dev",
     "dev:bridge": "pnpm --filter @commonkit/bridge dev",
     "dev:agent": "pnpm --filter @commonkit/agent dev"

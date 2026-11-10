@@ -11,6 +11,7 @@ evidence/private/
 submission/
 
 # build
+site/
 target/
 contracts/target/
 node_modules/

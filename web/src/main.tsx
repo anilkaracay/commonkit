@@ -11,6 +11,7 @@ import { createMockSource } from './data/mock/mockSource';
 
 // M5: the mock source is the only source; M7 swaps in the RPC source built on @commonkit/sdk.
 const source = createMockSource();
+// Routes are written relative to the app root; the basename puts them under /app (D-025).
 const router = createBrowserRouter(routes, { basename: import.meta.env.BASE_URL.replace(/\/$/, '') || '/' });
 
 const el = document.getElementById('root');
