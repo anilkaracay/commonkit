@@ -5,7 +5,7 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ## Judge flow
 
-17 of 21 steps passed. ★ = one of the five core steps shown in the README.
+19 of 21 steps passed. ★ = one of the five core steps shown in the README.
 
 | # | Step | Result | Transactions |
 | :--- | :--- | :--- | :--- |
@@ -22,9 +22,11 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | 12 | Ayşe proposes Zeynep’s laser training; Mehmet approves; Zeynep gets laser_safety, Ayşe a laser-group right  | ✅ | [B2CwNMwt…](https://testnet.nearblocks.io/txns/B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG) [6wdSrqts…](https://testnet.nearblocks.io/txns/6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM) |
 | 13 | Zeynep (now credentialed) reserves the laser; the bridge switches the emulated Shelly on, then off (simulation) | ✅ | [BA6f822e…](https://testnet.nearblocks.io/txns/BA6f822ewK4NNpa5vmQJ6ANgGP9gWo252zSbHzkk99pV) [6CVR6bgW…](https://testnet.nearblocks.io/txns/6CVR6bgWqps1K2avZZSzUw7QsCpNHjacDdMZ7km66NVW) [ADoxyxM2…](https://testnet.nearblocks.io/txns/ADoxyxM2pNkYxc3AerE4a5LKPPCDxsqSMmqeWt9cRFvq) [HF8cj7Wd…](https://testnet.nearblocks.io/txns/HF8cj7WdXF6tBvfWvdSLMt2Ek2bDjLCnCXirMrF47RpM) |
 | 14 | Ayşe uses a printer-earned right on the laser (same group: OK) and on the dorm-b washer (other community: rejected)  | ✅ | [8gbyxuQM…](https://testnet.nearblocks.io/txns/8gbyxuQM28ReZFvnLs9Ko5en6R9GVFuhu4rEoYGAFbfh) [FT9tyV6n…](https://testnet.nearblocks.io/txns/FT9tyV6nfawavWfD3w1iR9xU5hSWERkji61FeJH1CEe) [5AzDmbHg…](https://testnet.nearblocks.io/txns/5AzDmbHgMeBAnE6d8RKJCHuK1EfMmt6H6pDazf81MAJe) [7pKC2mAB…](https://testnet.nearblocks.io/txns/7pKC2mABEx7w3z6hQJZ2RWzSBpYbTrwZHFNKtNzGiAhC) [5n5JjQUh…](https://testnet.nearblocks.io/txns/5n5JjQUhjiBDfQukYQ7aFocp7Ef34kW9gLRhsLF5rxau) [8wrKVZ3o…](https://testnet.nearblocks.io/txns/8wrKVZ3oBXhQ4hKcTa9ZxJsHChu6EgMXKsA5k9uCNhKm) [U8fudsCe…](https://testnet.nearblocks.io/txns/U8fudsCesicZ48BQvaCupc9pi5qYTDwJMRhHUVjYvpf) [7iWi8ExR…](https://testnet.nearblocks.io/txns/7iWi8ExRkoGvGUDQonPZPy9zpQDMMLvGcNTstYz29eDQ) |
+| 15 | Dorm-b washer (simulation): reserve → bridge access → simulated cycle → telemetry; same asset code_hash (simulation) | ✅ | [2kNAKAdP…](https://testnet.nearblocks.io/txns/2kNAKAdPdGh9VPXXNYF1sZN6JuLR5nYhjFWNFCsQonwu) [BeLx28MD…](https://testnet.nearblocks.io/txns/BeLx28MDF4QszMPHrJfYyX8WR2veiEqa2Yg4JY9jZwSA) [7Zdhx7py…](https://testnet.nearblocks.io/txns/7Zdhx7pyXFHtWkpVRTxZuSXpNfA1A5cRzYcwBhyWgf4n) [2qYJpx6U…](https://testnet.nearblocks.io/txns/2qYJpx6UaAckGudH4tphMwcRyJWHQXTTj49rNofqswQQ) |
 | 16 | Agent limits: not due, duplicate task, over quota, after revocation — each refused on chain  | ✅ | [C8JkikXo…](https://testnet.nearblocks.io/txns/C8JkikXooRtDLpidRtnepPVPUfaXDQN16Zpfo9uN81ed) [2rCeE2M1…](https://testnet.nearblocks.io/txns/2rCeE2M1qQLQDqaJd86xXm5Y5MzGgnC5jdiUCaCWT7NG) [nqMmhGWQ…](https://testnet.nearblocks.io/txns/nqMmhGWQYc3kELyxrCYLuV7QMEHFHxTsdiSeQ1pb3Rw) [GvykqdCm…](https://testnet.nearblocks.io/txns/GvykqdCmqCvkcsr96DPRd1epFSRRGER855UrnnRmoino) [PQct6RW7…](https://testnet.nearblocks.io/txns/PQct6RW7mnwcYPJNRUr2CGFTYfikcmog15pGgHHHDTt) [G8Vb1fTc…](https://testnet.nearblocks.io/txns/G8Vb1fTc68YzosfME5TMnM79rWALkr46mWFTj5FNFZsF) [FmDVLwMZ…](https://testnet.nearblocks.io/txns/FmDVLwMZGX3KdonAPehiXPS5ZGiExEacg83rHoqeYMX6) [GDwFcx8W…](https://testnet.nearblocks.io/txns/GDwFcx8WX6BNAZeQbDdg6CZZ712iqsvcX97WefmEyMvq) [621S7Ry7…](https://testnet.nearblocks.io/txns/621S7Ry755JdfH91J84bSrmnYKLKBBiBJrgGPKdgAaQQ) [AZ8F2GoD…](https://testnet.nearblocks.io/txns/AZ8F2GoDaE2ReaaRDJCCWcJM71S47aMaBue5jmgbcAQz) [4fuwk6rL…](https://testnet.nearblocks.io/txns/4fuwk6rLuTxyzePfFhrE7JojfE1RYiMmUFtCK3wgf1D6) [8gn7Tw8b…](https://testnet.nearblocks.io/txns/8gn7Tw8bfiFzjbpZUNeLHJowMWvg69E4hcQ5sP1Mw6i4) [4YA4vH9f…](https://testnet.nearblocks.io/txns/4YA4vH9foL1tHWqspfdeAaBUqELRd67tYEZexSGdSyjw) [Ew52ujzR…](https://testnet.nearblocks.io/txns/Ew52ujzR73A5TuAMnHcMZGoEmdgbPJ6j6cg9rbHB2P26) [2tbnLVXm…](https://testnet.nearblocks.io/txns/2tbnLVXm3ScknKJfyzpf82Lz72RsVZgbMSGgCuDmG2Gi) [946wLUkg…](https://testnet.nearblocks.io/txns/946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f) [57HaCMJ9…](https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX) [DPWHpngq…](https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1) [CeKXhvUM…](https://testnet.nearblocks.io/txns/CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j) [E5z6dYSt…](https://testnet.nearblocks.io/txns/E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg) [2pTH2ej1…](https://testnet.nearblocks.io/txns/2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a) [BpuNwpok…](https://testnet.nearblocks.io/txns/BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod) [4LTTFcJq…](https://testnet.nearblocks.io/txns/4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc) |
 | 17 | Second reward for the same task, claimer self-approval, council revoking a right: all refused  | ✅ | [9URscBHQ…](https://testnet.nearblocks.io/txns/9URscBHQD69i8L1iPRYpUnRrfajERszRpvE8PLsrTtXJ) [8TVggJbH…](https://testnet.nearblocks.io/txns/8TVggJbHvMecXucRykG7oEPRnt5AmmCQy4XVVo4zPKMj) [35LAjegU…](https://testnet.nearblocks.io/txns/35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov) [8baJx53v…](https://testnet.nearblocks.io/txns/8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi) [7SQ1suu3…](https://testnet.nearblocks.io/txns/7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr) |
 | 18 | Printer Restock: agent opens the filament task; capped reimbursement (0.6 refused, 0.4 paid after verifier + council) (simulation) | ✅ | [51RZ2jTg…](https://testnet.nearblocks.io/txns/51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk) [272p86af…](https://testnet.nearblocks.io/txns/272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT) [FNT5MNsm…](https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV) [HsdKEEiL…](https://testnet.nearblocks.io/txns/HsdKEEiLQfrP5WNCbKrQKEjZV4ZsDzUktx1mL9cagoZA) [Eo7uzx1N…](https://testnet.nearblocks.io/txns/Eo7uzx1NJp8BpFgpJokpBH8PNB4ibmoGFNQnJSjJYHjW) [Ej4HpM7X…](https://testnet.nearblocks.io/txns/Ej4HpM7XQG7RaKRCRYf25yPSnUdte52VpHNaYBGQ1JH6) [58w5xba5…](https://testnet.nearblocks.io/txns/58w5xba5zoV1QELf11uBUcfqHuJNfD7Rr7xY1VYam1bJ) [4yqekSny…](https://testnet.nearblocks.io/txns/4yqekSnycURPTGC42tVYE8TtPjvbqe5AAxd6bbXBR9dX) [42VT5eby…](https://testnet.nearblocks.io/txns/42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG) |
+| 19 | Washer fault (simulation): report → out of service → refunds → agent Repair task → verified repair → back in service (simulation) | ✅ | [CcWVpNKt…](https://testnet.nearblocks.io/txns/CcWVpNKty8D7FE4NjffLCX61ZCPDTAxQRqGrGPKDFx4L) [5iiVC5Wp…](https://testnet.nearblocks.io/txns/5iiVC5WpFpN3gWFQEiLyncDMq7MQ65idiU7nYi7toXxu) [2fJMYr4q…](https://testnet.nearblocks.io/txns/2fJMYr4q3pREhuEsKngS6UMe1ezVnG1PfWNAi1AoB2B5) [GsLS5b6j…](https://testnet.nearblocks.io/txns/GsLS5b6jwA9HYfWDYWpbcvrSsk4mAg9rorMEsBjdSXvz) [z2zfYqXv…](https://testnet.nearblocks.io/txns/z2zfYqXvTNBuhC6EcPsoGoaRLLxCvA2GVFS796gchyr) [2Lz7yZmo…](https://testnet.nearblocks.io/txns/2Lz7yZmoKUermgzebC5L1hTksWcLPihaKSPJRA9dwsPp) [ANuszYvx…](https://testnet.nearblocks.io/txns/ANuszYvxC6ne7G2KZZwVdHAoe6D7bDApDvHfS14T7sE) [82QJPDzc…](https://testnet.nearblocks.io/txns/82QJPDzcef5Zp52U4EjexZuan3yAoPURUeFWULvjw4R6) [4VZW5por…](https://testnet.nearblocks.io/txns/4VZW5porXWwrCZKgw3vXbYWMRhtQinCA9QpEhNSEXCLB) [EDCv2LZu…](https://testnet.nearblocks.io/txns/EDCv2LZu7vxSL8AG5AYaX3Yifkq5DjtCdZZk7nRRimso) [77MfpBnB…](https://testnet.nearblocks.io/txns/77MfpBnBudDauU1abf5x3a9CKnaYbRDvZSqauXA8WBGu) [2wCgjLvM…](https://testnet.nearblocks.io/txns/2wCgjLvMY4nrcCfcP94S9nGrLEcSTNADKHoJxJFcCW7t) |
 | 20 | Fridge Schedule cleaning (simulation): refused before the interval, opened by the agent after it (simulation) | ✅ | [DQB7f6cD…](https://testnet.nearblocks.io/txns/DQB7f6cDKswiuR5sbFRaBaz5fzeav2zVpGqphSCiEE8G) [P973x4zL…](https://testnet.nearblocks.io/txns/P973x4zLpq8PcBHXoZJzH6xuQHHDaGEc267ZAS8n646) [GzM8sBy2…](https://testnet.nearblocks.io/txns/GzM8sBy2efNGKfFtx9Yx5Dv6iUZqE5BjsmaSszKZ16NA) [7uKxVanU…](https://testnet.nearblocks.io/txns/7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7) [2vUsX2Qa…](https://testnet.nearblocks.io/txns/2vUsX2Qaqtwj5LLRRKfUb2ursPv8v5QVgHNfuv4Nr5oC) |
 
 ### Step 1 — DAO proposal registers printer-01, sets its profile and funds its float
@@ -249,6 +251,24 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | [7iWi8ExR…](https://testnet.nearblocks.io/txns/7iWi8ExRkoGvGUDQonPZPy9zpQDMMLvGcNTstYz29eDQ) | Ayşe tries her makerlab right on washer-01 (dorm-b) (1 slot from slot 498415, right right-3; fee 0 NEAR + deposit 0.01 NEAR) | ayse.commonkit-sxflo.testnet | ok |
 - Note: E_RIGHT_WRONG_GROUP needs a card of the same commons in another group; it is shown in step 19 (a dorm-b laundry right on the dorm-b fridge). Across communities the other commons has no such card (D-750).
 
+### Step 15 — Dorm-b washer (simulation): reserve → bridge access → simulated cycle → telemetry; same asset code_hash (simulation)
+
+✅ passed · 2026-11-10 06:01:10 UTC
+
+- ✅ bridge grants access (200), simulator adapter — `{"status":200,"simulated":true}`
+- ✅ reservation Closed — `Closed`
+- ✅ cycles telemetry +1 on chain (simulated) — `28 → 29`
+- ✅ on-chain telemetry carries simulated = 1 — `1`
+- ✅ all four asset accounts run the same code_hash — `3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [2kNAKAdP…](https://testnet.nearblocks.io/txns/2kNAKAdPdGh9VPXXNYF1sZN6JuLR5nYhjFWNFCsQonwu) | Ali reserves washer-01 (1 slot from slot 498414; fee 0.2 NEAR + deposit 0 NEAR) | ali.commonkit-sxflo.testnet | ok |
+| [BeLx28MD…](https://testnet.nearblocks.io/txns/BeLx28MDF4QszMPHrJfYyX8WR2veiEqa2Yg4JY9jZwSA) | bridge mark_session_started | bridge.commonkit-sxflo.testnet | ok |
+| [7Zdhx7py…](https://testnet.nearblocks.io/txns/7Zdhx7pyXFHtWkpVRTxZuSXpNfA1A5cRzYcwBhyWgf4n) | bridge mark_session_finished with simulated cycle telemetry | bridge.commonkit-sxflo.testnet | ok |
+| [2qYJpx6U…](https://testnet.nearblocks.io/txns/2qYJpx6UaAckGudH4tphMwcRyJWHQXTTj49rNofqswQQ) | dorm-b steward (Nil) confirms the return | nil.dorm-b.commonkit-sxflo.testnet | ok |
+- Note: washer-01: booked the next slot; its start window opens in 25 min (chain time)
+
 ### Step 16 — Agent limits: not due, duplicate task, over quota, after revocation — each refused on chain
 
 ✅ passed · 2026-11-10 05:37:00 UTC
@@ -343,6 +363,43 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | [58w5xba5…](https://testnet.nearblocks.io/txns/58w5xba5zoV1QELf11uBUcfqHuJNfD7Rr7xY1VYam1bJ) | submit task #2 (evidence hash, expense 0.4 NEAR + receipt hash) | ayse.commonkit-sxflo.testnet | ok |
 | [4yqekSny…](https://testnet.nearblocks.io/txns/4yqekSnycURPTGC42tVYE8TtPjvbqe5AAxd6bbXBR9dX) | Mehmet (verifier) approves | mehmet.commonkit-sxflo.testnet | ok |
 | [42VT5eby…](https://testnet.nearblocks.io/txns/42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG) | council member Elif (≠ Mehmet) gives council approval | elif.makerlab.commonkit-sxflo.testnet | ok |
+
+### Step 19 — Washer fault (simulation): report → out of service → refunds → agent Repair task → verified repair → back in service (simulation)
+
+✅ passed · 2026-11-10 06:02:42 UTC
+
+- ✅ fault_reported {active_reports: 1} — `1`
+- ✅ Can (no washer session) tries to report a fault → E_NO_RECENT_SESSION — `E_NO_RECENT_SESSION expected; got E_NO_RECENT_SESSION (tx 5iiVC5WpFpN3gWFQEiLyncDMq7MQ65idiU7nYi7toXxu)`
+- ✅ out_of_service event
+- ✅ Zeynep tries to reserve the washer → E_OUT_OF_SERVICE — `E_OUT_OF_SERVICE expected; got E_OUT_OF_SERVICE (tx z2zfYqXvTNBuhC6EcPsoGoaRLLxCvA2GVFS796gchyr)`
+- ✅ can_access returns out_of_service — `{"ok":false,"reason":"out_of_service"}`
+- ✅ bridge /access answers 403 OUT_OF_SERVICE (device stays locked) — `{"status":403,"reason":"OUT_OF_SERVICE"}`
+- ✅ reservation_cancelled reason out_of_service, full fee refunded — `{"reason":"out_of_service","fee":"200000000000000000000000"}`
+- ✅ Refund op Succeeded — `Succeeded`
+- ✅ task kind Repair, trigger Report, opened by the agent — `{"kind":"Repair","trigger":"Report","by":"agent.commonkit-sxflo.testnet"}`
+- ✅ bridge starts the simulated verification (202) — `202`
+- ✅ simulated verification passed
+- ✅ service_restored event in the reward
+- ✅ Repair task Rewarded — `Rewarded`
+- ✅ washer back in service — `true`
+- ✅ service log: the out-of-service period is closed by RepairRewarded{task_id} — `{"RepairRewarded":{"task_id":"0"}}`
+- ✅ reservation_rejected reason E_RIGHT_WRONG_GROUP — `E_RIGHT_WRONG_GROUP`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [CcWVpNKt…](https://testnet.nearblocks.io/txns/CcWVpNKty8D7FE4NjffLCX61ZCPDTAxQRqGrGPKDFx4L) | Ali (washed in step 15) reports a fault | ali.commonkit-sxflo.testnet | ok |
+| [5iiVC5Wp…](https://testnet.nearblocks.io/txns/5iiVC5WpFpN3gWFQEiLyncDMq7MQ65idiU7nYi7toXxu) | Can (no washer session) tries to report a fault | can.commonkit-sxflo.testnet | refused as expected (E_NO_RECENT_SESSION) |
+| [2fJMYr4q…](https://testnet.nearblocks.io/txns/2fJMYr4q3pREhuEsKngS6UMe1ezVnG1PfWNAi1AoB2B5) | Can books the washer ahead (1 slot from slot 498416; fee 0.2 NEAR + deposit 0 NEAR) | can.commonkit-sxflo.testnet | ok |
+| [GsLS5b6j…](https://testnet.nearblocks.io/txns/GsLS5b6jwA9HYfWDYWpbcvrSsk4mAg9rorMEsBjdSXvz) | steward Nil sets out_of_service(true) | nil.dorm-b.commonkit-sxflo.testnet | ok |
+| [z2zfYqXv…](https://testnet.nearblocks.io/txns/z2zfYqXvTNBuhC6EcPsoGoaRLLxCvA2GVFS796gchyr) | Zeynep tries to reserve the washer | zeynep.commonkit-sxflo.testnet | refused as expected (E_OUT_OF_SERVICE) |
+| [2Lz7yZmo…](https://testnet.nearblocks.io/txns/2Lz7yZmoKUermgzebC5L1hTksWcLPihaKSPJRA9dwsPp) | Can cancels his future booking | can.commonkit-sxflo.testnet | ok |
+| [ANuszYvx…](https://testnet.nearblocks.io/txns/ANuszYvxC6ne7G2KZZwVdHAoe6D7bDApDvHfS14T7sE) | agent open_upkeep_task("fault_repair") | agent.commonkit-sxflo.testnet | ok |
+| [82QJPDzc…](https://testnet.nearblocks.io/txns/82QJPDzcef5Zp52U4EjexZuan3yAoPURUeFWULvjw4R6) | claim task #0 | can.commonkit-sxflo.testnet | ok |
+| [4VZW5por…](https://testnet.nearblocks.io/txns/4VZW5porXWwrCZKgw3vXbYWMRhtQinCA9QpEhNSEXCLB) | submit task #0 (evidence hash) | can.commonkit-sxflo.testnet | ok |
+| [EDCv2LZu…](https://testnet.nearblocks.io/txns/EDCv2LZu7vxSL8AG5AYaX3Yifkq5DjtCdZZk7nRRimso) | bridge submit_verification_result (simulated check) | bridge.commonkit-sxflo.testnet | ok |
+| [77MfpBnB…](https://testnet.nearblocks.io/txns/77MfpBnBudDauU1abf5x3a9CKnaYbRDvZSqauXA8WBGu) | Ozan (dorm-b verifier) approves | ozan.dorm-b.commonkit-sxflo.testnet | ok |
+| [2wCgjLvM…](https://testnet.nearblocks.io/txns/2wCgjLvMY4nrcCfcP94S9nGrLEcSTNADKHoJxJFcCW7t) | Can tries his dorm-b-laundry right right-1 on fridge-01 (group street-fridge) (1 slot from slot 1993658, right right-1; fee 0 NEAR + deposit 0.1 NEAR) | can.commonkit-sxflo.testnet | ok |
+- Note: fridge deposit 0.1 NEAR refunded minus the rejected record's storage (D-213 #1)
 
 ### Step 20 — Fridge Schedule cleaning (simulation): refused before the interval, opened by the agent after it (simulation)
 

@@ -1142,6 +1142,102 @@
     "timestamp": "2026-11-10T05:34:26.168Z"
   },
   {
+    "step": 15,
+    "title": "Dorm-b washer (simulation): reserve → bridge access → simulated cycle → telemetry; same asset code_hash",
+    "core": false,
+    "simulated": true,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "2kNAKAdPdGh9VPXXNYF1sZN6JuLR5nYhjFWNFCsQonwu",
+      "BeLx28MDF4QszMPHrJfYyX8WR2veiEqa2Yg4JY9jZwSA",
+      "7Zdhx7pyXFHtWkpVRTxZuSXpNfA1A5cRzYcwBhyWgf4n",
+      "2qYJpx6UaAckGudH4tphMwcRyJWHQXTTj49rNofqswQQ"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/2kNAKAdPdGh9VPXXNYF1sZN6JuLR5nYhjFWNFCsQonwu",
+      "https://testnet.nearblocks.io/txns/BeLx28MDF4QszMPHrJfYyX8WR2veiEqa2Yg4JY9jZwSA",
+      "https://testnet.nearblocks.io/txns/7Zdhx7pyXFHtWkpVRTxZuSXpNfA1A5cRzYcwBhyWgf4n",
+      "https://testnet.nearblocks.io/txns/2qYJpx6UaAckGudH4tphMwcRyJWHQXTTj49rNofqswQQ"
+    ],
+    "transactions": [
+      {
+        "label": "Ali reserves washer-01 (1 slot from slot 498414; fee 0.2 NEAR + deposit 0 NEAR)",
+        "hash": "2kNAKAdPdGh9VPXXNYF1sZN6JuLR5nYhjFWNFCsQonwu",
+        "ok": true,
+        "by": "ali.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "reservation_confirmed",
+          "op_created",
+          "swept",
+          "op_result"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "bridge mark_session_started",
+        "hash": "BeLx28MDF4QszMPHrJfYyX8WR2veiEqa2Yg4JY9jZwSA",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "bridge mark_session_finished with simulated cycle telemetry",
+        "hash": "7Zdhx7pyXFHtWkpVRTxZuSXpNfA1A5cRzYcwBhyWgf4n",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "dorm-b steward (Nil) confirms the return",
+        "hash": "2qYJpx6UaAckGudH4tphMwcRyJWHQXTTj49rNofqswQQ",
+        "ok": true,
+        "by": "nil.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "return_confirmed",
+          "reputation_recorded"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "bridge grants access (200), simulator adapter",
+        "ok": true,
+        "detail": "{\"status\":200,\"simulated\":true}"
+      },
+      {
+        "what": "reservation Closed",
+        "ok": true,
+        "detail": "Closed"
+      },
+      {
+        "what": "cycles telemetry +1 on chain (simulated)",
+        "ok": true,
+        "detail": "28 → 29"
+      },
+      {
+        "what": "on-chain telemetry carries simulated = 1",
+        "ok": true,
+        "detail": "1"
+      },
+      {
+        "what": "all four asset accounts run the same code_hash",
+        "ok": true,
+        "detail": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h"
+      }
+    ],
+    "notes": [
+      "washer-01: booked the next slot; its start window opens in 25 min (chain time)"
+    ],
+    "outputs": {
+      "cycles_before": "28",
+      "reservation_id": "2"
+    },
+    "timestamp": "2026-11-10T06:01:10.367Z"
+  },
+  {
     "step": 16,
     "title": "Agent limits: not due, duplicate task, over quota, after revocation — each refused on chain",
     "core": false,
@@ -1802,6 +1898,275 @@
       "cap_refused": "1"
     },
     "timestamp": "2026-11-10T05:40:08.468Z"
+  },
+  {
+    "step": 19,
+    "title": "Washer fault (simulation): report → out of service → refunds → agent Repair task → verified repair → back in service",
+    "core": false,
+    "simulated": true,
+    "negative": true,
+    "status": "passed",
+    "txHashes": [
+      "CcWVpNKty8D7FE4NjffLCX61ZCPDTAxQRqGrGPKDFx4L",
+      "5iiVC5WpFpN3gWFQEiLyncDMq7MQ65idiU7nYi7toXxu",
+      "2fJMYr4q3pREhuEsKngS6UMe1ezVnG1PfWNAi1AoB2B5",
+      "GsLS5b6jwA9HYfWDYWpbcvrSsk4mAg9rorMEsBjdSXvz",
+      "z2zfYqXvTNBuhC6EcPsoGoaRLLxCvA2GVFS796gchyr",
+      "2Lz7yZmoKUermgzebC5L1hTksWcLPihaKSPJRA9dwsPp",
+      "ANuszYvxC6ne7G2KZZwVdHAoe6D7bDApDvHfS14T7sE",
+      "82QJPDzcef5Zp52U4EjexZuan3yAoPURUeFWULvjw4R6",
+      "4VZW5porXWwrCZKgw3vXbYWMRhtQinCA9QpEhNSEXCLB",
+      "EDCv2LZu7vxSL8AG5AYaX3Yifkq5DjtCdZZk7nRRimso",
+      "77MfpBnBudDauU1abf5x3a9CKnaYbRDvZSqauXA8WBGu",
+      "2wCgjLvMY4nrcCfcP94S9nGrLEcSTNADKHoJxJFcCW7t"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/CcWVpNKty8D7FE4NjffLCX61ZCPDTAxQRqGrGPKDFx4L",
+      "https://testnet.nearblocks.io/txns/5iiVC5WpFpN3gWFQEiLyncDMq7MQ65idiU7nYi7toXxu",
+      "https://testnet.nearblocks.io/txns/2fJMYr4q3pREhuEsKngS6UMe1ezVnG1PfWNAi1AoB2B5",
+      "https://testnet.nearblocks.io/txns/GsLS5b6jwA9HYfWDYWpbcvrSsk4mAg9rorMEsBjdSXvz",
+      "https://testnet.nearblocks.io/txns/z2zfYqXvTNBuhC6EcPsoGoaRLLxCvA2GVFS796gchyr",
+      "https://testnet.nearblocks.io/txns/2Lz7yZmoKUermgzebC5L1hTksWcLPihaKSPJRA9dwsPp",
+      "https://testnet.nearblocks.io/txns/ANuszYvxC6ne7G2KZZwVdHAoe6D7bDApDvHfS14T7sE",
+      "https://testnet.nearblocks.io/txns/82QJPDzcef5Zp52U4EjexZuan3yAoPURUeFWULvjw4R6",
+      "https://testnet.nearblocks.io/txns/4VZW5porXWwrCZKgw3vXbYWMRhtQinCA9QpEhNSEXCLB",
+      "https://testnet.nearblocks.io/txns/EDCv2LZu7vxSL8AG5AYaX3Yifkq5DjtCdZZk7nRRimso",
+      "https://testnet.nearblocks.io/txns/77MfpBnBudDauU1abf5x3a9CKnaYbRDvZSqauXA8WBGu",
+      "https://testnet.nearblocks.io/txns/2wCgjLvMY4nrcCfcP94S9nGrLEcSTNADKHoJxJFcCW7t"
+    ],
+    "transactions": [
+      {
+        "label": "Ali (washed in step 15) reports a fault",
+        "hash": "CcWVpNKty8D7FE4NjffLCX61ZCPDTAxQRqGrGPKDFx4L",
+        "ok": true,
+        "by": "ali.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "fault_reported",
+          "reputation_recorded"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Can (no washer session) tries to report a fault",
+        "hash": "5iiVC5WpFpN3gWFQEiLyncDMq7MQ65idiU7nYi7toXxu",
+        "ok": false,
+        "by": "can.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_NO_RECENT_SESSION",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_NO_RECENT_SESSION: no session on this asset in the last 14 days\"}}}}",
+        "expected_failure": true
+      },
+      {
+        "label": "Can books the washer ahead (1 slot from slot 498416; fee 0.2 NEAR + deposit 0 NEAR)",
+        "hash": "2fJMYr4q3pREhuEsKngS6UMe1ezVnG1PfWNAi1AoB2B5",
+        "ok": true,
+        "by": "can.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "reservation_confirmed",
+          "op_created",
+          "swept",
+          "op_result"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "steward Nil sets out_of_service(true)",
+        "hash": "GsLS5b6jwA9HYfWDYWpbcvrSsk4mAg9rorMEsBjdSXvz",
+        "ok": true,
+        "by": "nil.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "out_of_service"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Zeynep tries to reserve the washer",
+        "hash": "z2zfYqXvTNBuhC6EcPsoGoaRLLxCvA2GVFS796gchyr",
+        "ok": false,
+        "by": "zeynep.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_OUT_OF_SERVICE",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_OUT_OF_SERVICE: the asset is out of service\"}}}}",
+        "expected_failure": true
+      },
+      {
+        "label": "Can cancels his future booking",
+        "hash": "2Lz7yZmoKUermgzebC5L1hTksWcLPihaKSPJRA9dwsPp",
+        "ok": true,
+        "by": "can.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "op_created",
+          "reservation_cancelled",
+          "op_result"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "agent open_upkeep_task(\"fault_repair\")",
+        "hash": "ANuszYvxC6ne7G2KZZwVdHAoe6D7bDApDvHfS14T7sE",
+        "ok": true,
+        "by": "agent.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "claim task #0",
+        "hash": "82QJPDzcef5Zp52U4EjexZuan3yAoPURUeFWULvjw4R6",
+        "ok": true,
+        "by": "can.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "task_claimed"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "submit task #0 (evidence hash)",
+        "hash": "4VZW5porXWwrCZKgw3vXbYWMRhtQinCA9QpEhNSEXCLB",
+        "ok": true,
+        "by": "can.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "task_submitted"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "bridge submit_verification_result (simulated check)",
+        "hash": "EDCv2LZu7vxSL8AG5AYaX3Yifkq5DjtCdZZk7nRRimso",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "Ozan (dorm-b verifier) approves",
+        "hash": "77MfpBnBudDauU1abf5x3a9CKnaYbRDvZSqauXA8WBGu",
+        "ok": true,
+        "by": "ozan.dorm-b.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "task_approved",
+          "nft_mint",
+          "rights_minted",
+          "rights_received",
+          "task_rewarded",
+          "reputation_recorded",
+          "service_restored"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Can tries his dorm-b-laundry right right-1 on fridge-01 (group street-fridge) (1 slot from slot 1993658, right right-1; fee 0 NEAR + deposit 0.1 NEAR)",
+        "hash": "2wCgjLvMY4nrcCfcP94S9nGrLEcSTNADKHoJxJFcCW7t",
+        "ok": true,
+        "by": "can.commonkit-sxflo.testnet",
+        "receiver": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "op_created",
+          "reservation_rejected",
+          "op_result"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "fault_reported {active_reports: 1}",
+        "ok": true,
+        "detail": "1"
+      },
+      {
+        "what": "Can (no washer session) tries to report a fault → E_NO_RECENT_SESSION",
+        "ok": true,
+        "detail": "E_NO_RECENT_SESSION expected; got E_NO_RECENT_SESSION (tx 5iiVC5WpFpN3gWFQEiLyncDMq7MQ65idiU7nYi7toXxu)"
+      },
+      {
+        "what": "out_of_service event",
+        "ok": true
+      },
+      {
+        "what": "Zeynep tries to reserve the washer → E_OUT_OF_SERVICE",
+        "ok": true,
+        "detail": "E_OUT_OF_SERVICE expected; got E_OUT_OF_SERVICE (tx z2zfYqXvTNBuhC6EcPsoGoaRLLxCvA2GVFS796gchyr)"
+      },
+      {
+        "what": "can_access returns out_of_service",
+        "ok": true,
+        "detail": "{\"ok\":false,\"reason\":\"out_of_service\"}"
+      },
+      {
+        "what": "bridge /access answers 403 OUT_OF_SERVICE (device stays locked)",
+        "ok": true,
+        "detail": "{\"status\":403,\"reason\":\"OUT_OF_SERVICE\"}"
+      },
+      {
+        "what": "reservation_cancelled reason out_of_service, full fee refunded",
+        "ok": true,
+        "detail": "{\"reason\":\"out_of_service\",\"fee\":\"200000000000000000000000\"}"
+      },
+      {
+        "what": "Refund op Succeeded",
+        "ok": true,
+        "detail": "Succeeded"
+      },
+      {
+        "what": "task kind Repair, trigger Report, opened by the agent",
+        "ok": true,
+        "detail": "{\"kind\":\"Repair\",\"trigger\":\"Report\",\"by\":\"agent.commonkit-sxflo.testnet\"}"
+      },
+      {
+        "what": "bridge starts the simulated verification (202)",
+        "ok": true,
+        "detail": "202"
+      },
+      {
+        "what": "simulated verification passed",
+        "ok": true
+      },
+      {
+        "what": "service_restored event in the reward",
+        "ok": true
+      },
+      {
+        "what": "Repair task Rewarded",
+        "ok": true,
+        "detail": "Rewarded"
+      },
+      {
+        "what": "washer back in service",
+        "ok": true,
+        "detail": "true"
+      },
+      {
+        "what": "service log: the out-of-service period is closed by RepairRewarded{task_id}",
+        "ok": true,
+        "detail": "{\"RepairRewarded\":{\"task_id\":\"0\"}}"
+      },
+      {
+        "what": "reservation_rejected reason E_RIGHT_WRONG_GROUP",
+        "ok": true,
+        "detail": "E_RIGHT_WRONG_GROUP"
+      }
+    ],
+    "notes": [
+      "fridge deposit 0.1 NEAR refunded minus the rejected record's storage (D-213 #1)"
+    ],
+    "outputs": {
+      "fault_reported": "1",
+      "no_session_refused": "1",
+      "can_reservation": "3",
+      "can_fee": "200000000000000000000000",
+      "oos_set": "1",
+      "reserve_refused": "1",
+      "task_id": "0",
+      "wrong_group_reservation": "0"
+    },
+    "timestamp": "2026-11-10T06:02:42.992Z"
   },
   {
     "step": 20,
