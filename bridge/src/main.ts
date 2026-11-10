@@ -4,6 +4,8 @@ import { pino } from "pino";
 import { Bridge } from "./bridge.js";
 import { FakeChainClient } from "./chain/fake.js";
 import { NearChainClient } from "./chain/near.js";
+import { NearSignerTxSigner, resolveSigners } from "./chain/signer.js";
+import { systemClock } from "./util/clock.js";
 import type { ChainClient } from "./chain/types.js";
 import { loadConfig } from "./config.js";
 import { buildServer } from "./http/server.js";
@@ -27,8 +29,20 @@ if (config.chain === "fake") {
   logger.warn("using the in-memory FAKE chain: nothing is written to NEAR; every event is labelled simulated");
   chain = new FakeChainClient(BigInt(Date.now()) * 1_000_000n);
 } else {
-  // Reads work today; writes need the bridge signer (function-call keys), which is not wired yet.
-  chain = new NearChainClient(new NearRpc(config.rpc_url));
+  // Writes: one function-call key per asset through @commonkit/sdk/signer (D-707, D-412).
+  const { signers, report } = await resolveSigners({
+    bridgeAccount: config.bridge_account,
+    assets: config.assets,
+    deploymentsPath: config.signer.deployments,
+    env: process.env,
+    ...(config.signer.keychain_dir ? { keychainDir: config.signer.keychain_dir } : {}),
+    signerOptions: { rpcUrls: [config.rpc_url] },
+  });
+  for (const r of report) {
+    logger[r.source === "none" ? "warn" : "info"]({ asset_id: r.assetId, signer: r.source, public_key: r.publicKey, detail: r.detail }, "bridge signer");
+  }
+  const txSigners = new Map([...signers].map(([asset, s]) => [asset, new NearSignerTxSigner(s, { clock: systemClock })]));
+  chain = new NearChainClient(new NearRpc(config.rpc_url), (assetId) => txSigners.get(assetId) ?? null);
 }
 
 const bridge = new Bridge({ config, chain, logger });

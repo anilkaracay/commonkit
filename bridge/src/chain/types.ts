@@ -90,14 +90,25 @@ export interface ChainClient {
   ): Promise<TxOutcome>;
 }
 
+/**
+ * panic: executed and failed (deterministic). rejected: node refused, nothing applied.
+ * ambiguous: outcome unknown and not settled. ambiguous_settled: settled; re-read state first.
+ * rpc: transport/view failure. config: the bridge cannot sign for this asset.
+ */
+export type ChainErrorKind = "panic" | "rejected" | "ambiguous" | "ambiguous_settled" | "rpc" | "config";
+
 /** A contract panic or RPC failure; `code` is the CONTRACT_SPEC §10 code when present. */
 export class ChainError extends Error {
+  readonly kind: ChainErrorKind;
   constructor(
     message: string,
     readonly code: string | null,
+    kind?: ChainErrorKind,
+    readonly txHash: string | null = null,
   ) {
     super(message);
     this.name = "ChainError";
+    this.kind = kind ?? (code !== null ? "panic" : "rpc");
   }
 }
 
@@ -106,7 +117,9 @@ export class ChainError extends Error {
  * RPC/network failures (code null) are worth retrying.
  */
 export function isRetryableChainError(err: unknown): boolean {
-  return !(err instanceof ChainError && err.code !== null);
+  if (!(err instanceof ChainError)) return true;
+  // Panics are deterministic; an unsettled ambiguous tx must not be resent blindly.
+  return err.kind !== "panic" && err.kind !== "ambiguous" && err.kind !== "config";
 }
 
 /** First E_* code in a message; falls back to any E_* token so new spec codes are not lost. */

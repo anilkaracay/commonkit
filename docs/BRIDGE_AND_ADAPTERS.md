@@ -38,7 +38,7 @@ assets:
 
 Per-asset keys added by the bridge decisions: `verification_tests: {<rule_id>: {type, ...}}` (D-407; simulator assets default to `{type: simulated}`), `safety: {dangerous, stand_in?, human_present_confirmed}` (D-408), and `gauges` (D-410, §4.6). `chain: near | fake` selects the real NEAR client or an in-memory model of the asset contract whose output is labelled simulated and never written to `evidence/` (D-409).
 
-**One bridge account, one function-call key per asset contract** (a NEAR function-call key is bound to one receiver contract). The bridge keeps a key per asset in env (`BRIDGE_KEY_<ASSET_ALIAS>`), all for the same bridge account. Allowed methods: `mark_session_started, mark_session_finished, report_telemetry, submit_verification_result`.
+**One bridge account, one function-call key per asset contract** (a NEAR function-call key is bound to one receiver contract). The bridge keeps a key per asset in env (`BRIDGE_KEY_<ASSET_ALIAS>`), all for the same bridge account. Allowed methods: `mark_session_started, mark_session_finished, report_telemetry, submit_verification_result`. Keys are resolved per asset: `signer_env` (env var) first, otherwise the keychain key that `deployments/testnet.json` `function_call_keys` lists for (bridge, asset). Transactions go through `@commonkit/sdk/signer` (D-707, D-412).
 
 ## 3. HTTP API (Fastify, zod-validated)
 

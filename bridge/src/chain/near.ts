@@ -89,10 +89,15 @@ export const BRIDGE_GAS_TGAS = {
 export class NearChainClient implements ChainClient {
   readonly kind = "near" as const;
 
+  private readonly signerFor: (assetId: string) => TxSigner | null;
+
+  /** `signers`: one TxSigner for every asset, or a per-asset lookup (one function-call key per asset). */
   constructor(
     private readonly rpc: NearRpc,
-    private readonly signer: TxSigner | null = null,
-  ) {}
+    signers: TxSigner | ((assetId: string) => TxSigner | null) | null = null,
+  ) {
+    this.signerFor = typeof signers === "function" ? signers : () => signers;
+  }
 
   async getChainTime(): Promise<bigint> {
     const block = blockSchema.parse(await this.rpc.call("block", { finality: "final" }));
@@ -198,9 +203,10 @@ export class NearChainClient implements ChainClient {
   }
 
   private async call(assetId: string, method: keyof typeof BRIDGE_GAS_TGAS, args: object): Promise<TxOutcome> {
-    if (!this.signer) throw new ChainError(`no transaction signer configured; cannot call ${method}`, null);
+    const signer = this.signerFor(assetId);
+    if (!signer) throw new ChainError(`no transaction signer configured for ${assetId}; cannot call ${method}`, null, "config");
     try {
-      return await this.signer.functionCall(assetId, method, args, BRIDGE_GAS_TGAS[method]);
+      return await signer.functionCall(assetId, method, args, BRIDGE_GAS_TGAS[method]);
     } catch (err) {
       throw toChainError(err);
     }

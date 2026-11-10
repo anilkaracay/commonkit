@@ -32,6 +32,8 @@ export const assetConfigSchema = z
     session_poll_sec: z.number().positive().max(300).default(2),
     /** rule_id -> verification test run after a maintenance submission. */
     verification_tests: z.record(z.string(), verificationTestSchema).default({}),
+    /** Env var holding this asset's bridge function-call private key (BRIDGE §2); else the keychain key from deployments. */
+    signer_env: z.string().regex(/^[A-Z][A-Z0-9_]*$/).optional(),
     /** gauge name -> derived monotonic counters (D-410). */
     gauges: gaugesConfigSchema,
     safety: safetySchema,
@@ -66,6 +68,13 @@ export const bridgeConfigSchema = z
     evidence_dir: z.string().default("../evidence"),
     challenge_ttl_sec: z.number().int().positive().max(3600).default(300),
     cors_origins: z.array(z.string()).default([]),
+    /** chain: near only. Where the bridge finds its per-asset function-call keys. */
+    signer: z
+      .object({
+        deployments: z.string().default("../deployments/testnet.json"),
+        keychain_dir: z.string().optional(),
+      })
+      .default({ deployments: "../deployments/testnet.json" }),
     assets: z.array(assetConfigSchema).min(1),
   })
   .superRefine((c, ctx) => {
@@ -92,6 +101,10 @@ export function parseConfig(text: string, configDir: string, env: NodeJS.Process
     ...c,
     state_dir: resolve(configDir, c.state_dir),
     evidence_dir: resolve(configDir, c.evidence_dir),
+    signer: {
+      deployments: resolve(configDir, c.signer.deployments),
+      ...(c.signer.keychain_dir ? { keychain_dir: resolve(configDir, c.signer.keychain_dir) } : {}),
+    },
     configDir,
   };
 }

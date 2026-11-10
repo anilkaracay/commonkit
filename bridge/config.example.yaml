@@ -1,13 +1,19 @@
 # Copy to config.yaml (gitignored). Values in ${...} come from the environment / .env.
 network: testnet
 rpc_url: ${NEAR_RPC_URL:-https://rpc.testnet.near.org}
-bridge_account: ${BRIDGE_ACCOUNT}
+bridge_account: ${BRIDGE_ACCOUNT_ID}
 chain: near
 listen: { host: 0.0.0.0, port: 8787 }
 state_dir: state
 evidence_dir: ../evidence
 challenge_ttl_sec: 300
 cors_origins: ["${WEB_ORIGIN:-http://localhost:5173}"]
+# Writes: one function-call key per asset (a NEAR function-call key is bound to one receiver).
+# Per asset: `signer_env: BRIDGE_KEY_<ALIAS>` (private key in .env), else the key that
+# deployments/testnet.json `function_call_keys` lists for (bridge_account, asset) is read from the
+# NEAR CLI keychain (~/.near-credentials). Assets without a key cannot be written to.
+signer:
+  deployments: ../deployments/testnet.json
 assets:
   - asset_id: ${WASHER_ASSET_ID}
     adapter: simulator
