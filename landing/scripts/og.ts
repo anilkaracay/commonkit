@@ -19,6 +19,8 @@ const a = d.snapshot.assets.find((x) => x.asset_type === 'printer_3d')!;
 const p = d.profiles.find((x) => x.asset_type === 'printer_3d')!;
 const card = machineCard(a, {
   titles: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.title])),
+  fileTriggers: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.trigger])),
+  overrides: d.overrides['printer-01'] ?? {},
   rightValidityDays: p.right_validity_days,
   icon: art('printer', ''),
   live: false,

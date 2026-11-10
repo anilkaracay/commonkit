@@ -10,6 +10,8 @@ interface LiveConfig {
   community: string;
   dao: string;
   titles: Record<string, string>;
+  fileTriggers: CardCtx['fileTriggers'];
+  overrides: CardCtx['overrides'];
   rightValidityDays: number;
 }
 
@@ -20,7 +22,7 @@ async function refreshHero(cfg: LiveConfig): Promise<void> {
   const now = Date.now();
   for (const slot of document.querySelectorAll<HTMLElement>('[data-live-slot="hero"]')) {
     const icon = slot.querySelector('.mcard-icon')?.innerHTML ?? '';
-    const ctx: CardCtx = { titles: cfg.titles, rightValidityDays: cfg.rightValidityDays, icon, live: true, at: new Date(now).toISOString(), now };
+    const ctx: CardCtx = { titles: cfg.titles, fileTriggers: cfg.fileTriggers, overrides: cfg.overrides, rightValidityDays: cfg.rightValidityDays, icon, live: true, at: new Date(now).toISOString(), now };
     const m = slot.querySelector<HTMLElement>('[data-slot="machine"]');
     const t = slot.querySelector<HTMLElement>('[data-slot="task"]');
     if (m) m.innerHTML = machineCard(a, ctx, m.querySelector('.mcard-paper') ? 'paper' : 'ink');

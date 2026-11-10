@@ -249,6 +249,14 @@ html[data-hero='b'] .hero-foot { margin-top: 28px; }
 .mrow-rule { font-size: 12px; color: var(--brass-2); }
 .mrow-val { margin-top: 8px; font-size: 14px; }
 .mrow-val b { font-size: 17px; font-weight: 600; color: var(--fg); }
+.mrow-rule-line { display: flex; align-items: center; gap: 8px; margin-top: 2px; font-size: 13px; }
+.due-chip { font: 600 10.5px/1 var(--f-mono); text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 6px; border-radius: 5px; background: rgba(232, 169, 72, 0.18); color: var(--brass-2); }
+.demo-th { margin-top: 8px; font-size: 12px; line-height: 1.45; color: var(--fg-2); padding: 7px 9px; border-radius: 8px; border: 1px dashed rgba(169, 193, 255, 0.45); }
+.demo-th a { color: var(--sim); }
+.demo-th-k { font: 600 10.5px/1 var(--f-mono); text-transform: uppercase; letter-spacing: 0.05em; color: var(--sim); margin-right: 2px; }
+.tcard .demo-th { color: var(--paper-mute); border-color: rgba(47, 79, 168, 0.4); }
+.tcard .demo-th a, .tcard .demo-th-k, .mcard-paper .demo-th a, .mcard-paper .demo-th-k { color: var(--sim-deep); }
+.mcard-paper .demo-th { color: var(--paper-mute); border-color: rgba(47, 79, 168, 0.4); }
 .ruler { --f: 0; position: relative; height: 16px; border-radius: 4px; background: repeating-linear-gradient(90deg, var(--line-2) 0 1px, transparent 1px 10%), var(--ink-1); border: 1px solid var(--line); overflow: hidden; }
 .ruler::after { content: ''; position: absolute; inset: auto 0 0; height: 5px; background: repeating-linear-gradient(90deg, var(--line-2) 0 1px, transparent 1px 2.5%); opacity: 0.8; }
 .ruler-fill { position: absolute; inset: 0 auto 0 0; width: max(3px, calc(var(--f) * 100%)); background: linear-gradient(90deg, var(--brass-deep), var(--brass)); transform-origin: left; transition: width 1.2s var(--ease); }

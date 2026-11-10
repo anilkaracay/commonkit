@@ -7,6 +7,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Snapshot } from '../src/lib/chain.ts';
 import type { Trigger } from '../src/lib/format.ts';
+import type { DemoOverride } from '../src/lib/cards.ts';
 
 export const REPO = resolve(import.meta.dirname, '../..');
 const read = (p: string) => readFileSync(resolve(REPO, p), 'utf8');
@@ -174,10 +175,36 @@ function collectTxs(node: unknown, at: string | undefined, sim: boolean, out: Ev
   for (const [k, v] of Object.entries(o)) if (k !== 'txs' && v && typeof v === 'object') collectTxs(v, here, s, out);
 }
 
-function readTicker(): { items: TickerItem[]; total: number } {
+function allEvidenceTxs(): EvidenceTx[] {
   const dir = resolve(REPO, 'evidence');
   const all: EvidenceTx[] = [];
   for (const f of readdirSync(dir).filter((f) => f.endsWith('.json') && f !== 'agent-limits.json')) collectTxs(json<unknown>(`evidence/${f}`), undefined, false, all);
+  return all;
+}
+
+/**
+ * Demo thresholds set on chain by DAO proposals, from evidence labels such as
+ * "makerlab-ck.sputnikv2.testnet#9 printer-01 profile (demo override nozzle_clean 1800 s, …)".
+ * Keyed by asset alias (printer-01), then rule_id. The tx kept is the one that emitted profile_updated.
+ */
+export type Overrides = Record<string, Record<string, DemoOverride>>;
+function readOverrides(): Overrides {
+  const out: Overrides = {};
+  for (const e of allEvidenceTxs()) {
+    const m = /^(\S+)#(\d+) (\S+) profile \(demo override ([a-z0-9_, ]+?)\s+\d/.exec(e.label);
+    if (!m || !e.ok) continue;
+    const [, dao, proposal, alias] = m;
+    for (const rule of m[4]!.split(/,\s*/)) {
+      const prev = out[alias!]?.[rule];
+      const emitted = (e.events ?? []).some((x) => x.endsWith('profile_updated'));
+      if (!prev || emitted) (out[alias!] ??= {})[rule] = { dao: dao!, proposal: proposal!, tx: e.hash };
+    }
+  }
+  return out;
+}
+
+function readTicker(): { items: TickerItem[]; total: number } {
+  const all = allEvidenceTxs();
   const seen = new Set<string>();
   const unique = all.filter((e) => e.ok && !seen.has(e.hash) && seen.add(e.hash));
   const items = unique
@@ -240,6 +267,7 @@ export interface LandingData {
   evidence_txs: number;
   excerpts: { transfer: Excerpt; revoke: Excerpt; constant: Excerpt };
   steps: JudgeStep[];
+  overrides: Overrides;
   limits: LimitsReport | null;
   pilot: unknown | null;
 }
@@ -285,6 +313,7 @@ export function loadData(): LandingData {
       revoke: excerpt('contracts/commons/src/credentials.rs', 'panic_str("E_NO_REVOCATION', 1),
     },
     steps: readSteps(),
+    overrides: readOverrides(),
     limits: existsSync(limitsPath) ? json<LimitsReport>('evidence/agent-limits.json') : null,
     pilot: existsSync(pilotPath) ? json<unknown>('evidence/pilot.json') : null,
   };

@@ -30,6 +30,8 @@ function printer(d: LandingData): { a: AssetSnap; p: Profile; ctx: CardCtx } {
     p,
     ctx: {
       titles: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.title])),
+      fileTriggers: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.trigger])),
+      overrides: d.overrides[firstLabel(a.account)] ?? {},
       rightValidityDays: p.right_validity_days,
       icon: art('printer', ''),
       live: false,
@@ -47,6 +49,8 @@ function liveConfig(d: LandingData): string {
     community: a.community,
     dao: a.dao,
     titles: ctx.titles,
+    fileTriggers: ctx.fileTriggers,
+    overrides: ctx.overrides,
     rightValidityDays: p.right_validity_days,
   };
   return `<script type="application/json" id="ck-live">${JSON.stringify(cfg).replace(/</g, '\\u003c')}</script>`;

@@ -2,9 +2,20 @@
  * the browser from live testnet views. */
 import { avatar } from './avatar.ts';
 import { keepers, mostDue, openTask, type AssetSnap } from './chain.ts';
-import { esc, firstLabel, int, metricPair, near, relTime, triggerText, utcStamp } from './format.ts';
+import { esc, firstLabel, int, metricPair, near, relTime, triggerText, utcStamp, type Trigger } from './format.ts';
+
+/** A rule threshold lowered on chain by a DAO `set_profile` proposal (from evidence/). */
+export interface DemoOverride {
+  dao: string;
+  proposal: string;
+  tx: string | null;
+}
 
 export interface CardCtx {
+  /** rule_id → trigger in the profile file (the production value) */
+  fileTriggers: Record<string, Trigger>;
+  /** rule_id → the DAO proposal that set a demo threshold, when evidence/ records one */
+  overrides: Record<string, DemoOverride>;
   /** rule_id → title, from the asset's profile file */
   titles: Record<string, string>;
   /** profile numbers the views do not return */
@@ -21,18 +32,41 @@ function sourceLabel(ctx: CardCtx): string {
     : `<span class="src"><i></i>Snapshot · testnet views read ${utcStamp(ctx.at)}</span>`;
 }
 
-function ruleProgress(a: AssetSnap): { title: string; cur: string; of: string; frac: number; due: boolean } {
+interface Progress {
+  rule: string;
+  cur: string;
+  since: string;
+  ruleText: string;
+  frac: number;
+  due: boolean;
+  trigger: Trigger | null;
+}
+
+function ruleProgress(a: AssetSnap): Progress {
   const md = mostDue(a);
-  if (!md) return { title: 'No upkeep rule', cur: '0', of: '', frac: 0, due: false };
+  if (!md) return { rule: 'none', cur: '0', since: '', ruleText: '', frac: 0, due: false, trigger: null };
   const r = md.rule;
   const t = r.trigger;
+  const base = { rule: r.rule_id, frac: md.frac, due: r.due, trigger: t, ruleText: triggerText(t) };
   if ('Metric' in t) {
-    const delta = Math.max(0, Number(r.current) - Number(r.baseline));
-    const m = metricPair(t.Metric.metric, delta, t.Metric.threshold);
-    return { title: r.rule_id, cur: m.cur, of: `${m.of} ${m.label}`, frac: md.frac, due: r.due };
+    const m = metricPair(t.Metric.metric, Math.max(0, Number(r.current) - Number(r.baseline)), t.Metric.threshold);
+    return { ...base, cur: m.cur, since: `${m.label} since the last ${r.rule_id}` };
   }
-  if ('Schedule' in t) return { title: r.rule_id, cur: int(r.current), of: `${t.Schedule.every_hours} h`, frac: md.frac, due: r.due };
-  return { title: r.rule_id, cur: int(r.current), of: `${t.Report.min_reports} reports`, frac: md.frac, due: r.due };
+  if ('Schedule' in t) return { ...base, cur: int(r.current), since: `h since the last ${r.rule_id}` };
+  return { ...base, cur: int(r.current), since: `open fault report${r.current === '1' ? '' : 's'}` };
+}
+
+const sameTrigger = (x: Trigger, y: Trigger | undefined) => JSON.stringify(x) === JSON.stringify(y);
+
+/** "Demo threshold, set by DAO proposal #9 · production profile: every 200 h of printing", or '' if unchanged. */
+export function demoLabel(ruleId: string, onChain: Trigger | null, ctx: CardCtx): string {
+  const file = ctx.fileTriggers[ruleId];
+  if (!onChain || !file || sameTrigger(onChain, file)) return '';
+  const o = ctx.overrides[ruleId];
+  const by = o
+    ? `set by DAO proposal ${o.tx ? `<a href="https://testnet.nearblocks.io/txns/${esc(o.tx)}" target="_blank" rel="noopener">#${esc(o.proposal)}</a>` : `#${esc(o.proposal)}`}`
+    : 'set by a DAO proposal';
+  return `<p class="demo-th"><span class="demo-th-k">Demo threshold</span> ${by} · production profile: ${esc(triggerText(file))}</p>`;
 }
 
 export function machineCard(a: AssetSnap, ctx: CardCtx, variant: 'ink' | 'paper' = 'ink'): string {
@@ -58,9 +92,11 @@ export function machineCard(a: AssetSnap, ctx: CardCtx, variant: 'ink' | 'paper'
     <span class="badge">${a.full_access_keys === 0 ? 'Keyless' : `${a.full_access_keys} full-access key`}</span>
   </div>
   <div class="mrow">
-    <div class="mrow-top"><span class="mrow-label">Upkeep</span><span class="mono mrow-rule">${esc(p.title)}</span></div>
-    <div class="ruler${p.due ? ' due' : ''}" style="--f:${p.frac.toFixed(3)}" role="img" aria-label="${p.cur} of ${esc(p.of)}"><span class="ruler-fill"></span></div>
-    <p class="mrow-val"><b class="mono">${p.cur}</b> <span class="muted">of ${esc(p.of)}${p.due ? ' · due' : ''}</span></p>
+    <div class="mrow-top"><span class="mrow-label">Upkeep</span><span class="mono mrow-rule">${esc(p.rule)}</span></div>
+    <div class="ruler${p.due ? ' due' : ''}" style="--f:${p.frac.toFixed(3)}" role="img" aria-label="${p.cur} ${esc(p.since)}; rule: ${esc(p.ruleText)}"><span class="ruler-fill"></span></div>
+    <p class="mrow-val"><b class="mono">${p.cur}</b> <span class="muted">${esc(p.since)}</span></p>
+    <p class="mrow-rule-line"><span class="muted">rule: ${esc(p.ruleText)}</span>${p.due ? '<span class="due-chip">due</span>' : ''}</p>
+    ${demoLabel(p.rule, p.trigger, ctx)}
   </div>
   <div class="mrow">
     <div class="mrow-top"><span class="mrow-label">Float vs cap</span><span class="muted small">above the cap → DAO</span></div>
@@ -88,10 +124,12 @@ export function taskCard(a: AssetSnap, ctx: CardCtx): string {
   }
   const md = mostDue(a);
   const rule = md?.rule;
+  const due = rule?.due === true;
   return `<article class="tcard">
-  <p class="tcard-k"><span class="mono">UPKEEP TASK</span><span class="status idle"><i></i>None open</span></p>
+  <p class="tcard-k"><span class="mono">UPKEEP TASK</span>${due ? '<span class="status due"><i></i>Due · not opened yet</span>' : '<span class="status idle"><i></i>None open</span>'}</p>
   <p class="tcard-title">${rule ? esc(ctx.titles[rule.rule_id] ?? rule.rule_id) : 'No rule'}</p>
-  <p class="tcard-why">${rule ? (rule.due ? `Due now: the printer's own counter crossed the rule (${esc(triggerText(rule.trigger))}), so its agent may open this task.` : `Opens by itself ${esc(triggerText(rule.trigger))}. The agent can only open it once the printer's own counter crosses that line.`) : ''}</p>
+  <p class="tcard-why">${rule ? (due ? 'Due — waiting for the agent to open the task.' : `Opens by itself ${esc(triggerText(rule.trigger))}. The agent can only open it once the printer's own counter crosses that line.`) : ''}</p>
+  ${rule ? demoLabel(rule.rule_id, rule.trigger, ctx) : ''}
   ${rule ? `<p class="tcard-reward"><span class="mono">${rule.reward_rights}×</span> usage right${rule.reward_rights === 1 ? '' : 's'} for whoever does it · valid ${ctx.rightValidityDays} days</p>` : ''}
 </article>`;
 }
