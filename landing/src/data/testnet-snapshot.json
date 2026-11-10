@@ -1,5 +1,5 @@
 {
-  "taken_at": "2026-11-10T09:31:42.358Z",
+  "taken_at": "2026-11-10T09:44:56.615Z",
   "network": "testnet",
   "assets": [
     {
@@ -12,7 +12,7 @@
       "ledger": {
         "float_free": "2600000000000000000000000",
         "float_cap": "3000000000000000000000000",
-        "deposits_held": "2000000000000000000000000",
+        "deposits_held": "0",
         "rewards_reserved": "0",
         "total_fees_in": "1000000000000000000000000",
         "total_swept": "49959398775000000000000",
@@ -106,7 +106,8 @@
           "opened_by": "agent.commonkit-sxflo.testnet",
           "claimer": "ayse.commonkit-sxflo.testnet",
           "verifier": "mehmet.commonkit-sxflo.testnet",
-          "reward_rights": 2
+          "reward_rights": 2,
+          "created_at": "1794288667377003175"
         },
         {
           "id": "1",
@@ -117,7 +118,8 @@
           "opened_by": "agent.commonkit-sxflo.testnet",
           "claimer": null,
           "verifier": null,
-          "reward_rights": 1
+          "reward_rights": 1,
+          "created_at": "1794288962320111722"
         },
         {
           "id": "2",
@@ -128,7 +130,8 @@
           "opened_by": "agent.commonkit-sxflo.testnet",
           "claimer": "ayse.commonkit-sxflo.testnet",
           "verifier": "mehmet.commonkit-sxflo.testnet",
-          "reward_rights": 1
+          "reward_rights": 1,
+          "created_at": "1794289175125225155"
         }
       ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
@@ -298,7 +301,8 @@
           "opened_by": "agent.commonkit-sxflo.testnet",
           "claimer": "can.commonkit-sxflo.testnet",
           "verifier": "ozan.dorm-b.commonkit-sxflo.testnet",
-          "reward_rights": 3
+          "reward_rights": 3,
+          "created_at": "1794290524616377473"
         }
       ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
@@ -370,7 +374,8 @@
           "opened_by": "agent.commonkit-sxflo.testnet",
           "claimer": null,
           "verifier": null,
-          "reward_rights": 2
+          "reward_rights": 2,
+          "created_at": "1794289657284854195"
         }
       ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",

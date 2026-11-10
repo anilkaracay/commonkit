@@ -2,7 +2,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { avatar } from '../src/lib/avatar.ts';
-import { machineCard, taskCard, type CardCtx } from '../src/lib/cards.ts';
+import { machineCard, taskCard, taskOverrideLabel, type CardCtx } from '../src/lib/cards.ts';
 import type { AssetSnap } from '../src/lib/chain.ts';
 import { esc, firstLabel, int, near, relTime, shortHash, triggerText, utcStamp } from '../src/lib/format.ts';
 import { art, ART_KEYS, LOGO_MARK } from './art.ts';
@@ -15,10 +15,10 @@ const acctUrl = (a: string) => `https://testnet.nearblocks.io/address/${a}`;
 const label = (text: string, cls = '') => `<span class="tag-example ${cls}">${text}</span>`;
 
 /** "Example" for an illustration; when the matching judge step passed on testnet, also link its tx. */
-function proofLabel(d: LandingData, step: number): string {
+function proofLabel(d: LandingData, step: number, illustration = true): string {
   const s = d.steps.find((x) => x.step === step && x.status === 'passed' && x.tx);
   if (!s?.tx) return label('Example');
-  return `<span class="proof-tags">${label('Illustration')}<a class="tag-real" href="${tx(s.tx)}" target="_blank" rel="noopener" title="${esc(s.title)}">Testnet run · step ${s.step} ↗</a></span>`;
+  return `<span class="proof-tags">${illustration ? label('Illustration') : ''}<a class="tag-real" href="${tx(s.tx)}" target="_blank" rel="noopener" title="${esc(s.title)}">Testnet run · step ${s.step} ↗</a></span>`;
 }
 
 function printer(d: LandingData): { a: AssetSnap; p: Profile; ctx: CardCtx } {
@@ -31,13 +31,20 @@ function printer(d: LandingData): { a: AssetSnap; p: Profile; ctx: CardCtx } {
     ctx: {
       titles: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.title])),
       fileTriggers: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.trigger])),
-      overrides: d.overrides[firstLabel(a.account)] ?? {},
+      overrides: d.overrides[a.account] ?? [],
+      featuredTask: featuredTask(d),
       rightValidityDays: p.right_validity_days,
       icon: art('printer', ''),
       live: false,
       at: d.snapshot.taken_at,
     },
   };
+}
+
+/** The judge-flow step-7 task (agent opens nozzle_clean), when evidence records it. */
+function featuredTask(d: LandingData): string | null {
+  const id = d.steps.find((s) => s.step === 7 && s.status === 'passed')?.outputs.task_id;
+  return typeof id === 'string' ? id : null;
 }
 
 // ---------- hero ----------
@@ -51,6 +58,7 @@ function liveConfig(d: LandingData): string {
     titles: ctx.titles,
     fileTriggers: ctx.fileTriggers,
     overrides: ctx.overrides,
+    featuredTask: ctx.featuredTask,
     rightValidityDays: p.right_validity_days,
   };
   return `<script type="application/json" id="ck-live">${JSON.stringify(cfg).replace(/</g, '\\u003c')}</script>`;
@@ -94,11 +102,12 @@ export function heroStats(d: LandingData): string {
 
 export function ticker(d: LandingData): string {
   const full = (acc: string) => d.snapshot.assets.find((x) => x.account.startsWith(`${acc}.`))?.account ?? acc;
+  const isAsset = (acc: string) => d.snapshot.assets.some((x) => x.account === full(acc));
   const items = d.ticker
     .map(
       (t) => `<li><a href="${esc(t.url)}" rel="noopener" target="_blank">
       <span class="tk tk-${esc(t.kind)}">${esc(t.kind)}</span><span class="tk-text">${esc(t.text)}</span>
-      <span class="mono tk-acct">${esc(firstLabel(full(t.account)))}</span>${t.simulated ? '<span class="tk-sim mono">SIM</span>' : ''}
+      <span class="mono tk-acct">${esc(firstLabel(full(t.account)))}</span>${t.simulated || isAsset(t.account) ? '<span class="tk-sim mono" title="Simulated asset">SIMULATED</span>' : ''}
       <time class="mono tk-time" datetime="${esc(t.at)}">${relTime(t.at, Date.parse(d.built_at))}</time></a></li>`,
     )
     .join('');
@@ -212,16 +221,37 @@ export function steps(d: LandingData): string {
     <p class="vis-note">${label('Simulated', 'tag-sim')} ${proofLabel(d, 3)} The bridge is a small service next to the machine. Its key can call only ${bridgeKey ? bridgeKey.method_names.map((m) => `<code>${m}</code>`).join(', ') : 'four reporting methods'}.</p>
   </div>`;
 
-  const v3 = `<div class="vis vis-upkeep">
+  // Step 03: the real step-7 task when evidence and the snapshot have it, otherwise production values as an example.
+  const { ctx } = printer(d);
+  const real = a.tasks.find((t) => t.id === ctx.featuredTask && t.claimer && t.verifier);
+  const row = (who: string, role: string, ok: boolean) =>
+    `<li class="${ok ? 'yes' : 'no'}"><span>${esc(who)}</span><em>${role}</em><b>${ok ? 'approved' : "can't approve"}</b></li>`;
+  const v3 = real
+    ? `<div class="vis vis-upkeep">
     <div class="vcard agent-card">
-      <p class="vcard-k"><span class="mono">open_upkeep_task()</span>${proofLabel(d, 7)}</p>
+      <p class="vcard-k"><span class="mono">task #${esc(real.id)} · ${esc(real.status)}</span>${proofLabel(d, 7, false)}</p>
+      <p class="agent-who mono">${esc(real.opened_by)}</p>
+      <p class="agent-why">"${esc(real.rationale.replace(/\s*\[rationale: \w+\]$/, ''))}"</p>
+      <ol class="approvals">
+        ${row(firstLabel(real.claimer!), 'did the work', false)}
+        ${row('agent', 'opened it', false)}
+        ${row('bridge', 'ran the test', false)}
+        ${row(firstLabel(real.verifier!), 'another member', true)}
+      </ol>
+      ${taskOverrideLabel(real, ctx)}
+    </div>
+    <p class="vis-note">Read from testnet ${utcStamp(d.snapshot.taken_at)}. The claimer, the agent and the bridge can never approve the same task.</p>
+  </div>`
+    : `<div class="vis vis-upkeep">
+    <div class="vcard agent-card">
+      <p class="vcard-k"><span class="mono">open_upkeep_task()</span>${label('Example · production values')}</p>
       <p class="agent-who mono">${esc(agentKey?.account ?? 'agent')}</p>
       <p class="agent-why">"nozzle_seconds grew by 720,000 since the last clean, the threshold for <b>${esc(nozzle?.rule_id ?? 'nozzle_clean')}</b>. Opening: ${esc(nozzle?.title ?? '')}."</p>
       <ol class="approvals">
-        <li class="no"><span>ayse</span><em>did the work</em><b>can't approve</b></li>
-        <li class="no"><span>agent</span><em>opened it</em><b>can't approve</b></li>
-        <li class="no"><span>bridge</span><em>ran the test</em><b>can't approve</b></li>
-        <li class="yes"><span>${esc(firstLabel(council[1] ?? 'burak'))}</span><em>another member</em><b>approves</b></li>
+        ${row('the claimer', 'did the work', false)}
+        ${row('agent', 'opened it', false)}
+        ${row('bridge', 'ran the test', false)}
+        ${row(firstLabel(council[1] ?? 'member'), 'another member', true)}
       </ol>
     </div>
   </div>`;
@@ -292,7 +322,7 @@ export function care(d: LandingData): string {
     .map((p) => {
       const kinds = new Set(p.rules.map((r) => KIND_TO_CHIP[r.kind] ?? 'other'));
       if (p.required_credential) kinds.add('teach');
-      const sim = p.status.includes('testnet asset');
+      const sim = p.status.startsWith('simulation');
       const rules = p.rules
         .map(
           (r) => `<li data-kind="${KIND_TO_CHIP[r.kind] ?? 'other'}"><span class="k">${esc(r.kind)}</span><span class="rt">${esc(r.title)}</span><span class="tr mono">${esc(triggerText(r.trigger))}</span></li>`,

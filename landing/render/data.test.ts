@@ -9,7 +9,7 @@ describe('landing build data', () => {
   });
   it('labels exactly the deployed testnet assets as simulated testnet assets', () => {
     const deployed = new Set(d.snapshot.assets.map((a) => a.asset_type));
-    for (const p of d.profiles) expect(p.status.includes('testnet asset')).toBe(deployed.has(p.asset_type));
+    for (const p of d.profiles) expect(p.status.startsWith('simulation')).toBe(deployed.has(p.asset_type));
   });
   it('quotes real contract lines', () => {
     expect(d.excerpts.constant.lines[0]!.text).toContain('E_NON_TRANSFERABLE');

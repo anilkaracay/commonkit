@@ -182,23 +182,16 @@ function allEvidenceTxs(): EvidenceTx[] {
   return all;
 }
 
-/**
- * Demo thresholds set on chain by DAO proposals, from evidence labels such as
- * "makerlab-ck.sputnikv2.testnet#9 printer-01 profile (demo override nozzle_clean 1800 s, …)".
- * Keyed by asset alias (printer-01), then rule_id. The tx kept is the one that emitted profile_updated.
- */
-export type Overrides = Record<string, Record<string, DemoOverride>>;
+/** evidence/demo-overrides.json grouped by asset account (oldest first). Absent file → no overrides. */
+export type Overrides = Record<string, DemoOverride[]>;
 function readOverrides(): Overrides {
+  const path = resolve(REPO, 'evidence/demo-overrides.json');
+  if (!existsSync(path)) return {};
+  const raw = json<{ kind: string; asset: string; rule_id: string; value: string; proposal: string; tx_hashes?: string[]; at: string }[]>('evidence/demo-overrides.json');
   const out: Overrides = {};
-  for (const e of allEvidenceTxs()) {
-    const m = /^(\S+)#(\d+) (\S+) profile \(demo override ([a-z0-9_, ]+?)\s+\d/.exec(e.label);
-    if (!m || !e.ok) continue;
-    const [, dao, proposal, alias] = m;
-    for (const rule of m[4]!.split(/,\s*/)) {
-      const prev = out[alias!]?.[rule];
-      const emitted = (e.events ?? []).some((x) => x.endsWith('profile_updated'));
-      if (!prev || emitted) (out[alias!] ??= {})[rule] = { dao: dao!, proposal: proposal!, tx: e.hash };
-    }
+  for (const e of [...raw].sort((x, y) => x.at.localeCompare(y.at))) {
+    if (e.kind !== 'override' && e.kind !== 'restore') continue;
+    (out[e.asset] ??= []).push({ kind: e.kind, rule_id: e.rule_id, value: String(e.value), proposal: e.proposal, tx: e.tx_hashes?.at(-1) ?? null, at: e.at });
   }
   return out;
 }
@@ -245,6 +238,7 @@ export interface LimitsReport {
 
 export interface JudgeStep {
   step: number;
+  outputs: Record<string, unknown>;
   title: string;
   status: string;
   simulated: boolean;
@@ -254,8 +248,8 @@ export interface JudgeStep {
 function readSteps(): JudgeStep[] {
   const path = resolve(REPO, 'evidence/steps.json');
   if (!existsSync(path)) return [];
-  const raw = json<{ step: number; title: string; status: string; simulated?: boolean; txHashes?: string[] }[]>('evidence/steps.json');
-  return raw.map((s) => ({ step: s.step, title: s.title, status: s.status, simulated: s.simulated === true, tx: s.txHashes?.at(-1) ?? null }));
+  const raw = json<{ step: number; title: string; status: string; simulated?: boolean; txHashes?: string[]; outputs?: Record<string, unknown> }[]>('evidence/steps.json');
+  return raw.map((s) => ({ step: s.step, outputs: s.outputs ?? {}, title: s.title, status: s.status, simulated: s.simulated === true, tx: s.txHashes?.at(-1) ?? null }));
 }
 
 export interface LandingData {

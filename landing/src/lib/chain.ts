@@ -26,6 +26,7 @@ export interface TaskLite {
   claimer: string | null;
   verifier: string | null;
   reward_rights: number;
+  created_at: string;
 }
 
 export interface LedgerLite {
@@ -98,7 +99,7 @@ export async function readAsset(rpc: RpcLike, account: string, community: string
     ]),
     rules,
     tasks: tasks.map((t) =>
-      pick(t, ['id', 'rule_id', 'kind', 'status', 'rationale', 'opened_by', 'claimer', 'verifier', 'reward_rights']),
+      pick(t, ['id', 'rule_id', 'kind', 'status', 'rationale', 'opened_by', 'claimer', 'verifier', 'reward_rights', 'created_at']),
     ),
     code_hash: acct.code_hash,
     full_access_keys: keys.keys.filter((k) => k.access_key && (k.access_key as { permission?: unknown }).permission === 'FullAccess').length,
@@ -122,7 +123,7 @@ export async function readLive(rpc: RpcLike, account: string, community: string,
     in_service: service.in_service,
     ledger,
     rules,
-    tasks,
+    tasks: tasks.map((t) => ({ id: t.id, rule_id: t.rule_id, kind: t.kind, status: t.status, rationale: t.rationale, opened_by: t.opened_by, claimer: t.claimer, verifier: t.verifier, reward_rights: t.reward_rights, created_at: t.created_at })),
     code_hash: '',
     full_access_keys: keys.keys.filter((k) => (k.access_key as { permission?: unknown }).permission === 'FullAccess').length,
   };

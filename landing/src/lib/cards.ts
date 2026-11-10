@@ -1,21 +1,27 @@
 /** Hero cards for one asset. Pure string templates: rendered at build time from the snapshot, re-rendered in
  * the browser from live testnet views. */
 import { avatar } from './avatar.ts';
-import { keepers, mostDue, openTask, type AssetSnap } from './chain.ts';
+import { keepers, mostDue, openTask, type AssetSnap, type TaskLite } from './chain.ts';
 import { esc, firstLabel, int, metricPair, near, relTime, triggerText, utcStamp, type Trigger } from './format.ts';
 
-/** A rule threshold lowered on chain by a DAO `set_profile` proposal (from evidence/). */
+/** One entry of evidence/demo-overrides.json: a DAO proposal that lowered (override) or reset (restore) a rule. */
 export interface DemoOverride {
-  dao: string;
+  kind: 'override' | 'restore';
+  rule_id: string;
+  value: string;
+  /** "makerlab-ck.sputnikv2.testnet#12" */
   proposal: string;
   tx: string | null;
+  at: string;
 }
 
 export interface CardCtx {
   /** rule_id → trigger in the profile file (the production value) */
   fileTriggers: Record<string, Trigger>;
-  /** rule_id → the DAO proposal that set a demo threshold, when evidence/ records one */
-  overrides: Record<string, DemoOverride>;
+  /** this asset's entries from evidence/demo-overrides.json, oldest first */
+  overrides: DemoOverride[];
+  /** task id the hero should feature (the judge-flow step-7 task), when evidence records one */
+  featuredTask: string | null;
   /** rule_id → title, from the asset's profile file */
   titles: Record<string, string>;
   /** profile numbers the views do not return */
@@ -58,15 +64,39 @@ function ruleProgress(a: AssetSnap): Progress {
 
 const sameTrigger = (x: Trigger, y: Trigger | undefined) => JSON.stringify(x) === JSON.stringify(y);
 
-/** "Demo threshold, set by DAO proposal #9 · production profile: every 200 h of printing", or '' if unchanged. */
+const shortProposal = (p: string) => p.replace('.sputnikv2.testnet', '');
+const txLink = (o: DemoOverride) =>
+  o.tx ? `<a href="https://testnet.nearblocks.io/txns/${esc(o.tx)}" target="_blank" rel="noopener">${esc(shortProposal(o.proposal))}</a>` : esc(shortProposal(o.proposal));
+
+function valueText(ruleId: string, value: string, ctx: CardCtx): string {
+  const f = ctx.fileTriggers[ruleId];
+  if (f && 'Metric' in f && /^\d+$/.test(value)) {
+    const m = metricPair(f.Metric.metric, 0, Number(value));
+    return `${m.of} ${m.label}`;
+  }
+  return value;
+}
+
+/** "Demo threshold, set by DAO proposal makerlab-ck#9 · production profile: every 200 h of printing", or ''. */
 export function demoLabel(ruleId: string, onChain: Trigger | null, ctx: CardCtx): string {
   const file = ctx.fileTriggers[ruleId];
   if (!onChain || !file || sameTrigger(onChain, file)) return '';
-  const o = ctx.overrides[ruleId];
-  const by = o
-    ? `set by DAO proposal ${o.tx ? `<a href="https://testnet.nearblocks.io/txns/${esc(o.tx)}" target="_blank" rel="noopener">#${esc(o.proposal)}</a>` : `#${esc(o.proposal)}`}`
-    : 'set by a DAO proposal';
+  const o = [...ctx.overrides].reverse().find((x) => x.rule_id === ruleId && x.kind === 'override');
+  const by = o ? `set by DAO proposal ${txLink(o)}` : 'set by a DAO proposal';
   return `<p class="demo-th"><span class="demo-th-k">Demo threshold</span> ${by} · production profile: ${esc(triggerText(file))}</p>`;
+}
+
+/** For a task opened while a demo override of its rule was active: when it was opened under, and any restore. */
+export function taskOverrideLabel(t: TaskLite, ctx: CardCtx): string {
+  const opened = Number(BigInt(t.created_at || '0') / 1_000_000n);
+  const mine = ctx.overrides.filter((o) => o.rule_id === t.rule_id);
+  const active = [...mine].reverse().find((o) => o.kind === 'override' && Date.parse(o.at) <= opened);
+  if (!active) return '';
+  const restore = mine.find((o) => o.kind === 'restore' && Date.parse(o.at) > Date.parse(active.at));
+  if (restore && Date.parse(restore.at) <= opened) return '';
+  return `<p class="demo-th"><span class="demo-th-k">Opened under demo override</span> ${esc(t.rule_id)} ${esc(valueText(t.rule_id, active.value, ctx))} (${txLink(active)})${
+    restore ? ` · restored to ${esc(valueText(t.rule_id, restore.value, ctx))} (${txLink(restore)})` : ''
+  }</p>`;
 }
 
 export function machineCard(a: AssetSnap, ctx: CardCtx, variant: 'ink' | 'paper' = 'ink'): string {
@@ -111,15 +141,23 @@ export function machineCard(a: AssetSnap, ctx: CardCtx, variant: 'ink' | 'paper'
 </article>`;
 }
 
+/** The featured (judge-flow step-7) task when it exists, else an open task. */
+export function heroTask(a: AssetSnap, ctx: CardCtx): TaskLite | null {
+  return a.tasks.find((t) => t.id === ctx.featuredTask) ?? openTask(a);
+}
+
 export function taskCard(a: AssetSnap, ctx: CardCtx): string {
-  const t = openTask(a);
+  const t = heroTask(a, ctx);
   if (t) {
+    const done = t.status === 'Rewarded' || t.status === 'Approved';
+    const reward = `${t.reward_rights} usage right${t.reward_rights === 1 ? '' : 's'}`;
     return `<article class="tcard">
-  <p class="tcard-k"><span class="mono">UPKEEP TASK #${esc(t.id)}</span><span class="status due"><i></i>${esc(t.status)}</span></p>
+  <p class="tcard-k"><span class="mono">UPKEEP TASK #${esc(t.id)}</span><span class="status ${done ? 'okp' : 'due'}"><i></i>${esc(t.status)}</span></p>
   <p class="tcard-title">${esc(ctx.titles[t.rule_id] ?? t.rule_id)}</p>
-  <p class="tcard-why">${esc(t.rationale)}</p>
+  ${taskOverrideLabel(t, ctx)}
+  <p class="tcard-why">${esc(t.rationale.replace(/\s*\[rationale: \w+\]$/, ''))}</p>
   <p class="tcard-reward"><span class="mono">${t.reward_rights}×</span> usage right${t.reward_rights === 1 ? '' : 's'} · valid ${ctx.rightValidityDays} days · non-transferable</p>
-  <p class="tcard-by mono">opened by ${esc(firstLabel(t.opened_by))}${t.claimer ? ` · claimed by ${esc(firstLabel(t.claimer))}` : ''}</p>
+  <p class="tcard-by mono">opened by ${esc(firstLabel(t.opened_by))}${t.claimer ? ` · done by ${esc(firstLabel(t.claimer))}` : ''}${t.verifier ? ` · approved by ${esc(firstLabel(t.verifier))}` : ''}${done ? ` · ${reward} minted` : ''}</p>
 </article>`;
   }
   const md = mostDue(a);

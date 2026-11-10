@@ -20,7 +20,8 @@ const p = d.profiles.find((x) => x.asset_type === 'printer_3d')!;
 const card = machineCard(a, {
   titles: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.title])),
   fileTriggers: Object.fromEntries(p.rules.map((r) => [r.rule_id, r.trigger])),
-  overrides: d.overrides['printer-01'] ?? {},
+  overrides: d.overrides[a.account] ?? [],
+  featuredTask: d.steps.find((x) => x.step === 7 && x.status === 'passed')?.outputs.task_id as string | null ?? null,
   rightValidityDays: p.right_validity_days,
   icon: art('printer', ''),
   live: false,
