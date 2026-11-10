@@ -1,5 +1,5 @@
 import { claimAndSubmit } from '../lib/actions.js';
-import { countEvents, type DemoContext } from '../lib/context.js';
+import { mintedTokenIds, type DemoContext } from '../lib/context.js';
 import type { DemoStep } from '../lib/runner.js';
 import { rightsOf, tag } from '../lib/views.js';
 
@@ -27,7 +27,7 @@ export const step08: DemoStep = {
     if (t?.status === 'Submitted') {
       rec.check('verification result on chain', t.verification?.passed === true);
       const tx = await ctx.call('Mehmet (verifier, independent) approves', cast.mehmet, cast.printer, 'approve_task', { task_id: taskId });
-      rec.eq('2 nft_mint events (NEP-171)', countEvents(tx, 'nft_mint'), 2);
+      rec.eq('nft_mint (NEP-171) lists 2 token ids', mintedTokenIds(tx).length, 2);
       t = await a.task(taskId);
     } else rec.note(`task already ${t?.status} (earlier attempt)`);
     rec.eq('task Rewarded, reward Done', { status: t?.status, reward: tag(t?.reward_state ?? '') }, { status: 'Rewarded', reward: 'Done' });

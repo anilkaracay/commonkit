@@ -216,15 +216,381 @@
     "core": true,
     "simulated": true,
     "negative": false,
-    "status": "failed",
+    "status": "passed",
+    "txHashes": [
+      "ARRc2y3M1WwSKcCfcCkp7PpmMDBGBrqWoJ3zkTNMmKwz"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/ARRc2y3M1WwSKcCfcCkp7PpmMDBGBrqWoJ3zkTNMmKwz"
+    ],
+    "transactions": [
+      {
+        "label": "bridge mark_session_started (session_started event)",
+        "hash": "ARRc2y3M1WwSKcCfcCkp7PpmMDBGBrqWoJ3zkTNMmKwz",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      }
+    ],
+    "assertions": [
+      {
+        "what": "bridge answers 200 ok for the reservation holder",
+        "ok": true,
+        "detail": "{\"status\":200,\"ok\":true}"
+      },
+      {
+        "what": "bridge labels the asset SIMULATED (emulated Moonraker)",
+        "ok": true
+      },
+      {
+        "what": "moonraker adapter started the job on the emulated Moonraker (print_state printing)",
+        "ok": true,
+        "detail": "{\"print_state\":\"printing\",\"filename\":\"demo_cube.gcode\",\"message\":\"\"}"
+      },
+      {
+        "what": "reservation InSession on chain (chain records the start before the device unlocks, D-404)",
+        "ok": true,
+        "detail": "InSession"
+      },
+      {
+        "what": "emulated job finished and the bridge closed the session on chain",
+        "ok": true,
+        "detail": "finish device_done, tx 597JnHejCidKsZtmQjwvYwptHQDqCKrUG9fMnRwAZjUZ"
+      }
+    ],
+    "notes": [],
+    "outputs": {
+      "session_id": "2b91c672-8f0d-4840-92a5-00c18dc64a7c",
+      "finish_tx": "597JnHejCidKsZtmQjwvYwptHQDqCKrUG9fMnRwAZjUZ",
+      "finish_reason": "device_done"
+    },
+    "timestamp": "2026-11-10T05:30:34.447Z"
+  },
+  {
+    "step": 4,
+    "title": "Can (no reservation) requests printer access via the bridge and is refused",
+    "core": true,
+    "simulated": true,
+    "negative": true,
+    "status": "passed",
     "txHashes": [],
     "explorerLinks": [],
     "transactions": [],
-    "assertions": [],
+    "assertions": [
+      {
+        "what": "can_access(can, Ali’s reservation) on chain",
+        "ok": true,
+        "detail": "{\"ok\":false,\"reason\":\"not_holder\"}"
+      },
+      {
+        "what": "bridge answers 403 RESERVATION_NOT_ACCESSIBLE (no valid reservation)",
+        "ok": true,
+        "detail": "{\"status\":403,\"reason\":\"RESERVATION_NOT_ACCESSIBLE\"}"
+      },
+      {
+        "what": "emulated printer did not start a job",
+        "ok": true,
+        "detail": "{\"print_state\":\"standby\",\"filename\":\"\",\"message\":\"\"}"
+      },
+      {
+        "what": "no on-chain change (ledger, reservations)",
+        "ok": true,
+        "detail": "{\"float_free\":\"2549959398775000000000000\",\"deposits_held\":\"2000000000000000000000000\",\"total_fees_in\":\"500000000000000000000000\",\"can_reservations\":0,\"ali_reservation\":\"Finished\"}"
+      }
+    ],
     "notes": [],
     "outputs": {},
-    "error": "RPC HTTP 429",
-    "timestamp": "2026-11-10T05:21:02.543Z"
+    "no_tx_reason": "refused by the bridge before any transaction (read-only can_access)",
+    "timestamp": "2026-11-10T05:30:49.934Z"
+  },
+  {
+    "step": 5,
+    "title": "Session finishes; the steward confirms a clean return and the deposit is refunded",
+    "core": false,
+    "simulated": true,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "597JnHejCidKsZtmQjwvYwptHQDqCKrUG9fMnRwAZjUZ",
+      "B55Q3hhRygX1aqQxN5BHrPca6BSVUJXHR8Sq9c4rUiSk"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/597JnHejCidKsZtmQjwvYwptHQDqCKrUG9fMnRwAZjUZ",
+      "https://testnet.nearblocks.io/txns/B55Q3hhRygX1aqQxN5BHrPca6BSVUJXHR8Sq9c4rUiSk"
+    ],
+    "transactions": [
+      {
+        "label": "bridge mark_session_finished with telemetry (emulated Moonraker job done)",
+        "hash": "597JnHejCidKsZtmQjwvYwptHQDqCKrUG9fMnRwAZjUZ",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "steward (Elif) confirms a clean return",
+        "hash": "B55Q3hhRygX1aqQxN5BHrPca6BSVUJXHR8Sq9c4rUiSk",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "op_created",
+          "return_confirmed",
+          "reputation_recorded",
+          "op_result"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "deposit Refund op Succeeded",
+        "ok": true,
+        "detail": "{\"status\":\"Succeeded\",\"amount\":\"2 NEAR\"}"
+      },
+      {
+        "what": "reservation Closed",
+        "ok": true,
+        "detail": "Closed"
+      },
+      {
+        "what": "Ali clean_returns",
+        "ok": true,
+        "detail": "1"
+      },
+      {
+        "what": "Ali has a session on record",
+        "ok": true,
+        "detail": "{\"sessions\":1,\"clean_returns\":1,\"damages\":0,\"upkeeps\":0,\"fault_reports\":0}"
+      }
+    ],
+    "notes": [],
+    "outputs": {
+      "clean_returns_before": "0"
+    },
+    "timestamp": "2026-11-10T05:30:55.608Z"
+  },
+  {
+    "step": 6,
+    "title": "More fees push the printer float over its cap; the excess is swept to the DAO treasury",
+    "core": true,
+    "simulated": false,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S"
+    ],
+    "transactions": [
+      {
+        "label": "Ali books more printer time ahead (2 slots from slot 996833; fee 0.5 NEAR + deposit 2 NEAR)",
+        "hash": "DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S",
+        "ok": true,
+        "by": "ali.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "reservation_confirmed",
+          "op_created",
+          "swept",
+          "op_result"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "`swept` event in the reservation callback",
+        "ok": true,
+        "detail": "{\"op_id\":\"1\",\"amount\":\"49959398775000000000000\"}"
+      },
+      {
+        "what": "Sweep op Succeeded",
+        "ok": true,
+        "detail": "Succeeded"
+      },
+      {
+        "what": "excess above the cap was swept",
+        "ok": true,
+        "detail": "float 2.5499 NEAR + fee 0.5 NEAR → swept 0.0499 NEAR, float now 3 NEAR"
+      },
+      {
+        "what": "float_free = cap after the sweep",
+        "ok": true,
+        "detail": "3000000000000000000000000"
+      },
+      {
+        "what": "DAO treasury +excess",
+        "ok": true,
+        "detail": "5.6511 NEAR → 5.701 NEAR (+0.0499 NEAR)"
+      },
+      {
+        "what": "total_swept grew by the excess",
+        "ok": true,
+        "detail": "\"49959398775000000000000\""
+      }
+    ],
+    "notes": [
+      "reservation 1 stays booked ahead; if unused it becomes a no-show (fee kept, deposit refunded) via `pnpm demo:step housekeeping`"
+    ],
+    "outputs": {
+      "reservation_id": "1",
+      "sweep_op_id": "1",
+      "swept": "49959398775000000000000"
+    },
+    "timestamp": "2026-11-10T05:31:04.725Z"
+  },
+  {
+    "step": 7,
+    "title": "Telemetry crossed nozzle_clean; the agent opens the upkeep task with a rationale",
+    "core": true,
+    "simulated": true,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem"
+    ],
+    "transactions": [
+      {
+        "label": "agent open_upkeep_task(\"nozzle_clean\") with its function-call key",
+        "hash": "AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem",
+        "ok": true,
+        "by": "agent.commonkit-sxflo.testnet"
+      }
+    ],
+    "assertions": [
+      {
+        "what": "nozzle_clean is due from on-chain telemetry (emulated Moonraker counters)",
+        "ok": true,
+        "detail": "{\"rule_id\":\"nozzle_clean\",\"kind\":\"Maintenance\",\"trigger\":{\"Metric\":{\"metric\":\"nozzle_seconds\",\"threshold\":1800}},\"current\":\"15600\",\"baseline\":\"0\",\"due_value\":\"15600\",\"due\":true,\"next_due_estimate\":null,\"open_task\":null,\"reward_rights\":2,\"reward_cash\":\"0\",\"reimbursable_max\":\"0\"}"
+      },
+      {
+        "what": "task_opened: kind Maintenance, trigger Metric, opened by the agent, not manual",
+        "ok": true,
+        "detail": "{\"kind\":\"Maintenance\",\"trigger\":\"Metric\",\"by\":\"agent.commonkit-sxflo.testnet\",\"manual\":false}"
+      },
+      {
+        "what": "rationale stored on chain",
+        "ok": true,
+        "detail": "Nozzle time since last maintenance: 4.3 h (threshold 0.5 h). Opening 'Clean the nozzle and run a calibration print' with reward: 2 usage rights. [rationale: template]"
+      },
+      {
+        "what": "reward: 2 usage rights",
+        "ok": true,
+        "detail": "2"
+      },
+      {
+        "what": "due value at open ≥ threshold",
+        "ok": true,
+        "detail": "due_value_at_open 15600"
+      },
+      {
+        "what": "rule now blocked by this open task",
+        "ok": true,
+        "detail": "0"
+      }
+    ],
+    "notes": [],
+    "outputs": {
+      "task_id": "0"
+    },
+    "timestamp": "2026-11-10T05:31:11.058Z"
+  },
+  {
+    "step": 8,
+    "title": "Ayşe claims and submits; the bridge runs a calibration print; Mehmet approves; 2 rights minted",
+    "core": true,
+    "simulated": true,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "GZfCTLk4VvcijK7BfSMwmFYYCpRfmwXZ3LdsNvEjXMJ1",
+      "ChE95bYQJJWomAfU4PxxbtMADQ6VajRhwxtwkTyTXzqp",
+      "5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr",
+      "Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/GZfCTLk4VvcijK7BfSMwmFYYCpRfmwXZ3LdsNvEjXMJ1",
+      "https://testnet.nearblocks.io/txns/ChE95bYQJJWomAfU4PxxbtMADQ6VajRhwxtwkTyTXzqp",
+      "https://testnet.nearblocks.io/txns/5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr",
+      "https://testnet.nearblocks.io/txns/Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx"
+    ],
+    "transactions": [
+      {
+        "label": "claim task #0",
+        "hash": "GZfCTLk4VvcijK7BfSMwmFYYCpRfmwXZ3LdsNvEjXMJ1",
+        "ok": true,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "task_claimed"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "submit task #0 (evidence hash)",
+        "hash": "ChE95bYQJJWomAfU4PxxbtMADQ6VajRhwxtwkTyTXzqp",
+        "ok": true,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "task_submitted"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "bridge submit_verification_result (calibration print on the emulated Moonraker)",
+        "hash": "5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "Mehmet (verifier, independent) approves",
+        "hash": "Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx",
+        "ok": true,
+        "by": "mehmet.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "task_approved",
+          "nft_mint",
+          "rights_minted",
+          "rights_received",
+          "task_rewarded",
+          "reputation_recorded"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "task Rewarded, reward Done",
+        "ok": true,
+        "detail": "{\"status\":\"Rewarded\",\"reward\":\"Done\"}"
+      },
+      {
+        "what": "2 rights minted",
+        "ok": true,
+        "detail": "2"
+      },
+      {
+        "what": "Ayşe owns them; source = this maintenance task; group makerlab-fab",
+        "ok": true,
+        "detail": "[{\"id\":\"right-3\",\"source\":{\"type\":\"Maintenance\",\"asset\":\"printer-01.makerlab.commonkit-sxflo.testnet\",\"task_id\":\"0\"},\"group\":\"makerlab-fab\"},{\"id\":\"right-4\",\"source\":{\"type\":\"Maintenance\",\"asset\":\"printer-01.makerlab.commonkit-sxflo.testnet\",\"task_id\":\"0\"},\"group\":\"makerlab-fab\"}]"
+      },
+      {
+        "what": "reputation record \"upkeep\" linked to the task",
+        "ok": true
+      }
+    ],
+    "notes": [
+      "task already Rewarded (earlier attempt)"
+    ],
+    "outputs": {
+      "right_ids": "right-3,right-4"
+    },
+    "timestamp": "2026-11-10T05:31:57.248Z"
   },
   {
     "step": 11,

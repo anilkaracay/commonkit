@@ -2,7 +2,7 @@ import { nearToYocto } from '@commonkit/sdk';
 import { TGAS } from '../../lib/config.js';
 import { claimAndSubmit, metricThreshold, withRule } from '../lib/actions.js';
 import { runAgentUntil } from '../lib/agent.js';
-import { countEvents, eventOf, near, type DemoContext } from '../lib/context.js';
+import { eventOf, mintedTokenIds, near, type DemoContext } from '../lib/context.js';
 import { sha256Hex } from '../lib/hash.js';
 import type { DemoStep } from '../lib/runner.js';
 import { tag } from '../lib/views.js';
@@ -64,7 +64,7 @@ export const step18: DemoStep = {
     if (t?.status === 'Approved' && !t.council_approver) {
       const tx = await ctx.call('council member Elif (≠ Mehmet) gives council approval', cast.makerlab.councilMember, cast.printer, 'council_approve_task', { task_id: taskId });
       rec.check('task_council_approved event', eventOf(tx, 'task_council_approved') !== null);
-      rec.eq('1 nft_mint', countEvents(tx, 'nft_mint'), 1);
+      rec.eq('nft_mint lists 1 token id', mintedTokenIds(tx).length, 1);
       const op = eventOf(tx, 'op_result', (d) => d.kind === 'Reimbursement');
       rec.eq('Reimbursement op Succeeded for 0.4 NEAR, ref_id = task', { status: op?.status, amount: op ? near(String(op.amount)) : null, ref: op?.ref_id }, { status: 'Succeeded', amount: near(EXPENSE), ref: taskId });
       t = await a.task(taskId);

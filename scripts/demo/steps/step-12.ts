@@ -1,4 +1,4 @@
-import { countEvents, type DemoContext } from '../lib/context.js';
+import { mintedTokenIds, type DemoContext } from '../lib/context.js';
 import { sha256Hex } from '../lib/hash.js';
 import type { DemoStep } from '../lib/runner.js';
 import { rightsOf } from '../lib/views.js';
@@ -21,7 +21,7 @@ export async function train(ctx: DemoContext, trainer: string, trainee: string, 
   const t = await commons.training(tid);
   if (t?.status === 'Proposed') {
     const tx = await ctx.call(`Mehmet (verifier ≠ trainer ≠ trainee) approves training #${tid}`, cast.mehmet, c.commons, 'approve_credential', { training_id: tid });
-    rec.eq('credential card + trainer right minted (2 nft_mint events)', countEvents(tx, 'nft_mint'), 2);
+    rec.eq('credential card + trainer right minted (nft_mint token ids)', mintedTokenIds(tx).length, 2);
   }
   return tid;
 }

@@ -164,4 +164,12 @@ export function eventOf(tx: TxResult, name: string, pred: (d: Record<string, unk
   return null;
 }
 
+/** Token ids in NEP-171 `nft_mint` events (one event may list several ids). */
+export function mintedTokenIds(tx: TxResult): string[] {
+  return tx.events
+    .filter((e) => e.event === 'nft_mint' && e.standard === 'nep171')
+    .flatMap((e) => (Array.isArray(e.data) ? e.data : [e.data]) as { token_ids?: string[] }[])
+    .flatMap((d) => d?.token_ids ?? []);
+}
+
 export const countEvents = (tx: TxResult, name: string): number => tx.events.filter((e) => e.event === name).length;

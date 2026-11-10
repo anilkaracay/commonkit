@@ -5,13 +5,18 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ## Judge flow
 
-4 of 21 steps passed. ★ = one of the five core steps shown in the README.
+10 of 21 steps passed. ★ = one of the five core steps shown in the README.
 
 | # | Step | Result | Transactions |
 | :--- | :--- | :--- | :--- |
 | 1 | DAO proposal registers printer-01, sets its profile and funds its float  | ✅ | [3PC2DYqH…](https://testnet.nearblocks.io/txns/3PC2DYqHLS8259wSAkipxtDZh43L37gBRHxYhm5WztvT) [7M8WNZwp…](https://testnet.nearblocks.io/txns/7M8WNZwpjKidbwjmUaVz325m1HTVHHXY5f5aN3RKB1kr) [BnQTJSQM…](https://testnet.nearblocks.io/txns/BnQTJSQMZxFrVFzbHg5bUGzTNNxfHseR8QnPHsGnHogD) [7h4Wk4c9…](https://testnet.nearblocks.io/txns/7h4Wk4c9SQNKDXgSK1MH5t76dFeLd9PCd9ikJeAV4L8G) [HBnxKomp…](https://testnet.nearblocks.io/txns/HBnxKompVkzckacs3GcUEUz2N7y3kTcsfU83dFunvkYL) [GvGnSMRX…](https://testnet.nearblocks.io/txns/GvGnSMRXCGhtxzeYrV8vDZb5tebayjR8gSCxH4fQVLmG) [At6SwzzV…](https://testnet.nearblocks.io/txns/At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA) |
 | 2 | Ali reserves 2 printer slots and pays fee + refundable deposit ★ | ✅ | [3hHS1wra…](https://testnet.nearblocks.io/txns/3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz) |
-| 3 | Ali requests access via the bridge (NEP-413 signed); the emulated printer starts the job ★ (simulation) | ❌ | — |
+| 3 | Ali requests access via the bridge (NEP-413 signed); the emulated printer starts the job ★ (simulation) | ✅ | [ARRc2y3M…](https://testnet.nearblocks.io/txns/ARRc2y3M1WwSKcCfcCkp7PpmMDBGBrqWoJ3zkTNMmKwz) |
+| 4 | Can (no reservation) requests printer access via the bridge and is refused ★ (simulation) | ✅ | — (refused by the bridge before any transaction (read-only can_access)) |
+| 5 | Session finishes; the steward confirms a clean return and the deposit is refunded (simulation) | ✅ | [597JnHej…](https://testnet.nearblocks.io/txns/597JnHejCidKsZtmQjwvYwptHQDqCKrUG9fMnRwAZjUZ) [B55Q3hhR…](https://testnet.nearblocks.io/txns/B55Q3hhRygX1aqQxN5BHrPca6BSVUJXHR8Sq9c4rUiSk) |
+| 6 | More fees push the printer float over its cap; the excess is swept to the DAO treasury ★ | ✅ | [DBTLyXkr…](https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S) |
+| 7 | Telemetry crossed nozzle_clean; the agent opens the upkeep task with a rationale ★ (simulation) | ✅ | [AbQSVeSa…](https://testnet.nearblocks.io/txns/AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem) |
+| 8 | Ayşe claims and submits; the bridge runs a calibration print; Mehmet approves; 2 rights minted ★ (simulation) | ✅ | [GZfCTLk4…](https://testnet.nearblocks.io/txns/GZfCTLk4VvcijK7BfSMwmFYYCpRfmwXZ3LdsNvEjXMJ1) [ChE95bYQ…](https://testnet.nearblocks.io/txns/ChE95bYQJJWomAfU4PxxbtMADQ6VajRhwxtwkTyTXzqp) [5RAh6R1w…](https://testnet.nearblocks.io/txns/5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr) [Gr7bwqmC…](https://testnet.nearblocks.io/txns/Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx) |
 | 11 | Zeynep reserves the laser without the laser_safety credential: rejected, refunded  | ✅ | [DWyA3hq1…](https://testnet.nearblocks.io/txns/DWyA3hq1TyJwyafuZGVr3CmfagmpBMokLeYMLyji2Es3) |
 | 12 | Ayşe proposes Zeynep’s laser training; Mehmet approves; Zeynep gets laser_safety, Ayşe a laser-group right  | ✅ | [B2CwNMwt…](https://testnet.nearblocks.io/txns/B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG) [6wdSrqts…](https://testnet.nearblocks.io/txns/6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM) |
 
@@ -56,10 +61,88 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ### Step 3 — Ali requests access via the bridge (NEP-413 signed); the emulated printer starts the job (simulation)
 
-❌ failed · 2026-11-10 05:21:02 UTC · core step
+✅ passed · 2026-11-10 05:30:34 UTC · core step
 
-Error: `RPC HTTP 429`
+- ✅ bridge answers 200 ok for the reservation holder — `{"status":200,"ok":true}`
+- ✅ bridge labels the asset SIMULATED (emulated Moonraker)
+- ✅ moonraker adapter started the job on the emulated Moonraker (print_state printing) — `{"print_state":"printing","filename":"demo_cube.gcode","message":""}`
+- ✅ reservation InSession on chain (chain records the start before the device unlocks, D-404) — `InSession`
+- ✅ emulated job finished and the bridge closed the session on chain — `finish device_done, tx 597JnHejCidKsZtmQjwvYwptHQDqCKrUG9fMnRwAZjUZ`
 
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [ARRc2y3M…](https://testnet.nearblocks.io/txns/ARRc2y3M1WwSKcCfcCkp7PpmMDBGBrqWoJ3zkTNMmKwz) | bridge mark_session_started (session_started event) | bridge.commonkit-sxflo.testnet | ok |
+
+### Step 4 — Can (no reservation) requests printer access via the bridge and is refused (simulation)
+
+✅ passed · 2026-11-10 05:30:49 UTC · core step
+
+- ✅ can_access(can, Ali’s reservation) on chain — `{"ok":false,"reason":"not_holder"}`
+- ✅ bridge answers 403 RESERVATION_NOT_ACCESSIBLE (no valid reservation) — `{"status":403,"reason":"RESERVATION_NOT_ACCESSIBLE"}`
+- ✅ emulated printer did not start a job — `{"print_state":"standby","filename":"","message":""}`
+- ✅ no on-chain change (ledger, reservations) — `{"float_free":"2549959398775000000000000","deposits_held":"2000000000000000000000000","total_fees_in":"500000000000000000000000","can_reservations":0,"ali_reservation":"Finished"}`
+
+### Step 5 — Session finishes; the steward confirms a clean return and the deposit is refunded (simulation)
+
+✅ passed · 2026-11-10 05:30:55 UTC
+
+- ✅ deposit Refund op Succeeded — `{"status":"Succeeded","amount":"2 NEAR"}`
+- ✅ reservation Closed — `Closed`
+- ✅ Ali clean_returns — `1`
+- ✅ Ali has a session on record — `{"sessions":1,"clean_returns":1,"damages":0,"upkeeps":0,"fault_reports":0}`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [597JnHej…](https://testnet.nearblocks.io/txns/597JnHejCidKsZtmQjwvYwptHQDqCKrUG9fMnRwAZjUZ) | bridge mark_session_finished with telemetry (emulated Moonraker job done) | bridge.commonkit-sxflo.testnet | ok |
+| [B55Q3hhR…](https://testnet.nearblocks.io/txns/B55Q3hhRygX1aqQxN5BHrPca6BSVUJXHR8Sq9c4rUiSk) | steward (Elif) confirms a clean return | elif.makerlab.commonkit-sxflo.testnet | ok |
+
+### Step 6 — More fees push the printer float over its cap; the excess is swept to the DAO treasury
+
+✅ passed · 2026-11-10 05:31:04 UTC · core step
+
+- ✅ `swept` event in the reservation callback — `{"op_id":"1","amount":"49959398775000000000000"}`
+- ✅ Sweep op Succeeded — `Succeeded`
+- ✅ excess above the cap was swept — `float 2.5499 NEAR + fee 0.5 NEAR → swept 0.0499 NEAR, float now 3 NEAR`
+- ✅ float_free = cap after the sweep — `3000000000000000000000000`
+- ✅ DAO treasury +excess — `5.6511 NEAR → 5.701 NEAR (+0.0499 NEAR)`
+- ✅ total_swept grew by the excess — `"49959398775000000000000"`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [DBTLyXkr…](https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S) | Ali books more printer time ahead (2 slots from slot 996833; fee 0.5 NEAR + deposit 2 NEAR) | ali.commonkit-sxflo.testnet | ok |
+- Note: reservation 1 stays booked ahead; if unused it becomes a no-show (fee kept, deposit refunded) via `pnpm demo:step housekeeping`
+
+### Step 7 — Telemetry crossed nozzle_clean; the agent opens the upkeep task with a rationale (simulation)
+
+✅ passed · 2026-11-10 05:31:11 UTC · core step
+
+- ✅ nozzle_clean is due from on-chain telemetry (emulated Moonraker counters) — `{"rule_id":"nozzle_clean","kind":"Maintenance","trigger":{"Metric":{"metric":"nozzle_seconds","threshold":1800}},"current":"15600","baseline":"0","due_value":"15600","due":true,"next_due_estimate":null,"open_task":null,"reward_rights":2,"reward_cash":"0","reimbursable_max":"0"}`
+- ✅ task_opened: kind Maintenance, trigger Metric, opened by the agent, not manual — `{"kind":"Maintenance","trigger":"Metric","by":"agent.commonkit-sxflo.testnet","manual":false}`
+- ✅ rationale stored on chain — `Nozzle time since last maintenance: 4.3 h (threshold 0.5 h). Opening 'Clean the nozzle and run a calibration print' with reward: 2 usage rights. [rationale: template]`
+- ✅ reward: 2 usage rights — `2`
+- ✅ due value at open ≥ threshold — `due_value_at_open 15600`
+- ✅ rule now blocked by this open task — `0`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [AbQSVeSa…](https://testnet.nearblocks.io/txns/AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem) | agent open_upkeep_task("nozzle_clean") with its function-call key | agent.commonkit-sxflo.testnet | ok |
+
+### Step 8 — Ayşe claims and submits; the bridge runs a calibration print; Mehmet approves; 2 rights minted (simulation)
+
+✅ passed · 2026-11-10 05:31:57 UTC · core step
+
+- ✅ task Rewarded, reward Done — `{"status":"Rewarded","reward":"Done"}`
+- ✅ 2 rights minted — `2`
+- ✅ Ayşe owns them; source = this maintenance task; group makerlab-fab — `[{"id":"right-3","source":{"type":"Maintenance","asset":"printer-01.makerlab.commonkit-sxflo.testnet","task_id":"0"},"group":"makerlab-fab"},{"id":"right-4","source":{"type":"Maintenance","asset":"printer-01.makerlab.commonkit-sxflo.testnet","task_id":"0"},"group":"makerlab-fab"}]`
+- ✅ reputation record "upkeep" linked to the task
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [GZfCTLk4…](https://testnet.nearblocks.io/txns/GZfCTLk4VvcijK7BfSMwmFYYCpRfmwXZ3LdsNvEjXMJ1) | claim task #0 | ayse.commonkit-sxflo.testnet | ok |
+| [ChE95bYQ…](https://testnet.nearblocks.io/txns/ChE95bYQJJWomAfU4PxxbtMADQ6VajRhwxtwkTyTXzqp) | submit task #0 (evidence hash) | ayse.commonkit-sxflo.testnet | ok |
+| [5RAh6R1w…](https://testnet.nearblocks.io/txns/5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr) | bridge submit_verification_result (calibration print on the emulated Moonraker) | bridge.commonkit-sxflo.testnet | ok |
+| [Gr7bwqmC…](https://testnet.nearblocks.io/txns/Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx) | Mehmet (verifier, independent) approves | mehmet.commonkit-sxflo.testnet | ok |
+- Note: task already Rewarded (earlier attempt)
 
 ### Step 11 — Zeynep reserves the laser without the laser_safety credential: rejected, refunded
 

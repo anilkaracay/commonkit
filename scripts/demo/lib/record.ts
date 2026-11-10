@@ -70,7 +70,7 @@ const MAX_FAILURE = 400;
 
 /** Collects what one step did; `finish()` turns it into the stored record. */
 export class StepRecorder {
-  readonly transactions: TxEntry[] = [];
+  readonly transactions: TxEntry[];
   readonly assertions: Assertion[] = [];
   readonly notes: string[] = [];
   outputs: Record<string, string>;
@@ -81,8 +81,10 @@ export class StepRecorder {
     previous?: DemoStepRecord,
     private readonly print: (line: string) => void = (l) => console.log(l),
   ) {
-    // Outputs of an earlier (failed or forced) attempt are kept so the rerun resumes.
+    // Outputs and transactions of an earlier (failed or forced) attempt are kept: the rerun resumes
+    // from them, and the evidence still lists every transaction the step sent.
     this.outputs = { ...(previous?.outputs ?? {}) };
+    this.transactions = [...(previous?.transactions ?? [])];
   }
 
   tx(label: string, tx: TxResult, opts: { expectedFailure?: boolean } = {}): TxResult {
