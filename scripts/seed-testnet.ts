@@ -58,17 +58,26 @@ async function ensureTreasury(ctx: Ctx, amount: bigint): Promise<void> {
 const sameSet = (a: string[], b: string[]): boolean =>
   [...a].sort().join() === [...b].sort().join();
 
+/** Contract engineer: set_roles needs 10 Tgas + 25 Tgas per active asset it pushes to. */
+async function setRolesGas(ctx: Ctx): Promise<bigint> {
+  const assets = await chain.view<{ active: boolean }[]>(ctx.commons, 'get_assets', { from_index: 0, limit: 100 });
+  const active = BigInt(assets.filter((a) => a.active).length);
+  return (10n + 25n * active) * TGAS;
+}
+
 async function seedRoles(ctx: Ctx): Promise<void> {
   const actions: FnAction[] = [];
+  const gas = await setRolesGas(ctx);
   for (const [name, roles] of Object.entries(ctx.c.roles)) {
     const account = roleAccount(ctx.c, name);
     const current = await chain.view<string[]>(ctx.commons, 'get_roles', { account });
     if (sameSet(current, roles)) console.log(`= ${account} roles ${roles.join(',')}`);
-    else actions.push({ method_name: 'set_roles', args: { account, roles }, gas: 60n * TGAS });
+    else actions.push({ method_name: 'set_roles', args: { account, roles }, gas });
   }
-  // ≤ 4 actions per proposal keeps Σ gas ≤ 240 Tgas (research C11); actions run atomically (C9).
-  for (let i = 0; i < actions.length; i += 4) {
-    const chunk = actions.slice(i, i + 4);
+  // Σ action gas ≤ 250 Tgas per proposal (research C11); actions run atomically (C9).
+  const per = Math.max(1, Number(250n * TGAS / gas));
+  for (let i = 0; i < actions.length; i += per) {
+    const chunk = actions.slice(i, i + per);
     const who = chunk.map((a) => (a.args as { account: string }).account.split('.')[0]).join(', ');
     await pass(ctx, `set roles for ${who}`, ctx.commons, chunk);
   }
@@ -123,7 +132,7 @@ async function seedAsset(ctx: Ctx, a: AssetPlan): Promise<void> {
       {
         method_name: 'set_operators',
         args: { bridge_id: bridge, agent_id: agent },
-        gas: 20n * TGAS,
+        gas: 30n * TGAS,
       },
     ]);
 
@@ -158,7 +167,7 @@ async function seedAsset(ctx: Ctx, a: AssetPlan): Promise<void> {
   else {
     await ensureTreasury(ctx, a.initialFloat);
     await pass(ctx, `fund_float ${a.slug} ${yoctoToNear(a.initialFloat)} NEAR`, id, [
-      { method_name: 'fund_float', args: {}, deposit: a.initialFloat, gas: 50n * TGAS },
+      { method_name: 'fund_float', args: {}, deposit: a.initialFloat, gas: 60n * TGAS },
     ]);
   }
 }

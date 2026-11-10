@@ -59,7 +59,7 @@ async function checkKeyless(dep: Deployments, allowPending: boolean): Promise<vo
       out(
         1,
         allowPending ? '⏳' : '❌',
-        `${id} keyless pending (keys: ${keys.length}; deleted only after M1c sign-off)`,
+        `${id} keyless pending (keys: ${keys.length}; deleted only after the lead's keyless go)`,
       );
   }
 }
@@ -217,8 +217,8 @@ async function checkLedgers(dep: Deployments): Promise<void> {
     const pct = (BigInt(l.storage_cost) * 100n) / BigInt(l.storage_reserve);
     out(
       5,
-      pct <= RESERVE_MAX_USAGE_PCT ? '✅' : '❌',
-      `${id} storage ${yoctoToNear(l.storage_cost, 2)} NEAR = ${pct}% of reserve (max ${RESERVE_MAX_USAGE_PCT}%)`,
+      pct < RESERVE_MAX_USAGE_PCT ? '✅' : '❌',
+      `${id} storage ${yoctoToNear(l.storage_cost, 2)} NEAR = ${pct}% of reserve (must be < ${RESERVE_MAX_USAGE_PCT}%)`,
     );
   }
 }

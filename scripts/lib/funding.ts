@@ -19,7 +19,9 @@ export const COUNCIL_PROPOSER = N('2'); // bond 1 (returned) + propose/vote gas
 /** A 300 Tgas vote reserves ~0.3 NEAR of prepaid gas up front, so voters need more than that. */
 export const COUNCIL_VOTER = N('1');
 /** State headroom on top of the WASM for an asset account (reservations, tasks, ops, logs). */
-export const ASSET_STATE_HEADROOM_BYTES = 100_000n;
+export const ASSET_STATE_HEADROOM_BYTES = 64_000n;
+/** Asset accounts start with storage_reserve + 0.05 NEAR, as in the sandbox suite (D-215). */
+export const ASSET_FUNDING_EXTRA = N('0.05');
 export const COMMONS_STATE_HEADROOM = N('0.5');
 /** verify.sh fails when storage usage exceeds 80% of `storage_reserve` (CONTRACT_SPEC §8). */
 export const RESERVE_MAX_USAGE_PCT = 80n;
@@ -35,10 +37,10 @@ export function recommendedStorageReserve(wasmBytes: number): bigint {
   return roundUpTenth((need * 100n) / RESERVE_MAX_USAGE_PCT);
 }
 
-/** An asset account is created with exactly max(profile reserve, recommended reserve). */
+/** An asset account is created with max(profile reserve, recommended reserve) + 0.05 NEAR. */
 export function assetAccountFunding(profileReserve: bigint, wasmBytes: number): bigint {
   const rec = recommendedStorageReserve(wasmBytes);
-  return profileReserve > rec ? profileReserve : rec;
+  return (profileReserve > rec ? profileReserve : rec) + ASSET_FUNDING_EXTRA;
 }
 
 export function commonsAccountFunding(wasmBytes: number): bigint {

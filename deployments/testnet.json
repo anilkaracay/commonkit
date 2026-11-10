@@ -3,8 +3,16 @@
   "network": "testnet",
   "root": "commonkit-sxflo.testnet",
   "factory": "sputnikv2.testnet",
-  "updated_at": "2026-11-09T13:43:30.853Z",
+  "updated_at": "2026-11-10T04:47:35.020Z",
   "code": {
+    "asset": {
+      "path": "contracts/target/near/commonkit_asset/commonkit_asset.wasm",
+      "bytes": 468037,
+      "sha256": "24132b0a373391debcc4268a4c9f7106691b80105a9c14c048d2f8aba183ec8e",
+      "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
+      "build": "non-reproducible",
+      "git_commit": "7b507ec"
+    },
     "commons": {
       "path": "contracts/target/near/commonkit_commons/commonkit_commons.wasm",
       "bytes": 337044,
@@ -24,7 +32,10 @@
         "selin.makerlab.commonkit-sxflo.testnet"
       ],
       "commons_id": "commons.makerlab.commonkit-sxflo.testnet",
-      "assets": [],
+      "assets": [
+        "printer-01.makerlab.commonkit-sxflo.testnet",
+        "laser-01.makerlab.commonkit-sxflo.testnet"
+      ],
       "dao_tx": "FjQhBmLT7oJa7nbNjuoxtQ6rff1jmV7RfVahBUvPmBhb",
       "commons_tx": "GSpazbSoUiN5UtbStM5cbRc89VdjjXpvH4P2xDk2vuk8"
     },
@@ -38,7 +49,10 @@
         "ece.dorm-b.commonkit-sxflo.testnet"
       ],
       "commons_id": "commons.dorm-b.commonkit-sxflo.testnet",
-      "assets": [],
+      "assets": [
+        "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "fridge-01.dorm-b.commonkit-sxflo.testnet"
+      ],
       "dao_tx": "7FEEhTWmfQrhpicfGCz4TiPEKwNNeXDUWegUXxb9HK2D",
       "commons_tx": "8BqTEpT2NmisQwGUXmmCAF2UCboiiADGqUmKG8Qw7ggw"
     }
@@ -232,7 +246,7 @@
       "role": "member",
       "kind": "demo-bot",
       "keyless": false,
-      "label": "Ali \u2014 reserves the printer (steps 2\u20136), washer user",
+      "label": "Ali — reserves the printer (steps 2–6), washer user",
       "created_tx": "DEe2Ex7x7pKGq9n6r4kJvMydbhmyYDdWZUdrFAUR5gqs",
       "initial_balance": "8000000000000000000000000"
     },
@@ -240,7 +254,7 @@
       "role": "member",
       "kind": "demo-bot",
       "keyless": false,
-      "label": "Can \u2014 no reservation (step 4), dorm-b resident",
+      "label": "Can — no reservation (step 4), dorm-b resident",
       "created_tx": "3UgMDtnjiue7u7Shu5yaUoWzEntbz8e1UTG2m8n36zmv",
       "initial_balance": "1000000000000000000000000"
     },
@@ -248,7 +262,7 @@
       "role": "member",
       "kind": "demo-bot",
       "keyless": false,
-      "label": "Ay\u015fe \u2014 maintainer and laser trainer",
+      "label": "Ayşe — maintainer and laser trainer",
       "created_tx": "8uQ6pP7ttzLHMtnbaZLwpLvwBk2qMTczJZrobqBnuxkx",
       "initial_balance": "5000000000000000000000000"
     },
@@ -256,7 +270,7 @@
       "role": "member",
       "kind": "demo-bot",
       "keyless": false,
-      "label": "Mehmet \u2014 verifier",
+      "label": "Mehmet — verifier",
       "created_tx": "4cwNEjVzKFPEdgYivP2G9jb9JYjYUX2R3hviGEwKsWJU",
       "initial_balance": "500000000000000000000000"
     },
@@ -264,10 +278,175 @@
       "role": "member",
       "kind": "demo-bot",
       "keyless": false,
-      "label": "Zeynep \u2014 laser trainee",
+      "label": "Zeynep — laser trainee",
       "created_tx": "AMRB2ZUfAzyG1iaNZyubUxGzAufs91xHUvTFCgVoYHqt",
       "initial_balance": "4500000000000000000000000"
+    },
+    "ck-fund-3dede7-1.testnet": {
+      "role": "funding-helper",
+      "kind": "team",
+      "keyless": false,
+      "label": "faucet helper (throwaway)"
+    },
+    "ck-fund-3dede7-2.testnet": {
+      "role": "funding-helper",
+      "kind": "team",
+      "keyless": false,
+      "label": "faucet helper (throwaway)"
+    },
+    "printer-01.makerlab.commonkit-sxflo.testnet": {
+      "role": "asset",
+      "kind": "contract",
+      "keyless": "pending",
+      "community": "makerlab",
+      "label": "printer-01 (printer_3d, simulation, D-022)",
+      "profile": "profiles/printer_3d.json",
+      "group_id": "makerlab-fab",
+      "created_tx": "315qJKEZC1TcrG8q9BAMcdDEew3ZfWXNzcxXDkPmEJwU",
+      "deploy_tx": "315qJKEZC1TcrG8q9BAMcdDEew3ZfWXNzcxXDkPmEJwU",
+      "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
+      "initial_balance": "7050000000000000000000000"
+    },
+    "laser-01.makerlab.commonkit-sxflo.testnet": {
+      "role": "asset",
+      "kind": "contract",
+      "keyless": "pending",
+      "community": "makerlab",
+      "label": "laser-01 (laser_cutter, simulation, D-022)",
+      "profile": "profiles/laser_cutter.json",
+      "group_id": "makerlab-fab",
+      "created_tx": "CjEyTuGYMUgZBR6wWzZVHFhtejKvAk3c8c4esjy6uKYF",
+      "deploy_tx": "CjEyTuGYMUgZBR6wWzZVHFhtejKvAk3c8c4esjy6uKYF",
+      "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
+      "initial_balance": "7050000000000000000000000"
+    },
+    "washer-01.dorm-b.commonkit-sxflo.testnet": {
+      "role": "asset",
+      "kind": "contract",
+      "keyless": "pending",
+      "community": "dorm-b",
+      "label": "washer-01 (washer, simulation, D-022)",
+      "profile": "profiles/washer.json",
+      "group_id": "dorm-b-laundry",
+      "created_tx": "8bDy3oxZhrTvac1dW3PNB8GJGShkfaJpLCeri4xWbiBS",
+      "deploy_tx": "8bDy3oxZhrTvac1dW3PNB8GJGShkfaJpLCeri4xWbiBS",
+      "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
+      "initial_balance": "7050000000000000000000000"
+    },
+    "fridge-01.dorm-b.commonkit-sxflo.testnet": {
+      "role": "asset",
+      "kind": "contract",
+      "keyless": "pending",
+      "community": "dorm-b",
+      "label": "fridge-01 (community_fridge, simulation, D-022)",
+      "profile": "profiles/community_fridge.json",
+      "group_id": "street-fridge",
+      "created_tx": "Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm",
+      "deploy_tx": "Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm",
+      "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
+      "initial_balance": "7050000000000000000000000"
     }
   },
-  "function_call_keys": []
+  "function_call_keys": [
+    {
+      "account": "bridge.commonkit-sxflo.testnet",
+      "public_key": "ed25519:7BRPTG1Nw96U9j4Z2Zx3FXkYqYw6RoJNkQ8wW4kMmKFz",
+      "receiver_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "method_names": [
+        "mark_session_started",
+        "mark_session_finished",
+        "report_telemetry",
+        "submit_verification_result"
+      ],
+      "tx": "CXNvqTEn2xNU1u1p8sBPqcigzXkqD6DeUVdEDjrikBiq"
+    },
+    {
+      "account": "agent.commonkit-sxflo.testnet",
+      "public_key": "ed25519:CpQpnHMPLCLCmFLYMZfQ7iQF7QJsnNtRaQB9cajHvQ2C",
+      "receiver_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "method_names": [
+        "open_upkeep_task",
+        "annotate_task",
+        "escalate",
+        "sync_escalation",
+        "refresh_dao_policy"
+      ],
+      "tx": "ZB6NbgFuAGrzXqTC6yXpP2D7wMFyEE4L6J2pTroNDCG"
+    },
+    {
+      "account": "bridge.commonkit-sxflo.testnet",
+      "public_key": "ed25519:7KM4PCKpNzHSSCo6qkwpwQmSnuLN1EgMwk986BcXpARG",
+      "receiver_id": "laser-01.makerlab.commonkit-sxflo.testnet",
+      "method_names": [
+        "mark_session_started",
+        "mark_session_finished",
+        "report_telemetry",
+        "submit_verification_result"
+      ],
+      "tx": "C4yS9RFMwRvmaLyPsEpJGtBVaUvhT4MMaeckyWsy1JyR"
+    },
+    {
+      "account": "agent.commonkit-sxflo.testnet",
+      "public_key": "ed25519:HiM9HNyZ2oVdDsgLGvWvUyeDsD1ZCdoyLrqxAgKKU3iA",
+      "receiver_id": "laser-01.makerlab.commonkit-sxflo.testnet",
+      "method_names": [
+        "open_upkeep_task",
+        "annotate_task",
+        "escalate",
+        "sync_escalation",
+        "refresh_dao_policy"
+      ],
+      "tx": "HAeBhm35YzXAXT1dMswb8sJhgLFXihwY8hqbKHgUiV5u"
+    },
+    {
+      "account": "bridge.commonkit-sxflo.testnet",
+      "public_key": "ed25519:AFH7RGr2q4Q51ABXr3W3kqs3au1Vf11V7hrn4djfpj1z",
+      "receiver_id": "washer-01.dorm-b.commonkit-sxflo.testnet",
+      "method_names": [
+        "mark_session_started",
+        "mark_session_finished",
+        "report_telemetry",
+        "submit_verification_result"
+      ],
+      "tx": "5bMJxwQTebL6U36LHZ5ogaQ4Lny8ghKWk2iVguMBsNMy"
+    },
+    {
+      "account": "agent.commonkit-sxflo.testnet",
+      "public_key": "ed25519:DLurP7KA2xhZQBBmLVAPy3BHfqduNuVXMMs3AyxiJmuV",
+      "receiver_id": "washer-01.dorm-b.commonkit-sxflo.testnet",
+      "method_names": [
+        "open_upkeep_task",
+        "annotate_task",
+        "escalate",
+        "sync_escalation",
+        "refresh_dao_policy"
+      ],
+      "tx": "DxCXoDAxm49qDK6TQQ3Jh1hgeceTgQZv74gGwhKaNReJ"
+    },
+    {
+      "account": "bridge.commonkit-sxflo.testnet",
+      "public_key": "ed25519:E34W8gVxHp2yetqazxsbuBk4a7JynXDzJrnkux4kf5HQ",
+      "receiver_id": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+      "method_names": [
+        "mark_session_started",
+        "mark_session_finished",
+        "report_telemetry",
+        "submit_verification_result"
+      ],
+      "tx": "1nvXqc8fXnVEdiohviTqQMstSc2fDxkyYAPtZV3i4BP"
+    },
+    {
+      "account": "agent.commonkit-sxflo.testnet",
+      "public_key": "ed25519:5SMdyi7SbZLStS9Qcw4CPDxNgiE14z3fGpxCDNcyxKuf",
+      "receiver_id": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+      "method_names": [
+        "open_upkeep_task",
+        "annotate_task",
+        "escalate",
+        "sync_escalation",
+        "refresh_dao_policy"
+      ],
+      "tx": "4UdsxyPr7UDzWD6Nck7oNcNkKjrvLfigTuFjp6dvhaTq"
+    }
+  ]
 }

@@ -68,5 +68,25 @@
     "ok": true,
     "explorer": "https://testnet.nearblocks.io/txns/2JypAZR8evVw75Fr1UsfaJEEA53xBLmFHnbXjxoqiZci",
     "events": []
+  },
+  {
+    "at": "2026-11-10T04:45:49.607Z",
+    "label": "faucet helper ck-fund-3dede7-1.testnet → root 9.95 NEAR",
+    "hash": "8hk6B1PAru5eDYBUYhjaWUYt3JraA5PyiK2zJ2qoAaC2",
+    "signer": "ck-fund-3dede7-1.testnet",
+    "receiver": "commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/8hk6B1PAru5eDYBUYhjaWUYt3JraA5PyiK2zJ2qoAaC2",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:45:57.522Z",
+    "label": "faucet helper ck-fund-3dede7-2.testnet → root 9.95 NEAR",
+    "hash": "HcQCvopR1MyvdtsAEjw3q8byaV9qewcMYUzaLWjGboU3",
+    "signer": "ck-fund-3dede7-2.testnet",
+    "receiver": "commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/HcQCvopR1MyvdtsAEjw3q8byaV9qewcMYUzaLWjGboU3",
+    "events": []
   }
 ]

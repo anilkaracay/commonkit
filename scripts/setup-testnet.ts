@@ -29,6 +29,7 @@ import {
   DAO_CREATE_DEPOSIT,
   RESERVE_MAX_USAGE_PCT,
   ASSET_STATE_HEADROOM_BYTES,
+  assetAccountFunding,
   BYTE_COST,
   commonsAccountFunding,
   faucetDropsNeeded,
@@ -133,6 +134,8 @@ async function ensureContract(
   };
   if (await chain.accountExists(id)) {
     const acct = await chain.viewAccount(id);
+    if (acct.code_hash === NO_CODE && meta.role === 'asset')
+      throw new Error(`${id} exists without code; chain-ops never signs as an asset account — investigate manually`);
     if (acct.code_hash === NO_CODE) {
       const tx = await chain.deployAndInit(id, wasm.bytes, { ...init, gas: 100n * TGAS });
       log.add(`deploy + init ${id}`, tx);
@@ -315,7 +318,7 @@ async function setupAssets(c: CommunityPlan, assetWasm: Wasm): Promise<void> {
       root,
       id,
       assetWasm,
-      reserve,
+      assetAccountFunding(reserve, assetWasm.entry.bytes),
       { method: 'new', args: { dao_id: ids.dao(c), commons_id: ids.commons(c), profile } },
       {
         role: 'asset',
@@ -324,7 +327,7 @@ async function setupAssets(c: CommunityPlan, assetWasm: Wasm): Promise<void> {
         community: c.slug,
         profile: `profiles/${a.profileFile}`,
         group_id: profile.group_id,
-        label: `${a.slug} (${c.simulated ? 'simulation' : String(profile.asset_type)})`,
+        label: `${a.slug} (${String(profile.asset_type)}, simulation, D-022)`,
       },
     );
     const w = await chain.view<{ dao_id: string; commons_id: string }>(id, 'get_wiring');

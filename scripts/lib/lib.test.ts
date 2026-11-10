@@ -191,11 +191,11 @@ describe('deployments merge', () => {
 });
 
 describe('funding math', () => {
-  it('sizes asset storage so wasm + 100 kB state stays ≤ 80% of the reserve', () => {
-    expect(recommendedStorageReserve(455_955)).toBe(N('7'));
-    expect(recommendedStorageReserve(300_000)).toBe(N('5'));
-    expect(assetAccountFunding(N('5'), 455_955)).toBe(N('7'));
-    expect(assetAccountFunding(N('9'), 455_955)).toBe(N('9'));
+  it('sizes asset storage so wasm + 64 kB state stays ≤ 80% of the reserve', () => {
+    expect(recommendedStorageReserve(468_037)).toBe(N('6.7'));
+    expect(recommendedStorageReserve(300_000)).toBe(N('4.6'));
+    expect(assetAccountFunding(N('5'), 468_037)).toBe(N('6.75'));
+    expect(assetAccountFunding(N('7'), 468_037)).toBe(N('7.05'));
   });
 
   it('commons funding = code bytes + 0.5 NEAR, rounded up to 0.1', () => {

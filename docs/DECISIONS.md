@@ -454,3 +454,7 @@ Decision: No day plan; gates G1–G8 (STATUS.md) start as soon as their dependen
 ## D-027 — Until GitHub billing is fixed, CI runs locally at each gate
 2026-11-10 · accepted
 Decision: The exact CI commands run locally at every gate; output saved to evidence/ci-local/<date>.txt.
+
+## D-708 — M2 deployment parameters (assets on testnet)
+2026-11-10 · accepted (chain-ops, M2)
+Decision: Asset accounts are created with `storage_reserve + 0.05 NEAR` (7.05, as in the sandbox suite, D-215) by the community root in one tx (create, fund, temporary key, deploy, `new(dao_id, commons_id, profile)` with the profile file's `profile` block only; `meta` is never sent, pilot/demo overrides come later as labelled `set_profile` proposals). Setup's planning headroom is 64 kB of state on top of the WASM at ≤ 80 % of the reserve (468,037-byte WASM: 4.69 NEAR = 67 % of 7 NEAR after init). Setup never signs as an asset account: an asset account that exists without code stops the run. Seed attaches `set_roles` 10 + 25 Tgas per active asset (contract engineer), `set_operators` 30, `register_asset` 100, `fund_float` 60, `fund_storage` 20 Tgas; `refresh_dao_policy` is a direct ANY call from the root, not a proposal. printer-01 gets operators and the policy cache in seed; its registration and 2 NEAR float stay in judge step 1 (D-021, D-706). verify.sh fails when storage usage is ≥ 80 % of the reserve.

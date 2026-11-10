@@ -17,6 +17,8 @@ No judge-flow step has run yet.
 | 2026-11-09 13:29:10 | faucet helper ck-fund-d6fd26-4.testnet → root 9.95 NEAR | [DDuD1t6o…](https://testnet.nearblocks.io/txns/DDuD1t6orB8eb2FSjUyJRrfUAKrGdmEY6bqdSEFgKfQD) | ✅ |
 | 2026-11-09 13:29:14 | faucet helper ck-fund-d6fd26-5.testnet → root 9.95 NEAR | [AuTe6Bwk…](https://testnet.nearblocks.io/txns/AuTe6BwkFbGbxzHvrZAvBCu8PNsw3jRPqD9YjtuJvF9D) | ✅ |
 | 2026-11-09 13:29:17 | faucet helper ck-fund-d6fd26-6.testnet → root 9.95 NEAR | [2JypAZR8…](https://testnet.nearblocks.io/txns/2JypAZR8evVw75Fr1UsfaJEEA53xBLmFHnbXjxoqiZci) | ✅ |
+| 2026-11-10 04:45:49 | faucet helper ck-fund-3dede7-1.testnet → root 9.95 NEAR | [8hk6B1PA…](https://testnet.nearblocks.io/txns/8hk6B1PAru5eDYBUYhjaWUYt3JraA5PyiK2zJ2qoAaC2) | ✅ |
+| 2026-11-10 04:45:57 | faucet helper ck-fund-3dede7-2.testnet → root 9.95 NEAR | [HcQCvopR…](https://testnet.nearblocks.io/txns/HcQCvopR1MyvdtsAEjw3q8byaV9qewcMYUzaLWjGboU3) | ✅ |
 
 ## setup
 
@@ -56,6 +58,22 @@ No judge-flow step has run yet.
 | 2026-11-09 13:43:18 | create ayse.commonkit-sxflo.testnet (5 NEAR) | [8uQ6pP7t…](https://testnet.nearblocks.io/txns/8uQ6pP7ttzLHMtnbaZLwpLvwBk2qMTczJZrobqBnuxkx) | ✅ |
 | 2026-11-09 13:43:22 | create mehmet.commonkit-sxflo.testnet (0.5 NEAR) | [4cwNEjVz…](https://testnet.nearblocks.io/txns/4cwNEjVzKFPEdgYivP2G9jb9JYjYUX2R3hviGEwKsWJU) | ✅ |
 | 2026-11-09 13:43:26 | create zeynep.commonkit-sxflo.testnet (4.5 NEAR) | [AMRB2ZUf…](https://testnet.nearblocks.io/txns/AMRB2ZUfAzyG1iaNZyubUxGzAufs91xHUvTFCgVoYHqt) | ✅ |
+| 2026-11-10 04:46:38 | top up makerlab.commonkit-sxflo.testnet with 7.06 NEAR | [5rSupX1i…](https://testnet.nearblocks.io/txns/5rSupX1izCsYuZU5mmbPQqT9SMnxC2H7ZwRTJ5Qh8uvf) | ✅ |
+| 2026-11-10 04:46:43 | create + deploy + init printer-01.makerlab.commonkit-sxflo.testnet (7.05 NEAR) | [315qJKEZ…](https://testnet.nearblocks.io/txns/315qJKEZC1TcrG8q9BAMcdDEew3ZfWXNzcxXDkPmEJwU) | ✅ |
+| 2026-11-10 04:46:46 | bridge function-call key → printer-01.makerlab.commonkit-sxflo.testnet | [CXNvqTEn…](https://testnet.nearblocks.io/txns/CXNvqTEn2xNU1u1p8sBPqcigzXkqD6DeUVdEDjrikBiq) | ✅ |
+| 2026-11-10 04:46:50 | agent function-call key → printer-01.makerlab.commonkit-sxflo.testnet | [ZB6NbgFu…](https://testnet.nearblocks.io/txns/ZB6NbgFuAGrzXqTC6yXpP2D7wMFyEE4L6J2pTroNDCG) | ✅ |
+| 2026-11-10 04:46:54 | top up makerlab.commonkit-sxflo.testnet with 7.06 NEAR | [EzBvDciX…](https://testnet.nearblocks.io/txns/EzBvDciXq2Zi15G1pLvrYRzTy2EBRjjsY6vyWfBd4Z5j) | ✅ |
+| 2026-11-10 04:46:58 | create + deploy + init laser-01.makerlab.commonkit-sxflo.testnet (7.05 NEAR) | [CjEyTuGY…](https://testnet.nearblocks.io/txns/CjEyTuGYMUgZBR6wWzZVHFhtejKvAk3c8c4esjy6uKYF) | ✅ |
+| 2026-11-10 04:47:02 | bridge function-call key → laser-01.makerlab.commonkit-sxflo.testnet | [C4yS9RFM…](https://testnet.nearblocks.io/txns/C4yS9RFMwRvmaLyPsEpJGtBVaUvhT4MMaeckyWsy1JyR) | ✅ |
+| 2026-11-10 04:47:05 | agent function-call key → laser-01.makerlab.commonkit-sxflo.testnet | [HAeBhm35…](https://testnet.nearblocks.io/txns/HAeBhm35YzXAXT1dMswb8sJhgLFXihwY8hqbKHgUiV5u) | ✅ |
+| 2026-11-10 04:47:09 | top up dorm-b.commonkit-sxflo.testnet with 7.06 NEAR | [9r5p6sZi…](https://testnet.nearblocks.io/txns/9r5p6sZiVzEGDZjwHpxRW9uZGECMV95eekmsQghcwTkw) | ✅ |
+| 2026-11-10 04:47:14 | create + deploy + init washer-01.dorm-b.commonkit-sxflo.testnet (7.05 NEAR) | [8bDy3oxZ…](https://testnet.nearblocks.io/txns/8bDy3oxZhrTvac1dW3PNB8GJGShkfaJpLCeri4xWbiBS) | ✅ |
+| 2026-11-10 04:47:17 | bridge function-call key → washer-01.dorm-b.commonkit-sxflo.testnet | [5bMJxwQT…](https://testnet.nearblocks.io/txns/5bMJxwQTebL6U36LHZ5ogaQ4Lny8ghKWk2iVguMBsNMy) | ✅ |
+| 2026-11-10 04:47:20 | agent function-call key → washer-01.dorm-b.commonkit-sxflo.testnet | [DxCXoDAx…](https://testnet.nearblocks.io/txns/DxCXoDAxm49qDK6TQQ3Jh1hgeceTgQZv74gGwhKaNReJ) | ✅ |
+| 2026-11-10 04:47:23 | top up dorm-b.commonkit-sxflo.testnet with 7.06 NEAR | [6kdJZVYT…](https://testnet.nearblocks.io/txns/6kdJZVYTjJiXDa8sQ4frar8Aa6VqxT6DzqzrRJMBsgvu) | ✅ |
+| 2026-11-10 04:47:28 | create + deploy + init fridge-01.dorm-b.commonkit-sxflo.testnet (7.05 NEAR) | [Djix1a22…](https://testnet.nearblocks.io/txns/Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm) | ✅ |
+| 2026-11-10 04:47:32 | bridge function-call key → fridge-01.dorm-b.commonkit-sxflo.testnet | [1nvXqc8f…](https://testnet.nearblocks.io/txns/1nvXqc8fXnVEdiohviTqQMstSc2fDxkyYAPtZV3i4BP) | ✅ |
+| 2026-11-10 04:47:35 | agent function-call key → fridge-01.dorm-b.commonkit-sxflo.testnet | [4UdsxyPr…](https://testnet.nearblocks.io/txns/4UdsxyPr7UDzWD6Nck7oNcNkKjrvLfigTuFjp6dvhaTq) | ✅ |
 
 ## seed
 
@@ -76,3 +94,40 @@ No judge-flow step has run yet.
 | 2026-11-09 13:35:09 | dorm-b-ck.sputnikv2.testnet#1 fund_storage commons.dorm-b.commonkit-sxflo.testnet 0.5 NEAR | [ER4ZWkks…](https://testnet.nearblocks.io/txns/ER4ZWkksasTeta7BZyWVrf4CemLQjsix2Bwv1Rj4HB69) | ✅ |
 | 2026-11-09 13:35:09 | dorm-b-ck.sputnikv2.testnet#1 fund_storage commons.dorm-b.commonkit-sxflo.testnet 0.5 NEAR | [BY8Gj7wR…](https://testnet.nearblocks.io/txns/BY8Gj7wRWmfd3ytE5X15Q1NTZxP3BnvhByMPymhEdVEw) | ✅ |
 | 2026-11-09 13:35:09 | dorm-b-ck.sputnikv2.testnet#1 fund_storage commons.dorm-b.commonkit-sxflo.testnet 0.5 NEAR | [7tdjYFVn…](https://testnet.nearblocks.io/txns/7tdjYFVnVERcJ4w2zo8T7JnsnL1dPHXD5rxxKa1wfYEw) | ✅ |
+| 2026-11-10 04:48:06 | makerlab-ck.sputnikv2.testnet#3 set_operators on printer-01 | [8EdCcqG9…](https://testnet.nearblocks.io/txns/8EdCcqG9MT2HpTnkTSVRfwqoRtQWhxM9i6zE5GwoHzxQ) | ✅ |
+| 2026-11-10 04:48:06 | makerlab-ck.sputnikv2.testnet#3 set_operators on printer-01 | [7qpueGfD…](https://testnet.nearblocks.io/txns/7qpueGfDbreN3ijcfKDSg5pfVvHis3HaYQ53H9KSVPHs) | ✅ |
+| 2026-11-10 04:48:06 | makerlab-ck.sputnikv2.testnet#3 set_operators on printer-01 | [CyNyZqcD…](https://testnet.nearblocks.io/txns/CyNyZqcDJn441NuW5gQEwACyuT4zvBaSCxghy7NkJXvH) | ✅ |
+| 2026-11-10 04:48:12 | refresh_dao_policy printer-01 | [Cy5KSWiZ…](https://testnet.nearblocks.io/txns/Cy5KSWiZ7XnHnoVAN3N4cZWCwgZMDeQWYEWk3C9ZcWFb) | ✅ |
+| 2026-11-10 04:48:25 | makerlab-ck.sputnikv2.testnet#4 set_operators on laser-01 | [D3j2TAKJ…](https://testnet.nearblocks.io/txns/D3j2TAKJi2vJJcPabiskFZcGyphbdLM8Wk4gtNC8DsG4) | ✅ |
+| 2026-11-10 04:48:25 | makerlab-ck.sputnikv2.testnet#4 set_operators on laser-01 | [6Ld22Jui…](https://testnet.nearblocks.io/txns/6Ld22JuiN1Adt85TZs9F5PU7qtySNhoaCmctijVzP7C6) | ✅ |
+| 2026-11-10 04:48:25 | makerlab-ck.sputnikv2.testnet#4 set_operators on laser-01 | [6VWMEP3e…](https://testnet.nearblocks.io/txns/6VWMEP3e82MFwMR23wYzQwmJCyiv42vEVE46WmNALB26) | ✅ |
+| 2026-11-10 04:48:30 | refresh_dao_policy laser-01 | [A2iLz8gs…](https://testnet.nearblocks.io/txns/A2iLz8gsrn2hssqT4gWk7TncVyKdk9JjsnzNvvWw61sr) | ✅ |
+| 2026-11-10 04:48:42 | makerlab-ck.sputnikv2.testnet#5 register_asset laser-01 in makerlab-fab | [3E9EY6sR…](https://testnet.nearblocks.io/txns/3E9EY6sRbw9NhmUDZUZAD3bhjTCjX5ihribYrXHK8HDi) | ✅ |
+| 2026-11-10 04:48:42 | makerlab-ck.sputnikv2.testnet#5 register_asset laser-01 in makerlab-fab | [6ZGa6TQq…](https://testnet.nearblocks.io/txns/6ZGa6TQqDcAmLKo73wikzc7GLFokiKQSo2sURC1WTNRN) | ✅ |
+| 2026-11-10 04:48:42 | makerlab-ck.sputnikv2.testnet#5 register_asset laser-01 in makerlab-fab | [2xvRfaeL…](https://testnet.nearblocks.io/txns/2xvRfaeL2TAKaygXtNzyWwF4i8VzJmpyenjFfMVu7C3o) | ✅ |
+| 2026-11-10 04:48:47 | treasury top-up makerlab-ck.sputnikv2.testnet +1.01 NEAR (plain transfer, research C10) | [D5LW74NW…](https://testnet.nearblocks.io/txns/D5LW74NWn75geQQQpraJQQUTbDAMw1cSadCvRYyaxwBX) | ✅ |
+| 2026-11-10 04:49:00 | makerlab-ck.sputnikv2.testnet#6 fund_float laser-01 1 NEAR | [9Mj77Kn7…](https://testnet.nearblocks.io/txns/9Mj77Kn7aqJYCVXc4sx4DQEqwEgh5gXM7PVPoQBbwet7) | ✅ |
+| 2026-11-10 04:49:00 | makerlab-ck.sputnikv2.testnet#6 fund_float laser-01 1 NEAR | [5M3pLoJM…](https://testnet.nearblocks.io/txns/5M3pLoJMhZgC9LwKic9JZrKo1HeqTQp9aVGNKnUEohjK) | ✅ |
+| 2026-11-10 04:49:00 | makerlab-ck.sputnikv2.testnet#6 fund_float laser-01 1 NEAR | [C4SxMQqj…](https://testnet.nearblocks.io/txns/C4SxMQqjFjWAmmkJUi1P7dHMH8SyefeHB2UGPq1V4vSs) | ✅ |
+| 2026-11-10 04:49:13 | dorm-b-ck.sputnikv2.testnet#2 set_operators on washer-01 | [AiAJBWtH…](https://testnet.nearblocks.io/txns/AiAJBWtHvwwxZPoJyHoXjurXJzGEU4wkwhFMsVvfbLDG) | ✅ |
+| 2026-11-10 04:49:13 | dorm-b-ck.sputnikv2.testnet#2 set_operators on washer-01 | [q9uoDXhA…](https://testnet.nearblocks.io/txns/q9uoDXhA4fFm3uLUVuHadYuqRpSGGNaPANTurGxLFzT) | ✅ |
+| 2026-11-10 04:49:13 | dorm-b-ck.sputnikv2.testnet#2 set_operators on washer-01 | [FCvGLryh…](https://testnet.nearblocks.io/txns/FCvGLryh2VCjhxhjDVSi5JtEhKp433hbhFSyFCs1nBcu) | ✅ |
+| 2026-11-10 04:49:18 | refresh_dao_policy washer-01 | [wQ6BnSAf…](https://testnet.nearblocks.io/txns/wQ6BnSAfmWMaMFKp7n7WJLBgfwr9fQxbCUkwWkVh4bu) | ✅ |
+| 2026-11-10 04:49:30 | dorm-b-ck.sputnikv2.testnet#3 register_asset washer-01 in dorm-b-laundry | [5Wjdztku…](https://testnet.nearblocks.io/txns/5WjdztkuWbVLpaFTVRDf5zWGeGwkbW6T16fG6pNyZhfE) | ✅ |
+| 2026-11-10 04:49:30 | dorm-b-ck.sputnikv2.testnet#3 register_asset washer-01 in dorm-b-laundry | [4eGHF4fj…](https://testnet.nearblocks.io/txns/4eGHF4fjixSJPJHTWCSeTx9KegoJAemvbaEL69pm4ngT) | ✅ |
+| 2026-11-10 04:49:30 | dorm-b-ck.sputnikv2.testnet#3 register_asset washer-01 in dorm-b-laundry | [5AoT5kQF…](https://testnet.nearblocks.io/txns/5AoT5kQF7WvNSd1jurPzWp7CNmzQgUuCP9s6FczBykiq) | ✅ |
+| 2026-11-10 04:49:34 | treasury top-up dorm-b-ck.sputnikv2.testnet +1.01 NEAR (plain transfer, research C10) | [31S99m2j…](https://testnet.nearblocks.io/txns/31S99m2j2YEMJWEDdhxH1MLisqWtj7HUAY6gMm8kZUxc) | ✅ |
+| 2026-11-10 04:49:46 | dorm-b-ck.sputnikv2.testnet#4 fund_float washer-01 1 NEAR | [wGsbtw55…](https://testnet.nearblocks.io/txns/wGsbtw55owrmMMvHKVAs4Tsf3Bvq98gxoMCy7MvB38B) | ✅ |
+| 2026-11-10 04:49:46 | dorm-b-ck.sputnikv2.testnet#4 fund_float washer-01 1 NEAR | [BLDDpinR…](https://testnet.nearblocks.io/txns/BLDDpinRnEL9xHgg2P26eDLstFguz2YsC1TcDu72aRSh) | ✅ |
+| 2026-11-10 04:49:46 | dorm-b-ck.sputnikv2.testnet#4 fund_float washer-01 1 NEAR | [FDT5HTqL…](https://testnet.nearblocks.io/txns/FDT5HTqLsYLjjk8vY33KqjQUqohwZa8TGpjqXKn4mfDN) | ✅ |
+| 2026-11-10 04:50:01 | dorm-b-ck.sputnikv2.testnet#5 set_operators on fridge-01 | [EawYZiWU…](https://testnet.nearblocks.io/txns/EawYZiWUPwsMc42PnjZYRXmVzwwBESzYvDAoohN6BqYk) | ✅ |
+| 2026-11-10 04:50:01 | dorm-b-ck.sputnikv2.testnet#5 set_operators on fridge-01 | [hqxioTxx…](https://testnet.nearblocks.io/txns/hqxioTxxBzLHFgTEbJSB9xtfKqQvArRvpzTTdNoSy2E) | ✅ |
+| 2026-11-10 04:50:01 | dorm-b-ck.sputnikv2.testnet#5 set_operators on fridge-01 | [CBdXUeME…](https://testnet.nearblocks.io/txns/CBdXUeMEEi9DVMaEP6rDfXdB91v5hNnYaRX8n7tGKLsD) | ✅ |
+| 2026-11-10 04:50:06 | refresh_dao_policy fridge-01 | [8xfPhjJn…](https://testnet.nearblocks.io/txns/8xfPhjJnmnQ3ZopL2Am4fC6KY39GhQQQqcKvrHvhSJ7Y) | ✅ |
+| 2026-11-10 04:50:19 | dorm-b-ck.sputnikv2.testnet#6 register_asset fridge-01 in street-fridge | [7tvT4vbC…](https://testnet.nearblocks.io/txns/7tvT4vbCk65g87Zm8HZZj9utjofeJpKtWcSeacXbhbfn) | ✅ |
+| 2026-11-10 04:50:19 | dorm-b-ck.sputnikv2.testnet#6 register_asset fridge-01 in street-fridge | [DSmQydTz…](https://testnet.nearblocks.io/txns/DSmQydTzK85GnFLf2vgAvFU11gY4dTYTNnnkxEXa7FuA) | ✅ |
+| 2026-11-10 04:50:19 | dorm-b-ck.sputnikv2.testnet#6 register_asset fridge-01 in street-fridge | [7BPLjyQn…](https://testnet.nearblocks.io/txns/7BPLjyQnisa3q7iG8ZHmxckHWA9zXaHNEDXqMtkvfXnZ) | ✅ |
+| 2026-11-10 04:50:23 | treasury top-up dorm-b-ck.sputnikv2.testnet +0.46 NEAR (plain transfer, research C10) | [2oxhBGo7…](https://testnet.nearblocks.io/txns/2oxhBGo7Yt3pEMVTN7qrV6ZWZWphzovHR8AqtUPtnXYj) | ✅ |
+| 2026-11-10 04:50:36 | dorm-b-ck.sputnikv2.testnet#7 fund_float fridge-01 0.5 NEAR | [6ASDLmrU…](https://testnet.nearblocks.io/txns/6ASDLmrUwDBZnLqq5BeeUyAorJrwsc41ewT9C8zxMDsU) | ✅ |
+| 2026-11-10 04:50:36 | dorm-b-ck.sputnikv2.testnet#7 fund_float fridge-01 0.5 NEAR | [DQMjpQij…](https://testnet.nearblocks.io/txns/DQMjpQijXnyjHGqM257dJyhdFmUcmMHieBS7r5BZ7CdX) | ✅ |
+| 2026-11-10 04:50:36 | dorm-b-ck.sputnikv2.testnet#7 fund_float fridge-01 0.5 NEAR | [FZ9HjcD9…](https://testnet.nearblocks.io/txns/FZ9HjcD9oW1rDbcvMsTrn8gc22Eo8SKGThr2YvP4b159) | ✅ |

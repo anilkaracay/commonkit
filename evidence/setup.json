@@ -338,5 +338,165 @@
     "ok": true,
     "explorer": "https://testnet.nearblocks.io/txns/AMRB2ZUfAzyG1iaNZyubUxGzAufs91xHUvTFCgVoYHqt",
     "events": []
+  },
+  {
+    "at": "2026-11-10T04:46:38.940Z",
+    "label": "top up makerlab.commonkit-sxflo.testnet with 7.06 NEAR",
+    "hash": "5rSupX1izCsYuZU5mmbPQqT9SMnxC2H7ZwRTJ5Qh8uvf",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "makerlab.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/5rSupX1izCsYuZU5mmbPQqT9SMnxC2H7ZwRTJ5Qh8uvf",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:46:43.750Z",
+    "label": "create + deploy + init printer-01.makerlab.commonkit-sxflo.testnet (7.05 NEAR)",
+    "hash": "315qJKEZC1TcrG8q9BAMcdDEew3ZfWXNzcxXDkPmEJwU",
+    "signer": "makerlab.commonkit-sxflo.testnet",
+    "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/315qJKEZC1TcrG8q9BAMcdDEew3ZfWXNzcxXDkPmEJwU",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:46:46.900Z",
+    "label": "bridge function-call key → printer-01.makerlab.commonkit-sxflo.testnet",
+    "hash": "CXNvqTEn2xNU1u1p8sBPqcigzXkqD6DeUVdEDjrikBiq",
+    "signer": "bridge.commonkit-sxflo.testnet",
+    "receiver": "bridge.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/CXNvqTEn2xNU1u1p8sBPqcigzXkqD6DeUVdEDjrikBiq",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:46:50.136Z",
+    "label": "agent function-call key → printer-01.makerlab.commonkit-sxflo.testnet",
+    "hash": "ZB6NbgFuAGrzXqTC6yXpP2D7wMFyEE4L6J2pTroNDCG",
+    "signer": "agent.commonkit-sxflo.testnet",
+    "receiver": "agent.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/ZB6NbgFuAGrzXqTC6yXpP2D7wMFyEE4L6J2pTroNDCG",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:46:54.178Z",
+    "label": "top up makerlab.commonkit-sxflo.testnet with 7.06 NEAR",
+    "hash": "EzBvDciXq2Zi15G1pLvrYRzTy2EBRjjsY6vyWfBd4Z5j",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "makerlab.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/EzBvDciXq2Zi15G1pLvrYRzTy2EBRjjsY6vyWfBd4Z5j",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:46:58.931Z",
+    "label": "create + deploy + init laser-01.makerlab.commonkit-sxflo.testnet (7.05 NEAR)",
+    "hash": "CjEyTuGYMUgZBR6wWzZVHFhtejKvAk3c8c4esjy6uKYF",
+    "signer": "makerlab.commonkit-sxflo.testnet",
+    "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/CjEyTuGYMUgZBR6wWzZVHFhtejKvAk3c8c4esjy6uKYF",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:02.572Z",
+    "label": "bridge function-call key → laser-01.makerlab.commonkit-sxflo.testnet",
+    "hash": "C4yS9RFMwRvmaLyPsEpJGtBVaUvhT4MMaeckyWsy1JyR",
+    "signer": "bridge.commonkit-sxflo.testnet",
+    "receiver": "bridge.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/C4yS9RFMwRvmaLyPsEpJGtBVaUvhT4MMaeckyWsy1JyR",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:05.750Z",
+    "label": "agent function-call key → laser-01.makerlab.commonkit-sxflo.testnet",
+    "hash": "HAeBhm35YzXAXT1dMswb8sJhgLFXihwY8hqbKHgUiV5u",
+    "signer": "agent.commonkit-sxflo.testnet",
+    "receiver": "agent.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/HAeBhm35YzXAXT1dMswb8sJhgLFXihwY8hqbKHgUiV5u",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:09.761Z",
+    "label": "top up dorm-b.commonkit-sxflo.testnet with 7.06 NEAR",
+    "hash": "9r5p6sZiVzEGDZjwHpxRW9uZGECMV95eekmsQghcwTkw",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "dorm-b.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/9r5p6sZiVzEGDZjwHpxRW9uZGECMV95eekmsQghcwTkw",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:14.309Z",
+    "label": "create + deploy + init washer-01.dorm-b.commonkit-sxflo.testnet (7.05 NEAR)",
+    "hash": "8bDy3oxZhrTvac1dW3PNB8GJGShkfaJpLCeri4xWbiBS",
+    "signer": "dorm-b.commonkit-sxflo.testnet",
+    "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/8bDy3oxZhrTvac1dW3PNB8GJGShkfaJpLCeri4xWbiBS",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:17.374Z",
+    "label": "bridge function-call key → washer-01.dorm-b.commonkit-sxflo.testnet",
+    "hash": "5bMJxwQTebL6U36LHZ5ogaQ4Lny8ghKWk2iVguMBsNMy",
+    "signer": "bridge.commonkit-sxflo.testnet",
+    "receiver": "bridge.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/5bMJxwQTebL6U36LHZ5ogaQ4Lny8ghKWk2iVguMBsNMy",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:20.199Z",
+    "label": "agent function-call key → washer-01.dorm-b.commonkit-sxflo.testnet",
+    "hash": "DxCXoDAxm49qDK6TQQ3Jh1hgeceTgQZv74gGwhKaNReJ",
+    "signer": "agent.commonkit-sxflo.testnet",
+    "receiver": "agent.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/DxCXoDAxm49qDK6TQQ3Jh1hgeceTgQZv74gGwhKaNReJ",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:23.684Z",
+    "label": "top up dorm-b.commonkit-sxflo.testnet with 7.06 NEAR",
+    "hash": "6kdJZVYTjJiXDa8sQ4frar8Aa6VqxT6DzqzrRJMBsgvu",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "dorm-b.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/6kdJZVYTjJiXDa8sQ4frar8Aa6VqxT6DzqzrRJMBsgvu",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:28.705Z",
+    "label": "create + deploy + init fridge-01.dorm-b.commonkit-sxflo.testnet (7.05 NEAR)",
+    "hash": "Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm",
+    "signer": "dorm-b.commonkit-sxflo.testnet",
+    "receiver": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:32.396Z",
+    "label": "bridge function-call key → fridge-01.dorm-b.commonkit-sxflo.testnet",
+    "hash": "1nvXqc8fXnVEdiohviTqQMstSc2fDxkyYAPtZV3i4BP",
+    "signer": "bridge.commonkit-sxflo.testnet",
+    "receiver": "bridge.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/1nvXqc8fXnVEdiohviTqQMstSc2fDxkyYAPtZV3i4BP",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:47:35.019Z",
+    "label": "agent function-call key → fridge-01.dorm-b.commonkit-sxflo.testnet",
+    "hash": "4UdsxyPr7UDzWD6Nck7oNcNkKjrvLfigTuFjp6dvhaTq",
+    "signer": "agent.commonkit-sxflo.testnet",
+    "receiver": "agent.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/4UdsxyPr7UDzWD6Nck7oNcNkKjrvLfigTuFjp6dvhaTq",
+    "events": []
   }
 ]
