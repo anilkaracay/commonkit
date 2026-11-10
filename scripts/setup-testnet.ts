@@ -18,7 +18,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { nearToYocto, yoctoToNear } from '@commonkit/sdk';
-import { PROFILES_DIR, ROOT_ACCOUNT, TGAS } from './lib/config.js';
+import { PROFILES_DIR, REPO_ROOT, ROOT_ACCOUNT, TGAS } from './lib/config.js';
 import { abiMethods, loadWasm, type Wasm } from './lib/code.js';
 import { Dao } from './lib/dao.js';
 import { loadDeployments, updateDeployments, type AccountEntry } from './lib/deployments.js';
@@ -36,6 +36,8 @@ import {
   formatPlan,
   fundingPlan,
   sumLines,
+  ledgerSlack,
+  type LedgerBuckets,
 } from './lib/funding.js';
 import { Chain } from './lib/near.js';
 import {
@@ -61,6 +63,7 @@ const opts = {
 
 const PARENT_MARGIN = nearToYocto('0.2');
 const TOP_UP_SLACK = nearToYocto('0.1');
+const DELETE_KEY_SLACK = nearToYocto('0.001');
 const FC_KEY_ALLOWANCE = nearToYocto('1');
 const NO_CODE = '11111111111111111111111111111111';
 
@@ -135,7 +138,9 @@ async function ensureContract(
   if (await chain.accountExists(id)) {
     const acct = await chain.viewAccount(id);
     if (acct.code_hash === NO_CODE && meta.role === 'asset')
-      throw new Error(`${id} exists without code; chain-ops never signs as an asset account — investigate manually`);
+      throw new Error(
+        `${id} exists without code; chain-ops never signs as an asset account — investigate manually`,
+      );
     if (acct.code_hash === NO_CODE) {
       const tx = await chain.deployAndInit(id, wasm.bytes, { ...init, gas: 100n * TGAS });
       log.add(`deploy + init ${id}`, tx);
@@ -400,6 +405,24 @@ async function finalizeKeyless(): Promise<void> {
     const w = await chain.view<{ dao_id: string; commons_id?: string }>(id, 'get_wiring');
     if (w.dao_id !== ids.dao(c) || (a.role === 'asset' && w.commons_id !== ids.commons(c)))
       throw new Error(`${id}: wiring not as planned, keys kept`);
+    if (a.role === 'commons') {
+      const cw = await chain.view<{ name: string }>(id, 'get_wiring');
+      if (cw.name !== c.name)
+        throw new Error(`${id}: commons name ${cw.name} != ${c.name}, keys kept`);
+    } else {
+      const ledger = await chain.view<LedgerBuckets & { invariant_ok: boolean }>(id, 'get_ledger');
+      // The delete-key tx is signed by the asset and pays its gas from the asset balance (D-709).
+      if (ledgerSlack(ledger) < DELETE_KEY_SLACK)
+        throw new Error(
+          `${id}: unaccounted slack below ${yoctoToNear(DELETE_KEY_SLACK, 3)} NEAR; key deletion gas would break the invariant — top up via DAO first`,
+        );
+      const onChain = await chain.view<{ asset_type: string }>(id, 'get_profile');
+      const file = JSON.parse(readFileSync(join(REPO_ROOT, a.profile ?? ''), 'utf8')) as {
+        profile: { asset_type: string };
+      };
+      if (!ledger.invariant_ok || onChain.asset_type !== file.profile.asset_type)
+        throw new Error(`${id}: ledger/profile check failed, keys kept`);
+    }
     const expected = a.role === 'asset' ? dep.code.asset?.code_hash : dep.code.commons?.code_hash;
     const actual = (await chain.viewAccount(id)).code_hash;
     if (!expected || actual !== expected)

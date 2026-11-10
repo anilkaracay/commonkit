@@ -496,3 +496,9 @@ Sizing (verify.sh warns above 80 % of the reserve, so reserve ≥ 1.25 × usage;
 - Pilot load (100 sessions, 20 rejections, 20 tasks, 10 faults, 3 periods, 5 escalations ≈ 123 KB) → usage 5.93 NEAR = 85 % of 7 NEAR (warn), 4.7 NEAR + 1.5 × growth = 6.55 NEAR.
 Decision: Keep `storage_reserve = 7 NEAR` (D-021) for all profiles; nothing lower is safe, because code + base state alone is 4.70 NEAR and the 80 % rule then leaves ~0.9 NEAR (~90 full sessions) of growth. Growth beyond that is handled by a DAO `set_profile` raising `storage_reserve` plus `fund_float` (which tops up the storage reserve first, D-204); every 100 full sessions need ≈ 1 NEAR more. No contract change.
 Consequences: chain-ops funds assets with 7 NEAR + float; verify.sh's 80 % warning is the signal to raise the reserve. A NEP-591 global contract would remove the ~4.7 NEAR code stake per asset (not in v1).
+
+## D-709 — Key deletion gas broke three asset invariants; restored by DAO transfers
+2026-11-10 · accepted (chain-ops, M2)
+Context: CONTRACT_SPEC §11 deletes each contract account's key with a tx signed by that account, so its gas (0.0000406 NEAR) is paid from the asset balance. On laser-01, washer-01 and fridge-01 the 0.05 NEAR funding slack had already been reconciled into `float_free` by `fund_float` (D-204), so `invariant_ok` became false by exactly that gas (printer-01, not yet funded, kept its slack).
+Decision: `seed-testnet.ts` restores a broken invariant with a DAO `Transfer` proposal of the shortfall rounded up to 0.001 NEAR (a plain transfer touches no bucket). Done on testnet: makerlab-ck #7 (laser-01), dorm-b-ck #8 (washer-01), #9 (fridge-01). `--finalize-keyless` now refuses to delete a key unless the asset has ≥ 0.001 NEAR of unaccounted slack.
+Consequences: Strict `verify.sh` (no `--allow-pending`) passes: 6 contract accounts keyless, 4 assets share one code_hash, every ledger invariant holds.

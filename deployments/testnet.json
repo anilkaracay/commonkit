@@ -3,7 +3,7 @@
   "network": "testnet",
   "root": "commonkit-sxflo.testnet",
   "factory": "sputnikv2.testnet",
-  "updated_at": "2026-11-10T04:47:35.020Z",
+  "updated_at": "2026-11-10T04:59:26.498Z",
   "code": {
     "asset": {
       "path": "contracts/target/near/commonkit_asset/commonkit_asset.wasm",
@@ -178,11 +178,14 @@
     "commons.makerlab.commonkit-sxflo.testnet": {
       "role": "commons",
       "kind": "contract",
-      "keyless": "pending",
+      "keyless": true,
       "community": "makerlab",
       "label": "Makerlab commons (roles, credentials, NEP-171 cards)",
       "created_tx": "GSpazbSoUiN5UtbStM5cbRc89VdjjXpvH4P2xDk2vuk8",
       "deploy_tx": "GSpazbSoUiN5UtbStM5cbRc89VdjjXpvH4P2xDk2vuk8",
+      "keys_deleted_tx": [
+        "7rxMTZ3k9BpHVeVKHTmK9Nr2s6JtWvEK4nJoGQLyog7X"
+      ],
       "code_hash": "J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn",
       "initial_balance": "3900000000000000000000000"
     },
@@ -234,11 +237,14 @@
     "commons.dorm-b.commonkit-sxflo.testnet": {
       "role": "commons",
       "kind": "contract",
-      "keyless": "pending",
+      "keyless": true,
       "community": "dorm-b",
       "label": "Dorm B commons (roles, credentials, NEP-171 cards)",
       "created_tx": "8BqTEpT2NmisQwGUXmmCAF2UCboiiADGqUmKG8Qw7ggw",
       "deploy_tx": "8BqTEpT2NmisQwGUXmmCAF2UCboiiADGqUmKG8Qw7ggw",
+      "keys_deleted_tx": [
+        "3qmAWFX7C9GoV2Jk2mRZjLYo2dhKoP31g6Jo1qQQmbMg"
+      ],
       "code_hash": "J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn",
       "initial_balance": "3900000000000000000000000"
     },
@@ -297,52 +303,64 @@
     "printer-01.makerlab.commonkit-sxflo.testnet": {
       "role": "asset",
       "kind": "contract",
-      "keyless": "pending",
+      "keyless": true,
       "community": "makerlab",
       "label": "printer-01 (printer_3d, simulation, D-022)",
       "profile": "profiles/printer_3d.json",
       "group_id": "makerlab-fab",
       "created_tx": "315qJKEZC1TcrG8q9BAMcdDEew3ZfWXNzcxXDkPmEJwU",
       "deploy_tx": "315qJKEZC1TcrG8q9BAMcdDEew3ZfWXNzcxXDkPmEJwU",
+      "keys_deleted_tx": [
+        "Bf6gbxyTuguCeP4qm6ZDj4Mekmuhhbyi4nRzTb517EK3"
+      ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
       "initial_balance": "7050000000000000000000000"
     },
     "laser-01.makerlab.commonkit-sxflo.testnet": {
       "role": "asset",
       "kind": "contract",
-      "keyless": "pending",
+      "keyless": true,
       "community": "makerlab",
       "label": "laser-01 (laser_cutter, simulation, D-022)",
       "profile": "profiles/laser_cutter.json",
       "group_id": "makerlab-fab",
       "created_tx": "CjEyTuGYMUgZBR6wWzZVHFhtejKvAk3c8c4esjy6uKYF",
       "deploy_tx": "CjEyTuGYMUgZBR6wWzZVHFhtejKvAk3c8c4esjy6uKYF",
+      "keys_deleted_tx": [
+        "BXJTZ5RczfieprUA1s4GSM5E694Qzc5RNxL3EWgiW2Jd"
+      ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
       "initial_balance": "7050000000000000000000000"
     },
     "washer-01.dorm-b.commonkit-sxflo.testnet": {
       "role": "asset",
       "kind": "contract",
-      "keyless": "pending",
+      "keyless": true,
       "community": "dorm-b",
       "label": "washer-01 (washer, simulation, D-022)",
       "profile": "profiles/washer.json",
       "group_id": "dorm-b-laundry",
       "created_tx": "8bDy3oxZhrTvac1dW3PNB8GJGShkfaJpLCeri4xWbiBS",
       "deploy_tx": "8bDy3oxZhrTvac1dW3PNB8GJGShkfaJpLCeri4xWbiBS",
+      "keys_deleted_tx": [
+        "HEfVWQF8uNvtKoNNHHcn3kdkU1zNqCWxU4nHHxf9pT5D"
+      ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
       "initial_balance": "7050000000000000000000000"
     },
     "fridge-01.dorm-b.commonkit-sxflo.testnet": {
       "role": "asset",
       "kind": "contract",
-      "keyless": "pending",
+      "keyless": true,
       "community": "dorm-b",
       "label": "fridge-01 (community_fridge, simulation, D-022)",
       "profile": "profiles/community_fridge.json",
       "group_id": "street-fridge",
       "created_tx": "Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm",
       "deploy_tx": "Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm",
+      "keys_deleted_tx": [
+        "CMExFncD6yjKEzZPf4tXPTSFUEWQHuSoEAqXnVC9GKyd"
+      ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
       "initial_balance": "7050000000000000000000000"
     }

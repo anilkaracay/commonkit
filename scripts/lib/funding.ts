@@ -133,3 +133,35 @@ export function formatPlan(lines: FundingLine[]): string {
     )
     .join('\n');
 }
+
+export interface LedgerBuckets {
+  balance: string;
+  storage_reserve: string;
+  float_free: string;
+  deposits_held: string;
+  rewards_reserved: string;
+  pending_in: string;
+  protocol_fees_owed: string;
+}
+
+/** Pure: balance minus everything the invariant requires (D-201); negative = invariant broken. */
+export function ledgerSlack(l: LedgerBuckets): bigint {
+  const held = [
+    l.storage_reserve,
+    l.float_free,
+    l.deposits_held,
+    l.rewards_reserved,
+    l.pending_in,
+    l.protocol_fees_owed,
+  ]
+    .map((x) => BigInt(x))
+    .reduce((a, b) => a + b, 0n);
+  return BigInt(l.balance) - held;
+}
+
+/** Pure: a DAO top-up that restores a broken invariant, rounded up to 0.001 NEAR (0 if none needed). */
+export function invariantTopUp(slack: bigint): bigint {
+  if (slack >= 0n) return 0n;
+  const milli = N('0.001');
+  return ((-slack + milli - 1n) / milli) * milli;
+}

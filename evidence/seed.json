@@ -567,5 +567,125 @@
     "events": [
       "commonkit:float_funded"
     ]
+  },
+  {
+    "at": "2026-11-10T05:00:47.178Z",
+    "label": "treasury top-up makerlab-ck.sputnikv2.testnet +0 NEAR (plain transfer, research C10)",
+    "hash": "Cv9A9wEsswV6M1reTAbMuebSuQRAi1k7RiJWkDDw6Pe6",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/Cv9A9wEsswV6M1reTAbMuebSuQRAi1k7RiJWkDDw6Pe6",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:00.668Z",
+    "label": "makerlab-ck.sputnikv2.testnet#7 invariant top-up laser-01 0.001 NEAR",
+    "hash": "3L28qVaTB25tgaifhsNChgvaLYBGCkZkSXcevk38kW8u",
+    "signer": "elif.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/3L28qVaTB25tgaifhsNChgvaLYBGCkZkSXcevk38kW8u",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:00.668Z",
+    "label": "makerlab-ck.sputnikv2.testnet#7 invariant top-up laser-01 0.001 NEAR",
+    "hash": "ADS46tTpEK92G7AJM94cqwzg6zkCCqCeKHEJbGMQPG4T",
+    "signer": "elif.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/ADS46tTpEK92G7AJM94cqwzg6zkCCqCeKHEJbGMQPG4T",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:00.668Z",
+    "label": "makerlab-ck.sputnikv2.testnet#7 invariant top-up laser-01 0.001 NEAR",
+    "hash": "6AYLBEgGkvLMP599DWuBfhyhraFpqe6nQWNEz1WRUVMS",
+    "signer": "burak.makerlab.commonkit-sxflo.testnet",
+    "receiver": "makerlab-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/6AYLBEgGkvLMP599DWuBfhyhraFpqe6nQWNEz1WRUVMS",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:05.969Z",
+    "label": "treasury top-up dorm-b-ck.sputnikv2.testnet +0 NEAR (plain transfer, research C10)",
+    "hash": "HTuKhERKcNRNYcBKYzmmT2cNMun64RDa7einuYntCTBY",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/HTuKhERKcNRNYcBKYzmmT2cNMun64RDa7einuYntCTBY",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:19.258Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#8 invariant top-up washer-01 0.001 NEAR",
+    "hash": "2V97DAEGZbk3sbwDW6Xyge5RddY8Sa39ZSWtPd8sySWs",
+    "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/2V97DAEGZbk3sbwDW6Xyge5RddY8Sa39ZSWtPd8sySWs",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:19.258Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#8 invariant top-up washer-01 0.001 NEAR",
+    "hash": "AV17EmQhrCfQp9HgaEUfkVa1uaNGJDpD1HThoj74Tp1F",
+    "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/AV17EmQhrCfQp9HgaEUfkVa1uaNGJDpD1HThoj74Tp1F",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:19.258Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#8 invariant top-up washer-01 0.001 NEAR",
+    "hash": "28cyEJGtS76Z99VTZMxXCTpyUAmM7HvDqdd6cJAE3dRb",
+    "signer": "ozan.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/28cyEJGtS76Z99VTZMxXCTpyUAmM7HvDqdd6cJAE3dRb",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:23.410Z",
+    "label": "treasury top-up dorm-b-ck.sputnikv2.testnet +0 NEAR (plain transfer, research C10)",
+    "hash": "98tYNosHD8dr3fEeKfB4J4Uu7YBbvMBawdo8sV1qR4AL",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/98tYNosHD8dr3fEeKfB4J4Uu7YBbvMBawdo8sV1qR4AL",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:36.611Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#9 invariant top-up fridge-01 0.001 NEAR",
+    "hash": "JBDkAu7JFzikyb8tXFEsYNoa2vTX4rLHfTnXbiVG4Jva",
+    "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/JBDkAu7JFzikyb8tXFEsYNoa2vTX4rLHfTnXbiVG4Jva",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:36.611Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#9 invariant top-up fridge-01 0.001 NEAR",
+    "hash": "6muK52FdwGsVYvXK4wnSRbUJsXDuydoD5mEnDy5FAbeZ",
+    "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/6muK52FdwGsVYvXK4wnSRbUJsXDuydoD5mEnDy5FAbeZ",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T05:01:36.611Z",
+    "label": "dorm-b-ck.sputnikv2.testnet#9 invariant top-up fridge-01 0.001 NEAR",
+    "hash": "9NgLqBs5KbxFzumvz8dNXnefgjpiUr7f8C6sTL9YBh3a",
+    "signer": "ozan.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "dorm-b-ck.sputnikv2.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/9NgLqBs5KbxFzumvz8dNXnefgjpiUr7f8C6sTL9YBh3a",
+    "events": []
   }
 ]

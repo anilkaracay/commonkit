@@ -498,5 +498,65 @@
     "ok": true,
     "explorer": "https://testnet.nearblocks.io/txns/4UdsxyPr7UDzWD6Nck7oNcNkKjrvLfigTuFjp6dvhaTq",
     "events": []
+  },
+  {
+    "at": "2026-11-10T04:59:08.185Z",
+    "label": "delete key ed25519:CgPR65SMhYhrko5wFBYmsvBbpRX3DduyaoeESdoJ6ciG on commons.makerlab.commonkit-sxflo.testnet",
+    "hash": "7rxMTZ3k9BpHVeVKHTmK9Nr2s6JtWvEK4nJoGQLyog7X",
+    "signer": "commons.makerlab.commonkit-sxflo.testnet",
+    "receiver": "commons.makerlab.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/7rxMTZ3k9BpHVeVKHTmK9Nr2s6JtWvEK4nJoGQLyog7X",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:59:11.282Z",
+    "label": "delete key ed25519:F2wSjbcVxv1ZqJTXRtFB5UNTmDbSeZm47QfkKYFr2qnh on commons.dorm-b.commonkit-sxflo.testnet",
+    "hash": "3qmAWFX7C9GoV2Jk2mRZjLYo2dhKoP31g6Jo1qQQmbMg",
+    "signer": "commons.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "commons.dorm-b.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/3qmAWFX7C9GoV2Jk2mRZjLYo2dhKoP31g6Jo1qQQmbMg",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:59:15.065Z",
+    "label": "delete key ed25519:9X5JWWS7gUffD5Ewfqoy46LjRMkzyycoipJKFFGrTDGB on printer-01.makerlab.commonkit-sxflo.testnet",
+    "hash": "Bf6gbxyTuguCeP4qm6ZDj4Mekmuhhbyi4nRzTb517EK3",
+    "signer": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/Bf6gbxyTuguCeP4qm6ZDj4Mekmuhhbyi4nRzTb517EK3",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:59:18.528Z",
+    "label": "delete key ed25519:GVA77SXcDR67HHzbZoTz9aE1kp17RdTAL2je97H1zyJe on laser-01.makerlab.commonkit-sxflo.testnet",
+    "hash": "BXJTZ5RczfieprUA1s4GSM5E694Qzc5RNxL3EWgiW2Jd",
+    "signer": "laser-01.makerlab.commonkit-sxflo.testnet",
+    "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/BXJTZ5RczfieprUA1s4GSM5E694Qzc5RNxL3EWgiW2Jd",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:59:22.568Z",
+    "label": "delete key ed25519:GFhbEL92ow4LS6Q8dst85dtFeo3egtbZSzjz9sLmTkjE on washer-01.dorm-b.commonkit-sxflo.testnet",
+    "hash": "HEfVWQF8uNvtKoNNHHcn3kdkU1zNqCWxU4nHHxf9pT5D",
+    "signer": "washer-01.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/HEfVWQF8uNvtKoNNHHcn3kdkU1zNqCWxU4nHHxf9pT5D",
+    "events": []
+  },
+  {
+    "at": "2026-11-10T04:59:26.400Z",
+    "label": "delete key ed25519:CMTK4qxch6RDt1bJWFFksbaVuzJ5qzNAu5vT4kQzsgeb on fridge-01.dorm-b.commonkit-sxflo.testnet",
+    "hash": "CMExFncD6yjKEzZPf4tXPTSFUEWQHuSoEAqXnVC9GKyd",
+    "signer": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+    "receiver": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/CMExFncD6yjKEzZPf4tXPTSFUEWQHuSoEAqXnVC9GKyd",
+    "events": []
   }
 ]

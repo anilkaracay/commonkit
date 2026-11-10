@@ -12,6 +12,8 @@ import {
   assetAccountFunding,
   commonsAccountFunding,
   faucetDropsNeeded,
+  invariantTopUp,
+  ledgerSlack,
   fundingPlan,
   recommendedStorageReserve,
   sumLines,
@@ -223,6 +225,25 @@ describe('funding math', () => {
     expect(faucetDropsNeeded(N('5'), N('10'))).toBe(0);
     expect(faucetDropsNeeded(N('20'), N('10'))).toBe(2);
     expect(faucetDropsNeeded(N('19.9'), N('10'))).toBe(1);
+  });
+});
+
+describe('ledger slack (D-709)', () => {
+  const l = (balance: string, float_free: string) => ({
+    balance,
+    float_free,
+    storage_reserve: N('7').toString(),
+    deposits_held: '0',
+    rewards_reserved: '0',
+    pending_in: '0',
+    protocol_fees_owed: '0',
+  });
+  it('measures balance above the invariant and rounds a shortfall up to 0.001 NEAR', () => {
+    const short = l((N('8.05') - 40_601_225_000_000_000_000n).toString(), N('1.05').toString());
+    expect(ledgerSlack(short)).toBe(-40_601_225_000_000_000_000n);
+    expect(invariantTopUp(ledgerSlack(short))).toBe(N('0.001'));
+    expect(invariantTopUp(0n)).toBe(0n);
+    expect(ledgerSlack(l(N('7.05').toString(), '0'))).toBe(N('0.05'));
   });
 });
 

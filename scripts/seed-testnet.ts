@@ -13,6 +13,7 @@ import { nearToYocto, yoctoToNear } from '@commonkit/sdk';
 import { PROFILES_DIR, ROOT_ACCOUNT, TGAS } from './lib/config.js';
 import { Dao, type FnAction } from './lib/dao.js';
 import { loadDeployments } from './lib/deployments.js';
+import { invariantTopUp, ledgerSlack, type LedgerBuckets } from './lib/funding.js';
 import { EvidenceLog } from './lib/evidence.js';
 import { Chain } from './lib/near.js';
 import {
@@ -50,7 +51,7 @@ async function ensureTreasury(ctx: Ctx, amount: bigint): Promise<void> {
   if (available >= amount + TREASURY_MARGIN) return;
   const short = amount + TREASURY_MARGIN - available;
   log.add(
-    `treasury top-up ${ctx.dao.id} +${yoctoToNear(short, 2)} NEAR (plain transfer, research C10)`,
+    `treasury top-up ${ctx.dao.id} +${yoctoToNear(short, 4)} NEAR (plain transfer, research C10)`,
     await chain.transfer(ROOT_ACCOUNT, ctx.dao.id, short),
   );
 }
@@ -60,7 +61,10 @@ const sameSet = (a: string[], b: string[]): boolean =>
 
 /** Contract engineer: set_roles needs 10 Tgas + 25 Tgas per active asset it pushes to. */
 async function setRolesGas(ctx: Ctx): Promise<bigint> {
-  const assets = await chain.view<{ active: boolean }[]>(ctx.commons, 'get_assets', { from_index: 0, limit: 100 });
+  const assets = await chain.view<{ active: boolean }[]>(ctx.commons, 'get_assets', {
+    from_index: 0,
+    limit: 100,
+  });
   const active = BigInt(assets.filter((a) => a.active).length);
   return (10n + 25n * active) * TGAS;
 }
@@ -75,7 +79,7 @@ async function seedRoles(ctx: Ctx): Promise<void> {
     else actions.push({ method_name: 'set_roles', args: { account, roles }, gas });
   }
   // Σ action gas ≤ 250 Tgas per proposal (research C11); actions run atomically (C9).
-  const per = Math.max(1, Number(250n * TGAS / gas));
+  const per = Math.max(1, Number((250n * TGAS) / gas));
   for (let i = 0; i < actions.length; i += per) {
     const chunk = actions.slice(i, i + per);
     const who = chunk.map((a) => (a.args as { account: string }).account.split('.')[0]).join(', ');
@@ -107,6 +111,32 @@ async function seedCommonsStorage(ctx: Ctx): Promise<void> {
     ctx.commons,
     [{ method_name: 'fund_storage', args: {}, deposit: ctx.c.commonsStorageFund, gas: 20n * TGAS }],
   );
+}
+
+/**
+ * D-709: a tx signed by the asset itself (only the key deletion, CONTRACT_SPEC §11) pays gas from
+ * the asset balance. If that left the ledger invariant short, the DAO sends the shortfall (rounded
+ * up to 0.001 NEAR) as a Transfer proposal: a plain transfer that touches no bucket.
+ */
+async function repairInvariant(ctx: Ctx, a: AssetPlan): Promise<void> {
+  const id = ids.asset(ctx.c, a);
+  if (!(await chain.accountExists(id))) return;
+  const ledger = await chain.view<LedgerBuckets & { invariant_ok: boolean }>(id, 'get_ledger');
+  const amount = invariantTopUp(ledgerSlack(ledger));
+  if (ledger.invariant_ok || amount === 0n) return;
+  await ensureTreasury(ctx, amount);
+  const r = await ctx.dao.proposeAndPass(
+    `COMMONKIT seed (${ctx.c.slug}): restore ${a.slug} ledger invariant after key deletion gas (${yoctoToNear(amount, 3)} NEAR)`,
+    { Transfer: { receiver_id: id, amount } },
+    ctx.council,
+  );
+  log.add(
+    `${ctx.dao.id}#${r.proposalId} invariant top-up ${a.slug} ${yoctoToNear(amount, 3)} NEAR`,
+    ...r.txs,
+  );
+  const after = await chain.view<{ invariant_ok: boolean }>(id, 'get_ledger');
+  if (!after.invariant_ok) throw new Error(`${id}: invariant still false after top-up`);
+  console.log(`✓ ${id} invariant_ok restored`);
 }
 
 async function seedAsset(ctx: Ctx, a: AssetPlan): Promise<void> {
@@ -190,6 +220,7 @@ async function main(): Promise<void> {
     await seedCredentialKinds(ctx);
     await seedCommonsStorage(ctx);
     for (const a of c.assets) await seedAsset(ctx, a);
+    for (const a of c.assets) await repairInvariant(ctx, a);
   }
 }
 

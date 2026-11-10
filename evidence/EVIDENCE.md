@@ -74,6 +74,12 @@ No judge-flow step has run yet.
 | 2026-11-10 04:47:28 | create + deploy + init fridge-01.dorm-b.commonkit-sxflo.testnet (7.05 NEAR) | [Djix1a22…](https://testnet.nearblocks.io/txns/Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm) | ✅ |
 | 2026-11-10 04:47:32 | bridge function-call key → fridge-01.dorm-b.commonkit-sxflo.testnet | [1nvXqc8f…](https://testnet.nearblocks.io/txns/1nvXqc8fXnVEdiohviTqQMstSc2fDxkyYAPtZV3i4BP) | ✅ |
 | 2026-11-10 04:47:35 | agent function-call key → fridge-01.dorm-b.commonkit-sxflo.testnet | [4UdsxyPr…](https://testnet.nearblocks.io/txns/4UdsxyPr7UDzWD6Nck7oNcNkKjrvLfigTuFjp6dvhaTq) | ✅ |
+| 2026-11-10 04:59:08 | delete key ed25519:CgPR65SMhYhrko5wFBYmsvBbpRX3DduyaoeESdoJ6ciG on commons.makerlab.commonkit-sxflo.testnet | [7rxMTZ3k…](https://testnet.nearblocks.io/txns/7rxMTZ3k9BpHVeVKHTmK9Nr2s6JtWvEK4nJoGQLyog7X) | ✅ |
+| 2026-11-10 04:59:11 | delete key ed25519:F2wSjbcVxv1ZqJTXRtFB5UNTmDbSeZm47QfkKYFr2qnh on commons.dorm-b.commonkit-sxflo.testnet | [3qmAWFX7…](https://testnet.nearblocks.io/txns/3qmAWFX7C9GoV2Jk2mRZjLYo2dhKoP31g6Jo1qQQmbMg) | ✅ |
+| 2026-11-10 04:59:15 | delete key ed25519:9X5JWWS7gUffD5Ewfqoy46LjRMkzyycoipJKFFGrTDGB on printer-01.makerlab.commonkit-sxflo.testnet | [Bf6gbxyT…](https://testnet.nearblocks.io/txns/Bf6gbxyTuguCeP4qm6ZDj4Mekmuhhbyi4nRzTb517EK3) | ✅ |
+| 2026-11-10 04:59:18 | delete key ed25519:GVA77SXcDR67HHzbZoTz9aE1kp17RdTAL2je97H1zyJe on laser-01.makerlab.commonkit-sxflo.testnet | [BXJTZ5Rc…](https://testnet.nearblocks.io/txns/BXJTZ5RczfieprUA1s4GSM5E694Qzc5RNxL3EWgiW2Jd) | ✅ |
+| 2026-11-10 04:59:22 | delete key ed25519:GFhbEL92ow4LS6Q8dst85dtFeo3egtbZSzjz9sLmTkjE on washer-01.dorm-b.commonkit-sxflo.testnet | [HEfVWQF8…](https://testnet.nearblocks.io/txns/HEfVWQF8uNvtKoNNHHcn3kdkU1zNqCWxU4nHHxf9pT5D) | ✅ |
+| 2026-11-10 04:59:26 | delete key ed25519:CMTK4qxch6RDt1bJWFFksbaVuzJ5qzNAu5vT4kQzsgeb on fridge-01.dorm-b.commonkit-sxflo.testnet | [CMExFncD…](https://testnet.nearblocks.io/txns/CMExFncD6yjKEzZPf4tXPTSFUEWQHuSoEAqXnVC9GKyd) | ✅ |
 
 ## seed
 
@@ -131,3 +137,15 @@ No judge-flow step has run yet.
 | 2026-11-10 04:50:36 | dorm-b-ck.sputnikv2.testnet#7 fund_float fridge-01 0.5 NEAR | [6ASDLmrU…](https://testnet.nearblocks.io/txns/6ASDLmrUwDBZnLqq5BeeUyAorJrwsc41ewT9C8zxMDsU) | ✅ |
 | 2026-11-10 04:50:36 | dorm-b-ck.sputnikv2.testnet#7 fund_float fridge-01 0.5 NEAR | [DQMjpQij…](https://testnet.nearblocks.io/txns/DQMjpQijXnyjHGqM257dJyhdFmUcmMHieBS7r5BZ7CdX) | ✅ |
 | 2026-11-10 04:50:36 | dorm-b-ck.sputnikv2.testnet#7 fund_float fridge-01 0.5 NEAR | [FZ9HjcD9…](https://testnet.nearblocks.io/txns/FZ9HjcD9oW1rDbcvMsTrn8gc22Eo8SKGThr2YvP4b159) | ✅ |
+| 2026-11-10 05:00:47 | treasury top-up makerlab-ck.sputnikv2.testnet +0 NEAR (plain transfer, research C10) | [Cv9A9wEs…](https://testnet.nearblocks.io/txns/Cv9A9wEsswV6M1reTAbMuebSuQRAi1k7RiJWkDDw6Pe6) | ✅ |
+| 2026-11-10 05:01:00 | makerlab-ck.sputnikv2.testnet#7 invariant top-up laser-01 0.001 NEAR | [3L28qVaT…](https://testnet.nearblocks.io/txns/3L28qVaTB25tgaifhsNChgvaLYBGCkZkSXcevk38kW8u) | ✅ |
+| 2026-11-10 05:01:00 | makerlab-ck.sputnikv2.testnet#7 invariant top-up laser-01 0.001 NEAR | [ADS46tTp…](https://testnet.nearblocks.io/txns/ADS46tTpEK92G7AJM94cqwzg6zkCCqCeKHEJbGMQPG4T) | ✅ |
+| 2026-11-10 05:01:00 | makerlab-ck.sputnikv2.testnet#7 invariant top-up laser-01 0.001 NEAR | [6AYLBEgG…](https://testnet.nearblocks.io/txns/6AYLBEgGkvLMP599DWuBfhyhraFpqe6nQWNEz1WRUVMS) | ✅ |
+| 2026-11-10 05:01:05 | treasury top-up dorm-b-ck.sputnikv2.testnet +0 NEAR (plain transfer, research C10) | [HTuKhERK…](https://testnet.nearblocks.io/txns/HTuKhERKcNRNYcBKYzmmT2cNMun64RDa7einuYntCTBY) | ✅ |
+| 2026-11-10 05:01:19 | dorm-b-ck.sputnikv2.testnet#8 invariant top-up washer-01 0.001 NEAR | [2V97DAEG…](https://testnet.nearblocks.io/txns/2V97DAEGZbk3sbwDW6Xyge5RddY8Sa39ZSWtPd8sySWs) | ✅ |
+| 2026-11-10 05:01:19 | dorm-b-ck.sputnikv2.testnet#8 invariant top-up washer-01 0.001 NEAR | [AV17EmQh…](https://testnet.nearblocks.io/txns/AV17EmQhrCfQp9HgaEUfkVa1uaNGJDpD1HThoj74Tp1F) | ✅ |
+| 2026-11-10 05:01:19 | dorm-b-ck.sputnikv2.testnet#8 invariant top-up washer-01 0.001 NEAR | [28cyEJGt…](https://testnet.nearblocks.io/txns/28cyEJGtS76Z99VTZMxXCTpyUAmM7HvDqdd6cJAE3dRb) | ✅ |
+| 2026-11-10 05:01:23 | treasury top-up dorm-b-ck.sputnikv2.testnet +0 NEAR (plain transfer, research C10) | [98tYNosH…](https://testnet.nearblocks.io/txns/98tYNosHD8dr3fEeKfB4J4Uu7YBbvMBawdo8sV1qR4AL) | ✅ |
+| 2026-11-10 05:01:36 | dorm-b-ck.sputnikv2.testnet#9 invariant top-up fridge-01 0.001 NEAR | [JBDkAu7J…](https://testnet.nearblocks.io/txns/JBDkAu7JFzikyb8tXFEsYNoa2vTX4rLHfTnXbiVG4Jva) | ✅ |
+| 2026-11-10 05:01:36 | dorm-b-ck.sputnikv2.testnet#9 invariant top-up fridge-01 0.001 NEAR | [6muK52Fd…](https://testnet.nearblocks.io/txns/6muK52FdwGsVYvXK4wnSRbUJsXDuydoD5mEnDy5FAbeZ) | ✅ |
+| 2026-11-10 05:01:36 | dorm-b-ck.sputnikv2.testnet#9 invariant top-up fridge-01 0.001 NEAR | [9NgLqBs5…](https://testnet.nearblocks.io/txns/9NgLqBs5KbxFzumvz8dNXnefgjpiUr7f8C6sTL9YBh3a) | ✅ |
