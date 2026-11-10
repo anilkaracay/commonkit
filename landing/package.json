@@ -10,8 +10,10 @@
     "preview": "vite preview --port 4173",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "shots": "tsx scripts/shots.ts",
-    "capture": "tsx scripts/capture.ts"
+    "shots": "tsx scripts/sections.ts",
+    "capture": "tsx scripts/capture.ts",
+    "posters": "tsx scripts/posters.ts",
+    "snapshot": "tsx scripts/snapshot.ts"
   },
   "dependencies": {
     "@commonkit/design": "workspace:*",

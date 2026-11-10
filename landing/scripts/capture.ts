@@ -1,40 +1,35 @@
 /**
- * Records a 10-second hero capture (motion on, live reads off: the page shows its labelled testnet snapshot)
- * into capture/hero-raw.webm (then converted to capture/hero-10s.mp4 with ffmpeg). The built page must be served (vite preview, default :4180).
+ * 10-second hero recording: deterministic frames from the live three.js scene (window.__hero.renderAt), 30 fps,
+ * encoded with ffmpeg into capture/hero-10s.mp4. Needs vite preview (default :4180) and ffmpeg.
+ * Usage: tsx scripts/capture.ts [--url http://127.0.0.1:4180/] [--width 1440] [--height 900]
  */
 import { chromium } from 'playwright';
-import { mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const url = process.env.LANDING_URL ?? 'http://localhost:4180/';
+const args = process.argv.slice(2);
+const opt = (k: string) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
+const base = opt('url') ?? 'http://127.0.0.1:4180/';
+const w = Number(opt('width') ?? 1440), h = Number(opt('height') ?? 900);
+const fps = 30, secs = 10;
 const dir = resolve(import.meta.dirname, '../capture');
-const tmp = resolve(dir, 'tmp');
-mkdirSync(tmp, { recursive: true });
-const size = { width: 1600, height: 900 };
+const frames = resolve(dir, '.frames');
+rmSync(frames, { recursive: true, force: true });
+mkdirSync(frames, { recursive: true });
 
-const browser = await chromium.launch();
-const ctx = await browser.newContext({ viewport: size, recordVideo: { dir: tmp, size }, reducedMotion: 'no-preference' });
-const page = await ctx.newPage();
-const t0 = Date.now();
-await page.goto(`${url}?live=0`, { waitUntil: 'load' });
-await page.waitForTimeout(2600); // headline, cards and ruler settle
-const cta = page.locator('.hero .btn-primary').first();
-const box = await cta.boundingBox();
-if (box) {
-  await page.mouse.move(box.x - 60, box.y + box.height / 2);
-  await page.mouse.move(box.x + box.width * 0.7, box.y + box.height * 0.6, { steps: 25 }); // magnetic CTA
-  await page.waitForTimeout(900);
-  await page.mouse.move(box.x + box.width + 300, box.y - 200, { steps: 20 });
+const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+await page.goto(`${base}?3d=1&live=0`, { waitUntil: 'networkidle' });
+await page.evaluate(() => document.fonts.ready);
+await page.waitForFunction(() => !!(window as unknown as { __hero?: unknown }).__hero, null, { timeout: 60000 });
+await page.waitForTimeout(800);
+for (let i = 0; i < fps * secs; i++) {
+  await page.evaluate((t) => (window as unknown as { __hero: { renderAt(t: number): void } }).__hero.renderAt(t), i / fps);
+  await page.screenshot({ path: resolve(frames, `${String(i).padStart(4, '0')}.png`) });
 }
-for (let y = 0; y <= 520; y += 8) {
-  await page.evaluate((v) => window.scrollTo(0, v), y);
-  await page.waitForTimeout(16);
-}
-await page.waitForTimeout(Math.max(0, 10_000 - (Date.now() - t0)));
-await ctx.close();
 await browser.close();
-const [file] = readdirSync(tmp).filter((f) => f.endsWith('.webm'));
-if (!file) throw new Error('no video recorded');
-renameSync(resolve(tmp, file), resolve(dir, 'hero-raw.webm'));
-rmSync(tmp, { recursive: true, force: true });
-console.log('wrote capture/hero-raw.webm; convert: ffmpeg -ss 0.4 -t 10 -i capture/hero-raw.webm -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart capture/hero-10s.mp4');
+execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-framerate', String(fps), '-i', resolve(frames, '%04d.png'),
+  '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-preset', 'slow', '-movflags', '+faststart', resolve(dir, 'hero-10s.mp4')]);
+rmSync(frames, { recursive: true, force: true });
+console.log('capture/hero-10s.mp4 written');

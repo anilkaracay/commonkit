@@ -165,3 +165,17 @@ Loading: the poster is the LCP element; the 3D chunk (≈148 kB gzip) loads on t
 (vite preview, Lighthouse 13.6.0 mobile, 10 runs): performance 98–100, accessibility 100, best practices 100,
 LCP 1.7–2.3 s (2.0 s in the last six runs), CLS 0; desktop preset 100 / LCP 0.4 s. Live loop: 60.0 fps, p95
 frame 16.7 ms at 1440 × 900 (headless Chromium, ANGLE Metal, Apple M5).
+
+## 5. Production build (D-030, light-led)
+
+The landing now uses `@commonkit/design` (tokens, CK Sans, Geist Mono, base components); `landing/src/styles/main.css`
+contains no raw colour (tested). The three.js scene moved to `landing/src/three/` with a higher-fidelity printer
+(two-part housing seam, gloss screen bezel, levelling knobs, Z motors and lead screws, part-cooling fan, ribbed
+print, PTFE tube that follows the head, roughness grain on ceramic, brushed aluminium, footprint-shaped two-layer
+contact shadow) and the other eleven commons in the same language. Posters for all twelve are rendered from the
+scene (`scripts/posters.ts`); the hero's open task carries "opened under a demo override" (from
+`evidence/demo-overrides.json`), the nozzle reading carries "demo threshold (production: every 200 h of printing)".
+
+Measured on the production build (vite preview, Lighthouse 13.6.0 mobile, 3 runs): performance 98–100,
+accessibility 100, best practices 100, SEO 100, LCP 1.5–1.9 s, CLS 0, TBT 60–140 ms. No horizontal overflow at
+390, 768, 1440 and 1920 px.
