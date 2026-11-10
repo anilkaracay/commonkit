@@ -18,9 +18,11 @@ export function safeNext(next: string | null): string | null {
 function Step({ title, done, children }: { title: string; done: boolean; children: ReactNode }) {
   return (
     <li className="flex gap-4 px-5 py-6 sm:px-6">
-      <span aria-hidden className={`grid size-7 shrink-0 place-items-center rounded-full text-sm font-semibold ${done ? 'bg-accent text-on-accent' : 'bg-bg-alt text-text-3'}`}>
-        {done ? '✓' : ''}
-      </span>
+      {done && (
+        <span aria-label="done" className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-sm font-semibold text-on-accent">
+          ✓
+        </span>
+      )}
       <div className="min-w-0 flex-1">
         <h2 className="text-lg">{title}</h2>
         <div className="mt-2 space-y-3 text-text-2">{children}</div>
