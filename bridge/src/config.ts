@@ -62,7 +62,8 @@ export type AssetConfig = z.infer<typeof assetConfigSchema>;
 
 export const bridgeConfigSchema = z
   .object({
-    network: z.literal("testnet"),
+    /** sandbox = a local NEAR sandbox node started by scripts/simulate (D-420); never mainnet. */
+    network: z.enum(["testnet", "sandbox"]),
     rpc_url: z.url().default("https://test.rpc.fastnear.com"),
     bridge_account: accountIdSchema,
     /** fake = in-memory chain for tests and sim mode (everything labelled simulated). */

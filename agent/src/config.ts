@@ -28,7 +28,8 @@ const assetSchema = z.object({
 });
 
 export const configSchema = z.object({
-  network: z.literal("testnet"),
+  /** sandbox = a local NEAR sandbox node started by scripts/simulate (D-420); never mainnet. */
+  network: z.enum(["testnet", "sandbox"]),
   agent_account: accountId,
   chain: z.enum(["fake", "near"]),
   rpc_url: z.string().url().default("https://test.rpc.fastnear.com"),

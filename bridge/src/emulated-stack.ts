@@ -52,10 +52,24 @@ export async function startEmulators(o: { clock: EmuClock; logger: Logger; moonr
 }
 
 async function main(): Promise<void> {
-  const { values } = parseArgs({ options: { speed: { type: "string", default: "60" }, config: { type: "string", default: "config.emulated.yaml" } } });
+  const { values } = parseArgs({
+    options: {
+      speed: { type: "string", default: "60" },
+      config: { type: "string", default: "config.emulated.yaml" },
+      // 0 = any free port (scripts/simulate runs next to a dev stack without collisions).
+      "moonraker-port": { type: "string", default: "7125" },
+      "shelly-port": { type: "string", default: "18081" },
+    },
+  });
   const speed = Number(values.speed);
   const logger = pino({ base: { service: "commonkit-emulated-stack", simulated: true } });
-  const devices = await startEmulators({ clock: new ScaledClock(speed), logger: logger.child({ emulated: true }), speed });
+  const devices = await startEmulators({
+    clock: new ScaledClock(speed),
+    logger: logger.child({ emulated: true }),
+    speed,
+    moonrakerPort: Number(values["moonraker-port"]),
+    shellyPort: Number(values["shelly-port"]),
+  });
   const env = { ...process.env, ...devices.env };
   const config = await loadConfig(values.config, env);
   let chain: ChainClient;
