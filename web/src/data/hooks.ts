@@ -5,7 +5,8 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { useDataSource, type DataSource } from './source';
-import type { AccountId } from './types';
+import type { AccountId, RuleStatus } from './types';
+import { describeTrigger } from '../lib/metrics';
 import type { DeployedAsset, DeployedCommunity } from './offchain';
 
 const PAGE = 100;
@@ -137,4 +138,31 @@ export function useEvidence() {
 export function useAgentLimits() {
   const ds = useDataSource();
   return useQuery({ queryKey: ['agent-limits', ds.kind], queryFn: () => ds.getAgentLimits() });
+}
+
+export interface DemoThreshold {
+  /** The production trigger from profiles/<file>.json, in words. */
+  production: string;
+  /** DAO proposal tx that set the lowered value, when evidence has it. */
+  tx: string | null;
+}
+
+/**
+ * Rules whose live trigger differs from the production profile file: those were lowered for the
+ * demo by a DAO `set_profile` proposal (profile `meta.pilot_overrides`) and must be labelled.
+ */
+export function useDemoThresholds(assetId: AccountId, rules: RuleStatus[]): Map<string, DemoThreshold> {
+  const ds = useDataSource();
+  const dep = useDeployment();
+  const catalog = useCatalog();
+  const deployed = dep.data?.assets.find((a) => a.asset_id === assetId);
+  const entry = catalog.data?.find((c) => c.file === deployed?.profile_file);
+  const out = new Map<string, DemoThreshold>();
+  if (!deployed || !entry) return out;
+  for (const r of rules) {
+    const prod = entry.profile.rules.find((x) => x.rule_id === r.rule_id);
+    if (!prod || JSON.stringify(prod.trigger) === JSON.stringify(r.trigger)) continue;
+    out.set(r.rule_id, { production: describeTrigger(prod.trigger), tx: ds.rowTx(`override-${deployed.alias}-${r.rule_id}`) });
+  }
+  return out;
 }

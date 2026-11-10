@@ -2,6 +2,8 @@ import type { RuleStatus, UpkeepRule } from '../data/types';
 import { describeTrigger, mostDueRule, ruleProgress } from '../lib/metrics';
 import { KindIcon } from './UpkeepKind';
 import { formatDateTime } from '../lib/time';
+import type { DemoThreshold } from '../data/hooks';
+import { DemoThresholdChip } from './DemoThreshold';
 
 const ARC = 270; // degrees of the dial
 
@@ -40,7 +42,10 @@ export function UpkeepGauge({
   const c = size / 2;
   const r = c - 9;
   const start = -ARC / 2;
-  const label = p.fraction >= 1 ? 'due now' : `${p.format(p.remaining)} left`;
+  const due = p.fraction >= 1;
+  // Never a percentage over 100: a due rule says so in words, with the real figure.
+  const pct = Math.min(99, Math.floor(p.fraction * 100));
+  const label = due ? `${p.long(p.used)} · ${p.ruleText}` : `${p.format(p.remaining)} left`;
   return (
     <figure
       className="relative m-0 shrink-0"
@@ -70,10 +75,16 @@ export function UpkeepGauge({
         )}
       </svg>
       <figcaption className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
-        <span className={`num key-num font-semibold leading-none ${tone.text}`} style={{ ['--key-base' as string]: `${size / 140}rem` }}>
-          {Math.round(p.fraction * 100)}%
-        </span>
-        <span className="mt-1 text-[11px] leading-tight text-ink-2">{label}</span>
+        {due ? (
+          <span className={`key-num font-display leading-none font-bold ${tone.text}`} style={{ ['--key-base' as string]: `${size / 160}rem` }}>
+            Due now
+          </span>
+        ) : (
+          <span className={`num key-num leading-none font-semibold ${tone.text}`} style={{ ['--key-base' as string]: `${size / 140}rem` }}>
+            {pct}%
+          </span>
+        )}
+        <span className={`mt-1 leading-tight text-ink-2 ${due ? 'line-clamp-3 text-[10px]' : 'text-[11px]'}`}>{label}</span>
         <span className="line-clamp-2 text-[11px] leading-tight font-medium text-ink" title={title}>
           <KindIcon kind={p.rule.kind} size={11} /> {title}
         </span>
@@ -83,7 +94,7 @@ export function UpkeepGauge({
 }
 
 /** Per-rule due bars for the asset page. */
-export function RuleBars({ rules, ruleDefs }: { rules: RuleStatus[]; ruleDefs: UpkeepRule[] }) {
+export function RuleBars({ rules, ruleDefs, demo }: { rules: RuleStatus[]; ruleDefs: UpkeepRule[]; demo?: Map<string, DemoThreshold> }) {
   return (
     <ul className="space-y-3">
       {rules.map((rule) => {
@@ -118,6 +129,11 @@ export function RuleBars({ rules, ruleDefs }: { rules: RuleStatus[]; ruleDefs: U
                       : `${def?.reward_rights ?? 0} right(s) on completion`}
               </span>
             </div>
+            {demo?.get(rule.rule_id) && (
+              <div className="mt-1">
+                <DemoThresholdChip demo={demo.get(rule.rule_id) as DemoThreshold} />
+              </div>
+            )}
           </li>
         );
       })}

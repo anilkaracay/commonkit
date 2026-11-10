@@ -6,6 +6,9 @@ import { DeviceBadge, Pill, SimulatedBadge } from './Badges';
 import { KasaBar } from './KasaBar';
 import { UpkeepGauge } from './UpkeepGauge';
 import { assetStatus } from './assetStatus';
+import { useDemoThresholds } from '../data/hooks';
+import { mostDueRule } from '../lib/metrics';
+import { DemoThresholdChip } from './DemoThreshold';
 import { useDemoLink } from '../demo/demo';
 
 /** Shown on the nameplate while get_service_status().in_service is false. */
@@ -23,6 +26,9 @@ export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: B
   const status = assetStatus(snap);
   const sim = deployed.simulated || snap.profile.adapter === 'simulator';
   const link = useDemoLink();
+  const demo = useDemoThresholds(deployed.asset_id, snap.rules);
+  const shownRule = mostDueRule(snap.rules)?.rule.rule_id;
+  const shownDemo = shownRule ? demo.get(shownRule) : undefined;
   return (
     <article className={`tag relative flex min-w-0 flex-col gap-4 p-4 ${sim ? 'tag-sim' : ''}`} aria-label={snap.meta.display_name}>
       <header className="flex items-start gap-3">
@@ -37,7 +43,7 @@ export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: B
               </Link>
             </h3>
             {sim && <SimulatedBadge />}
-            <DeviceBadge adapter={snap.profile.adapter} />
+            <DeviceBadge assetId={deployed.asset_id} />
           </div>
           <p className="mono-id truncate">{deployed.asset_id}</p>
         </div>
@@ -50,6 +56,7 @@ export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: B
           <p className="text-ink-2">
             <span className="num">{snap.profile.group_id}</span>
           </p>
+          {shownDemo && <DemoThresholdChip demo={shownDemo} />}
           {snap.profile.required_credential && (
             <p className="text-xs">
               needs <span className="num font-semibold text-cred">{snap.profile.required_credential}</span>

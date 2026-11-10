@@ -29,7 +29,9 @@ export function BoardPage() {
   if (!dep.data || !all.data) return <Loading what="the board" />;
 
   const openTasks = all.data.flatMap(({ deployed, snap }) =>
-    snap.tasks.filter((t) => ['Open', 'Claimed', 'Submitted', 'Approved'].includes(t.status)).map((task) => ({ deployed, snap, task })),
+    snap.tasks
+      .filter((t) => ['Open', 'Claimed', 'Submitted', 'Approved'].includes(t.status))
+      .map((task) => ({ deployed, snap, task })),
   );
   const minted = all.data
     .flatMap(({ deployed, snap }) =>
@@ -44,38 +46,46 @@ export function BoardPage() {
   return (
     <div className="space-y-10">
       <p className="max-w-2xl text-ink-2">
-        Shared things that pay for their own upkeep. Each machine below runs in its own keyless NEAR account; its money and rules live there, not
-        in an admin's spreadsheet.
+        Shared things that pay for their own upkeep. Each machine below runs in its own keyless NEAR
+        account; its money and rules live there, not in an admin's spreadsheet.
       </p>
 
-      {dep.data.communities.map((c) => {
-        const assets = all.data.filter((a) => a.deployed.community === c.slug);
-        return (
-          <Section
-            key={c.slug}
-            id={`community-${c.slug}`}
-            eyebrow="community"
-            sub={c.dao_id}
-            title={c.name}
-            action={
-              <span className="flex items-center gap-2">
-                {c.simulated && <SimulatedBadge />}
-                <Link to={link(`/c/${c.slug}`)} className="text-sm underline decoration-dotted">
-                  community
-                </Link>
-              </span>
-            }
-          >
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {assets.map(({ deployed, snap }) => (
-                <AssetCard key={deployed.asset_id} deployed={deployed} snap={snap} />
-              ))}
-            </div>
-          </Section>
-        );
-      })}
+      {/* ≥1280 px: communities side by side, two machines each → four cards across. */}
+      <div className="grid grid-cols-1 gap-10 xl:grid-cols-2">
+        {dep.data.communities.map((c) => {
+          const assets = all.data.filter((a) => a.deployed.community === c.slug);
+          return (
+            <Section
+              key={c.slug}
+              id={`community-${c.slug}`}
+              eyebrow="community"
+              sub={c.dao_id}
+              title={c.name}
+              action={
+                <span className="flex items-center gap-2">
+                  {c.simulated && <SimulatedBadge />}
+                  <Link to={link(`/c/${c.slug}`)} className="text-sm underline decoration-dotted">
+                    community
+                  </Link>
+                </span>
+              }
+            >
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {assets.map(({ deployed, snap }) => (
+                  <AssetCard key={deployed.asset_id} deployed={deployed} snap={snap} />
+                ))}
+              </div>
+            </Section>
+          );
+        })}
+      </div>
 
-      <SameContractStrip assets={all.data.map(({ deployed, snap }) => ({ deployed, codeHash: snap.account.code_hash }))} />
+      <SameContractStrip
+        assets={all.data.map(({ deployed, snap }) => ({
+          deployed,
+          codeHash: snap.account.code_hash,
+        }))}
+      />
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <Section title="Open tasks" eyebrow="upkeep the machines asked for">
@@ -83,25 +93,27 @@ export function BoardPage() {
             <Empty>No open upkeep. The agent opens a task only when a profile rule is due.</Empty>
           ) : (
             UPKEEP_KINDS.filter((k) => openTasks.some((o) => o.task.kind === k)).map((kind) => (
-            <div key={kind} className="space-y-1.5">
-            <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
-              <KindIcon kind={kind} /> {KIND_LABEL[kind]}
-            </h3>
-            <ul className="tag divide-y divide-line px-4">
-              {openTasks.filter((o) => o.task.kind === kind).map(({ deployed, snap, task }) => (
-                <TaskRow
-                  key={`${deployed.asset_id}-${task.id}`}
-                  task={task}
-                  assetId={deployed.asset_id}
-                  assetName={deployed.alias}
-                  rule={snap.profile.rules.find((r) => r.rule_id === task.rule_id)}
-                  simulated={deployed.simulated}
-                  nowMs={now}
-                  txHash={rowTx(`task-${deployed.alias}-${task.id}`)}
-                />
-              ))}
-            </ul>
-            </div>
+              <div key={kind} className="space-y-1.5">
+                <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink-2">
+                  <KindIcon kind={kind} /> {KIND_LABEL[kind]}
+                </h3>
+                <ul className="tag divide-y divide-line px-4">
+                  {openTasks
+                    .filter((o) => o.task.kind === kind)
+                    .map(({ deployed, snap, task }) => (
+                      <TaskRow
+                        key={`${deployed.asset_id}-${task.id}`}
+                        task={task}
+                        assetId={deployed.asset_id}
+                        assetName={deployed.alias}
+                        rule={snap.profile.rules.find((r) => r.rule_id === task.rule_id)}
+                        simulated={deployed.simulated}
+                        nowMs={now}
+                        txHash={rowTx(`task-${deployed.alias}-${task.id}`)}
+                      />
+                    ))}
+                </ul>
+              </div>
             ))
           )}
         </Section>
@@ -112,15 +124,22 @@ export function BoardPage() {
           ) : (
             <ul className="tag divide-y divide-line px-4">
               {minted.map(({ deployed, snap, task }) => (
-                <li key={`${deployed.asset_id}-${task.id}`} className="flex items-center gap-3 py-3">
+                <li
+                  key={`${deployed.asset_id}-${task.id}`}
+                  className="flex items-center gap-3 py-3"
+                >
                   <span className="num grid h-9 min-w-9 place-items-center rounded-lg bg-alive-soft px-2 text-sm font-bold text-alive">
                     +{task.minted_right_ids.length}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate">
                       <Account id={task.claimer} /> <span className="text-ink-3">for</span>{' '}
-                      <Link to={link(`/t/${deployed.asset_id}/${task.id}`)} className="hover:underline">
-                        {snap.profile.rules.find((r) => r.rule_id === task.rule_id)?.title ?? task.rule_id}
+                      <Link
+                        to={link(`/t/${deployed.asset_id}/${task.id}`)}
+                        className="hover:underline"
+                      >
+                        {snap.profile.rules.find((r) => r.rule_id === task.rule_id)?.title ??
+                          task.rule_id}
                       </Link>
                     </p>
                     <p className="flex flex-wrap items-center gap-2 text-xs text-ink-3">
@@ -136,7 +155,10 @@ export function BoardPage() {
         </Section>
       </div>
 
-      <Section title="Same contract, different commons" eyebrow="every profile in profiles/, by kind of upkeep">
+      <Section
+        title="Same contract, different commons"
+        eyebrow="every profile in profiles/, by kind of upkeep"
+      >
         {catalog.data ? <ScenarioMatrix catalog={catalog.data} /> : <Loading what="profiles" />}
       </Section>
 
@@ -146,13 +168,20 @@ export function BoardPage() {
         ) : (
           <ul className="tag divide-y divide-line px-4">
             {proposals.map(({ c, p }) => (
-              <ProposalRow key={`${c.community.slug}-${p.id}`} proposal={p} daoId={c.community.dao_id} assetIds={dep.data.assets.map((a) => a.asset_id)} nowMs={now} />
+              <ProposalRow
+                key={`${c.community.slug}-${p.id}`}
+                proposal={p}
+                daoId={c.community.dao_id}
+                assetIds={dep.data.assets.map((a) => a.asset_id)}
+                nowMs={now}
+              />
             ))}
           </ul>
         )}
         {comms.isLoading && <Loading what="proposals" />}
         <p className="text-xs text-ink-3">
-          <Pill tone="muted">opened by the machine</Pill> marks proposals the asset contract created itself (escalations above its cash cap).
+          <Pill tone="muted">opened by the machine</Pill> marks proposals the asset contract created
+          itself (escalations above its cash cap).
         </p>
       </Section>
     </div>

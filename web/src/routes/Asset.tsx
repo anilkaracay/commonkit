@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { AssetAction, parseAction } from '../components/AssetAction';
-import { useAssetSnapshot, useCommunities, useDeployment, useEvidence } from '../data/hooks';
+import { useAssetSnapshot, useCommunities, useDemoThresholds, useDeployment, useEvidence } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import type { Reservation } from '../data/types';
 import { AssetIcon } from '../components/AssetIcon';
@@ -21,6 +21,7 @@ import { formatMetric, metricLabel } from '../lib/metrics';
 import { formatNear, toYocto } from '../lib/near';
 import { formatAgo, formatDateTime, formatTime, slotOf, slotStartNs } from '../lib/time';
 import { NotFoundPage } from './NotFound';
+import { deviceOf } from '../data/devices';
 
 const resTone: Partial<Record<Reservation['status'], Tone>> = {
   Confirmed: 'liability',
@@ -53,6 +54,7 @@ export function AssetPage() {
   });
 
   const deployed = dep.data?.assets.find((a) => a.asset_id === assetId);
+  const demo = useDemoThresholds(assetId, q.data?.rules ?? []);
   if (dep.data && !deployed) return <NotFoundPage what={`asset "${assetId}"`} />;
   if (q.error) return <LoadError error={q.error} />;
   if (!q.data || !deployed) return <Loading what="the machine" />;
@@ -94,7 +96,7 @@ export function AssetPage() {
                 <Pill tone={status.tone}>{status.label}</Pill>
                 {sim && <SimulatedBadge />}
                 {s.profile.required_credential && <Pill tone="danger">needs {s.profile.required_credential}</Pill>}
-                <DeviceBadge adapter={s.profile.adapter} />
+                <DeviceBadge assetId={assetId} />
                 <Pill tone={deployed.keyless === true ? 'alive' : 'due'}>
                   {keylessLabel(deployed.keyless)} · {s.profile.adapter} adapter
                 </Pill>
@@ -146,7 +148,7 @@ export function AssetPage() {
 
       {action && <AssetAction action={action} snap={s} />}
 
-      {sim && <SimulationPanel assetType={s.profile.asset_type} adapter={s.profile.adapter} />}
+      {sim && <SimulationPanel assetType={s.profile.asset_type} assetId={assetId} />}
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <Section title="Kasa" eyebrow="what this machine holds">
@@ -168,7 +170,7 @@ export function AssetPage() {
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <Section title="Upkeep rules" eyebrow={`profile v${s.wiring.profile_version}`}>
           <div className="tag p-4">
-            <RuleBars rules={s.rules} ruleDefs={s.profile.rules} />
+            <RuleBars rules={s.rules} ruleDefs={s.profile.rules} demo={demo} />
           </div>
         </Section>
         <Section title="Telemetry" eyebrow={`${s.telemetry.reports} reports from the bridge`}>
@@ -359,10 +361,12 @@ export function AssetPage() {
 }
 
 /** Simulator assets: the button does nothing on-chain; it shows how to run it and the last run. */
-function SimulationPanel({ assetType, adapter }: { assetType: string; adapter: string }) {
+function SimulationPanel({ assetType, assetId }: { assetType: string; assetId: string }) {
   const evidence = useEvidence();
   const run = evidence.data?.find((st) => st.step === 15);
-  const emulated = adapter !== 'simulator';
+  const device = deviceOf(assetId);
+  const emulated = device?.kind === 'emulated';
+  const adapter = device?.adapter ?? '';
   return (
     <div className="tag tag-sim flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
       <div className="flex-1">

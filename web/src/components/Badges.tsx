@@ -1,3 +1,4 @@
+import { deviceOf } from '../data/devices';
 import type { ReactNode } from 'react';
 
 /** Always shown on simulator assets and anything they produce. Never optional. */
@@ -57,13 +58,18 @@ export function MockBanner() {
   );
 }
 
-/** D-022: printer/laser run real adapters against emulated devices; washer/fridge use the simulator. */
-export function DeviceBadge({ adapter }: { adapter: string }) {
-  const sim = adapter === 'simulator';
+/**
+ * Device label from the bridge config (data/devices.ts): SIMULATOR for the scenario simulator,
+ * EMULATED DEVICE for a real adapter against an emulated device. Nothing if the bridge does not run it.
+ */
+export function DeviceBadge({ assetId }: { assetId: string }) {
+  const d = deviceOf(assetId);
+  if (!d || d.kind === 'device') return null;
+  const sim = d.kind === 'simulator';
   return (
     <span
       className="inline-flex items-center rounded-full border border-dashed border-sim px-2 py-0.5 font-mono text-[10px] font-semibold tracking-[0.06em] text-sim uppercase"
-      title={sim ? 'Telemetry from a simulator scenario file' : `Real ${adapter} adapter talking to an emulated device (no physical machine)`}
+      title={sim ? 'Telemetry from a simulator scenario (bridge/config.emulated.yaml)' : `Real ${d.adapter} adapter talking to an emulated device (bridge/config.emulated.yaml)`}
     >
       {sim ? 'simulator' : 'emulated device'}
     </span>

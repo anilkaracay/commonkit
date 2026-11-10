@@ -84,7 +84,7 @@ function Frame() {
     <div className="flex min-h-dvh flex-col">
       {ds.kind === 'mock' && <MockBanner />}
       <header className="border-b border-line">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
           <NavLink to={link('/')} className="flex items-center gap-2" aria-label="COMMONKIT board">
             <svg aria-hidden width="22" height="22" viewBox="0 0 32 32">
               <circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" strokeWidth="3.5" />
@@ -113,11 +113,11 @@ function Frame() {
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
         <Outlet />
       </main>
       <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-wrap gap-x-4 gap-y-1 px-4 py-4 text-xs text-ink-3">
+        <div className="mx-auto flex max-w-7xl flex-wrap gap-x-4 gap-y-1 px-4 py-4 text-xs text-ink-3">
           <NavLink to={link('/train')}>Trainings</NavLink>
           <NavLink to={link('/approvals')}>Approvals</NavLink>
           <NavLink to={link('/pilot')}>Pilot</NavLink>

@@ -157,6 +157,8 @@ export interface EvidenceStep {
   step: number;
   title: string;
   txHashes: string[];
+  /** Labelled transactions of the step (scripts/demo), when recorded. */
+  transactions?: { label: string; hash: string; ok: boolean }[];
   explorerLinks: string[];
   assertions: EvidenceAssertion[];
   timestamp: string; // ISO 8601

@@ -53,6 +53,10 @@ export interface RuleProgress {
   bare(v: bigint): string;
   /** "nozzle time since last upkeep" etc. */
   caption: string;
+  /** The real figure in words: "4 h nozzle time", "52 h since last", "2 reports". */
+  long(v: bigint): string;
+  /** "rule every 30 min" | "rule every 7 d" | "rule at 1 report". */
+  ruleText: string;
 }
 
 export function ruleProgress(rule: RuleStatus): RuleProgress {
@@ -61,6 +65,8 @@ export function ruleProgress(rule: RuleStatus): RuleProgress {
   let threshold: bigint;
   let format: (v: bigint) => string;
   let bare: (v: bigint) => string;
+  let long: (v: bigint) => string;
+  let ruleText: string;
   let caption: string;
   // `due_value` is computed by the contract per trigger: Metric delta, Schedule hours, Report count.
   used = BigInt(rule.due_value);
@@ -69,22 +75,28 @@ export function ruleProgress(rule: RuleStatus): RuleProgress {
     const m = t.Metric.metric;
     format = (v) => (m.endsWith('_seconds') ? formatMetric(m, v) : `${formatMetric(m, v)} ${metricLabel(m)}`);
     bare = (v) => formatMetric(m, v);
+    long = (v) => (m.endsWith('_seconds') ? `${formatMetric(m, v)} ${metricLabel(m)}` : format(v));
+    ruleText = `rule every ${format(threshold)}`;
     caption = `${metricLabel(m)} since last upkeep`;
   } else if ('Schedule' in t) {
     threshold = BigInt(t.Schedule.every_hours);
     format = formatHours;
     bare = formatHours;
+    long = (v) => `${formatHours(v)} since last`;
+    ruleText = `rule every ${formatHours(threshold)}`;
     caption = 'time since last done';
   } else {
     threshold = BigInt(t.Report.min_reports);
     format = (v) => `${v} report${v === 1n ? '' : 's'}`;
     bare = (v) => String(v);
+    long = format;
+    ruleText = `rule at ${format(threshold)}`;
     caption = 'active fault reports';
   }
   if (used < 0n) used = 0n;
   const remaining = threshold > used ? threshold - used : 0n;
   const fraction = threshold === 0n ? 1 : Number((used * 10_000n) / threshold) / 10_000;
-  return { rule, used, threshold, remaining, fraction, format, bare, caption };
+  return { rule, used, threshold, remaining, fraction, format, bare, caption, long, ruleText };
 }
 
 /** The rule closest to (or furthest past) its threshold: what the gauge shows. */

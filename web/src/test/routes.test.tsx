@@ -94,3 +94,11 @@ describe('availability', () => {
     expect(buttons.some((b) => !(b as HTMLButtonElement).disabled)).toBe(true);
   });
 });
+
+describe('demo thresholds', () => {
+  it('labels a rule lowered from its production profile value', async () => {
+    renderAt(`/a/${A.printer}`);
+    expect((await screen.findAllByText('demo threshold')).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/production nozzle time ≥ 200 h/).length).toBeGreaterThan(0);
+  });
+});

@@ -119,6 +119,13 @@ export function createRpcSource(opts: RpcSourceOptions = {}): DataSource {
         const hits = txLog.filter((t) => t.label.startsWith(`${m[1]}#${m[2]} `));
         return hits.at(-1)?.hash ?? null;
       }
+      // "override-<alias>-<rule_id>" → the DAO set_profile proposal that lowered that rule for the demo.
+      const o = /^override-([^-]+-\d+)-(.+)$/.exec(key);
+      if (o) {
+        const labelled = [...txLog, ...bundledSteps().flatMap((s) => s.transactions ?? [])];
+        const hits = labelled.filter((t) => t.ok && t.label.includes(`${o[1]} profile`) && t.label.includes(`demo override ${o[2]} `));
+        return hits.at(-1)?.hash ?? null;
+      }
       const d = /^deploy-(.+)$/.exec(key);
       if (d) return bundledDeployment.assets.find((a) => a.asset_id === d[1])?.deploy_tx ?? null;
       return null;
