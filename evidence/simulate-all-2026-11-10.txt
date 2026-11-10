@@ -1,0 +1,26 @@
+COMMONKIT simulate.sh all — SIMULATED (local NEAR sandbox 2.14.0, real contracts + Sputnik DAO; simulated/emulated devices; not testnet)
+run 2026-11-10T05-57-12-340Z on darwin-arm64, node v24.21.0; total 441.8 s
+
+shared community (sandbox):
+  ✅ accounts: council c1..c3, steward, verifier, trainer, members ali + ayse, bridge, agent  [tx GdT5cRLCJ6MajktfhWetWz5tsAbvvzjMCW9aazPjDNNJ]
+  ✅ Sputnik DAO v2 (real sputnikdao2.wasm), council c1..c3, 2 of 3 votes  [tx DtvqKrtRP3vGKiVD3PrqTQr6QvqhR2qsYbhoMx8Wi46j]
+  ✅ commons deployed keyless (real WASM)  [tx 9DMVYRcVZinEafLfS6UqgKd9CYX8fpvpb7JU4xtu3mBY]
+  ✅ DAO proposal: roles (steward, verifier, trainer, council) + credential kinds generator_operator, gpu_basics, laser_safety, tractor_operator  [tx EAxaPtM43qrbey4JUrw1xiwCqqtHq1A45z3pCb8ow9TG]
+
+asset_type           rule (kind)                      result    time  steps  invariant  code_hash
+-------------------------------------------------------------------------------------------------------------------------------
+cargo_bike           brake_check (Inspection)         PASS     27.7s  20/20  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+community_fridge     temperature_check (Inspection)   PASS     41.0s  20/20  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+emergency_generator  fuel_refill (Restock)            PASS     30.2s  23/23  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+ev_charger           cable_check (Inspection)         PASS     74.9s  20/20  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+gpu_server           dust_clean (Cleaning)            PASS     31.6s  22/22  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+laser_cutter         lens_clean (Maintenance)         PASS     32.0s  22/22  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+microscope           clean_inventory (Cleaning)       PASS     28.3s  20/20  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+printer_3d           nozzle_clean (Maintenance)       PASS     32.5s  20/20  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+rehearsal_room       room_clean (Cleaning)            PASS     30.7s  19/19  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+tool_library_ladder  safety_inspection (Inspection)   PASS     30.3s  20/20  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+tractor              oil_change (Maintenance)         PASS     34.0s  22/22  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+washer               filter_clean (Cleaning)          PASS     32.0s  20/20  true       3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+
+12/12 profiles passed; all assets share one code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+
