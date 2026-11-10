@@ -9,7 +9,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | H1 | Pick pilot item, 4–5 people, place, time | ASAP | Lane E, pilot | open |
 | H2 | Order smart plug (Shelly Gen2/Gen3 or Tasmota); send model + IP when it arrives | ASAP | plug onboarding, video | open |
 | H3 | Fix GitHub billing / Actions spending limit | ASAP | green CI | open |
-| H4 | Send testnet NEAR to `commonkit-sxflo.testnet` (exact amount below) | ASAP | asset deploys, pilot funding | open — amount: see latest log entry |
+| H4 | Send testnet NEAR to `commonkit-sxflo.testnet` (exact amount below) | ASAP | asset deploys, pilot funding | open — ~25 NEAR (pilot funding 5×2 + 21-step run + buffer; exact figure after Lane D estimate); root holds 18.18 NEAR |
 | H5 | Test member flow once with the pilot wallet (NEP-413 sign → bridge) | before pilot | pilot | open |
 | H6 | Provide project name confirmation, lead name, email, team size, mainnet payout account | before G6 | form checklist (kept out of git) | open |
 | H7 | Make repo public (checklist provided) | G6 | public CI, submission | later |
@@ -39,7 +39,7 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | M1a asset contract | ✅ (verifier: pass with fixes → fixed, D-213) | 279 unit tests (`cargo test -p commonkit-asset`), wasm sha256 24132b0a…ec8e, code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h |
 | M1b commons contract | ✅ (verifier: pass with fixes → fixed) | 120 unit tests, code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn |
 | M1c sandbox + invariants | ✅ tests green (lead rerun 2026-11-10), verifier review running | `pnpm test:contracts` exit 0: 34 sandbox tests incl. 20/20 inv_* against real Sputnik v2 WASM; reproducible build not achieved (D-216) |
-| M2 testnet setup | ◐ 2 DAOs + 2 commons + seed done; 4 assets deploying | evidence/setup.json, evidence/seed.json |
+| M2 testnet setup | ◐ 4 assets deployed + seeded, one code_hash; keyless deletion gated on M1c verifier | `./scripts/verify.sh --allow-pending` 0 ❌ (70d6242); deploy txs printer 315qJKEZ…, laser CjEyTuGY…, washer 8bDy3oxZ…, fridge Djix1a22… (evidence/setup.json, evidence/seed.json) |
 | M3 bridge + adapters | ◐ simulator, NEP-413 (full-access only, D-019), signer wiring done; emulators + real adapters in progress | `pnpm --filter @commonkit/bridge test` |
 | M4 agent | ◐ offline ✅ (68 tests); signer wiring in progress | `pnpm --filter @commonkit/agent test` |
 | M5 web skeleton | ✅ on mock data, verifier pending | `pnpm --filter @commonkit/web test` 46 ✅; screenshots web/screenshots |
