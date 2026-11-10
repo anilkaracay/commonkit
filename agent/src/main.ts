@@ -1,13 +1,14 @@
 /**
  * Agent service: `tsx src/main.ts --config <file>`.
  * chain: fake → in-memory chain seeded from the profiles (everything labelled simulated).
- * chain: near → testnet views; writes need the function-call key signer (wired after M2).
+ * chain: near → testnet views; writes with the agent's function-call key per asset.
  */
 import { resolve } from "node:path";
 import { NearRpc } from "@commonkit/sdk";
 import { Agent } from "./agent.js";
 import { FakeAgentChain } from "./chain/fake.js";
 import { NearAgentChain } from "./chain/near.js";
+import { NearAgentSigner, resolveAgentSigners } from "./chain/signer.js";
 import type { AgentChain } from "./chain/types.js";
 import { loadConfig } from "./config.js";
 import { EventBus, EvidenceLog } from "./events.js";
@@ -33,8 +34,25 @@ async function main(): Promise<void> {
     for (const a of assets) fake.addAsset(a.assetId, { profileJson: a.profileJson, policyCached: true });
     chain = fake;
   } else {
-    // ADAPTER: the function-call key signer (AGENT_KEY_<ALIAS>) is injected here after M2.
-    chain = new NearAgentChain(new NearRpc(config.rpc_url), config.agent_account, null);
+    // One function-call key per asset: env AGENT_KEY_<ALIAS>, else the keychain key listed in
+    // deployments/testnet.json. An asset without a key is read but never written to.
+    const { signers, report } = resolveAgentSigners({
+      agentAccount: config.agent_account,
+      assets: assets.map((a) => ({ assetId: a.assetId, alias: a.alias })),
+      deploymentsPath: resolve(baseDir, config.deployments),
+      env: process.env,
+      ...(config.keychain_dir ? { keychainDir: resolve(baseDir, config.keychain_dir) } : {}),
+      signerOptions: { rpcUrls: [config.rpc_url] },
+    });
+    for (const r of report)
+      bus.emit({
+        type: "signer_status",
+        assetId: r.assetId,
+        simulated: assets.find((a) => a.assetId === r.assetId)?.simulated ?? false,
+        data: { source: r.source, public_key: r.publicKey, detail: r.detail },
+        level: r.source === "none" ? "warn" : "info",
+      });
+    chain = new NearAgentChain(new NearRpc(config.rpc_url), config.agent_account, new NearAgentSigner(signers));
   }
 
   let rephraser: Rephraser = templateOnly;

@@ -136,6 +136,8 @@ export interface ServiceStatusView {
 /** Enough to decide later whether an ambiguous write could still land (D-601). */
 export interface WriteRef {
   method: string;
+  /** Contract the transaction was sent to; selects the function-call key that signed it. */
+  receiverId: string | null;
   txHash: string | null;
   /** Access-key nonce the transaction used; a later landed nonce makes it permanently invalid. */
   nonce: bigint | null;

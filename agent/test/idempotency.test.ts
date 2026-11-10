@@ -46,7 +46,7 @@ describe("idempotency: read before write, never blind-retry", () => {
   it("holds survive a restart through the memory file", async () => {
     const file = join(mkdtempSync(join(tmpdir(), "agent-mem-")), "memory.json");
     const m1 = new AgentMemory(file);
-    m1.hold("a/open/r", { method: "open_upkeep_task", txHash: "abc", nonce: 7n, sentAtMs: 1 });
+    m1.hold("a/open/r", { method: "open_upkeep_task", receiverId: "a.testnet", txHash: "abc", nonce: 7n, sentAtMs: 1 });
     m1.markAnnotated("a/annotate/1");
     const m2 = new AgentMemory(file);
     expect(m2.heldKeys()).toEqual(["a/open/r"]);

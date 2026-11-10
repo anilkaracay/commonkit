@@ -79,7 +79,7 @@ describe("NearAgentChain (testnet adapter) against contract-shaped JSON", () => 
     await chain.escalate(ASSET, { kind: "reimbursement", receiver: "ayse.testnet", amount: 8n * 10n ** 23n, reason: "r", taskId: 3n });
     expect(signer.sent).toEqual([
       { method: "open_upkeep_task", args: { rule_id: "nozzle_clean", rationale: "why" }, gas: 30 },
-      { method: "escalate", args: { kind: "reimbursement", receiver: "ayse.testnet", amount: "800000000000000000000000", reason: "r", task_id: "3" }, gas: 150 },
+      { method: "escalate", args: { kind: "reimbursement", receiver: "ayse.testnet", amount: "800000000000000000000000", reason: "r", task_id: "3" }, gas: 60 },
     ]);
   });
 

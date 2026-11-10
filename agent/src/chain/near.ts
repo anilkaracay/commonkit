@@ -1,8 +1,7 @@
 /**
- * ADAPTER — testnet implementation of AgentChain. Views are complete (sdk NearRpc, finality
- * final, decoded by chain/schemas.ts). Writes go through an injected AgentTxSigner holding the
- * agent's function-call key per asset (AGENT_KEY_<ALIAS>); the signer is wired after M2 (accounts,
- * keys and deployments exist). Without a signer every write is refused (nothing is pretended).
+ * Testnet implementation of AgentChain. Views: sdk NearRpc, finality final, decoded by
+ * chain/schemas.ts. Writes: an injected AgentTxSigner (chain/signer.ts, one function-call key per
+ * asset over @commonkit/sdk/signer). Without a signer every write is refused (nothing is pretended).
  */
 import { NearRpc, RpcError, parseErrorCode } from "@commonkit/sdk";
 import { z } from "zod";
@@ -34,13 +33,16 @@ import {
   type WriteRef,
 } from "./types.js";
 
-/** Gas per agent call (Tgas). Generous until measured on testnet (CONTRACT_SPEC §8). */
+/**
+ * Attached gas per agent call (Tgas), CONTRACT_SPEC §8 / D-214 (sandbox burn: escalate ~8,
+ * sync_escalation and refresh_dao_policy ~7; unburnt gas is refunded).
+ */
 export const AGENT_GAS_TGAS = {
   open_upkeep_task: 30,
-  annotate_task: 10,
-  escalate: 150,
-  sync_escalation: 100,
-  refresh_dao_policy: 100,
+  annotate_task: 30,
+  escalate: 60,
+  sync_escalation: 50,
+  refresh_dao_policy: 50,
 } as const;
 export type AgentMethod = keyof typeof AGENT_GAS_TGAS;
 

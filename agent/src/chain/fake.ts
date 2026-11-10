@@ -487,7 +487,7 @@ export class FakeAgentChain implements AgentChain {
     const txHash = `fake-tx-${++this.txSeq}`;
     const queue = this.failures.get(method);
     const failure = queue?.shift();
-    const ref: WriteRef = { method, txHash, nonce: BigInt(this.txSeq), sentAtMs: 0 };
+    const ref: WriteRef = { method, receiverId: assetId, txHash, nonce: BigInt(this.txSeq), sentAtMs: 0 };
     if (failure?.mode === "rpc_down") return Promise.reject(new ChainError(`RPC unavailable (fake) during ${method}`, null));
     if (failure?.mode === "ambiguous_lost") {
       this.unsettled.set(txHash, failure.settleAfter ?? 1);

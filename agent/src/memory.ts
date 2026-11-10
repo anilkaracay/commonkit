@@ -16,7 +16,13 @@ import type { AgentChain, WriteRef } from "./chain/types.js";
 const fileSchema = z.object({
   pending: z.record(
     z.string(),
-    z.object({ method: z.string(), txHash: z.string().nullable(), nonce: z.string().nullable(), sentAtMs: z.number() }),
+    z.object({
+      method: z.string(),
+      receiverId: z.string().nullable().default(null),
+      txHash: z.string().nullable(),
+      nonce: z.string().nullable(),
+      sentAtMs: z.number(),
+    }),
   ),
   annotated: z.array(z.string()),
   lastSyncMs: z.record(z.string(), z.number()),

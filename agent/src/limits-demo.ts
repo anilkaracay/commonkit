@@ -4,9 +4,10 @@
  *
  *   tsx src/limits-demo.ts --chain fake   → offline run on the fake chain (simulated, written to
  *                                            agent/state/agent-limits.fake.json, never evidence/)
- *   tsx src/limits-demo.ts --chain near --config config.yaml
- *                                         → testnet run, writes evidence/agent-limits.json
- *                                            (needs the function-call key signer, wired after M2)
+ *   tsx src/limits-demo.ts --chain near --send-testnet-transactions [--agent a] [--quota-asset a]
+ *                          [--revoked-asset a] [--deployments path] [--rpc url]
+ *                                         → testnet run (M6, after the chain-ops preconditions),
+ *                                            writes evidence/agent-limits.json
  *
  * An attempt whose on-chain precondition is not met is recorded as `skipped` with the reason;
  * it is never counted as passed.
@@ -14,9 +15,13 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { NearRpc, TESTNET_RPC } from "@commonkit/sdk";
 import { FakeAgentChain } from "./chain/fake.js";
+import { NearAgentChain } from "./chain/near.js";
+import { NearAgentSigner, resolveAgentSigners } from "./chain/signer.js";
 import { ChainError, NS_PER_DAY, type AgentChain, type RuleStatus, type TxOutcome } from "./chain/types.js";
 import { loadProfileFile } from "./config.js";
+import { aliasOf, agentAccountOf, loadDeploymentsView, testnetLimitsPlan } from "./deployments.js";
 import { toJson } from "./events.js";
 
 /** What the limits demo needs beyond AgentChain: raw calls the agent loop never makes. */
@@ -103,7 +108,8 @@ export async function runLimitsDemo(probe: LimitsProbe, plan: LimitsPlan, now: (
           status: "rejected",
           code,
           error: err instanceof Error ? err.message : String(err),
-          tx_hash: null,
+          // Executed-and-failed transactions are on chain; protocol refusals never existed there.
+          tx_hash: err instanceof ChainError && err.code !== null ? (err.ref?.txHash ?? null) : null,
           pass: code !== null && a.expected.includes(code),
         };
       }
@@ -328,22 +334,60 @@ function writeReport(path: string, report: LimitsReport): void {
   writeFileSync(path, JSON.stringify(JSON.parse(toJson(report)), null, 2) + "\n");
 }
 
+function flag(name: string): string | undefined {
+  const i = process.argv.indexOf(name);
+  return i >= 0 ? process.argv[i + 1] : undefined;
+}
+
+/** Testnet probe: NearAgentChain + the agent's function-call keys from deployments / env. */
+function testnetSetup(repo: string): { probe: LimitsProbe; plan: LimitsPlan; out: string } {
+  const deploymentsPath = flag("--deployments") ?? resolve(repo, "deployments/testnet.json");
+  const d = loadDeploymentsView(deploymentsPath);
+  const agent = agentAccountOf(d, flag("--agent"));
+  const plan = testnetLimitsPlan(d, {
+    ...(flag("--quota-asset") ? { quotaAsset: flag("--quota-asset")! } : {}),
+    ...(flag("--revoked-asset") ? { revokedAsset: flag("--revoked-asset")! } : {}),
+  });
+  const assets = [...new Set([plan.metricAsset, plan.scheduleAsset, plan.quotaAsset, plan.revokedAsset])];
+  const { signers, report } = resolveAgentSigners({
+    agentAccount: agent,
+    assets: assets.map((a) => ({ assetId: a, alias: aliasOf(a) })),
+    deploymentsPath,
+    env: process.env,
+  });
+  const missing = report.filter((r) => r.source === "none");
+  if (missing.length > 0) throw new Error(`no agent key for: ${missing.map((m) => `${m.assetId} (${m.detail})`).join("; ")}`);
+  const signer = new NearAgentSigner(signers);
+  const chain = new NearAgentChain(new NearRpc(flag("--rpc") ?? TESTNET_RPC), agent, signer);
+  const probe: LimitsProbe = {
+    chain,
+    // D-214: reward-starting methods require >= 125 Tgas, so the contract's own check is not what refuses.
+    approveTaskAsAgent: (a, t) => signer.rawCall(a, "approve_task", { task_id: t.toString() }, 125, 0n),
+    callWithDepositAsAgent: (a, m, dep) => signer.rawCall(a, m, {}, 60, dep),
+  };
+  return { probe, plan, out: resolve(repo, "evidence/agent-limits.json") };
+}
+
 async function cli(): Promise<void> {
   const here = dirname(fileURLToPath(import.meta.url));
   const repo = resolve(here, "../..");
-  const chainArg = process.argv[process.argv.indexOf("--chain") + 1] ?? "fake";
-  if (chainArg !== "fake") {
-    // ADAPTER: after M2, build a LimitsProbe from NearAgentChain + the agent's function-call key
-    // signer and the testnet LimitsPlan from deployments/testnet.json, then write
-    // evidence/agent-limits.json.
-    throw new Error("testnet limits run needs the agent signer and deployments/testnet.json (after M2)");
+  const chainArg = flag("--chain") ?? "fake";
+  let setup: { probe: LimitsProbe; plan: LimitsPlan; out: string };
+  if (chainArg === "near") {
+    // Sends real testnet transactions (all expected to fail). Run in M6 after the chain-ops preconditions.
+    if (!process.argv.includes("--send-testnet-transactions"))
+      throw new Error("testnet run sends transactions; pass --send-testnet-transactions (M6, after chain-ops preconditions)");
+    setup = testnetSetup(repo);
+  } else {
+    const f = fakeLimitsSetup(resolve(repo, "profiles"));
+    setup = { probe: f.probe, plan: f.plan, out: resolve(here, "../state/agent-limits.fake.json") };
   }
-  const { probe, plan } = fakeLimitsSetup(resolve(repo, "profiles"));
-  const report = await runLimitsDemo(probe, plan);
-  const out = resolve(here, "../state/agent-limits.fake.json");
-  writeReport(out, report);
-  for (const a of report.attempts) process.stdout.write(`${a.pass ? "PASS" : a.status === "skipped" ? "SKIP" : "FAIL"} ${a.id}: ${a.code ?? a.error}\n`);
-  process.stdout.write(`${report.all_passed ? "all limits held" : "some limits not shown"} (SIMULATED, fake chain) → ${out}\n`);
+  const report = await runLimitsDemo(setup.probe, setup.plan);
+  writeReport(setup.out, report);
+  for (const a of report.attempts)
+    process.stdout.write(`${a.pass ? "PASS" : a.status === "skipped" ? "SKIP" : "FAIL"} ${a.id}: ${a.code ?? a.error}${a.tx_hash ? ` (tx ${a.tx_hash})` : ""}\n`);
+  const label = report.simulated ? "SIMULATED, fake chain" : "testnet";
+  process.stdout.write(`${report.all_passed ? "all limits held" : "some limits not shown"} (${label}) → ${setup.out}\n`);
   if (!report.all_passed) process.exitCode = 1;
 }
 

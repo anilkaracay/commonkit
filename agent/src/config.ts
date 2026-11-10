@@ -39,6 +39,10 @@ export const configSchema = z.object({
   state_dir: z.string().default("state"),
   evidence_dir: z.string().default("state/evidence"),
   llm: z.object({ enabled: z.boolean().default(false) }).default({ enabled: false }),
+  /** deployments/testnet.json: the agent's function-call keys per asset (keychain), no secrets. */
+  deployments: z.string().default("../deployments/testnet.json"),
+  /** NEAR CLI legacy keychain dir; default ~/.near-credentials/testnet (or NEAR_CREDENTIALS_DIR). */
+  keychain_dir: z.string().optional(),
   /** Fake chain only: a small usage driver so the feed shows the loop (all simulated). */
   fake: z.object({ drive: z.boolean().default(false), hours_per_tick: z.number().int().nonnegative().default(12) }).default({ drive: false, hours_per_tick: 12 }),
   assets: z.array(assetSchema).min(1),
