@@ -51,7 +51,7 @@ export const C = {
   aluDark: '#7c8aa0',
   sky: '#8db9ff',
   due: color.orange500,
-  rubber: '#1a2232',
+  rubber: '#2a3550',
 } as const;
 
 export function makeMaterials() {
@@ -66,7 +66,7 @@ export function makeMaterials() {
     alu: new MeshStandardMaterial({ color: C.alu, roughness: 0.34, roughnessMap: rb, metalness: 0.88 }),
     aluDark: new MeshStandardMaterial({ color: C.aluDark, roughness: 0.42, metalness: 0.8 }),
     pla: new MeshStandardMaterial({ color: C.sky, roughness: 0.58 }),
-    rubber: new MeshStandardMaterial({ color: C.rubber, roughness: 0.9 }),
+    rubber: new MeshStandardMaterial({ color: C.rubber, roughness: 0.82 }),
     due: new MeshStandardMaterial({ color: C.due, roughness: 0.55 }),
     ledOn: new MeshStandardMaterial({ color: '#6e9bff', emissive: new Color('#2e64f0'), emissiveIntensity: 0.85, roughness: 0.3 }),
   };

@@ -10,7 +10,7 @@ const num = (k: string) => (q.has(k) ? Number(q.get(k)) : undefined);
 const kind = (q.get('kind') ?? 'printer_3d') as MachineKind;
 const a = (snapshot as Snapshot).assets.find((x) => x.asset_type === kind);
 const stage = createStage(document.getElementById('c') as HTMLCanvasElement, {
-  kind, state: stateOf(a), distance: num('dist'), yaw: num('yaw'), pitch: num('pitch'), targetY: num('ty'), fit: num('fit'), minDistance: num('min'), drift: num('drift'), dpr: num('dpr') ?? 1,
+  kind, state: { ...stateOf(a), taskOpen: q.get('notask') === '1' ? false : stateOf(a).taskOpen }, distance: num('dist'), yaw: num('yaw'), pitch: num('pitch'), targetY: num('ty'), fit: num('fit'), minDistance: num('min'), fill: num('fill'), zoom: num('zoom'), drift: num('drift'), dpr: num('dpr') ?? 1,
 });
 stage.renderAt(num('t') ?? 0);
 Object.assign(window, { __stage: stage, __ready: true });

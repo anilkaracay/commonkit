@@ -6,9 +6,11 @@ const d = loadData();
 const s = renderSlots(d);
 
 describe('landing render (honesty)', () => {
-  it('labels the demo threshold and a task opened under a demo override in the hero', () => {
+  it('labels the demo threshold in the hero and tells the last verified upkeep with its tx', () => {
     expect(s['hero-callouts']).toContain('demo threshold (production: every 200 h of printing)');
-    expect(s['hero-callouts']).toContain('opened under a demo override');
+    expect(s['hero-callouts']).toContain('Nozzle cleaned');
+    expect(s['hero-callouts']).toContain('Task #0 by ayse, verified by mehmet');
+    expect(s['hero-callouts']).toMatch(/nearblocks\.io\/txns\/Gr7bwq/);
   });
   it('shows all twelve commons with their README status verbatim', () => {
     expect(s.care!.match(/class="care-tile"/g)).toHaveLength(12);

@@ -13,7 +13,9 @@ export function mountHero(el: HTMLElement, onAnchors: (a: Record<string, Pt>) =>
   canvas.setAttribute('aria-hidden', 'true');
   el.querySelector('.poster')!.after(canvas);
   const a = (snapshot as Snapshot).assets.find((x) => x.asset_type === 'printer_3d');
-  const stage = createStage(canvas, { kind: 'printer_3d', state: stateOf(a), dpr: Math.min(devicePixelRatio || 1, innerWidth < 700 ? 1.75 : 2) });
+  // The hero tells the float and nozzle story; open tasks (with their override labels) live in the app.
+  const heroState = (s: MachineState): MachineState => ({ ...s, taskOpen: false });
+  const stage = createStage(canvas, { kind: 'printer_3d', state: heroState(stateOf(a)), dpr: Math.min(devicePixelRatio || 1, innerWidth < 700 ? 1.75 : 2) });
   stage.onFrame(() => onAnchors(stage.anchors()));
   stage.renderAt(0);
   requestAnimationFrame(() => el.classList.add('live'));
@@ -23,7 +25,7 @@ export function mountHero(el: HTMLElement, onAnchors: (a: Record<string, Pt>) =>
   new IntersectionObserver(([e]) => { visible = !!e?.isIntersecting; sync(); }).observe(el);
   document.addEventListener('visibilitychange', sync);
   const api = {
-    setState: (s: unknown) => stage.setState(s as MachineState),
+    setState: (s: unknown) => stage.setState(heroState(s as MachineState)),
     /** deterministic frame for the video capture */
     renderAt: (t: number) => { stage.stop(); stage.renderAt(t); },
   };

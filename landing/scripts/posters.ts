@@ -30,7 +30,7 @@ async function studio(query: string, size: number, height = size): Promise<Page>
 }
 
 if (!only || only.includes('hero')) {
-  const hero = await studio('kind=printer_3d&t=0', 1200);
+  const hero = await studio('kind=printer_3d&t=0&notask=1', 1200);
   const png = resolve(tmp, 'hero.png');
   await hero.screenshot({ path: png, omitBackground: true });
   const anchors = await hero.evaluate(() => (window as unknown as { __stage: { anchors(): unknown } }).__stage.anchors());
@@ -41,9 +41,11 @@ if (!only || only.includes('hero')) {
   webp(png, resolve(out, 'hero-600.webp'), 78, 600);
   console.log('hero');
 }
+// Optical correction so airy silhouettes (printer frame, bike) and bulky boxes (fridge, charger) read alike.
+const ZOOM: Record<string, number> = { printer_3d: 0.8, cargo_bike: 0.82, tractor: 0.95, microscope: 0.95, community_fridge: 1.12, ev_charger: 1.18, washer: 1.06, gpu_server: 1.08, tool_library_ladder: 1.06, rehearsal_room: 1.02, laser_cutter: 1.02, emergency_generator: 1 };
 for (const kind of CARE_ORDER) {
   if (only && !only.includes(kind)) continue;
-  const p = await studio(`kind=${kind}&t=1.5&yaw=-0.55&pitch=0.16&fit=1.02&min=17&drift=0`, 640);
+  const p = await studio(`kind=${kind}&t=1.5&yaw=-0.55&pitch=0.16&fill=0.6&zoom=${ZOOM[kind] ?? 1}&drift=0`, 640);
   const png = resolve(tmp, `${kind}.png`);
   await p.screenshot({ path: png, omitBackground: true });
   await p.close();
@@ -52,8 +54,10 @@ for (const kind of CARE_ORDER) {
 }
 // Close-ups for "how it works": the status lens and screen (unlock), the print head and nozzle (upkeep).
 const CLOSE: [string, string][] = [
-  ['how-unlock', 'kind=printer_3d&t=2.2&ty=0.9&dist=8.2&yaw=-0.18&pitch=0.3&drift=0'],
-  ['how-upkeep', 'kind=printer_3d&t=0&ty=2.25&dist=7.6&yaw=-0.3&pitch=0.12&drift=0'],
+  ['how-reserve', 'kind=printer_3d&t=3.1&notask=1&ty=2.2&dist=15.5&yaw=-0.78&pitch=0.18&drift=0'],
+  ['how-earn', 'kind=printer_3d&t=4.4&notask=1&ty=1.55&dist=8.4&yaw=0.42&pitch=0.22&drift=0'],
+  ['how-unlock', 'kind=printer_3d&notask=1&t=2.2&ty=0.9&dist=8.2&yaw=-0.18&pitch=0.3&drift=0'],
+  ['how-upkeep', 'kind=printer_3d&notask=1&t=0&ty=2.25&dist=7.6&yaw=-0.3&pitch=0.12&drift=0'],
 ];
 for (const [name, q] of CLOSE) {
   if (only && !only.includes(name)) continue;

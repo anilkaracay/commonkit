@@ -123,6 +123,7 @@ export function printer(M: Materials): Machine {
     screen: anchor(g, -0.92, sy, front + 0.07),
     nozzle: anchor(head, 0, -0.46, 0.12),
     task: anchor(bed, -1.12, 0.2, 1.1),
+    upkeep: anchor(head, -0.36, 0.16, 0.2),
     led: anchor(g, 1.42, sy, front + 0.05),
   };
   let state: MachineState = { float: 0, wear: 0, due: false, taskOpen: false, inService: true };

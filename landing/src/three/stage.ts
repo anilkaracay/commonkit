@@ -18,6 +18,10 @@ export interface StageOptions {
   distance?: number;
   /** never closer than this (keeps flat machines from filling a grid tile) */
   minDistance?: number;
+  /** grid posters: share of the frame the machine's projected box fills (same visual mass for every machine) */
+  fill?: number;
+  /** multiplies the camera distance (per-machine optical correction for airy or bulky silhouettes) */
+  zoom?: number;
   /** fit margin when distance is not given (1 = bounding sphere touches the frame) */
   fit?: number;
   yaw?: number;
@@ -93,7 +97,7 @@ export function createStage(canvas: HTMLCanvasElement, opt: StageOptions): Stage
   key.shadow.blurSamples = 16;
   key.shadow.bias = -0.0006;
   key.shadow.normalBias = 0.03;
-  Object.assign(key.shadow.camera, { left: -6, right: 6, top: 7, bottom: -5, near: 1, far: 30 });
+  Object.assign(key.shadow.camera, { left: -10, right: 10, top: 10, bottom: -8, near: 1, far: 40 });
   scene.add(key);
   const fill = new DirectionalLight('#dfe9ff', 0.55);
   fill.position.set(8, 4, 3);
@@ -134,7 +138,14 @@ export function createStage(canvas: HTMLCanvasElement, opt: StageOptions): Stage
     }
     const vfov = (camera.fov * Math.PI) / 180;
     const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
-    const dist = opt.distance ?? Math.max(opt.minDistance ?? 0, (sphere.radius * (opt.fit ?? 0.98)) / Math.sin(Math.min(vfov, hfov) / 2));
+    const projW = Math.abs(size.x * Math.cos(yaw)) + Math.abs(size.z * Math.sin(yaw));
+    const projH = size.y * Math.cos(pitch) + Math.max(size.x, size.z) * Math.sin(pitch);
+    // Equal visual mass: frame the geometric mean of the projected box at `fill`, but never let it overflow.
+    const tv = 2 * Math.tan(vfov / 2), th = 2 * Math.tan(hfov / 2);
+    const depth = Math.max(size.x, size.z) / 2;
+    const boxDist = opt.fill ? Math.max(Math.sqrt((projH / tv) * (projW / th)) / opt.fill, Math.max(projH / tv, projW / th) / 0.9) + depth : 0;
+    const sphereDist = Math.max(opt.minDistance ?? 0, (sphere.radius * (opt.fit ?? 0.98)) / Math.sin(Math.min(vfov, hfov) / 2));
+    const dist = (opt.distance ?? (opt.fill ? boxDist : sphereDist)) * (opt.zoom ?? 1);
     const a = yaw + drift * 0.045 * Math.sin(t * 0.21);
     const p = pitch + drift * 0.012 * Math.sin(t * 0.17 + 1);
     camera.position.set(target.x + Math.sin(a) * Math.cos(p) * dist, target.y + Math.sin(p) * dist, target.z + Math.cos(a) * Math.cos(p) * dist);

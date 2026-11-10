@@ -11,7 +11,7 @@ body { font-size: var(--ck-text-md); overflow-x: hidden; }
 .head.center { text-align: center; }
 .head.center .lede { margin-inline: auto; text-wrap: balance; }
 section { scroll-margin-top: 24px; }
-.tx { color: var(--ck-text-3); text-decoration: none; }
+.tx { color: var(--ck-text-3); text-decoration: none; white-space: nowrap; }
 .tx:hover { color: var(--ck-accent); text-decoration: underline; }
 .pending { color: var(--ck-text-2); }
 
@@ -40,8 +40,9 @@ section { scroll-margin-top: 24px; }
 .callout .c { font-size: 13px; line-height: 1.35; color: var(--ck-text-3); }
 .callout[data-anchor='nozzle'] { --x: 77%; --y: 50%; }
 .callout[data-anchor='screen'] { --x: 0%; --y: 91%; }
-.callout[data-anchor='task'] { --x: -2%; --y: 68%; }
-.callout[data-anchor='task'] .c { max-width: 11em; }
+.callout[data-anchor='upkeep'] { --x: -4%; --y: 46%; }
+.callout[data-anchor='upkeep'] .c { max-width: 11.5em; }
+.callout .tx { color: inherit; }
 .stage-note { position: absolute; right: 0; top: 100%; margin-top: 6px; display: flex; gap: 12px; align-items: center; font-size: 13px; color: var(--ck-text-3); }
 
 /* Problem */
@@ -218,6 +219,7 @@ section { scroll-margin-top: 24px; }
   .stage { margin-bottom: 0; }
   .how-steps, .stats { grid-template-columns: 1fr; }
   .how-visual { min-height: 0; }
+  .how-visual.has-art .mini { position: relative; inset: auto; width: auto; margin: -48px 16px 0; }
   .care-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tile-meta { flex-direction: column; gap: 2px; }
   .sheet { transform: none; }

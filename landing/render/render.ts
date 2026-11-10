@@ -62,15 +62,17 @@ export function heroCallouts(d: LandingData): string {
   const thr = 'Metric' in nozzle.trigger ? Number((nozzle.trigger as { Metric: { threshold: number } }).Metric.threshold) : 0;
   const ov = nowOverride(d, a, 'nozzle_clean');
   const prod = fileTrigger(p, 'nozzle_clean');
-  const open = a.tasks.find((t) => ['Open', 'Claimed', 'Submitted'].includes(t.status));
-  const openOv = open ? taskOverride(d, a, open) : null;
-  const items = [
+  // The positive real story: the upkeep task the agent opened in judge step 7 and Mehmet approved in step 8.
+  const doneId = String(step(d, 7).outputs.task_id ?? '0');
+  const done = a.tasks.find((t) => t.id === doneId && t.status === 'Rewarded');
+  const approve = stepTx(d, 8, /approves/);
+  const items: [string, string, string, string][] = [
     ['nozzle', `${int(nozzle.due_value)} / ${int(thr)} s`, ov ? `Nozzle time · demo threshold (production: ${prod ? triggerText(prod) : '—'})` : 'Nozzle time since the last clean', 'nozzle'],
     ['screen', `${nearFixed(a.ledger.float_free)} / ${nearFixed(a.ledger.float_cap)} NEAR`, 'Float, capped', 'float'],
   ];
-  if (open)
-    items.push(['task', `<span class="ck-dot ck-dot--due" aria-hidden="true"></span> Task #${esc(open.id)} open`, `${RULE_NAME[open.rule_id] ?? open.rule_id}${openOv ? ' · opened under a demo override' : ''}`, 'task']);
-  return items.map(([k, v, c, live]) => `<li class="callout" data-anchor="${k}"><span class="v ck-num" data-live="${live}">${v}</span><span class="c">${esc(c!)}</span></li>`).join('');
+  if (done)
+    items.push(['upkeep', `${done.rule_id === 'nozzle_clean' ? 'Nozzle cleaned' : `${esc(RULE_NAME[done.rule_id] ?? done.rule_id)} done`}`, `Task #${esc(done.id)} by ${esc(firstLabel(done.claimer ?? ''))}, verified by ${esc(firstLabel(done.verifier ?? ''))} · ${txLink(approve.hash)}`, 'upkeep']);
+  return items.map(([k, v, c, live]) => `<li class="callout" data-anchor="${k}"><span class="v ck-num" data-live="${live}">${v}</span><span class="c">${k === 'upkeep' ? c : esc(c)}</span></li>`).join('');
 }
 
 // ---------- how it works ----------
@@ -83,6 +85,7 @@ export function how(d: LandingData): string {
   const open7 = stepTx(d, 7, /open_upkeep_task/);
   const approve = stepTx(d, 8, /approves/);
   const withRight = stepTx(d, 9, /with her right/);
+  const consumed = stepTx(d, 9, /finalize_right/);
   const t0ov = taskOverride(d, a, t0);
   const fee = BigInt(p.price_per_slot) * 2n;
   const card = (n: number, title: string, line: string, visual: string, foot: string, art?: string) => `<li class="how-step">
@@ -99,7 +102,7 @@ export function how(d: LandingData): string {
           <div><dt>Deposit, refundable</dt><dd class="ck-num">${nearFixed(p.deposit)} NEAR</dd></div>
         </dl>
         <p class="mini-ok"><span class="ck-dot" aria-hidden="true"></span>Confirmed on testnet</p>
-      </div>`, `Testnet ${txLink(reserve.hash)}`),
+      </div>`, `Testnet ${txLink(reserve.hash)}`, 'how-reserve'),
     card(2, 'Unlock', 'The bridge unlocks only for a valid on-chain reservation.', `<div class="mini ck-card">
         <p class="mini-k">Bridge access check</p>
         <ul class="mini-list">
@@ -122,10 +125,9 @@ export function how(d: LandingData): string {
         <dl class="ck-rows">
           <div><dt>Member</dt><dd>${esc(firstLabel(t0.claimer ?? ''))}</dd></div>
           <div><dt>Fee</dt><dd class="ck-num">0.00 NEAR</dd></div>
-          <div><dt>Right</dt><dd>used, as defined</dd></div>
+          <div><dt>Right</dt><dd>Consumed after the print</dd></div>
         </dl>
-        <p class="mini-ok"><span class="ck-dot" aria-hidden="true"></span>Confirmed on testnet</p>
-      </div>`, `Testnet ${txLink(withRight.hash)}`),
+      </div>`, `Reserved ${txLink(withRight.hash)} · consumed ${txLink(consumed.hash)}`, 'how-earn'),
   ].join('');
 }
 
@@ -166,9 +168,9 @@ export function money(d: LandingData): { lineup: string; stats: string } {
   const refund = stepTx(d, 5, /clean return/);
   const refundAmount = printer(d).p.deposit;
   const stats = [
-    [`${nearFixed(sum('total_fees_in'))} NEAR`, 'fees paid into the four machines', ''],
-    [`${nearFixed(sum('total_swept'))} NEAR`, `swept above the caps to ${daos} community treasuries`, txLink(sweep.hash)],
-    [`${nearFixed(refundAmount)} NEAR`, 'deposit refunded in full after a clean return; deposits are never spent', txLink(refund.hash)],
+    [`${nearFixed(sum('total_fees_in'))} NEAR`, 'fees paid in', ''],
+    [`${nearFixed(sum('total_swept'))} NEAR`, `swept to ${daos} DAO treasuries`, txLink(sweep.hash)],
+    [`${nearFixed(refundAmount)} NEAR`, 'deposit refunded in full; deposits are never spent', txLink(refund.hash)],
   ];
   return {
     lineup,
