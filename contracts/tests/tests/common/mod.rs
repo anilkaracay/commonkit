@@ -354,6 +354,26 @@ impl Env {
         Ok((id, last))
     }
 
+    /// Adds a proposal and casts the two deciding votes; returns the id and the outcome of the
+    /// deciding vote whatever the proposal's final status (Approved or Failed).
+    pub async fn propose_kind_and_vote(
+        &self,
+        kind: Value,
+        description: &str,
+    ) -> Result<(u64, ExecutionFinalResult)> {
+        let r = ok(self.council[0]
+            .call(self.dao.id(), "add_proposal")
+            .args_json(json!({"proposal": {"description": description, "kind": kind}}))
+            .deposit(yocto(BOND))
+            .gas(tgas(50))
+            .transact()
+            .await?)?;
+        let id: u64 = r.json()?;
+        ok(self.vote(id, 0, "VoteApprove").await?)?;
+        let last = self.vote(id, 1, "VoteApprove").await?;
+        Ok((id, last))
+    }
+
     pub async fn vote(&self, id: u64, who: usize, action: &str) -> Result<ExecutionFinalResult> {
         Ok(self.council[who]
             .call(self.dao.id(), "act_proposal")
