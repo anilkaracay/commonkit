@@ -5,9 +5,11 @@
  *   tsx verify.ts [--allow-pending]   --allow-pending: accounts still marked keyless "pending"
  *                                     (before M1c sign-off) print ⏳ instead of ❌
  */
+import './demo/lib/rpc-throttle.mjs';
 import { existsSync } from 'node:fs';
 import { NearRpc, RpcError, yoctoToNear } from '@commonkit/sdk';
-import { RPC_URLS, SPUTNIK_FACTORY, WASM_PATHS } from './lib/config.js';
+import { EVIDENCE_DIR, RPC_URLS, SPUTNIK_FACTORY, WASM_PATHS } from './lib/config.js';
+import { runEvidenceChecks } from './demo/lib/verify-checks.js';
 import { codeHash } from './lib/code.js';
 import { loadDeployments, type Deployments } from './lib/deployments.js';
 import { RESERVE_MAX_USAGE_PCT } from './lib/funding.js';
@@ -257,9 +259,9 @@ async function main(): Promise<void> {
   await checkDaos(dep);
   await checkWiring(dep);
   await checkLedgers(dep);
-  console.log(
-    '\nℹ️ TEST_PLAN §6 checks 6–11 (sweeps vs evidence, rights ↔ tasks, escalations, reimbursement caps, service log, 21 evidence steps) arrive with the demo steps (M6).',
-  );
+  // TEST_PLAN §6 checks 6–11: sweeps, rights ↔ tasks, escalations, reimbursement caps, service log, evidence steps.
+  for (const l of await runEvidenceChecks(view, dep, EVIDENCE_DIR))
+    out(l.check, l.info ? 'ℹ️' : l.ok ? '✅' : '❌', l.text);
   const failed = lines.filter((l) => l.mark === '❌').length;
   console.log(
     `\n${failed === 0 ? '✅ all checks passed' : `❌ ${failed} check(s) failed`} (${lines.length} lines)`,
