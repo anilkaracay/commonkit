@@ -612,6 +612,106 @@
     "timestamp": "2026-11-10T05:31:57.248Z"
   },
   {
+    "step": 9,
+    "title": "Ayşe reserves the printer with an earned right (no fee) and prints on the emulated printer",
+    "core": false,
+    "simulated": true,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "5HGbP8ji8pyb53vJdCqhWWJzoVGpVDynx1v11HKouyD6",
+      "7A414BdkYUzcP7LJbGtdajXCDSHE9WyRLfpFnzER6G9s",
+      "77GL79HW25Rn6bNoJRnvhDFWrGiWBXhw33WL92Thoe7a",
+      "7Ze39MQyQ3SDJJk92QAjoRY9Ur5XD6YSRRCwMcStgJNk"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/5HGbP8ji8pyb53vJdCqhWWJzoVGpVDynx1v11HKouyD6",
+      "https://testnet.nearblocks.io/txns/7A414BdkYUzcP7LJbGtdajXCDSHE9WyRLfpFnzER6G9s",
+      "https://testnet.nearblocks.io/txns/77GL79HW25Rn6bNoJRnvhDFWrGiWBXhw33WL92Thoe7a",
+      "https://testnet.nearblocks.io/txns/7Ze39MQyQ3SDJJk92QAjoRY9Ur5XD6YSRRCwMcStgJNk"
+    ],
+    "transactions": [
+      {
+        "label": "Ayşe reserves printer-01 with her right (1 slot from slot 996829, right right-3; fee 0 NEAR + deposit 2 NEAR)",
+        "hash": "5HGbP8ji8pyb53vJdCqhWWJzoVGpVDynx1v11HKouyD6",
+        "ok": true,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "right_locked",
+          "reservation_confirmed"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "bridge mark_session_started",
+        "hash": "7A414BdkYUzcP7LJbGtdajXCDSHE9WyRLfpFnzER6G9s",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "bridge mark_session_finished (emulated job done) → finalize_right",
+        "hash": "77GL79HW25Rn6bNoJRnvhDFWrGiWBXhw33WL92Thoe7a",
+        "ok": true,
+        "by": "bridge.commonkit-sxflo.testnet"
+      },
+      {
+        "label": "steward (Elif) confirms a clean return (deposit refund)",
+        "hash": "7Ze39MQyQ3SDJJk92QAjoRY9Ur5XD6YSRRCwMcStgJNk",
+        "ok": true,
+        "by": "elif.makerlab.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "op_created",
+          "return_confirmed",
+          "reputation_recorded",
+          "op_result"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "right Locked by printer-01 for this reservation",
+        "ok": true,
+        "detail": "{\"state\":\"Locked\",\"asset\":\"printer-01.makerlab.commonkit-sxflo.testnet\",\"reservation_id\":\"2\"}"
+      },
+      {
+        "what": "no fee with a right; deposit still held",
+        "ok": true,
+        "detail": "{\"fee\":\"0\",\"right\":\"right-3\"}"
+      },
+      {
+        "what": "bridge grants access (200)",
+        "ok": true,
+        "detail": "200"
+      },
+      {
+        "what": "right Locked → Consumed after the session",
+        "ok": true,
+        "detail": "{\"state\":\"Consumed\",\"asset\":\"printer-01.makerlab.commonkit-sxflo.testnet\",\"reservation_id\":\"2\"}"
+      },
+      {
+        "what": "reservation Closed",
+        "ok": true,
+        "detail": "Closed"
+      },
+      {
+        "what": "printer ledger invariant holds",
+        "ok": true
+      }
+    ],
+    "notes": [
+      "printer-01: booked the next slot; its start window opens in 28 min (chain time)"
+    ],
+    "outputs": {
+      "reservation_id": "2",
+      "right_id": "right-3"
+    },
+    "timestamp": "2026-11-10T06:30:44.922Z"
+  },
+  {
     "step": 10,
     "title": "Agent escalates a nozzle kit purchase; the printer contract opens a Sputnik Transfer proposal; the council approves; the DAO pays the supplier",
     "core": false,

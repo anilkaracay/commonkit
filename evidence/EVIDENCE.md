@@ -5,7 +5,7 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ## Judge flow
 
-19 of 21 steps passed. ★ = one of the five core steps shown in the README.
+20 of 21 steps passed. ★ = one of the five core steps shown in the README.
 
 | # | Step | Result | Transactions |
 | :--- | :--- | :--- | :--- |
@@ -17,6 +17,7 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | 6 | More fees push the printer float over its cap; the excess is swept to the DAO treasury ★ | ✅ | [DBTLyXkr…](https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S) |
 | 7 | Telemetry crossed nozzle_clean; the agent opens the upkeep task with a rationale ★ (simulation) | ✅ | [AbQSVeSa…](https://testnet.nearblocks.io/txns/AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem) |
 | 8 | Ayşe claims and submits; the bridge runs a calibration print; Mehmet approves; 2 rights minted ★ (simulation) | ✅ | [GZfCTLk4…](https://testnet.nearblocks.io/txns/GZfCTLk4VvcijK7BfSMwmFYYCpRfmwXZ3LdsNvEjXMJ1) [ChE95bYQ…](https://testnet.nearblocks.io/txns/ChE95bYQJJWomAfU4PxxbtMADQ6VajRhwxtwkTyTXzqp) [5RAh6R1w…](https://testnet.nearblocks.io/txns/5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr) [Gr7bwqmC…](https://testnet.nearblocks.io/txns/Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx) |
+| 9 | Ayşe reserves the printer with an earned right (no fee) and prints on the emulated printer (simulation) | ✅ | [5HGbP8ji…](https://testnet.nearblocks.io/txns/5HGbP8ji8pyb53vJdCqhWWJzoVGpVDynx1v11HKouyD6) [7A414Bdk…](https://testnet.nearblocks.io/txns/7A414BdkYUzcP7LJbGtdajXCDSHE9WyRLfpFnzER6G9s) [77GL79HW…](https://testnet.nearblocks.io/txns/77GL79HW25Rn6bNoJRnvhDFWrGiWBXhw33WL92Thoe7a) [7Ze39MQy…](https://testnet.nearblocks.io/txns/7Ze39MQyQ3SDJJk92QAjoRY9Ur5XD6YSRRCwMcStgJNk) |
 | 10 | Agent escalates a nozzle kit purchase; the printer contract opens a Sputnik Transfer proposal; the council approves; the DAO pays the supplier  | ✅ | [4vcji9GS…](https://testnet.nearblocks.io/txns/4vcji9GSXnsZcSwhN74r1raEnRZXVnEVUpPFHeCYh3Df) [HMvXQbeE…](https://testnet.nearblocks.io/txns/HMvXQbeEK659LDKgNsHk2ySW5ZopAMAGo7ZYzCQKvfip) [AdosFdrv…](https://testnet.nearblocks.io/txns/AdosFdrvh23pf5ZWTY6AaoETN38BBpgMYtfyUfS3TSjg) [G3NUkpTv…](https://testnet.nearblocks.io/txns/G3NUkpTvpBjuUBQDSvYG1dJm2TQ7VVTXqTup892p9SeY) [7km7HAcH…](https://testnet.nearblocks.io/txns/7km7HAcHZq42qNp9C4K1E2SvCbyeEW5fzpU7Gw6K1nAN) |
 | 11 | Zeynep reserves the laser without the laser_safety credential: rejected, refunded  | ✅ | [DWyA3hq1…](https://testnet.nearblocks.io/txns/DWyA3hq1TyJwyafuZGVr3CmfagmpBMokLeYMLyji2Es3) |
 | 12 | Ayşe proposes Zeynep’s laser training; Mehmet approves; Zeynep gets laser_safety, Ayşe a laser-group right  | ✅ | [B2CwNMwt…](https://testnet.nearblocks.io/txns/B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG) [6wdSrqts…](https://testnet.nearblocks.io/txns/6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM) |
@@ -156,6 +157,25 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | [5RAh6R1w…](https://testnet.nearblocks.io/txns/5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr) | bridge submit_verification_result (calibration print on the emulated Moonraker) | bridge.commonkit-sxflo.testnet | ok |
 | [Gr7bwqmC…](https://testnet.nearblocks.io/txns/Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx) | Mehmet (verifier, independent) approves | mehmet.commonkit-sxflo.testnet | ok |
 - Note: task already Rewarded (earlier attempt)
+
+### Step 9 — Ayşe reserves the printer with an earned right (no fee) and prints on the emulated printer (simulation)
+
+✅ passed · 2026-11-10 06:30:44 UTC
+
+- ✅ right Locked by printer-01 for this reservation — `{"state":"Locked","asset":"printer-01.makerlab.commonkit-sxflo.testnet","reservation_id":"2"}`
+- ✅ no fee with a right; deposit still held — `{"fee":"0","right":"right-3"}`
+- ✅ bridge grants access (200) — `200`
+- ✅ right Locked → Consumed after the session — `{"state":"Consumed","asset":"printer-01.makerlab.commonkit-sxflo.testnet","reservation_id":"2"}`
+- ✅ reservation Closed — `Closed`
+- ✅ printer ledger invariant holds
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [5HGbP8ji…](https://testnet.nearblocks.io/txns/5HGbP8ji8pyb53vJdCqhWWJzoVGpVDynx1v11HKouyD6) | Ayşe reserves printer-01 with her right (1 slot from slot 996829, right right-3; fee 0 NEAR + deposit 2 NEAR) | ayse.commonkit-sxflo.testnet | ok |
+| [7A414Bdk…](https://testnet.nearblocks.io/txns/7A414BdkYUzcP7LJbGtdajXCDSHE9WyRLfpFnzER6G9s) | bridge mark_session_started | bridge.commonkit-sxflo.testnet | ok |
+| [77GL79HW…](https://testnet.nearblocks.io/txns/77GL79HW25Rn6bNoJRnvhDFWrGiWBXhw33WL92Thoe7a) | bridge mark_session_finished (emulated job done) → finalize_right | bridge.commonkit-sxflo.testnet | ok |
+| [7Ze39MQy…](https://testnet.nearblocks.io/txns/7Ze39MQyQ3SDJJk92QAjoRY9Ur5XD6YSRRCwMcStgJNk) | steward (Elif) confirms a clean return (deposit refund) | elif.makerlab.commonkit-sxflo.testnet | ok |
+- Note: printer-01: booked the next slot; its start window opens in 28 min (chain time)
 
 ### Step 10 — Agent escalates a nozzle kit purchase; the printer contract opens a Sputnik Transfer proposal; the council approves; the DAO pays the supplier
 
