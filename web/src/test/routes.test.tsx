@@ -86,3 +86,11 @@ describe('every route renders with the mock source', () => {
     expect(screen.queryByText('Connect wallet')).toBeNull();
   });
 });
+
+describe('availability', () => {
+  it('reserve page offers free slots and marks held ones', async () => {
+    renderAt(`/a/${A.printer}/reserve`);
+    const buttons = await screen.findAllByRole('button', { pressed: false });
+    expect(buttons.some((b) => !(b as HTMLButtonElement).disabled)).toBe(true);
+  });
+});

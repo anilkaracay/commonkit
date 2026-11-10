@@ -231,7 +231,7 @@ export function AssetPage() {
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <Section title="Next slots" eyebrow={`${s.profile.slot_minutes} min each · UTC`}>
           <ol className="grid grid-cols-4 gap-1.5 sm:grid-cols-6">
-            {(avail.data ?? []).map((holder, i) => {
+            {(avail.data ?? []).map(({ reservation_id: holder }, i) => {
               const slotNo = nowSlot + BigInt(i);
               return (
                 <li

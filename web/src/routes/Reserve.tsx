@@ -39,7 +39,8 @@ export function ReservePage() {
   if (!q.data || !avail.data) return <Loading what="availability" />;
   const p = q.data.profile;
   const sim = p.adapter === 'simulator';
-  const slots = avail.data;
+  // Holding reservation id per slot (null = free), from get_availability's SlotInfo list.
+  const slots = avail.data.map((x) => x.reservation_id);
 
   const chosen = start === null ? [] : slots.slice(start, start + count);
   const taken = chosen.some((h) => h !== null) || (start !== null && start + count > slots.length);
