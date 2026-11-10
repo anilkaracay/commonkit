@@ -21,6 +21,7 @@ import type { Card, Ledger, Op, Reservation, RuleStatus, Task } from '../demo/li
 import { AGENT_METHODS, BRIDGE_METHODS } from '../lib/topology.js';
 import { NEAR, SandboxChain, SandboxDao, TGAS, type Tx } from './chain.js';
 import { bridgeAssetConfig, fmtNear, type Plan } from './plan.js';
+import { track } from './cleanup.js';
 import { freePort } from './sandbox.js';
 
 export interface StepResult {
@@ -199,6 +200,7 @@ export async function runSandboxLoop(world: World, plan: Plan): Promise<LoopResu
   const assetId = `${plan.assetType.replace(/_/g, '-')}.${chain.root}`;
   const steps: StepResult[] = [];
   const procs: Proc[] = [];
+  const untrack: Array<() => void> = [];
   const step = (label: string, ok: boolean, tx: Tx | string | null, detail = ''): void => {
     const hash = tx === null ? null : typeof tx === 'string' ? tx : tx.hash;
     steps.push({ label, ok, tx: hash, detail });
@@ -272,6 +274,7 @@ export async function runSandboxLoop(world: World, plan: Plan): Promise<LoopResu
       { cwd: bridgeDir, env: { SIM_BRIDGE_KEY: bk.secret }, logFile: join(runDir, 'bridge.log') },
     );
     procs.push(bridgeProc);
+    untrack.push(track({ stop: () => bridgeProc.stop(), kill: () => bridgeProc.child.kill('SIGKILL') }));
     const client = new BridgeClient(`http://127.0.0.1:${port}`, (account) => (pl) => signNep413(pl, chain.secretOf(account) as KeyPairString));
     const health = await waitFor(
       'bridge /health',
@@ -350,6 +353,7 @@ export async function runSandboxLoop(world: World, plan: Plan): Promise<LoopResu
       logFile: join(agentRun, 'agent.log'),
     });
     procs.push(agentProc);
+    untrack.push(track({ stop: () => agentProc.stop(), kill: () => agentProc.child.kill('SIGKILL') }));
     const opened = await waitFor(
       'the agent to open the task',
       async () => {
@@ -481,5 +485,6 @@ export async function runSandboxLoop(world: World, plan: Plan): Promise<LoopResu
     return { assetType: plan.assetType, assetId, mode: 'sandbox', rule: `${plan.rule.rule_id} (${plan.rule.kind})`, ok: false, ms: Date.now() - t0, steps, codeHash, invariantOk, error: msg };
   } finally {
     for (const pr of procs.reverse()) await pr.stop();
+    for (const u of untrack) u();
   }
 }

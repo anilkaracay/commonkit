@@ -135,6 +135,8 @@ export interface SandboxNode {
   rootKey: string;
   binary: string;
   stop(): Promise<void>;
+  /** Synchronous last resort (process exit). */
+  kill(): void;
 }
 
 /** `near-sandbox init --fast` in a fresh temp home, then `run` on free local ports. */
@@ -193,5 +195,8 @@ export async function startSandbox(binary: string, logFile: string): Promise<San
     }
     await new Promise((r) => setTimeout(r, 250));
   }
-  return { rpcUrl, home, rootAccount: key.account_id, rootKey: key.secret_key, binary, stop };
+  const kill = (): void => {
+    if (child.exitCode === null) child.kill('SIGKILL');
+  };
+  return { rpcUrl, home, rootAccount: key.account_id, rootKey: key.secret_key, binary, stop, kill };
 }

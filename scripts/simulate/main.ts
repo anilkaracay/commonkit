@@ -12,6 +12,7 @@ import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { SandboxChain } from './chain.js';
+import { installSignalCleanup, track } from './cleanup.js';
 import { runSandboxLoop, setupWorld, type LoopResult, type StepResult } from './loop.js';
 import { listProfiles, loadPlan, type Plan } from './plan.js';
 import { downloadSandboxBinary, locateSandboxBinary, startSandbox, SANDBOX_VERSION } from './sandbox.js';
@@ -71,6 +72,7 @@ async function runSandbox(plans: Plan[], runDir: string): Promise<{ results: Loo
   }
   log(`near-sandbox ${SANDBOX_VERSION}: ${bin.path} (${bin.source})`);
   const node = await startSandbox(bin.path, join(runDir, 'sandbox.log'));
+  const untrack = track(node);
   log(`local sandbox chain up at ${node.rpcUrl} (root ${node.rootAccount}; private, throw-away keys)`);
   try {
     const chain = new SandboxChain(node.rpcUrl, node.rootAccount, node.rootKey);
@@ -86,6 +88,7 @@ async function runSandbox(plans: Plan[], runDir: string): Promise<{ results: Loo
     return { results, setup: steps };
   } finally {
     await node.stop();
+    untrack();
   }
 }
 
@@ -106,6 +109,7 @@ async function main(): Promise<number> {
   const runDir = join(REPO_ROOT, 'bridge', 'state', 'simulate', runId);
   mkdirSync(runDir, { recursive: true });
   const mode = values.fake ? 'fake' : 'sandbox';
+  installSignalCleanup(LABEL);
   log(
     mode === 'sandbox'
       ? 'SIMULATION on a private local NEAR sandbox: real asset/commons WASMs, real Sputnik DAO, real bridge + agent; simulated/emulated devices. Not testnet.'
