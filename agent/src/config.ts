@@ -31,7 +31,7 @@ export const configSchema = z.object({
   network: z.literal("testnet"),
   agent_account: accountId,
   chain: z.enum(["fake", "near"]),
-  rpc_url: z.string().url().default("https://rpc.testnet.near.org"),
+  rpc_url: z.string().url().default("https://test.rpc.fastnear.com"),
   poll_seconds: z.number().positive().default(30),
   sync_every_seconds: z.number().positive().default(60),
   listen: z.object({ host: z.string().default("127.0.0.1"), port: z.number().int().positive().default(8788) }).default({ host: "127.0.0.1", port: 8788 }),

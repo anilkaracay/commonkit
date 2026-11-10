@@ -4,7 +4,8 @@
  */
 import { z } from 'zod';
 
-export const TESTNET_RPC = 'https://rpc.testnet.near.org';
+/** Research B6 / D-106: FastNEAR primary; rpc.testnet.near.org is deprecated and rate-limited (-429). */
+export const TESTNET_RPC = 'https://test.rpc.fastnear.com';
 
 export type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 
