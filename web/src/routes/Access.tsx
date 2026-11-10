@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { BRIDGE_URL, bridgeMessage, requestAccess, type AccessResult } from '../bridge/client';
+import { useWallet } from '../wallet/wallet';
 import { useAssetSnapshot } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { Pill, SimulatedBadge } from '../components/Badges';
@@ -16,7 +19,22 @@ export function AccessPage() {
   const ds = useDataSource();
   const q = useAssetSnapshot(assetId);
   const link = useDemoLink();
+  const wallet = useWallet();
+  const [result, setResult] = useState<AccessResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const r = q.data?.reservations.find((x) => x.id === reservationId);
+  const start = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      setResult(await requestAccess(wallet, assetId, reservationId));
+    } catch (e) {
+      setError(bridgeMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  };
   const check = useQuery({
     queryKey: ['can_access', ds.kind, assetId, reservationId, r?.holder],
     enabled: !!r,
@@ -60,10 +78,29 @@ export function AccessPage() {
       </ol>
 
       <WalletGate action="Starting a session">
-        <button type="button" className="rounded-full bg-ink px-5 py-2 font-medium text-paper">
+        <button type="button" disabled={busy} onClick={() => void start()} className="rounded-full bg-ink px-5 py-2 font-medium text-paper disabled:opacity-50">
           Start
         </button>
+        <p className="mt-2 text-xs text-ink-3">Bridge: {BRIDGE_URL}</p>
       </WalletGate>
+      {error && (
+        <p role="alert" className="rounded-tag bg-danger-soft p-3 text-sm text-danger">
+          {error}
+        </p>
+      )}
+      {result && (
+        <div className="tag space-y-1 p-4 text-sm">
+          <p className="font-medium text-alive">
+            Session {result.resumed ? 'resumed' : 'started'} · {result.session_id}
+          </p>
+          <p className="text-xs text-ink-3">signed with a {result.key_permission} key · emulated device (SIMULATED)</p>
+          {result.device?.manual_qr && (
+            <p>
+              Handover code for the steward: <span className="num font-semibold">{result.device.manual_qr.handover_code}</span>
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

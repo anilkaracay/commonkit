@@ -1,6 +1,6 @@
 /**
- * Wallet boundary. The connector is chosen in research B17 and wired in M7; until then the app
- * runs with `unavailableWallet`, so every page renders read-only and actions explain why.
+ * Wallet boundary. The app uses `NearConnectProvider` (nearConnect.tsx); tests and environments
+ * without a wallet use `unavailableWallet`, so every page still renders read-only.
  */
 import { createContext, useContext } from 'react';
 import type { AccountId } from '../data/types';
@@ -30,6 +30,8 @@ export interface Nep413Signed {
 export interface WalletProvider {
   readonly status: 'unavailable' | 'disconnected' | 'connected';
   readonly accountId: AccountId | null;
+  /** false while a stored session is being restored. */
+  readonly ready?: boolean;
   /** Shown when status is 'unavailable'. */
   readonly unavailableReason?: string;
   connect(): Promise<void>;
@@ -38,7 +40,7 @@ export interface WalletProvider {
   signMessage(req: Nep413Request): Promise<Nep413Signed>;
 }
 
-const reason = 'Wallet connection is not wired yet: the connector is being chosen (research B17) and lands in M7.';
+const reason = 'No wallet connector in this environment.';
 const notYet = () => Promise.reject(new Error(reason));
 
 export const unavailableWallet: WalletProvider = {

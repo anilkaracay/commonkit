@@ -4,6 +4,7 @@ import { useDataSource } from '../data/source';
 import { DemoOverlay, DemoProvider, useDemo, useDemoLink } from '../demo/demo';
 import { useWallet } from '../wallet/wallet';
 import { MockBanner } from './Badges';
+import { useToast } from './Toast';
 
 const NAV = [
   ['/', 'Board'],
@@ -14,15 +15,16 @@ const NAV = [
 
 function WalletButton() {
   const wallet = useWallet();
+  const toast = useToast();
   const { enabled } = useDemo();
   if (enabled) return null; // demo mode hides wallet chrome
   return (
     <button
       type="button"
-      onClick={() => void wallet.connect().catch(() => {})}
+      onClick={() => void (wallet.accountId ? wallet.disconnect() : wallet.connect()).catch((e: unknown) => toast.showError(e))}
       disabled={wallet.status === 'unavailable'}
-      title={wallet.unavailableReason}
-      className="rounded-full border border-line-strong px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-60"
+      title={wallet.accountId ? `Connected as ${wallet.accountId}. Click to disconnect.` : wallet.unavailableReason}
+      className="max-w-[12rem] truncate rounded-full border border-line-strong px-3 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-60"
     >
       {wallet.accountId ?? 'Connect wallet'}
     </button>
@@ -113,6 +115,8 @@ function Frame() {
         <div className="mx-auto flex max-w-6xl flex-wrap gap-x-4 gap-y-1 px-4 py-4 text-xs text-ink-3">
           <NavLink to={link('/train')}>Trainings</NavLink>
           <NavLink to={link('/approvals')}>Approvals</NavLink>
+          <NavLink to={link('/pilot')}>Pilot</NavLink>
+          <a href="/">About</a>
           <span>{sourceNote(pathname, ds.kind)}</span>
           <span className="ml-auto">
             <ThemeToggle />

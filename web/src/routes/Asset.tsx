@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { AssetAction, parseAction } from '../components/AssetAction';
 import { useAssetSnapshot, useCommunities, useDeployment, useEvidence } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import type { Reservation } from '../data/types';
@@ -10,7 +11,6 @@ import { KeepersList } from '../components/KeepersList';
 import { UpkeepGauge, RuleBars } from '../components/UpkeepGauge';
 import { OutOfServiceBand } from '../components/AssetCard';
 import { useWallet } from '../wallet/wallet';
-import { useToast } from '../components/Toast';
 import { Empty, LoadError, Loading, Section } from '../components/Section';
 import { TaskRow } from '../components/TaskRow';
 import { Account, TxLink } from '../components/TxLink';
@@ -39,7 +39,9 @@ export function AssetPage() {
   const comms = useCommunities();
   const link = useDemoLink();
   const wallet = useWallet();
-  const toast = useToast();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const action = parseAction(params.get('action'));
   const now = ds.now();
 
   const slotMinutes = q.data?.profile.slot_minutes ?? 60;
@@ -124,11 +126,7 @@ export function AssetPage() {
             type="button"
             disabled={wallet.status !== 'connected'}
             title={wallet.status === 'connected' ? 'Report a fault (needs a session in the last 14 days)' : (wallet.unavailableReason ?? 'Connect a wallet to report a fault')}
-            onClick={() =>
-              void wallet
-                .signAndSendTransaction({ receiverId: assetId, methodName: 'report_fault', args: { rule_id: null, note_hash: '' }, deposit: 0n })
-                .catch((e: unknown) => toast.showError(e))
-            }
+            onClick={() => navigate(link(`/a/${assetId}?action=fault`))}
             className="rounded-full border border-danger px-4 py-1.5 text-sm font-medium text-danger disabled:cursor-not-allowed disabled:opacity-50"
           >
             Report a fault
@@ -145,6 +143,8 @@ export function AssetPage() {
           <span className="ml-auto text-xs text-ink-3">status from chain · bridge live feed connects in M7</span>
         </div>
       </header>
+
+      {action && <AssetAction action={action} snap={s} />}
 
       {sim && <SimulationPanel />}
 

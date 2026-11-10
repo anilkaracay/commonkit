@@ -8,6 +8,7 @@ import './styles/index.css';
 import { AppProviders, makeQueryClient } from './App';
 import { routes } from './routes';
 import { createRpcSource } from './data/rpc/rpcSource';
+import { NearConnectProvider } from './wallet/nearConnect';
 
 // Testnet views via NEAR RPC + files bundled at build time. The mock source is for tests only.
 const source = createRpcSource({ rpcUrl: import.meta.env.VITE_NEAR_RPC as string | undefined });
@@ -19,7 +20,9 @@ if (!el) throw new Error('#root missing');
 createRoot(el).render(
   <StrictMode>
     <AppProviders source={source} queryClient={makeQueryClient()}>
-      <RouterProvider router={router} />
+      <NearConnectProvider>
+        <RouterProvider router={router} />
+      </NearConnectProvider>
     </AppProviders>
   </StrictMode>,
 );

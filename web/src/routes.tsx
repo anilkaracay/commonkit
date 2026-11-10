@@ -11,6 +11,7 @@ import { TrainPage } from './routes/Train';
 import { ApprovalsPage } from './routes/Approvals';
 import { ProofPage } from './routes/Proof';
 import { AgentPage } from './routes/Agent';
+import { PilotPage } from './routes/Pilot';
 import { NotFoundPage } from './routes/NotFound';
 
 /** FRONTEND_SPEC §2 */
@@ -29,6 +30,7 @@ export const routes: RouteObject[] = [
       { path: '/approvals', element: <ApprovalsPage /> },
       { path: '/proof', element: <ProofPage /> },
       { path: '/agent', element: <AgentPage /> },
+      { path: '/pilot', element: <PilotPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
