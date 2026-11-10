@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COMMONKIT, direction C: Public ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=Public+Sans:ital,wght@0,400..700;1,400&family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Direction C, "Public ledger": white paper, navy ink, ledger rules, one oxblood red-ink accent */
+  --paper: #f9f9f6;
+  --paper-2: #f0f2f3;   /* shaded column */
+  --ink: #0e1a2b;       /* 16.6:1 on paper */
+  --ink-2: #4b5566;     /* 7.1:1 */
+  --rule: #cdd5de;      /* ledger ruling, decorative */
+  --red: #8e1c2e;       /* red ink: totals, refusals, due (8.5:1) */
+  --display: "Newsreader", Georgia, serif;
+  --text: "Public Sans", system-ui, sans-serif;
+  --mono: "Fragment Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--paper); color: var(--ink); font: 400 16px/1.6 var(--text); -webkit-font-smoothing: antialiased; }
+body { background: var(--paper); }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.fig { font-family: var(--display); font-variant-numeric: lining-nums tabular-nums; font-optical-sizing: auto; }
+.sc { font: 600 11px/1.3 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.mono { font-family: var(--mono); font-size: .86em; }
+sup.fn { font: 600 10px/0 var(--text); color: var(--red); margin-left: 1px; }
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 64px; }
+
+/* Masthead */
+.mast { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 22px 0 16px; border-bottom: 1px solid var(--ink); }
+.mast .name { font: 600 22px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; justify-self: center; text-decoration: none; }
+.mast nav { justify-self: end; display: flex; gap: 26px; }
+.mast nav a { text-decoration: none; font-size: 14px; font-weight: 500; }
+.mast nav a.cta { border-bottom: 1.5px solid var(--red); color: var(--red); font-weight: 600; }
+.dateline { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 3px double var(--ink); }
+
+/* Hero */
+.hero { display: grid; grid-template-columns: minmax(0, 6.4fr) minmax(0, 5.6fr); gap: 56px; padding: 44px 0 40px; }
+h1 { font: 400 92px/.98 var(--display); font-variation-settings: "opsz" 72; letter-spacing: -.022em; text-wrap: balance; }
+h1 i { display: block; font-weight: 300; color: var(--ink-2); font-size: .62em; line-height: 1.06; margin-top: 18px; letter-spacing: -.012em; }
+.lede { columns: 2; column-gap: 32px; margin-top: 30px; font-size: 16px; line-height: 1.6; padding-top: 18px; border-top: 1px solid var(--rule); }
+.lede::first-letter { font: 400 58px/.8 var(--display); float: left; margin: 6px 3px 0 0; color: var(--red); }
+.ctas { display: flex; gap: 22px; margin-top: 26px; align-items: center; }
+.btn { display: inline-flex; align-items: center; gap: 10px; height: 50px; padding: 0 24px; background: var(--ink); color: var(--paper); text-decoration: none; font: 600 15px var(--text); }
+.btn:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.link { font-weight: 600; font-size: 15px; }
+
+/* The ledger extract */
+.ledger { border-top: 2px solid var(--ink); align-self: start; }
+.ledger-h { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0 8px; border-bottom: 1px solid var(--ink); }
+.ledger-h b { font: 600 19px/1.2 var(--display); }
+.ledger-h .mono { color: var(--ink-2); font-size: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font: 600 10.5px/1.3 var(--text); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); padding: 9px 8px 7px; border-bottom: 1px solid var(--ink); }
+th.n, td.n { text-align: right; }
+td { padding: 10px 8px 9px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.35; }
+td.step { font: 400 14px var(--display); color: var(--ink-2); width: 44px; font-variant-numeric: lining-nums tabular-nums; }
+td.n { font: 400 17px/1.2 var(--display); font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+td.n small { display: block; font: 400 12px var(--text); color: var(--ink-2); font-variant-numeric: tabular-nums; margin-top: 2px; }
+col.dep, td.dep, th.dep { background: var(--paper-2); }
+td .who { color: var(--ink-2); font-size: 12.5px; display: block; }
+tr.total td { border-bottom: 0; border-top: 1px solid var(--ink); }
+tr.total td.n { font-weight: 600; text-decoration: underline double var(--red); text-underline-offset: 5px; text-decoration-thickness: 1px; }
+tr.refused td { color: var(--red); }
+tr.refused .what { text-decoration: line-through; text-decoration-thickness: 1px; }
+tr.refused .why { display: block; font: 400 12px var(--mono); margin-top: 3px; text-decoration: none; }
+.simtag { display: inline-block; font: 600 9.5px/1 var(--text); letter-spacing: .12em; text-transform: uppercase; padding: 3px 5px 2px; border: 1px solid var(--ink); margin-left: 6px; vertical-align: 2px; }
+.notes { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; font-size: 12px; color: var(--ink-2); }
+.notes span b { color: var(--red); font-weight: 600; margin-right: 4px; }
+.notes a { font-family: var(--mono); font-size: 11.5px; }
+
+/* Section: the books of one machine */
+.s2 { border-top: 3px double var(--ink); padding: 56px 0 64px; display: grid; grid-template-columns: 3fr 6fr 3fr; gap: 48px; }
+.s2 .kicker h2 { font: 400 46px/1.02 var(--display); letter-spacing: -.015em; }
+.s2 .kicker p { margin-top: 16px; color: var(--ink-2); font-size: 15px; }
+.chap { display: grid; grid-template-columns: 200px 1fr; gap: 26px; padding: 22px 0 24px; border-top: 1px solid var(--rule); position: relative; }
+.chap:first-child { border-top: 1px solid var(--ink); }
+.chap .big { font: 300 64px/.9 var(--display); font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.02em; }
+.chap .big small { display: block; font: 600 10.5px/1.4 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-top: 10px; }
+.chap .big.red { color: var(--red); }
+.chap h3 { font: 600 21px/1.25 var(--display); }
+.chap h3 .roman { font-weight: 400; color: var(--red); margin-right: 8px; font-style: italic; }
+.chap p { margin-top: 6px; font-size: 15.5px; color: var(--ink); max-width: 36em; }
+.equation { margin-top: 28px; padding: 18px 0 16px; border-top: 1px solid var(--ink); border-bottom: 3px double var(--ink); font: italic 400 21px/1.45 var(--display); text-align: center; }
+.equation .op { font-style: normal; color: var(--ink-2); margin: 0 6px; }
+.equation .sc { display: block; font-style: normal; margin-bottom: 6px; }
+aside.side { font-size: 13px; color: var(--ink-2); border-top: 1px solid var(--ink); padding-top: 14px; }
+aside.side ol { padding-left: 18px; display: grid; gap: 12px; }
+aside.side li::marker { color: var(--red); font-weight: 600; }
+aside.side b { color: var(--ink); font-weight: 600; display: block; }
+aside.side a { font-family: var(--mono); font-size: 11.5px; overflow-wrap: anywhere; }
+
+/* App card: account card */
+.s3 { border-top: 3px double var(--ink); padding: 56px 0 72px; display: grid; grid-template-columns: 1fr 520px; gap: 72px; align-items: start; }
+.s3 h2 { font: 400 46px/1.02 var(--display); letter-spacing: -.015em; }
+.s3 > div > p { margin-top: 16px; color: var(--ink-2); max-width: 30em; }
+.acard { background: #fff; border: 1px solid var(--ink); }
+.acard-h { padding: 18px 22px 14px; border-bottom: 3px double var(--ink); display: grid; grid-template-columns: 1fr auto; gap: 14px; }
+.acard-h h3 { font: 500 28px/1.05 var(--display); letter-spacing: -.01em; }
+.acard-h .mono { display: block; margin-top: 6px; color: var(--ink-2); font-size: 12px; overflow-wrap: anywhere; }
+.instat { font: 600 11px/1.3 var(--text); letter-spacing: .1em; text-transform: uppercase; display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+.instat i { width: 7px; height: 7px; background: var(--ink); border-radius: 50%; }
+.simrow { display: flex; gap: 10px; align-items: baseline; padding: 9px 22px; border-bottom: 1px solid var(--rule); font-size: 13px; color: var(--ink-2); background: var(--paper-2); }
+.simrow .simtag { margin-left: 0; }
+.line { padding: 16px 22px 16px; border-bottom: 1px solid var(--rule); }
+.line .hd { display: flex; justify-content: space-between; align-items: baseline; }
+.line .fig.big { font-size: 44px; line-height: 1; font-weight: 400; margin-top: 6px; letter-spacing: -.01em; }
+.line .fig.big small { font: 400 14px var(--text); color: var(--ink-2); margin-left: 8px; letter-spacing: 0; }
+.due { color: var(--red); font: 600 11px var(--text); letter-spacing: .1em; text-transform: uppercase; }
+.rule-bar { position: relative; height: 22px; margin-top: 12px; }
+.rule-bar .track { position: absolute; left: 0; right: 0; top: 10px; border-top: 1px solid var(--ink-2); }
+.rule-bar .fill { position: absolute; left: 0; top: 8.5px; height: 4px; background: var(--ink); }
+.rule-bar .tick { position: absolute; top: 4px; height: 13px; border-left: 1px solid var(--ink-2); }
+.rule-bar .mark { position: absolute; top: 0; height: 22px; border-left: 2px solid var(--red); }
+.rule-bar .lbl { white-space: nowrap; position: absolute; top: 22px; font: 400 11px var(--text); color: var(--ink-2); transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+.bs { width: 100%; margin-top: 4px; }
+.bs td { padding: 8px 0 7px; font-size: 14px; }
+.bs td.n { font-size: 19px; }
+.bs tr.liab td { background: var(--paper-2); border-top: 1px solid var(--ink-2); border-bottom: 1px solid var(--ink-2); padding-left: 8px; padding-right: 8px; }
+.bs .sub { display: block; font-size: 12px; color: var(--ink-2); }
+.keeper { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; margin-top: 8px; }
+.keeper .name { font: 500 24px/1.1 var(--display); }
+.keeper .name em { font-style: italic; font-weight: 400; }
+.keeper p { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
+.keeper .r { text-align: right; font: 400 40px/1 var(--display); font-variant-numeric: lining-nums; }
+.keeper .r small { display: block; font: 600 10px var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-top: 4px; }
+.foot { padding: 12px 22px 14px; font-size: 12px; color: var(--ink-2); display: grid; gap: 4px; }
+.foot b { color: var(--red); margin-right: 4px; }
+.foot .row { display: flex; justify-content: space-between; gap: 10px; }
+
+@media (max-width: 900px) {
+  .wrap { padding: 0 16px; }
+  .mast { grid-template-columns: 1fr auto; }
+  .mast .name { justify-self: start; font-size: 18px; }
+  .mast > span.sc { display: none; }
+  .mast nav a:not(.cta) { display: none; }
+  .dateline span:last-child { display: none; }
+  .hero { grid-template-columns: 1fr; gap: 32px; padding-top: 28px; }
+  h1 { font-size: 50px; line-height: 1; }
+  h1 i { font-size: .6em; margin-top: 12px; }
+  .lede { columns: 1; }
+  .ctas { flex-wrap: wrap; gap: 14px 22px; }
+  .btn { flex: 1 0 100%; justify-content: center; }
+  table { font-size: 13px; }
+  td, th { padding-left: 4px; padding-right: 4px; }
+  td.n { font-size: 15px; }
+  .notes { grid-template-columns: 1fr; }
+  .s2 { grid-template-columns: 1fr; gap: 24px; padding-top: 40px; }
+  .s2 .kicker h2, .s3 h2 { font-size: 34px; }
+  .chap { grid-template-columns: 1fr; gap: 8px; }
+  .chap .big { font-size: 52px; }
+  .equation { font-size: 17px; }
+  .s3 { grid-template-columns: 1fr; gap: 28px; padding-top: 40px; }
+  .acard-h { grid-template-columns: 1fr; }
+  .ledger-h { flex-direction: column; gap: 4px; }
+  .ledger-h .mono { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="hero">
+  <header class="mast">
+    <span class="sc">Testnet edition</span>
+    <a class="name" href="#">Commonkit</a>
+    <nav aria-label="Main"><a href="#flow">The books</a><a href="#card">The machine</a><a href="/app/proof">Proof</a><a class="cta" href="/app">Open the app</a></nav>
+  </header>
+  <div class="dateline"><span class="sc">The public ledger of shared things</span><span class="sc">Figures read from NEAR testnet, 10 November 2026, 09:44 UTC</span></div>
+
+  <section class="hero">
+    <div>
+      <h1>Shared things that pay for their own upkeep. <i>And open up to the people who keep them alive.</i></h1>
+      <p class="lede">Today a shared machine's money and rules live in one admin's spreadsheet. On COMMONKIT they live in the machine's own keyless account on NEAR: its fees fund its upkeep, it opens its own maintenance tasks, and everything above a small float goes to the community's treasury. No one can drain it, and no one can take back what you earned.</p>
+      <div class="ctas"><a class="btn" href="/app">Open the app →</a><a class="link" href="#flow">Read the books of one machine</a></div>
+    </div>
+
+    <figure class="ledger" aria-labelledby="lt">
+      <div class="ledger-h"><b id="lt">printer-01, account extract</b><span class="mono">printer-01.makerlab.commonkit-sxflo.testnet</span></div>
+      <table>
+        <colgroup><col><col><col><col class="dep"></colgroup>
+        <thead><tr><th>Step</th><th>Entry</th><th class="n">Float</th><th class="n dep">Deposits held</th></tr></thead>
+        <tbody>
+          <tr><td class="step">02</td><td>Fee for 2 slots<sup class="fn">1</sup><span class="who">ali.commonkit-sxflo.testnet</span></td><td class="n">+0.5000<small>2.5499</small></td><td class="n dep">+2.0000<small>2.0000</small></td></tr>
+          <tr><td class="step">05</td><td>Deposit refunded after a clean return<span class="simtag">Simulated</span><span class="who">confirmed by the steward, Elif</span></td><td class="n">–</td><td class="n dep">−2.0000<small>0.0000</small></td></tr>
+          <tr><td class="step">06</td><td>Fee for 2 more slots<sup class="fn">2</sup><span class="who">ali.commonkit-sxflo.testnet</span></td><td class="n">+0.5000<small>3.0499</small></td><td class="n dep">+2.0000<small>2.0000</small></td></tr>
+          <tr><td class="step">06</td><td>Above the 3 NEAR cap, swept to the treasury<sup class="fn">2</sup><span class="who">makerlab-ck.sputnikv2.testnet</span></td><td class="n">−0.0499</td><td class="n dep"></td></tr>
+          <tr class="total"><td class="step"></td><td><b>Carried, end of step 6</b></td><td class="n">3.0000</td><td class="n dep">2.0000</td></tr>
+          <tr class="refused"><td class="step">17</td><td><span class="what">Council member moves Ayşe's usage right to herself</span><span class="why">refused · E_NON_TRANSFERABLE<sup class="fn">3</sup></span></td><td class="n"></td><td class="n dep"></td></tr>
+        </tbody>
+      </table>
+      <div class="notes">
+        <span><b>1</b><a href="https://testnet.nearblocks.io/txns/3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz">3hHS1wra…6Qz</a></span>
+        <span><b>2</b><a href="https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S">DBTLyXkr…C31S</a></span>
+        <span><b>3</b><a href="https://testnet.nearblocks.io/txns/35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov">35LAjegU…x6ov</a></span>
+        <span>All amounts in NEAR. Deposits are members' money, kept in their own column.</span>
+      </div>
+    </figure>
+  </section>
+</div>
+
+<div class="wrap" id="flow">
+  <section class="s2" aria-labelledby="s2t">
+    <div class="kicker">
+      <p class="sc">Part I</p>
+      <h2 id="s2t">The books of one machine.</h2>
+      <p>Four figures explain where a member's money goes. Each one was written by a transaction on NEAR testnet, step by step, in the order below.</p>
+    </div>
+    <div>
+      <div class="chap"><div class="big fig">0.5<small>NEAR fee, step 2</small></div><div><h3><span class="roman">i.</span>The fee is revenue.</h3><p>Ali books two 30-minute slots at 0.25 NEAR each. The fee lands in the printer's float, the small amount it keeps for its own upkeep.</p></div></div>
+      <div class="chap"><div class="big fig">2<small>NEAR deposit, step 2</small></div><div><h3><span class="roman">ii.</span>The deposit is not.</h3><p>The refundable deposit is held apart as a liability. It is never used for fees, rewards, sweeps or proposal bonds, and it went back to Ali after a clean return.</p></div></div>
+      <div class="chap"><div class="big fig">3<small>NEAR float cap</small></div><div><h3><span class="roman">iii.</span>The machine keeps only a little.</h3><p>The float has a cap, set in the printer's profile. At step 6 a second fee pushed it to 3.0499 NEAR, so the contract swept the difference out in the same callback.</p></div></div>
+      <div class="chap"><div class="big fig red">0.0499<small>NEAR swept, step 6</small></div><div><h3><span class="roman">iv.</span>The rest belongs to the community.</h3><p>The makerlab Sputnik DAO treasury went from 5.6511 to 5.7010 NEAR. Big payments, like a nozzle kit at step 10, leave the treasury only through a DAO proposal that the printer itself opens.</p></div></div>
+      <p class="equation"><span class="sc">What a machine's account may hold</span>deposits <span class="op">+</span> reserved rewards <span class="op">+</span> float <span class="op">(≤ cap)</span> <span class="op">+</span> storage reserve</p>
+    </div>
+    <aside class="side" aria-label="Sources">
+      <p class="sc" style="margin-bottom:10px">Sources</p>
+      <ol>
+        <li><b>Step 2, reservation</b><a href="https://testnet.nearblocks.io/txns/3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz">3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz</a></li>
+        <li><b>Step 5, refund</b> device simulated (emulated Moonraker); the refund itself is a testnet transaction. <a href="https://testnet.nearblocks.io/txns/B55Q3hhRygX1aqQxN5BHrPca6BSVUJXHR8Sq9c4rUiSk">B55Q3hhR…UiSk</a></li>
+        <li><b>Step 6, sweep</b><a href="https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S">DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S</a></li>
+        <li><b>Profile</b> profiles/printer_3d.json: fee 0.25 NEAR per 30 min, deposit 2 NEAR, float cap 3 NEAR.</li>
+      </ol>
+    </aside>
+  </section>
+</div>
+
+<div class="wrap" id="card">
+  <section class="s3" aria-labelledby="s3t">
+    <div>
+      <p class="sc">In the app</p>
+      <h2 id="s3t">Every machine keeps an account card.</h2>
+      <p>Figures set like a ledger: serif numerals, thin rules, totals in red ink. The deposit line is shaded apart from the float. Anything that is a demo setting or a simulated device is footnoted on the card itself, so a screenshot cannot lose it.</p>
+    </div>
+    <article class="acard" aria-label="printer-01 account card">
+      <div class="acard-h">
+        <div><h3>Makerlab 3D printer</h3><span class="mono">printer-01.makerlab.commonkit-sxflo.testnet</span></div>
+        <span class="instat"><i aria-hidden="true"></i>In service</span>
+      </div>
+      <div class="simrow"><span class="simtag">Simulated</span><span>Device: moonraker adapter → emulated Moonraker</span></div>
+      <div class="line">
+        <div class="hd"><span class="sc">Upkeep · filament_spool</span><span class="due">Due at 5 m<sup class="fn">†</sup></span></div>
+        <div class="fig big">4.0<small>of 5 m filament, 1 m left</small></div>
+        <div class="rule-bar" aria-hidden="true" style="margin-bottom:16px">
+          <span class="track"></span><span class="fill" style="width:80%"></span>
+          <span class="tick" style="left:0"></span><span class="tick" style="left:20%"></span><span class="tick" style="left:40%"></span><span class="tick" style="left:60%"></span><span class="tick" style="left:80%"></span>
+          <span class="mark" style="left:calc(100% - 2px)"></span>
+          <span class="lbl" style="left:0;transform:none">0</span><span class="lbl" style="left:20%">1</span><span class="lbl" style="left:40%">2</span><span class="lbl" style="left:60%">3</span><span class="lbl" style="left:80%">4</span><span class="lbl" style="left:100%;transform:translateX(-100%);color:var(--red)">5 m</span>
+        </div>
+        <p style="font-size:13px;color:var(--ink-2);margin-top:10px">Open: task #1, level the bed, 1 usage right on approval.</p>
+      </div>
+      <div class="line">
+        <div class="hd"><span class="sc">Balance</span><span class="sc">NEAR</span></div>
+        <table class="bs">
+          <tr><td>Float<span class="sub">revenue, for upkeep</span></td><td class="n">2.6000</td></tr>
+          <tr><td>Cap<span class="sub">above this, swept to the DAO</span></td><td class="n" style="color:var(--ink-2)">3.0000</td></tr>
+          <tr class="liab"><td>Deposits held<span class="sub">members' money, a liability</span></td><td class="n">0.0000</td></tr>
+        </table>
+      </div>
+      <div class="line" style="border-bottom:3px double var(--ink)">
+        <div class="hd"><span class="sc">Kept alive by</span><span class="sc">Rights earned</span></div>
+        <div class="keeper">
+          <div><div class="name">Ayşe</div><p>Task #0 nozzle_clean (2), task #2 filament_spool (1). Verified by Mehmet.</p></div>
+          <div class="r">3<small>Rights</small></div>
+        </div>
+      </div>
+      <div class="foot">
+        <span><b>†</b>Demo threshold, set by DAO proposal makerlab-ck#16. Production profile: 330 m.</span>
+        <span class="row"><span>Snapshot: testnet views, 2026-11-10 09:44 UTC</span><a href="/app">Open in app →</a></span>
+      </div>
+    </article>
+  </section>
+</div>
+</body>
+</html>

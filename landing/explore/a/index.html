@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COMMONKIT, direction A: Drawing set</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Martian+Mono:wdth,wght@75..112.5,300..600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Direction A, "Drawing set": cyanotype sheet, chalk linework, one red-pencil signal */
+  --ground: #0b2740;      /* Prussian cyanotype */
+  --sheet: #0e2f4c;       /* raised sheet / card */
+  --line: #e4ecf1;        /* chalk ink, text + linework (12.7:1 on ground) */
+  --line-2: #a9c1d3;      /* secondary text (8.2:1) */
+  --line-3: #6f93ad;      /* construction lines, never small text */
+  --hair: rgba(228, 236, 241, .16);
+  --signal: #ff6b4e;      /* red pencil: due, demo overrides, primary action (5.4:1 on ground) */
+  --on-signal: #0b2740;
+  --display: "Archivo", system-ui, sans-serif;
+  --text: "Archivo", system-ui, sans-serif;
+  --mono: "Martian Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--ground); color: var(--line); font: 400 16px/1.55 var(--text); font-variation-settings: "wdth" 100; -webkit-font-smoothing: antialiased; }
+body { background: var(--ground); }
+a { color: inherit; }
+.mono { font-family: var(--mono); font-variation-settings: "wdth" 87.5; letter-spacing: 0; }
+.cap { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-variation-settings: "wdth" 87.5; color: var(--line-2); }
+
+/* ---------- Sheet frame: border + zone markers, as on a real drawing ---------- */
+.sheet { position: relative; margin: 16px; border: 1.5px solid var(--line); padding: 22px; }
+.sheet::before { content: ""; position: absolute; inset: 6px; border: 1px solid var(--hair); pointer-events: none; }
+.zones { position: absolute; left: 22px; right: 22px; top: -1px; height: 22px; display: flex; pointer-events: none; }
+.zones span { flex: 1; border-left: 1px solid var(--line-3); font: 500 9px/22px var(--mono); color: var(--line-3); padding-left: 6px; }
+.zones span:first-child { border-left: 0; }
+.zones.bottom { top: auto; bottom: -1px; }
+.zones-v { position: absolute; top: 22px; bottom: 22px; left: -1px; width: 22px; display: flex; flex-direction: column; pointer-events: none; }
+.zones-v span { flex: 1; border-top: 1px solid var(--line-3); font: 500 9px/1 var(--mono); color: var(--line-3); padding-top: 6px; text-align: center; }
+.zones-v span:first-child { border-top: 0; }
+
+/* ---------- Nav ---------- */
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 0; }
+.mark { text-decoration: none; display: flex; align-items: center; gap: 10px; font: 700 15px/1 var(--display); font-variation-settings: "wdth" 125; letter-spacing: .02em; }
+.mark svg { width: 22px; height: 22px; }
+.nav ul { display: flex; gap: 28px; list-style: none; padding: 0; }
+.nav li a { text-decoration: none; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--line-2); }
+.nav li a:hover { color: var(--line); }
+
+/* ---------- Hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 40px; padding: 36px 18px 8px; }
+h1 { font: 560 66px/.98 var(--display); font-variation-settings: "wdth" 125; letter-spacing: -.012em; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--line-2); font-weight: 400; }
+.lede { margin-top: 26px; max-width: 34em; font-size: 18px; line-height: 1.55; color: var(--line-2); }
+.ctas { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 12px; height: 48px; padding: 0 20px; font: 600 15px/1 var(--text); font-variation-settings: "wdth" 112; text-decoration: none; border: 1.5px solid var(--line); }
+.btn.primary { background: var(--signal); border-color: var(--signal); color: var(--on-signal); }
+.btn .k { font: 500 10px/1 var(--mono); letter-spacing: .06em; opacity: .8; }
+.btn:focus-visible { outline: 2px solid var(--line); outline-offset: 3px; }
+
+.notes { margin-top: 34px; border-top: 1px solid var(--hair); }
+.notes li { display: grid; grid-template-columns: 30px 132px 1fr; gap: 10px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--hair); list-style: none; font-size: 14px; color: var(--line-2); }
+.notes { padding: 0; }
+.notes b { font: 500 11px/1 var(--mono); letter-spacing: .06em; color: var(--line); text-transform: uppercase; }
+.bal { display: inline-grid; place-items: center; width: 22px; height: 22px; border: 1.25px solid var(--line); border-radius: 50%; font: 500 10px/1 var(--mono); color: var(--line); }
+.notes .num { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--line); }
+
+.figure { position: relative; display: flex; flex-direction: column; }
+.figure svg.drawing { width: 100%; height: auto; display: block; }
+.drawing text { font-family: var(--mono); font-variation-settings: "wdth" 80; font-size: 11px; fill: var(--line); letter-spacing: .04em; }
+.drawing .dim text, .drawing text.dim { fill: var(--line-2); }
+.drawing .sig { fill: var(--signal); }
+.figcap { display: flex; justify-content: space-between; margin: 4px 0 10px; }
+
+.dnotes { list-style: none; padding: 0; margin: 2px 0 12px; display: grid; gap: 4px; font-size: 12.5px; color: var(--line-2); }
+.dnotes b { font: 500 10.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--line); margin-right: 6px; }
+.dnotes .delta { vertical-align: -4px; }
+/* Title block */
+.tb { display: grid; grid-template-columns: 1.3fr 1fr 1fr; border: 1.5px solid var(--line); margin-top: auto; font-size: 13px; }
+.tb > div { padding: 7px 10px 8px; border-right: 1px solid var(--line-3); border-bottom: 1px solid var(--line-3); min-width: 0; }
+.tb > div:nth-child(3n) { border-right: 0; }
+.tb .wide { grid-column: span 2; }
+.tb .full { grid-column: 1 / -1; border-right: 0; }
+.tb .last { border-bottom: 0; }
+.tb .cap { display: block; font-size: 9.5px; margin-bottom: 3px; }
+.tb .v { font: 500 12px/1.35 var(--mono); font-variation-settings: "wdth" 80; color: var(--line); overflow-wrap: anywhere; }
+.tb .brand { font: 700 18px/1 var(--display); font-variation-settings: "wdth" 125; }
+.stampbox { display: inline-flex; gap: 6px; align-items: center; }
+.sim { display: inline-block; padding: 2px 6px 3px; border: 1.25px dashed var(--line); font: 600 10.5px/1.2 var(--mono); letter-spacing: .08em; }
+
+/* Revision cloud (demo override marker): generated scallops around .rev */
+.rev { position: relative; }
+.rev > svg.cloud { position: absolute; inset: -9px; width: calc(100% + 18px); height: calc(100% + 18px); overflow: visible; pointer-events: none; }
+.rev > svg.cloud path { fill: none; stroke: var(--signal); stroke-width: 1.4; }
+.delta { display: inline-grid; place-items: center; width: 20px; height: 18px; color: var(--signal); font: 600 10px/1 var(--mono); position: relative; }
+.delta svg { position: absolute; inset: 0; }
+.delta span { position: relative; top: 2px; }
+
+/* ---------- Section: money schematic ---------- */
+.s2 { padding: 64px 18px 40px; }
+.s2-head { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: end; border-bottom: 1.5px solid var(--line); padding-bottom: 18px; }
+.s2 h2 { font: 560 44px/1.02 var(--display); font-variation-settings: "wdth" 125; }
+.s2-head p { color: var(--line-2); max-width: 40em; }
+.schem { margin-top: 26px; }
+.schem svg { width: 100%; height: auto; display: block; }
+.schem text { font-family: var(--mono); font-variation-settings: "wdth" 75; font-size: 11px; fill: var(--line); letter-spacing: .03em; }
+.schem .t2 { fill: var(--line-2); }
+.schem .tsig { fill: var(--signal); }
+.schem .big { font: 600 15px var(--display); font-variation-settings: "wdth" 112; letter-spacing: 0; }
+.schem-m { display: none; }
+.legend { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--hair); margin-top: 18px; }
+.legend div { padding: 12px 14px 4px 0; font-size: 13.5px; color: var(--line-2); }
+.legend b { display: block; font: 500 11px/1.5 var(--mono); color: var(--line); letter-spacing: .05em; text-transform: uppercase; }
+.legend a { font-family: var(--mono); font-size: 11.5px; }
+
+/* ---------- App card ---------- */
+.s3 { padding: 56px 18px 40px; display: grid; grid-template-columns: 1fr 480px; gap: 56px; align-items: start; }
+.s3 h2 { font: 560 36px/1.05 var(--display); font-variation-settings: "wdth" 125; }
+.s3 p { color: var(--line-2); margin-top: 14px; max-width: 30em; }
+.card { background: var(--sheet); border: 1.5px solid var(--line); position: relative; }
+.card-h { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 16px 18px 14px; border-bottom: 1px solid var(--line-3); }
+.card-h h3 { font: 600 22px/1.1 var(--display); font-variation-settings: "wdth" 118; }
+.card-h .acct { font: 400 11.5px/1.4 var(--mono); font-variation-settings: "wdth" 78; color: var(--line-2); margin-top: 6px; overflow-wrap: anywhere; }
+.status { display: flex; align-items: center; gap: 7px; font: 500 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.status i { width: 8px; height: 8px; border: 1.5px solid var(--line); border-radius: 50%; background: var(--line); }
+.card-sim { display: flex; gap: 10px; align-items: center; padding: 9px 18px; border-bottom: 1px solid var(--line-3); font-size: 12.5px; color: var(--line-2); background: repeating-linear-gradient(135deg, transparent 0 7px, rgba(228,236,241,.06) 7px 8px); }
+.blk { padding: 16px 18px 18px; border-bottom: 1px solid var(--line-3); }
+.blk-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.blk-h .cap { color: var(--line); }
+.big-n { font: 600 30px/1 var(--display); font-variation-settings: "wdth" 112; font-variant-numeric: tabular-nums; }
+.big-n small { font: 400 13px var(--mono); color: var(--line-2); margin-left: 6px; }
+.scale svg { width: 100%; height: auto; display: block; overflow: visible; }
+.scale text { font-family: var(--mono); font-variation-settings: "wdth" 80; font-size: 10px; fill: var(--line-2); }
+.due-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; font-size: 13px; color: var(--line-2); }
+.revnote { margin-top: 16px; padding: 10px 12px; font-size: 12.5px; color: var(--line-2); display: flex; gap: 10px; align-items: flex-start; }
+.revnote b { color: var(--signal); font: 600 10.5px/1.6 var(--mono); letter-spacing: .06em; }
+.task { margin-top: 12px; font-size: 13px; color: var(--line-2); display: flex; gap: 8px; align-items: baseline; }
+.task .mono { font-size: 11px; color: var(--line); }
+.keeper { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; }
+.keeper .ini { width: 34px; height: 34px; border: 1.25px solid var(--line); border-radius: 50%; display: grid; place-items: center; font: 600 12px var(--mono); }
+.keeper .who { font-weight: 600; }
+.keeper .why { font-size: 12.5px; color: var(--line-2); }
+.rights { font: 600 22px/1 var(--display); font-variation-settings: "wdth" 112; text-align: right; }
+.rights small { display: block; font: 400 10px/1.4 var(--mono); color: var(--line-2); letter-spacing: .05em; }
+.card-f { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; font: 400 10.5px/1.4 var(--mono); color: var(--line-2); }
+.card-f a { color: var(--line); text-decoration: none; border-bottom: 1px solid var(--line-3); }
+
+@media (max-width: 900px) {
+  .sheet { margin: 8px; padding: 14px; }
+  .zones-v { display: none; }
+  .zones span:nth-child(n+5) { display: none; }
+  .nav { padding: 12px 4px 0; }
+  .nav ul { display: none; }
+  .hero { grid-template-columns: 1fr; padding: 28px 4px 0; gap: 18px; min-height: 0; }
+  h1 { font-size: 40px; line-height: 1.02; font-variation-settings: "wdth" 112; }
+  .lede { font-size: 16px; margin-top: 16px; }
+  .ctas { margin-top: 20px; }
+  .btn { flex: 1; justify-content: center; }
+  .notes { margin-top: 18px; }
+  .hero > div:first-child { display: contents; }
+  .figure { order: 4; }
+  .notes { order: 5; }
+  .btn .k { display: none; }
+  .figcap .cap:last-child { display: none; }
+  .notes li { grid-template-columns: 26px 1fr; }
+  .notes li span:last-child { grid-column: 2; }
+  .tb { grid-template-columns: 1fr 1fr; font-size: 12px; }
+  .tb > div:nth-child(3n) { border-right: 1px solid var(--line-3); }
+  .tb > div:nth-child(2n) { border-right: 0; }
+  .tb .wide, .tb .full { grid-column: 1 / -1; border-right: 0; }
+  .s2 { padding: 40px 4px 24px; }
+  .s2-head { grid-template-columns: 1fr; gap: 12px; }
+  .s2 h2 { font-size: 30px; font-variation-settings: "wdth" 112; }
+  .schem-d { display: none; }
+  .schem-m { display: block; }
+  .legend { grid-template-columns: 1fr 1fr; }
+  .s3 { grid-template-columns: 1fr; padding: 40px 4px 24px; gap: 24px; }
+  .s3 h2 { font-size: 28px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .drawing .draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 1.4s cubic-bezier(.6,0,.2,1) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================= SHEET 01 : HERO ======================= -->
+<div class="sheet" id="hero">
+  <div aria-hidden="true" class="zones"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div>
+  <div aria-hidden="true" class="zones-v"><span>A</span><span>B</span><span>C</span><span>D</span></div>
+
+  <nav class="nav" aria-label="Main">
+    <a class="mark" href="#" aria-label="COMMONKIT home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9.25"/><path d="M12 1v22M1 12h22" stroke-dasharray="3 1.5 .5 1.5"/><circle cx="12" cy="12" r="3"/></svg>
+      COMMONKIT
+    </a>
+    <ul>
+      <li><a href="#flow">Money</a></li>
+      <li><a href="#card">The machine</a></li>
+      <li><a href="/app/proof">Proof</a></li>
+      <li><a href="/app">Open app</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Shared things that pay for their own upkeep.</h1>
+      <p class="lede">COMMONKIT gives every shared machine its own keyless NEAR account. Fees fund its upkeep, the machine opens its own maintenance tasks, and the people who keep it alive earn access that nobody can take back.</p>
+      <div class="ctas">
+        <a class="btn primary" href="/app">Open the app <span class="k">/APP</span></a>
+        <a class="btn" href="#flow">Read the drawing <span class="k">SHEET 02</span></a>
+      </div>
+      <ol class="notes" aria-label="Callouts on the drawing">
+        <li><span class="bal">1</span><b>Account</b><span>Keyless: <span class="num">0</span> full-access keys. No one can sign for it.</span></li>
+        <li><span class="bal">2</span><b>Float ≤ cap</b><span><span class="num">2.6</span> of <span class="num">3</span> NEAR. Above the cap goes to the DAO.</span></li>
+        <li><span class="bal">3</span><b>Bridge</b><span>Unlocks only for a valid on-chain reservation.</span></li>
+        <li><span class="bal">4</span><b>Telemetry</b><span>Filament <span class="num">4.0</span> of <span class="num">5</span> m since restock. <span class="delta" aria-label="revision 1"><svg viewBox="0 0 20 18" aria-hidden="true"><path d="M10 1.5 18.5 16.5h-17Z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span>1</span></span></span></li>
+        <li><span class="bal">5</span><b>Rights</b><span>Earned by upkeep, verified by someone else.</span></li>
+      </ol>
+    </div>
+
+    <div class="figure">
+      <div class="figcap"><span class="cap">Fig. 1 · General arrangement · printer-01</span><span class="cap">Scale: not to scale</span></div>
+      <svg class="drawing" viewBox="20 24 620 500" role="img" aria-labelledby="fig1t">
+        <title id="fig1t">Line drawing of the Makerlab 3D printer with numbered callouts: its account, float against cap, bridge, filament telemetry and the nozzle that earns usage rights.</title>
+        <g fill="none" stroke="var(--line)" stroke-width="1.5" stroke-linejoin="round">
+          <!-- frame -->
+          <rect class="draw" style="--len:1400" x="150" y="110" width="300" height="360"/>
+          <path d="M168 110v360M432 110v360" stroke-width="1"/>
+          <path d="M150 128h300" stroke-width="1"/>
+          <!-- gantry -->
+          <rect x="168" y="208" width="264" height="12"/>
+          <path d="M168 214h264" stroke="var(--line-3)" stroke-width=".8"/>
+          <!-- print head -->
+          <rect x="262" y="186" width="58" height="56" fill="var(--ground)"/>
+          <circle cx="291" cy="210" r="15"/>
+          <path d="M291 195v30M276 210h30" stroke-width=".8"/>
+          <path d="M283 242h16l-8 14z"/>
+          <!-- bed + support -->
+          <rect x="190" y="372" width="220" height="9"/>
+          <path d="M215 381v16M385 381v16M200 397h200" stroke-width="1"/>
+          <!-- calibration cube, section hatch -->
+          <rect x="274" y="334" width="34" height="38"/>
+          <g stroke="var(--line-3)" stroke-width=".8">
+            <path d="M274 344l10-10M274 354l20-20M274 364l30-30M278 372l30-30M288 372l20-20M298 372l10-10"/>
+          </g>
+          <!-- base -->
+          <rect x="150" y="470" width="300" height="40"/>
+          <rect x="172" y="481" width="58" height="18" stroke-width="1"/>
+          <circle cx="414" cy="490" r="8" stroke-width="1"/>
+          <path d="M160 510v8h24v-8M416 510v8h24v-8" stroke-width="1"/>
+          <!-- spool holder + spool -->
+          <path d="M450 150h58" stroke-width="1"/>
+          <circle cx="532" cy="176" r="52"/>
+          <circle cx="532" cy="176" r="40" stroke="var(--line-3)" stroke-width=".8"/>
+          <circle cx="532" cy="176" r="15"/>
+          <circle cx="532" cy="176" r="4"/>
+          <!-- filament path: hidden line -->
+          <path d="M505 220C470 280 380 150 312 186" stroke-dasharray="6 4" stroke-width="1"/>
+          <!-- bridge -->
+          <rect x="40" y="474" width="74" height="36"/>
+          <path d="M114 492h36" stroke-dasharray="2 3"/>
+          <path d="M52 486h10M52 492h10M52 498h10" stroke-width="1"/>
+          <circle cx="98" cy="492" r="5" stroke-width="1"/>
+        </g>
+        <!-- centre lines (dash-dot) -->
+        <g stroke="var(--line-3)" stroke-width=".8" stroke-dasharray="14 3 2 3" fill="none">
+          <path d="M291 150v380"/>
+          <path d="M466 176h132M532 110v132"/>
+        </g>
+        <!-- dimension: cap and float -->
+        <g class="dim" stroke="var(--line-2)" stroke-width=".9" fill="none">
+          <path d="M150 104V40M450 104V40"/>
+          <path d="M150 50h300"/>
+          <path d="M150 50l9-3v6zM450 50l-9-3v6z" fill="var(--line-2)" stroke="none"/>
+          <path d="M150 78h260"/>
+          <path d="M410 104V70"/>
+          <path d="M150 78l9-3v6zM410 78l-9-3v6z" fill="var(--line-2)" stroke="none"/>
+          <path d="M410 78h40" stroke="var(--line-3)" stroke-dasharray="2 3"/>
+        </g>
+        <rect x="236" y="42" width="128" height="16" fill="var(--ground)"/>
+        <text x="300" y="54" text-anchor="middle">CAP 3.000 NEAR</text>
+        <rect x="216" y="70" width="128" height="16" fill="var(--ground)"/>
+        <text x="280" y="82" text-anchor="middle">FLOAT 2.600 NEAR</text>
+        <text x="458" y="82" class="dim">→ DAO</text>
+
+        <!-- dimension: filament telemetry, red pencil + revision cloud -->
+        <g stroke="var(--signal)" stroke-width="1" fill="none">
+          <path d="M600 176h18M600 268h18"/>
+          <path d="M610 176v92"/>
+          <path d="M610 176l-3 9h6zM610 268l-3-9h6z" fill="var(--signal)" stroke="none"/>
+        </g>
+        <g transform="translate(540 300)">
+          <path d="M-6 12 a8 8 0 0 1 12 -9 a8 8 0 0 1 14 0 a8 8 0 0 1 14 0 a8 8 0 0 1 14 0 a8 8 0 0 1 14 0 a8 8 0 0 1 14 0 a8 8 0 0 1 10 9 a8 8 0 0 1 0 14 a8 8 0 0 1 -10 9 a8 8 0 0 1 -14 0 a8 8 0 0 1 -14 0 a8 8 0 0 1 -14 0 a8 8 0 0 1 -14 0 a8 8 0 0 1 -14 0 a8 8 0 0 1 -12 -9 a8 8 0 0 1 0 -14z" fill="none" stroke="var(--signal)" stroke-width="1.3"/>
+          <text x="2" y="24" class="sig">4.0 / 5 m</text>
+          <path d="M80 -2l8 14h-16z" fill="none" stroke="var(--signal)" stroke-width="1.2"/>
+          <text x="77" y="10.5" class="sig" font-size="8">1</text>
+        </g>
+        <path d="M610 268v30" stroke="var(--signal)" stroke-width=".9" stroke-dasharray="2 3"/>
+
+        <!-- balloons + leaders -->
+        <g fill="none" stroke="var(--line)" stroke-width="1">
+          <path d="M108 150l42 0"/><circle cx="94" cy="150" r="13" fill="var(--ground)"/>
+          <path d="M108 70l42 8"/><circle cx="94" cy="68" r="13" fill="var(--ground)"/>
+          <path d="M77 440v34"/><circle cx="77" cy="426" r="13" fill="var(--ground)"/>
+          <path d="M576 120l-18 16"/><circle cx="588" cy="108" r="13" fill="var(--ground)"/>
+          <path d="M226 280l58 -30"/><circle cx="214" cy="288" r="13" fill="var(--ground)"/>
+        </g>
+        <g text-anchor="middle" font-size="11">
+          <text x="94" y="154">1</text><text x="94" y="72">2</text><text x="77" y="430">3</text><text x="588" y="112">4</text><text x="214" y="292">5</text>
+        </g>
+      </svg>
+
+      <ol class="dnotes">
+        <li><b>Note 1</b> Device emulated through the moonraker adapter: <span class="sim">SIMULATED</span></li>
+        <li><b>Note 2</b> <span class="delta"><svg viewBox="0 0 20 18" aria-hidden="true"><path d="M10 1.5 18.5 16.5h-17Z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span>1</span></span> Demo threshold 5 m, production 330 m, set by DAO proposal makerlab-ck#16</li>
+      </ol>
+      <div class="tb" aria-label="Title block">
+        <div><span class="brand">COMMONKIT</span></div>
+        <div><span class="cap">Part</span><span class="v">printer-01</span></div>
+        <div><span class="cap">Sheet</span><span class="v">01 / 03</span></div>
+        <div class="wide last"><span class="cap">Account (keyless) · 0 full-access keys</span><span class="v">printer-01.makerlab.commonkit-sxflo.testnet</span></div>
+        <div class="last"><span class="cap">Source · snapshot</span><span class="v">testnet views<br>2026-11-10 09:44 UTC</span></div>
+      </div>
+    </div>
+  </header>
+  <div aria-hidden="true" class="zones bottom"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div>
+</div>
+
+<!-- ======================= SHEET 02 : MONEY SCHEMATIC ======================= -->
+<div class="sheet" id="flow">
+  <div aria-hidden="true" class="zones"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div>
+  <section class="s2" aria-labelledby="s2t">
+    <div class="s2-head">
+      <div><p class="cap">Sheet 02 · Money schematic</p><h2 id="s2t">The machine keeps a small float. The rest flows on.</h2></div>
+      <p>One reservation on testnet, traced through printer-01. The fee is revenue and fills the float. The deposit is members' money and sits in a separate vessel. When the float tops its cap, the overflow goes to the community's Sputnik DAO in the same callback.</p>
+    </div>
+
+    <div class="schem schem-d">
+      <svg viewBox="0 0 1360 430" role="img" aria-labelledby="schemt">
+        <title id="schemt">Schematic: Ali pays a 0.5 NEAR fee and a 2 NEAR deposit to printer-01. The fee fills the float up to its 3 NEAR cap; 0.0499 NEAR overflow goes to the makerlab DAO treasury. The deposit is held separately and refunded after a clean return.</title>
+        <!-- account boundary (dash-dot) -->
+        <rect x="370" y="40" width="430" height="370" fill="none" stroke="var(--line-2)" stroke-width="1.2" stroke-dasharray="16 4 3 4"/>
+        <!-- liquid -->
+        <rect x="401.5" y="120" width="177" height="182" fill="rgba(228,236,241,.12)"/>
+        <path d="M641.5 262h137v26a12 12 0 0 1-12 12h-113a12 12 0 0 1-12-12z" fill="rgba(228,236,241,.06)"/>
+        <g stroke="var(--line-3)" stroke-width=".8"><path d="M650 300l38-38M670 300l38-38M690 300l38-38M710 300l38-38M730 300l38-38M750 300l28-28"/></g>
+        <g fill="none" stroke="var(--line)" stroke-width="1.5">
+          <rect x="20" y="150" width="190" height="100"/>
+          <path d="M210 176h190"/>
+          <path d="M210 226h130v114h360v-40"/>
+          <path d="M400 96v188a18 18 0 0 0 18 18h144a18 18 0 0 0 18-18V96"/>
+          <path d="M640 230v58a14 14 0 0 0 14 14h112a14 14 0 0 0 14-14v-58"/>
+          <path d="M580 120h270"/>
+          <rect x="850" y="70" width="250" height="120"/>
+          <path d="M1100 130h90"/>
+          <rect x="1190" y="80" width="160" height="100"/>
+          <path d="M760 302v78H110V250" stroke-dasharray="6 4"/>
+        </g>
+        <path d="M401.5 120h177" stroke="var(--line)" stroke-width="1.2"/>
+        <path d="M641.5 262h137" stroke="var(--line-2)" stroke-dasharray="3 3"/>
+        <path d="M388 120h10" stroke="var(--line)"/>
+        <g fill="var(--line)"><path d="M400 176l-10-4v8zM700 302l-4 10h8zM850 120l-10-4v8zM1190 130l-10-4v8zM110 250l-4 10h8z"/></g>
+        <path d="M580 120h270" stroke="var(--signal)" stroke-width="1.5"/>
+        <path d="M850 120l-10-4v8z" fill="var(--signal)"/>
+
+        <text x="34" y="178" class="big">Member</text>
+        <text x="34" y="200" class="t2">ali.commonkit-sxflo.testnet</text>
+        <text x="34" y="226" class="t2">step 2 · books 2 slots</text>
+        <text x="226" y="166">FEE 0.5 NEAR</text>
+        <text x="226" y="216" class="t2">DEPOSIT 2 NEAR</text>
+        <text x="226" y="244" class="t2">refundable</text>
+        <text x="122" y="296">REFUND 2 NEAR</text>
+        <text x="122" y="312" class="t2">after a clean return</text>
+        <text x="122" y="328" class="t2">step 5 · simulated device</text>
+
+        <text x="384" y="62" class="t2">printer-01.makerlab.commonkit-sxflo.testnet · keyless</text>
+        <text x="410" y="114" class="t2">CAP 3.000</text>
+        <text x="416" y="150" class="big">Float</text>
+        <text x="416" y="168" class="t2">revenue</text>
+        <text x="416" y="268">2.5499 + 0.5 fee</text>
+        <text x="416" y="286">→ 3.000 NEAR</text>
+        <text x="640" y="204" class="big">Deposits held</text>
+        <text x="640" y="222" class="t2">liability, never revenue</text>
+        <text x="652" y="290">2.000 NEAR</text>
+        <text x="596" y="110" class="tsig">OVERFLOW 0.0499 NEAR</text>
+        <text x="596" y="140" class="t2">swept in the same callback</text>
+
+        <text x="866" y="98" class="big">Community treasury</text>
+        <text x="866" y="120" class="t2">makerlab-ck.sputnikv2.testnet</text>
+        <text x="866" y="150">5.6511 → 5.7010 NEAR</text>
+        <text x="866" y="172" class="t2">step 6 · DBTLyXkr…JquC31S</text>
+        <text x="1110" y="120" class="t2">#10</text>
+        <text x="1110" y="150" class="t2">council</text>
+        <text x="1204" y="108" class="big">Big payments</text>
+        <text x="1204" y="130" class="t2">a Sputnik proposal</text>
+        <text x="1204" y="146" class="t2">opened by the asset</text>
+        <text x="1204" y="166" class="t2">step 10</text>
+      </svg>
+    </div>
+
+    <div class="schem schem-m">
+      <svg viewBox="0 0 360 760" role="img" aria-labelledby="schemm">
+        <title id="schemm">Schematic, vertical: fee to float up to the cap, overflow to the DAO treasury, deposit held separately and refunded.</title>
+        <g fill="none" stroke="var(--line)" stroke-width="1.5">
+          <rect x="20" y="10" width="320" height="70"/>
+          <path d="M110 80v110M320 80v330"/>
+          <rect x="6" y="160" width="348" height="320" stroke-dasharray="16 4 3 4" stroke="var(--line-2)" stroke-width="1.2"/>
+          <path d="M30 200v170a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16V200"/>
+          <path d="M250 410v40a12 12 0 0 0 12 12h64a12 12 0 0 0 12-12v-40"/>
+          <path d="M110 222v0M190 222h40v300"/>
+          <rect x="20" y="522" width="320" height="96"/>
+          <path d="M180 618v40"/>
+          <rect x="20" y="658" width="320" height="90"/>
+        </g>
+        <rect x="31.5" y="222" width="157" height="162" fill="rgba(228,236,241,.12)"/>
+        <path d="M31.5 222h157" stroke="var(--line)" stroke-width="1.2"/>
+        <g stroke="var(--line-3)" stroke-width=".8"><path d="M262 460l36-36M282 460l40-40M302 460l34-34"/></g>
+        <g fill="var(--line)"><path d="M110 200l-4-10h8zM320 410l-4-10h8zM230 522l-4-10h8zM180 658l-4-10h8z"/></g>
+        <text x="34" y="38" class="big">Member · ali</text>
+        <text x="34" y="60" class="t2">step 2 · 2 slots</text>
+        <text x="118" y="122">FEE 0.5</text>
+        <text x="312" y="122" class="t2" text-anchor="end">DEPOSIT 2</text>
+        <text x="16" y="474" class="t2">printer-01 · keyless account</text>
+        <text x="42" y="250" class="big">Float</text>
+        <text x="42" y="268" class="t2">revenue</text>
+        <text x="42" y="352">2.5499 + 0.5</text>
+        <text x="42" y="370">→ 3.000 NEAR</text>
+        <text x="42" y="216" class="t2">CAP 3.000</text>
+        <text x="240" y="290" class="tsig">OVERFLOW</text>
+        <text x="240" y="306" class="tsig">0.0499</text>
+        <text x="338" y="398" class="t2" text-anchor="end">Deposits held</text>
+        <text x="258" y="452">2.000</text>
+        <text x="34" y="552" class="big">Community treasury</text>
+        <text x="34" y="574" class="t2">makerlab-ck.sputnikv2.testnet</text>
+        <text x="34" y="600">5.6511 → 5.7010 NEAR · step 6</text>
+        <text x="190" y="644" class="t2">proposal #10</text>
+        <text x="34" y="690" class="big">Big payments</text>
+        <text x="34" y="712" class="t2">a Sputnik proposal opened by</text>
+        <text x="34" y="728" class="t2">the asset · step 10</text>
+      </svg>
+    </div>
+
+    <div class="legend">
+      <div><b>Fee</b>Revenue. Fills the float, pays upkeep.</div>
+      <div><b>Deposit</b>Members' money. Hatched: a liability, refunded.</div>
+      <div><b>Overflow</b>Everything above the cap leaves the machine.</div>
+      <div><b>Trace</b><a href="https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S">DBTLyXkr…JquC31S</a></div>
+    </div>
+  </section>
+</div>
+
+<!-- ======================= SHEET 03 : APP CARD ======================= -->
+<div class="sheet" id="card">
+  <div aria-hidden="true" class="zones"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div>
+  <section class="s3">
+    <div>
+      <p class="cap">Sheet 03 · Part card, as in /app</p>
+      <h2>Each machine is drawn as a part, with its tolerances.</h2>
+      <p>Upkeep is a scale with the trigger marked. Float is a dimension inside its cap. Deposits get their own hatched line because they are not the machine's money. Demo overrides wear a revision cloud, the way a drawing marks a change.</p>
+    </div>
+
+    <article class="card" aria-label="printer-01 asset card">
+      <div class="card-h">
+        <div>
+          <h3>Makerlab 3D printer</h3>
+          <div class="acct">printer-01.makerlab.commonkit-sxflo.testnet</div>
+        </div>
+        <div class="status"><i></i>In service</div>
+      </div>
+      <div class="card-sim"><span class="sim">SIMULATED</span><span>Device: moonraker adapter → emulated Moonraker</span></div>
+
+      <div class="blk">
+        <div class="blk-h"><span class="cap">Upkeep · filament_spool</span><span class="cap" style="color:var(--signal)">Due at 5 m</span></div>
+        <div class="big-n">4.0<small>of 5 m filament · 1 m left</small></div>
+        <div class="scale" style="margin-top:14px">
+          <svg viewBox="0 0 440 46" aria-hidden="true">
+            <path d="M0 18h440" stroke="var(--line-3)" stroke-width="1"/>
+            <path d="M0 18h352" stroke="var(--line)" stroke-width="3"/>
+            <g stroke="var(--line-2)" stroke-width="1">
+              <path d="M0 10v16M88 12v12M176 12v12M264 12v12M352 12v12M440 6v20"/>
+              <path d="M22 15v6M44 15v6M66 15v6M110 15v6M132 15v6M154 15v6M198 15v6M220 15v6M242 15v6M286 15v6M308 15v6M330 15v6M374 15v6M396 15v6M418 15v6"/>
+            </g>
+            <path d="M440 2v28" stroke="var(--signal)" stroke-width="2"/>
+            <path d="M352 18l-6-10h12z" fill="var(--line)" transform="translate(0 -12)"/>
+            <text x="0" y="42">0</text><text x="85" y="42">1</text><text x="173" y="42">2</text><text x="261" y="42">3</text><text x="349" y="42">4</text>
+            <text x="440" y="42" text-anchor="end" style="fill:var(--signal)">5 m</text>
+          </svg>
+        </div>
+        <div class="revnote rev"><span class="delta"><svg viewBox="0 0 20 18" aria-hidden="true"><path d="M10 1.5 18.5 16.5h-17Z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><span>1</span></span><span><b>DEMO THRESHOLD</b> 5 m, set by DAO proposal <a href="#">makerlab-ck#16</a>. Production profile: 330 m.</span></div>
+        <div class="task"><span class="mono">TASK #1</span><span>Level the bed · open · 1 right on approval</span></div>
+      </div>
+
+      <div class="blk">
+        <div class="blk-h"><span class="cap">Float vs cap</span><span class="cap">above the cap → DAO</span></div>
+        <div class="big-n">2.600<small>/ 3.000 NEAR</small></div>
+        <div class="scale" style="margin-top:12px">
+          <svg viewBox="0 0 440 84" aria-hidden="true">
+            <text x="440" y="8" text-anchor="end">CAP 3.000</text>
+            <path d="M0 12v20M381 16v16M440 12v20" stroke="var(--line-2)" stroke-width=".9"/>
+            <path d="M0 24h381" stroke="var(--line)" stroke-width="1"/>
+            <path d="M0 24l9-3v6zM381 24l-9-3v6z" fill="var(--line)"/>
+            <path d="M381 24h52" stroke="var(--line-3)" stroke-dasharray="2 3"/>
+            <path d="M440 24l-7-3v6z" fill="var(--line-3)"/>
+            <rect x="150" y="18" width="80" height="12" fill="var(--sheet)"/>
+            <text x="190" y="28" text-anchor="middle">FLOAT 2.600</text>
+            <text x="0" y="58">DEPOSITS HELD 0.000 · LIABILITY, NOT FLOAT</text>
+            <rect x="0.5" y="66" width="439" height="10" fill="none" stroke="var(--line-3)" stroke-dasharray="3 3"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="blk">
+        <div class="blk-h"><span class="cap">Kept alive by</span><span class="cap">usage rights earned</span></div>
+        <div class="keeper">
+          <span class="ini" aria-hidden="true">AY</span>
+          <div><div class="who">Ayşe</div><div class="why">Task #0 nozzle_clean, task #2 filament_spool · verified by Mehmet</div></div>
+          <div class="rights">3<small>RIGHTS</small></div>
+        </div>
+      </div>
+      <div class="card-f"><span>Snapshot · testnet views 2026-11-10 09:44 UTC</span><a href="/app">Open in app →</a></div>
+    </article>
+  </section>
+</div>
+
+<script>
+// Revision clouds: scalloped outline around every .rev element (drawing convention for a change).
+for (const el of document.querySelectorAll('.rev')) {
+  const w = el.offsetWidth + 18, h = el.offsetHeight + 18, r = 7;
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg'); svg.setAttribute('class', 'cloud'); svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const side = (len) => Math.max(1, Math.round(len / (r * 2.2)));
+  const pts = []; const m = 4;
+  const nx = side(w - 2*m), ny = side(h - 2*m);
+  for (let i = 0; i <= nx; i++) pts.push([m + (w-2*m)*i/nx, m]);
+  for (let i = 1; i <= ny; i++) pts.push([w-m, m + (h-2*m)*i/ny]);
+  for (let i = nx-1; i >= 0; i--) pts.push([m + (w-2*m)*i/nx, h-m]);
+  for (let i = ny-1; i >= 0; i--) pts.push([m, m + (h-2*m)*i/ny]);
+  let d = `M${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0,y0] = pts[i-1], [x1,y1] = pts[i]; const rr = Math.hypot(x1-x0, y1-y0) / 2 * 1.08;
+    d += ` A${rr.toFixed(1)} ${rr.toFixed(1)} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+  }
+  const p = document.createElementNS(ns, 'path'); p.setAttribute('d', d); svg.appendChild(p); el.appendChild(svg);
+}
+</script>
+</body>
+</html>

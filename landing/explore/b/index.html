@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COMMONKIT, direction B: Service tag</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders:opsz,wght@10..72,400..900&family=Big+Shoulders+Stencil:opsz,wght@10..72,700..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,300..800;1,400&family=Spline+Sans+Mono:wght@400..600&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Direction B, "Service tag": aluminium, card stock, black print, one safety-orange signal */
+  --ground: #e4e3de;     /* brushed aluminium, page */
+  --ground-2: #d4d3cd;   /* recessed panel */
+  --stock: #fbfaf7;      /* tag card stock */
+  --ink: #141414;        /* print (14.3:1 on ground) */
+  --ink-2: #4a4a46;      /* secondary print (6.9:1 on ground, 8.5:1 on stock) */
+  --rule: #b9b8b1;
+  --signal: #ff5a1f;     /* safety orange: fills only, ink text on it (5.9:1) */
+  --signal-ink: #a3370b; /* orange as text (5.2:1 on ground, 6.5:1 on stock) */
+  --display: "Big Shoulders", "Arial Narrow", sans-serif;
+  --stencil: "Big Shoulders Stencil", "Arial Narrow", sans-serif;
+  --text: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --mono: "Spline Sans Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--ground); color: var(--ink); font: 400 16px/1.5 var(--text); -webkit-font-smoothing: antialiased; }
+body { background: var(--ground); }
+a { color: inherit; }
+.lbl { font: 600 10.5px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* rubber stamp: roughened via SVG filter, slightly rotated, multiply onto stock */
+.stamp { display: inline-block; font: 900 17px/1 var(--stencil); font-variation-settings: "opsz" 20; letter-spacing: .12em; text-transform: uppercase; color: var(--signal-ink); border: 2.5px solid currentColor; padding: 6px 10px 5px; transform: rotate(-6deg); filter: url(#rough); mix-blend-mode: multiply; }
+.stamp small { display: block; font: 600 8.5px/1.3 var(--mono); letter-spacing: .08em; margin-top: 3px; }
+
+/* ---------- Nav ---------- */
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 56px; }
+.nav { display: flex; justify-content: space-between; align-items: center; height: 72px; border-bottom: 1.5px solid var(--ink); }
+.wordmark { font: 900 26px/1 var(--stencil); font-variation-settings: "opsz" 40; letter-spacing: .06em; text-decoration: none; }
+.nav ul { list-style: none; display: flex; gap: 34px; padding: 0; }
+.nav ul a { text-decoration: none; font: 600 14px/1 var(--text); }
+.nav .btn { height: 38px; font-size: 14px; }
+
+/* ---------- Hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,.85fr); gap: 40px; height: 828px; position: relative; }
+.hero-l { padding-top: 56px; display: flex; flex-direction: column; }
+h1 { font: 850 128px/.84 var(--display); font-variation-settings: "opsz" 72; text-transform: uppercase; letter-spacing: -.005em; }
+h1 .o { color: var(--signal-ink); }
+.lede { font-size: 19px; line-height: 1.5; max-width: 32em; margin-top: 30px; color: var(--ink); }
+.lede b { font-weight: 700; }
+.ctas { display: flex; gap: 12px; margin-top: 28px; }
+.btn { display: inline-flex; align-items: center; gap: 12px; height: 52px; padding: 0 22px; font: 700 16px/1 var(--text); text-decoration: none; border: 2px solid var(--ink); color: var(--ink); background: transparent; }
+.btn.primary { background: var(--ink); color: var(--stock); }
+.btn.primary i { width: 10px; height: 10px; background: var(--signal); }
+.btn:focus-visible { outline: 3px solid var(--signal); outline-offset: 3px; }
+
+/* Rating plate: the machine's own data, from its profile */
+.plate { margin-top: auto; margin-bottom: 40px; display: grid; grid-template-columns: repeat(5, auto); border: 1.5px solid var(--ink); background: var(--ground-2); position: relative; }
+.plate > div { padding: 10px 14px 11px; border-right: 1px solid var(--rule); }
+.plate > div:last-child { border-right: 0; }
+.plate .v { display: block; font: 800 24px/1 var(--display); font-variation-settings: "opsz" 40; margin-top: 6px; white-space: nowrap; }
+.plate .v small { font: 600 12px var(--mono); margin-left: 3px; }
+.plate-cap { position: absolute; top: -9px; left: 12px; background: var(--ground); padding: 0 6px; }
+.screw { position: absolute; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink-2); background: var(--ground); }
+.screw::after { content: ""; position: absolute; left: 1px; right: 1px; top: 2.5px; height: 1.5px; background: var(--ink-2); transform: rotate(35deg); }
+
+/* The hanging tag */
+.hang { position: relative; padding-top: 0; }
+.string { position: absolute; left: 50%; top: -2px; width: 160px; height: 120px; transform: translateX(-30%); }
+.tag { position: absolute; top: 96px; left: 50%; width: 432px; margin-left: -200px; transform: rotate(-3.2deg); transform-origin: 50% 24px; background: var(--stock); clip-path: polygon(44px 0, calc(100% - 44px) 0, 100% 44px, 100% 100%, 0 100%, 0 44px); box-shadow: none; filter: drop-shadow(0 1px 0 rgba(0,0,0,.12)) drop-shadow(0 14px 18px rgba(30,30,25,.14)); }
+.hole { position: absolute; left: 50%; top: 18px; width: 36px; height: 36px; margin-left: -18px; border-radius: 50%; background: var(--ground); box-shadow: 0 0 0 7px #e9e2cf, 0 0 0 8px #cfc6ad; }
+.tag-band { margin-top: 70px; background: var(--signal); padding: 10px 22px 9px; display: flex; justify-content: space-between; align-items: baseline; }
+.tag-band b { font: 900 30px/1 var(--display); font-variation-settings: "opsz" 40; text-transform: uppercase; letter-spacing: .02em; }
+.tag-band span { font: 600 11px var(--mono); letter-spacing: .08em; }
+.tag-body { padding: 14px 22px 0; }
+.row { display: grid; grid-template-columns: 108px 1fr; gap: 10px; padding: 9px 0 10px; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.row .lbl { font-size: 9.5px; }
+.row .val { font-size: 15px; line-height: 1.35; }
+.row .mono { font: 500 12.5px/1.4 var(--mono); overflow-wrap: anywhere; }
+.meter { display: flex; gap: 2px; margin-top: 7px; position: relative; }
+.meter i { flex: 1; height: 12px; border: 1px solid var(--ink); background: transparent; }
+.meter i.on { background: var(--ink); }
+.meter i.due { background: var(--signal); border-color: var(--ink); }
+.meter i.over { border-style: dashed; border-color: var(--ink-2); }
+.sticker { display: inline-flex; gap: 6px; align-items: baseline; margin-top: 7px; padding: 4px 8px 4px 7px; border: 1.5px solid var(--ink); background: repeating-linear-gradient(-45deg, var(--stock) 0 6px, #f1eee5 6px 7px); font-size: 12.5px; line-height: 1.35; clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 0 100%); }
+.sticker b { font: 700 10px/1.3 var(--mono); letter-spacing: .08em; }
+.sign { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 12px 0 14px; }
+.sign .who { font: 700 16px/1.2 var(--text); border-bottom: 1.25px solid var(--ink); padding: 0 0 4px; margin-bottom: 4px; }
+.perf { position: relative; height: 22px; margin: 0 -1px; }
+.perf::before { content: ""; position: absolute; left: 14px; right: 14px; top: 10px; border-top: 2px dotted var(--ink-2); }
+.perf::after { content: ""; position: absolute; left: -11px; right: -11px; top: 0; height: 22px; background: radial-gradient(circle at 0 50%, var(--ground) 10px, transparent 10.5px), radial-gradient(circle at 100% 50%, var(--ground) 10px, transparent 10.5px); }
+.stub { display: flex; justify-content: space-between; align-items: center; padding: 6px 22px 18px; gap: 14px; }
+.stub p { font-size: 13px; line-height: 1.4; color: var(--ink-2); }
+.stub p b { color: var(--ink); }
+.serial { font: 900 30px/1 var(--stencil); font-variation-settings: "opsz" 40; letter-spacing: .04em; white-space: nowrap; }
+.tag .stamp.sim { position: absolute; right: 22px; top: 18px; transform: rotate(7deg); }
+.snap { position: absolute; right: 0; bottom: 18px; text-align: right; }
+
+/* ---------- Section: tags on a rail ---------- */
+.s2 { padding: 96px 0 72px; border-top: 1.5px solid var(--ink); }
+.s2-top { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: end; }
+.s2 h2 { font: 850 88px/.86 var(--display); font-variation-settings: "opsz" 72; text-transform: uppercase; }
+.s2-top p { font-size: 18px; max-width: 30em; color: var(--ink); }
+.rail { position: relative; margin-top: 56px; padding-top: 30px; }
+.rail::before { content: ""; position: absolute; left: -56px; right: -56px; top: 12px; height: 7px; background: linear-gradient(#f4f4f1, #a9a8a2 60%, #8d8c86); border-top: 1px solid #77766f; border-bottom: 1px solid #66655f; }
+.tags { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; align-items: start; }
+.th { position: relative; transform-origin: 50% 0; }
+.t { position: relative; padding-top: 48px; background: var(--stock); clip-path: polygon(30px 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 0 100%, 0 30px); filter: drop-shadow(0 1px 0 rgba(0,0,0,.12)) drop-shadow(0 10px 14px rgba(30,30,25,.12)); transform-origin: 50% 0; }
+.th:nth-child(1) { transform: rotate(-1.4deg); }
+.th:nth-child(2) { transform: rotate(1.1deg); margin-top: 14px; }
+.th:nth-child(3) { transform: rotate(-.6deg); margin-top: 4px; }
+.th:nth-child(4) { transform: rotate(1.6deg); margin-top: 18px; }
+.t .hole { width: 24px; height: 24px; margin-left: -12px; top: 12px; box-shadow: 0 0 0 5px #e9e2cf, 0 0 0 6px #cfc6ad; }
+.loop { position: absolute; left: 50%; top: -22px; width: 12px; height: 50px; margin-left: -6px; border: 2px solid #6d6a60; border-radius: 6px; z-index: 2; }
+.t-band { margin-top: 0; padding: 8px 16px 7px; display: flex; justify-content: space-between; align-items: baseline; background: var(--ink); color: var(--stock); }
+.t-band.o { background: var(--signal); color: var(--ink); }
+.t-band b { font: 900 26px/1 var(--display); font-variation-settings: "opsz" 40; text-transform: uppercase; letter-spacing: .03em; }
+.t-band span { font: 600 10.5px var(--mono); letter-spacing: .08em; }
+.t-body { padding: 14px 16px 18px; min-height: 272px; position: relative; }
+.t-body h3 { font: 700 18px/1.25 var(--text); }
+.t-body p { font-size: 14.5px; line-height: 1.45; margin-top: 8px; color: var(--ink-2); }
+.t-body dl { margin-top: 12px; border-top: 1px solid var(--rule); }
+.t-body dl div { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--rule); font-size: 13.5px; }
+.t-body dt { color: var(--ink-2); }
+.t-body dd { font: 500 12.5px/1.5 var(--mono); text-align: right; }
+.t-body dd.no { color: var(--signal-ink); font-weight: 600; }
+.t-foot { display: flex; justify-content: space-between; align-items: center; padding: 0 16px 14px; }
+.t-foot a { font: 500 11px var(--mono); }
+.t-foot .stamp { font-size: 13px; transform: rotate(-4deg); }
+
+/* ---------- App card: nameplate ---------- */
+.s3 { padding: 80px 0 88px; border-top: 1.5px solid var(--ink); display: grid; grid-template-columns: 1fr 500px; gap: 64px; align-items: start; }
+.s3 h2 { font: 850 64px/.88 var(--display); font-variation-settings: "opsz" 72; text-transform: uppercase; }
+.s3 > div > p { font-size: 17px; margin-top: 18px; max-width: 30em; }
+.np { background: var(--stock); border: 1.5px solid var(--ink); position: relative; }
+.np-h { background: var(--ink); color: var(--stock); padding: 14px 18px 13px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; }
+.np-h h3 { font: 850 30px/.95 var(--display); font-variation-settings: "opsz" 40; text-transform: uppercase; letter-spacing: .01em; }
+.np-h .acct { font: 400 11.5px/1.4 var(--mono); color: #cfcfca; margin-top: 7px; overflow-wrap: anywhere; }
+.lamp { display: flex; gap: 7px; align-items: center; font: 600 10.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--stock); white-space: nowrap; }
+.lamp i { width: 10px; height: 10px; border-radius: 50%; background: #7fd18b; box-shadow: inset 0 0 0 1.5px #2b5c33; }
+.np-dev { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1.5px solid var(--ink); }
+.np-dev p { font-size: 13.5px; color: var(--ink-2); }
+.np-dev p b { color: var(--ink); }
+.np-sec { padding: 14px 18px 16px; border-bottom: 1px solid var(--rule); }
+.np-sec .top { display: flex; justify-content: space-between; align-items: baseline; }
+.np-big { font: 850 44px/1 var(--display); font-variation-settings: "opsz" 60; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.np-big small { font: 500 13px var(--mono); margin-left: 6px; color: var(--ink-2); }
+.np .meter i { height: 16px; }
+.scale-n { display: flex; justify-content: space-between; font: 500 10px var(--mono); color: var(--ink-2); margin-top: 4px; }
+.scale-n b { color: var(--signal-ink); }
+.duechip { display: inline-flex; gap: 6px; align-items: center; background: var(--signal); padding: 3px 8px 3px; font: 700 10.5px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.liab { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--rule); align-items: center; }
+.liab .bar { grid-column: 1 / -1; height: 12px; border: 1px solid var(--ink-2); background: repeating-linear-gradient(-45deg, transparent 0 4px, rgba(20,20,20,.18) 4px 5px); }
+.liab .bar.empty { background: repeating-linear-gradient(-45deg, transparent 0 4px, rgba(20,20,20,.07) 4px 5px); }
+.keep { display: grid; grid-template-columns: 54px 1fr auto; gap: 14px; align-items: center; margin-top: 10px; }
+.initials { width: 54px; height: 54px; border-radius: 50%; border: 2.5px solid var(--signal-ink); color: var(--signal-ink); display: grid; place-items: center; font: 900 20px/1 var(--stencil); transform: rotate(-8deg); filter: url(#rough); mix-blend-mode: multiply; }
+.keep .who { font: 700 17px/1.2 var(--text); }
+.keep .why { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.rights { text-align: right; font: 850 38px/1 var(--display); }
+.rights small { display: block; font: 600 9.5px var(--mono); letter-spacing: .1em; }
+.np-f { display: flex; justify-content: space-between; padding: 10px 18px; font: 400 11px/1.4 var(--mono); color: var(--ink-2); gap: 10px; }
+.np-f a { color: var(--ink); font-weight: 600; }
+
+@media (max-width: 900px) {
+  .wrap { padding: 0 16px; }
+  .nav { height: 60px; }
+  .nav ul { display: none; }
+  .hero { grid-template-columns: 1fr; height: auto; gap: 0; }
+  .hero-l { display: contents; }
+  h1 { margin-top: 28px; }
+  .plate > div { min-width: 0; }
+  .plate .v { white-space: normal; }
+  h1 { font-size: 66px; }
+  .lede { font-size: 17px; margin-top: 18px; }
+  .ctas { flex-direction: column; }
+  .btn { justify-content: center; }
+  .plate { grid-template-columns: repeat(2, minmax(0,1fr)); margin: 10px 0 40px; order: 5; }
+  .plate > div { border-bottom: 1px solid var(--rule); }
+  .plate .v { font-size: 21px; }
+  .hang { height: 760px; order: 4; }
+  .tag { width: 324px; margin-left: -164px; top: 84px; }
+  .hang { overflow-x: clip; }
+  .tag-band b { font-size: 24px; }
+  .row { grid-template-columns: 84px 1fr; }
+  .string { transform: translateX(-30%) scale(.8); transform-origin: top left; }
+  .snap { position: absolute; left: 0; bottom: 0; text-align: left; }
+  .tag .stamp.sim { right: 12px; top: 14px; font-size: 14px; }
+  .s2 { padding-top: 56px; }
+  .s2-top { grid-template-columns: 1fr; gap: 16px; }
+  .s2 h2 { font-size: 58px; }
+  .tags { grid-template-columns: 1fr; gap: 54px; }
+  .rail::before { display: none; }
+  .th { transform: none !important; margin-top: 0 !important; }
+  .loop { display: none; }
+  .t-body { min-height: 0; }
+  .s3 { grid-template-columns: 1fr; gap: 28px; padding: 56px 0; }
+  .s3 h2 { font-size: 48px; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.5 1.75" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in" result="ink"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="1" seed="3" result="w"/>
+    <feDisplacementMap in="ink" in2="w" scale="1.6"/>
+  </filter>
+</svg>
+
+<div class="wrap" id="hero">
+  <nav class="nav" aria-label="Main">
+    <a class="wordmark" href="#">COMMONKIT</a>
+    <ul><li><a href="#flow">How a tag works</a></li><li><a href="#card">The machine</a></li><li><a href="/app/proof">Proof</a></li></ul>
+    <a class="btn primary" href="/app"><i aria-hidden="true"></i>Open the app</a>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-l">
+      <h1>Shared things that pay for their own <span class="o">upkeep.</span></h1>
+      <p class="lede">Every shared machine gets its own <b>keyless NEAR account</b>. Its fees fund its upkeep, it opens its own maintenance tasks, and the members who keep it running earn access that nobody can take back.</p>
+      <div class="ctas">
+        <a class="btn primary" href="/app"><i aria-hidden="true"></i>Open the app</a>
+        <a class="btn" href="#flow">How a tag works</a>
+      </div>
+      <div class="plate" aria-label="Rating plate of printer-01, from its profile">
+        <span class="lbl plate-cap">Rating plate · printer_3d profile</span>
+        <div><span class="lbl">Fee</span><span class="v">0.25<small>NEAR / 30 MIN</small></span></div>
+        <div><span class="lbl">Deposit</span><span class="v">2<small>NEAR, REFUNDED</small></span></div>
+        <div><span class="lbl">Float cap</span><span class="v">3<small>NEAR</small></span></div>
+        <div><span class="lbl">Keys</span><span class="v">0<small>FULL-ACCESS</small></span></div>
+        <div><span class="lbl">Rights valid</span><span class="v">60<small>DAYS</small></span></div>
+      </div>
+    </div>
+
+    <div class="hang" aria-label="Service tag of printer-01">
+      <svg class="string" viewBox="0 0 160 120" fill="none" aria-hidden="true">
+        <path d="M48 6c4 30 10 60 18 108" stroke="#6d6a60" stroke-width="2"/>
+        <path d="M48 6c-10 26 -4 70 26 108" stroke="#8a877c" stroke-width="2"/>
+        <circle cx="48" cy="6" r="5" fill="var(--ground)" stroke="var(--ink-2)" stroke-width="1.5"/>
+      </svg>
+      <article class="tag">
+        <span class="hole" aria-hidden="true"></span>
+        <div class="tag-band"><b>Service record</b><span>printer-01</span></div>
+        <div class="tag-body">
+          <div class="row"><span class="lbl">Machine</span><span class="val">Makerlab 3D printer</span></div>
+          <div class="row"><span class="lbl">Own account</span><span class="mono">printer-01.makerlab.commonkit-sxflo.testnet</span></div>
+          <div class="row"><span class="lbl">Float</span><span class="val"><span class="num">2.6</span> of <span class="num">3</span> NEAR cap, the rest goes to the DAO
+            <span class="meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></span></div>
+          <div class="row"><span class="lbl">Next service</span><span class="val">New filament spool at 5 m, now at <span class="num">4.0</span> m
+            <span class="sticker"><b>DEMO THRESHOLD</b> production: 330 m</span></span></div>
+          <div class="row" style="border-bottom:0"><span class="lbl">Last service</span><span class="val">Nozzle cleaned, calibration print passed</span></div>
+          <div class="sign">
+            <div><div class="who">Ayşe</div><span class="lbl">Done by</span></div>
+            <div><div class="who">Mehmet</div><span class="lbl">Verified by</span></div>
+          </div>
+        </div>
+        <div class="perf" aria-hidden="true"></div>
+        <div class="stub"><p><b>2 usage rights</b> to Ayşe, valid 60 days. Non-transferable.</p><span class="serial">TASK 00</span></div>
+        <span class="stamp sim">Simulated<small>emulated Moonraker</small></span>
+      </article>
+      <p class="lbl snap">Snapshot · testnet views<br>2026-11-10 09:44 UTC</p>
+    </div>
+  </header>
+</div>
+
+<div class="wrap" id="flow">
+<section class="s2" aria-labelledby="s2t">
+  <div class="s2-top">
+    <h2 id="s2t">Every use leaves a tag.</h2>
+    <p>Four tags from one machine, all written on NEAR testnet. Each one is a transaction you can open. Where a device was emulated, the tag says so.</p>
+  </div>
+  <div class="rail">
+    <div class="tags">
+      <div class="th"><span class="loop" aria-hidden="true"></span><article class="t">
+       <span class="hole" aria-hidden="true"></span>
+        <div class="t-band"><b>Reserve</b><span>STEP 02</span></div>
+        <div class="t-body">
+          <h3>Ali books two printer slots.</h3>
+          <p>He pays the fee and a refundable deposit. The fee is revenue; the deposit stays members' money.</p>
+          <dl><div><dt>Fee</dt><dd>0.5 NEAR</dd></div><div><dt>Deposit, held</dt><dd>2 NEAR</dd></div><div><dt>Float after</dt><dd>2.5499 NEAR</dd></div></dl>
+        </div>
+        <div class="t-foot"><a href="https://testnet.nearblocks.io/txns/3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz">tx 3hHS1wra…6Qz</a></div>
+      </article></div>
+      <div class="th"><span class="loop" aria-hidden="true"></span><article class="t">
+       <span class="hole" aria-hidden="true"></span>
+        <div class="t-band"><b>Unlock</b><span>STEPS 03–04</span></div>
+        <div class="t-body">
+          <h3>The bridge opens it for Ali, not for Can.</h3>
+          <p>Ali signs the request; the bridge checks his reservation on chain and starts the job. Can has no reservation and is refused.</p>
+          <dl><div><dt>Ali</dt><dd>access granted</dd></div><div><dt>Can</dt><dd class="no">refused</dd></div></dl>
+          
+        </div>
+        <div class="t-foot"><a href="https://testnet.nearblocks.io/txns/ARRc2y3M1WwSKcCfcCkp7PpmMDBGBrqWoJ3zkTNMmKwz">tx ARRc2y3M…mKwz</a><span class="stamp">Simulated<small>emulated device</small></span></div>
+      </article></div>
+      <div class="th"><span class="loop" aria-hidden="true"></span><article class="t">
+       <span class="hole" aria-hidden="true"></span>
+        <div class="t-band o"><b>Upkeep</b><span>STEPS 07–08, 17</span></div>
+        <div class="t-body">
+          <h3>The machine asks for a nozzle clean.</h3>
+          <p>Telemetry crossed the rule, so the agent opened task #0. Ayşe did it; Mehmet checked it.</p>
+          <dl><div><dt>Done by</dt><dd>Ayşe</dd></div><div><dt>Verified by</dt><dd>Mehmet</dd></div><div><dt>Ayşe approves own</dt><dd class="no">E_SELF_VERIFY</dd></div></dl>
+          
+        </div>
+        <div class="t-foot"><a href="https://testnet.nearblocks.io/txns/AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem">tx AbQSVeSa…Avem</a><span class="stamp">Demo threshold<small>0.5 h · production 200 h</small></span></div>
+      </article></div>
+      <div class="th"><span class="loop" aria-hidden="true"></span><article class="t">
+       <span class="hole" aria-hidden="true"></span>
+        <div class="t-band"><b>Earn</b><span>STEPS 08, 17</span></div>
+        <div class="t-body">
+          <h3>Ayşe holds two usage rights.</h3>
+          <p>They work on any machine in the makerlab-fab group for 60 days. Nobody can move or delete them, the council included.</p>
+          <dl><div><dt>Rights minted</dt><dd>2</dd></div><div><dt>Council takes one</dt><dd class="no">E_NON_TRANSFERABLE</dd></div></dl>
+        </div>
+        <div class="t-foot"><a href="https://testnet.nearblocks.io/txns/35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov">tx 35LAjegU…6ov</a></div>
+      </article></div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="wrap" id="card">
+<section class="s3" aria-labelledby="s3t">
+  <div>
+    <p class="lbl">In the app</p>
+    <h2 id="s3t">Each machine wears its nameplate.</h2>
+    <p>Segments, not gradients: you count how close the next service is. Deposits sit on their own hatched line because they are members' money. Stamps and stickers carry every honesty label, printed on, not pasted over.</p>
+  </div>
+  <article class="np" aria-label="printer-01 nameplate">
+    <div class="np-h">
+      <div><h3>Makerlab 3D printer</h3><div class="acct">printer-01.makerlab.commonkit-sxflo.testnet</div></div>
+      <div class="lamp"><i aria-hidden="true"></i>In service</div>
+    </div>
+    <div class="np-dev">
+      <p><b>Device:</b> moonraker adapter → emulated Moonraker</p>
+      <span class="stamp">Simulated</span>
+    </div>
+    <div class="np-sec">
+      <div class="top"><span class="lbl">Upkeep · filament_spool</span><span class="duechip">Due at 5 m</span></div>
+      <div class="np-big">4.0<small>of 5 m · 1 m left</small></div>
+      <div class="meter" aria-hidden="true" style="margin-top:10px"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i class="due"></i></div>
+      <div class="scale-n"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><b>5 m</b></div>
+      <span class="sticker" style="margin-top:12px"><b>DEMO THRESHOLD</b> set by DAO proposal makerlab-ck#16 · production 330 m</span>
+      <p style="font-size:13.5px;margin-top:10px;color:var(--ink-2)"><span class="num" style="color:var(--ink)">Task #1</span> Level the bed · open · 1 right</p>
+    </div>
+    <div class="np-sec">
+      <div class="top"><span class="lbl">Float vs cap</span><span class="lbl">above the cap → DAO</span></div>
+      <div class="np-big">2.600<small>/ 3.000 NEAR</small></div>
+      <div class="meter" aria-hidden="true" style="margin-top:10px"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i class="over"></i><i class="over"></i></div>
+      <div class="liab">
+        <span class="lbl">Deposits held · liability, not float</span><span class="num" style="font-size:14px">0.000 NEAR</span>
+        <span class="bar empty" aria-hidden="true"></span>
+      </div>
+    </div>
+    <div class="np-sec" style="border-bottom:0">
+      <div class="top"><span class="lbl">Kept alive by</span><span class="lbl">usage rights earned</span></div>
+      <div class="keep">
+        <span class="initials" aria-hidden="true">AY</span>
+        <div><div class="who">Ayşe</div><div class="why">Task #0 nozzle_clean, task #2 filament_spool. Verified by Mehmet.</div></div>
+        <div class="rights">3<small>RIGHTS</small></div>
+      </div>
+    </div>
+    <div class="np-f"><span>Snapshot · testnet views 2026-11-10 09:44 UTC</span><a href="/app">Open in app →</a></div>
+  </article>
+</section>
+</div>
+</body>
+</html>
