@@ -27,6 +27,7 @@
     "serve:site": "node scripts/serve-site.mjs",
     "dev:web": "pnpm --filter @commonkit/web dev",
     "dev:bridge": "pnpm --filter @commonkit/bridge dev",
+    "device:add": "pnpm --filter @commonkit/bridge device:add",
     "dev:agent": "pnpm --filter @commonkit/agent dev"
   },
   "devDependencies": {

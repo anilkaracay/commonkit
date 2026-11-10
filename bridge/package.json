@@ -25,7 +25,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "gen:vectors": "tsx test/gen-nep413-vectors.ts",
     "emulate": "tsx src/emulators/cli.ts",
-    "dev:emulated": "tsx src/emulated-stack.ts"
+    "dev:emulated": "tsx src/emulated-stack.ts",
+    "device:add": "tsx src/cli/device-add.ts"
   },
   "dependencies": {
     "@commonkit/sdk": "workspace:*",
