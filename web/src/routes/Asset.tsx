@@ -22,6 +22,7 @@ import { formatNear, toYocto } from '../lib/near';
 import { formatAgo, formatDateTime, formatTime, slotOf, slotStartNs } from '../lib/time';
 import { NotFoundPage } from './NotFound';
 import { deviceOf } from '../data/devices';
+import { ReservationActions } from '../components/ReservationActions';
 
 const resTone: Partial<Record<Reservation['status'], Tone>> = {
   Confirmed: 'liability',
@@ -270,6 +271,7 @@ export function AssetPage() {
                       start
                     </Link>
                   )}
+                  <ReservationActions assetId={assetId} r={r} profile={s.profile} nowMs={now} />
                   <TxLink hash={ds.rowTx(`res-${deployed.alias}-${r.id}`)} />
                 </div>
               </li>

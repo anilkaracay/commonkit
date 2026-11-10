@@ -5,9 +5,9 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { NearConnector as Connector, NearWalletBase } from '@hot-labs/near-connect';
+import { gasFor } from '../lib/gas';
 import { WalletContext, type ContractCall, type Nep413Request, type Nep413Signed, type WalletProvider } from './wallet';
 
-const DEFAULT_GAS = 100_000_000_000_000n; // 100 Tgas; contract callbacks need headroom
 
 /** A failed transaction outcome becomes an Error whose text carries the contract's E_* code. */
 export function outcomeError(outcome: unknown): Error | null {
@@ -92,7 +92,7 @@ export function NearConnectProvider({ children, network = 'testnet' }: { childre
               params: {
                 methodName: call.methodName,
                 args: call.args,
-                gas: (call.gas ?? DEFAULT_GAS).toString(),
+                gas: (call.gas ?? gasFor(call.methodName)).toString(),
                 deposit: call.deposit.toString(),
               },
             },

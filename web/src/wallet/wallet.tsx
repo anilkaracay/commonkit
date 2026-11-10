@@ -11,6 +11,7 @@ export interface ContractCall {
   args: Record<string, unknown>;
   /** Exact attached deposit in yocto (computed from views, never typed by the user). */
   deposit: bigint;
+  /** Defaults to `gasFor(methodName)` (lib/gas.ts, CONTRACT_SPEC §8); pass it when context matters. */
   gas?: bigint;
 }
 
