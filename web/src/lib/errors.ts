@@ -4,16 +4,7 @@
  */
 import { type ErrorCode as SdkErrorCode } from '@commonkit/sdk';
 
-/** Codes added to the spec after the sdk list was cut (D-301, D-017); drop once the sdk has them. */
-type NewerCode =
-  | 'E_INVALID_ARGS'
-  | 'E_NOT_FOUND'
-  | 'E_OUT_OF_SERVICE'
-  | 'E_NO_RECENT_SESSION'
-  | 'E_ALREADY_REPORTED'
-  | 'E_NOT_REIMBURSABLE'
-  | 'E_EXPENSE_CAP';
-export type ErrorCode = SdkErrorCode | NewerCode;
+export type ErrorCode = SdkErrorCode;
 
 export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   E_UNAUTHORIZED: 'Your account is not allowed to do this.',
@@ -53,6 +44,9 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   E_ALREADY_REPORTED: 'You already reported this fault. One active report per person is enough.',
   E_NOT_REIMBURSABLE: 'This kind of task does not pay back expenses. Only restock and repair tasks do.',
   E_EXPENSE_CAP: 'That expense is above what this task can reimburse.',
+  E_LEDGER: 'The asset refused this because its books would not balance. Nothing was changed.',
+  E_MINT_FAILED: 'The reward cards could not be issued yet. Anyone can retry the reward; it pays out once.',
+  E_TRANSFER_FAILED: 'A payment did not go through. The claim is kept and can be retried; it never pays twice.',
   E_NO_REVOCATION: 'Granted rights can never be taken back, by anyone.',
 };
 

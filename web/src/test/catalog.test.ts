@@ -25,7 +25,13 @@ describe('scenario catalog from profiles/*.json', () => {
     expect(r.trigger).toEqual({ Metric: { metric: 'cycles', threshold: 30 } });
   });
 
-  it('only the washer is marked simulation', () => {
-    expect(catalog.filter((c) => c.meta.status.startsWith('simulation')).map((c) => c.profile.asset_type)).toEqual(['washer']);
+  it('marks the four testnet assets simulation and never claims real hardware (D-022)', () => {
+    expect(
+      catalog
+        .filter((c) => c.meta.status.startsWith('simulation'))
+        .map((c) => c.profile.asset_type)
+        .sort(),
+    ).toEqual(['community_fridge', 'laser_cutter', 'printer_3d', 'washer']);
+    expect(catalog.some((c) => c.meta.status.startsWith('real hardware'))).toBe(false);
   });
 });
