@@ -19,12 +19,10 @@ export interface Booking {
 async function isFreeFn(ctx: DemoContext, assetId: string): Promise<(s: bigint) => boolean> {
   const cache = new Map<bigint, boolean>();
   const a = ctx.asset(assetId);
-  // Pre-read the next 12 slots; the slot picker only scans a short range.
+  // Pre-read the next 12 slots; the slot pickers scan at most a few slots ahead.
   const p = await a.profile();
   const now = (await ctx.chainNow()) / (BigInt(p.slot_minutes) * NS_PER_MIN);
-  await Promise.all(
-    Array.from({ length: 12 }, (_, i) => now + BigInt(i)).map(async (s) => cache.set(s, (await a.slotOwner(s)) === null)),
-  );
+  for (let i = 0n; i < 12n; i++) cache.set(now + i, (await a.slotOwner(now + i)) === null);
   return (s) => cache.get(s) ?? true;
 }
 
@@ -48,9 +46,9 @@ export async function reserveNow(ctx: DemoContext, label: string, assetId: strin
   const p = await ctx.asset(assetId).profile();
   const choice = pickUsableSlot(await ctx.chainNow(), p, slots, await isFreeFn(ctx, assetId), {
     marginNs: 4n * NS_PER_MIN,
-    maxWaitNs: BigInt(p.slot_minutes) * NS_PER_MIN,
+    maxWaitNs: 3n * BigInt(p.slot_minutes) * NS_PER_MIN,
   });
-  if (!choice) throw new Error(`no usable ${slugOf(assetId)} slot in the next slot length`);
+  if (!choice) throw new Error(`no usable ${slugOf(assetId)} slot in the next three slots`);
   if (choice.waitNs > 0n) ctx.rec.note(`${slugOf(assetId)}: booked the next slot; its start window opens in ${choice.waitNs / 60_000_000_000n} min (chain time)`);
   return book(ctx, label, assetId, holder, choice.startSlot, slots, p, rightId);
 }

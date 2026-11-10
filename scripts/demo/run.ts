@@ -12,6 +12,7 @@
  * E_* code), and upserts its record into evidence/steps.json. Device steps run through the real
  * bridge against emulated devices or the simulator (SIMULATED, D-022).
  */
+import './lib/rpc-throttle.mjs';
 import { assertTestnet } from '../lib/config.js';
 import { loadDeployments } from '../lib/deployments.js';
 import { Chain } from '../lib/near.js';

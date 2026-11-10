@@ -209,5 +209,160 @@
       "start_slot": "996827"
     },
     "timestamp": "2026-11-10T05:14:18.774Z"
+  },
+  {
+    "step": 3,
+    "title": "Ali requests access via the bridge (NEP-413 signed); the emulated printer starts the job",
+    "core": true,
+    "simulated": true,
+    "negative": false,
+    "status": "failed",
+    "txHashes": [],
+    "explorerLinks": [],
+    "transactions": [],
+    "assertions": [],
+    "notes": [],
+    "outputs": {},
+    "error": "RPC HTTP 429",
+    "timestamp": "2026-11-10T05:21:02.543Z"
+  },
+  {
+    "step": 11,
+    "title": "Zeynep reserves the laser without the laser_safety credential: rejected, refunded",
+    "core": false,
+    "simulated": false,
+    "negative": true,
+    "status": "passed",
+    "txHashes": [
+      "DWyA3hq1TyJwyafuZGVr3CmfagmpBMokLeYMLyji2Es3"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/DWyA3hq1TyJwyafuZGVr3CmfagmpBMokLeYMLyji2Es3"
+    ],
+    "transactions": [
+      {
+        "label": "Zeynep reserves laser-01 (no credential) (1 slot from slot 1993654; fee 0.1 NEAR + deposit 3 NEAR)",
+        "hash": "DWyA3hq1TyJwyafuZGVr3CmfagmpBMokLeYMLyji2Es3",
+        "ok": true,
+        "by": "zeynep.commonkit-sxflo.testnet",
+        "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "reservation_pending",
+          "op_created",
+          "reservation_rejected",
+          "op_result"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "precondition: Zeynep holds no laser_safety credential",
+        "ok": true,
+        "detail": "false"
+      },
+      {
+        "what": "reservation_rejected reason = E_CREDENTIAL_MISSING (commons authorize_reservation)",
+        "ok": true,
+        "detail": "E_CREDENTIAL_MISSING"
+      },
+      {
+        "what": "Refund op Succeeded",
+        "ok": true,
+        "detail": "Succeeded"
+      },
+      {
+        "what": "refund = everything attached except the measured storage of the rejected record (D-213 #1)",
+        "ok": true,
+        "detail": "refund 3.0965 NEAR, storage kept 0.0034 NEAR"
+      },
+      {
+        "what": "Zeynep is out of pocket only gas + storage (< 0.02 NEAR)",
+        "ok": true,
+        "detail": "4.5 NEAR → 4.4954 NEAR"
+      },
+      {
+        "what": "reservation Rejected; its slot released",
+        "ok": true,
+        "detail": "{\"status\":\"Rejected\",\"slot_owner\":null}"
+      }
+    ],
+    "notes": [
+      "The rejection is a business refusal returned by commons (no panic), so the reserve tx itself succeeds and refunds; the code is in the reservation_rejected event."
+    ],
+    "outputs": {
+      "reservation_id": "0"
+    },
+    "timestamp": "2026-11-10T05:22:54.165Z"
+  },
+  {
+    "step": 12,
+    "title": "Ayşe proposes Zeynep’s laser training; Mehmet approves; Zeynep gets laser_safety, Ayşe a laser-group right",
+    "core": false,
+    "simulated": false,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [
+      "B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG",
+      "6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM"
+    ],
+    "explorerLinks": [
+      "https://testnet.nearblocks.io/txns/B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG",
+      "https://testnet.nearblocks.io/txns/6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM"
+    ],
+    "transactions": [
+      {
+        "label": "ayse proposes laser_safety training for zeynep",
+        "hash": "B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG",
+        "ok": true,
+        "by": "ayse.commonkit-sxflo.testnet",
+        "receiver": "commons.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "training_proposed"
+        ],
+        "error_code": null
+      },
+      {
+        "label": "Mehmet (verifier ≠ trainer ≠ trainee) approves training #1",
+        "hash": "6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM",
+        "ok": true,
+        "by": "mehmet.commonkit-sxflo.testnet",
+        "receiver": "commons.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "nft_mint",
+          "nft_mint",
+          "training_approved",
+          "rights_minted"
+        ],
+        "error_code": null
+      }
+    ],
+    "assertions": [
+      {
+        "what": "credential card + trainer right minted (2 nft_mint events)",
+        "ok": true,
+        "detail": "2"
+      },
+      {
+        "what": "training Approved",
+        "ok": true,
+        "detail": "Approved"
+      },
+      {
+        "what": "Zeynep has laser_safety",
+        "ok": true,
+        "detail": "true"
+      },
+      {
+        "what": "Ayşe received 1 usage right in makerlab-fab for training",
+        "ok": true,
+        "detail": "[\"right-2\"]"
+      }
+    ],
+    "notes": [],
+    "outputs": {
+      "training_id": "1"
+    },
+    "timestamp": "2026-11-10T05:23:17.262Z"
   }
 ]

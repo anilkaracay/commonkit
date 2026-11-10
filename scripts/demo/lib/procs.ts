@@ -1,7 +1,16 @@
 /** Child processes (bridge, agent, verify.sh) started by demo steps: output to a log file, clean stop. */
 import { spawn, type ChildProcess } from 'node:child_process';
 import { createWriteStream, mkdirSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+/** Preload for child processes: the same 429-aware RPC fetch guard as the runner. */
+const THROTTLE = pathToFileURL(join(dirname(fileURLToPath(import.meta.url)), 'rpc-throttle.mjs')).href;
+const childEnv = (env?: NodeJS.ProcessEnv): NodeJS.ProcessEnv => ({
+  ...process.env,
+  ...env,
+  NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --import ${THROTTLE}`.trim(),
+});
 
 export const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
@@ -15,7 +24,7 @@ export interface Proc {
 export function startProc(cmd: string, args: string[], opts: { cwd: string; env?: NodeJS.ProcessEnv; logFile: string }): Proc {
   mkdirSync(dirname(opts.logFile), { recursive: true });
   const log = createWriteStream(opts.logFile, { flags: 'a' });
-  const child = spawn(cmd, args, { cwd: opts.cwd, env: { ...process.env, ...opts.env }, stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(cmd, args, { cwd: opts.cwd, env: childEnv(opts.env), stdio: ['ignore', 'pipe', 'pipe'] });
   child.stdout?.pipe(log);
   child.stderr?.pipe(log);
   const exited = new Promise<number | null>((res) => child.on('exit', (code) => res(code)));
@@ -36,7 +45,7 @@ export function startProc(cmd: string, args: string[], opts: { cwd: string; env?
 /** Run to completion, capturing output. */
 export function runProc(cmd: string, args: string[], opts: { cwd: string; env?: NodeJS.ProcessEnv }): Promise<{ code: number | null; out: string }> {
   return new Promise((res, rej) => {
-    const child = spawn(cmd, args, { cwd: opts.cwd, env: { ...process.env, ...opts.env }, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(cmd, args, { cwd: opts.cwd, env: childEnv(opts.env), stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
     child.stdout.on('data', (d: Buffer) => (out += d.toString()));
     child.stderr.on('data', (d: Buffer) => (out += d.toString()));

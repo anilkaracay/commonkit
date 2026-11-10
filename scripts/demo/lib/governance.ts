@@ -9,7 +9,7 @@ import type { Chain } from '../../lib/near.js';
 import type { CommunityCast } from './cast.js';
 import type { StepRecorder } from './record.js';
 
-export const TREASURY_MARGIN = nearToYocto('0.2');
+export const TREASURY_MARGIN = nearToYocto('0.5');
 
 export interface Governance {
   /** One FunctionCall proposal on `receiver` (≥ 1 action, atomic), proposed and voted through. */

@@ -103,8 +103,7 @@ export class DemoContext {
 
   /** Chain time of the latest final block (ns). */
   async chainNow(): Promise<bigint> {
-    const b = await this.chain.rpcs[0]!.call<{ header: { timestamp_nanosec: string } }>('block', { finality: 'final' });
-    return BigInt(b.header.timestamp_nanosec);
+    return chainTime(this.chain);
   }
 
   /** Wait (real time) until chain time reaches `ns`. */
@@ -136,6 +135,21 @@ export class DemoContext {
     this.bridgeProc = null;
     this.bridgeClient = null;
   }
+}
+
+/** Chain time of the latest final block, with retries on rate limits (FastNEAR 429) and fallback RPC. */
+export async function chainTime(chain: Chain): Promise<bigint> {
+  let last: unknown;
+  for (let i = 0; i < 6; i++)
+    for (const rpc of chain.rpcs)
+      try {
+        const b = await rpc.call<{ header: { timestamp_nanosec: string } }>('block', { finality: 'final' });
+        return BigInt(b.header.timestamp_nanosec);
+      } catch (e) {
+        last = e;
+        await sleep(1000 * (i + 1));
+      }
+  throw last;
 }
 
 export const near = (y: bigint | string): string => `${yoctoToNear(y, 4)} NEAR`;

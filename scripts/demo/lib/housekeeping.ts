@@ -7,6 +7,7 @@ import { EvidenceLog } from '../../lib/evidence.js';
 import type { Chain } from '../../lib/near.js';
 import { TGAS } from '../../lib/config.js';
 import type { Cast } from './cast.js';
+import { chainTime } from './context.js';
 import { writeEvidenceMd } from './evidence-md.js';
 import { NS_PER_MIN } from './slots.js';
 import { AssetView } from './views.js';
@@ -15,8 +16,7 @@ const DEMO_MEMBERS = (c: Cast) => [c.ali, c.can, c.ayse, c.zeynep, c.mehmet];
 
 export async function housekeeping(chain: Chain, cast: Cast): Promise<void> {
   const log = new EvidenceLog('demo-housekeeping');
-  const b = await chain.rpcs[0]!.call<{ header: { timestamp_nanosec: string } }>('block', { finality: 'final' });
-  const now = BigInt(b.header.timestamp_nanosec);
+  const now = await chainTime(chain);
   for (const assetId of [cast.printer, cast.laser, cast.washer, cast.fridge]) {
     const a = new AssetView(chain, assetId);
     const p = await a.profile();

@@ -5,12 +5,15 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ## Judge flow
 
-2 of 21 steps passed. ★ = one of the five core steps shown in the README.
+4 of 21 steps passed. ★ = one of the five core steps shown in the README.
 
 | # | Step | Result | Transactions |
 | :--- | :--- | :--- | :--- |
 | 1 | DAO proposal registers printer-01, sets its profile and funds its float  | ✅ | [3PC2DYqH…](https://testnet.nearblocks.io/txns/3PC2DYqHLS8259wSAkipxtDZh43L37gBRHxYhm5WztvT) [7M8WNZwp…](https://testnet.nearblocks.io/txns/7M8WNZwpjKidbwjmUaVz325m1HTVHHXY5f5aN3RKB1kr) [BnQTJSQM…](https://testnet.nearblocks.io/txns/BnQTJSQMZxFrVFzbHg5bUGzTNNxfHseR8QnPHsGnHogD) [7h4Wk4c9…](https://testnet.nearblocks.io/txns/7h4Wk4c9SQNKDXgSK1MH5t76dFeLd9PCd9ikJeAV4L8G) [HBnxKomp…](https://testnet.nearblocks.io/txns/HBnxKompVkzckacs3GcUEUz2N7y3kTcsfU83dFunvkYL) [GvGnSMRX…](https://testnet.nearblocks.io/txns/GvGnSMRXCGhtxzeYrV8vDZb5tebayjR8gSCxH4fQVLmG) [At6SwzzV…](https://testnet.nearblocks.io/txns/At6SwzzVjEkRSJ9rBsh2ejsAKsZsfMvBCzVLwHTG2RBA) |
 | 2 | Ali reserves 2 printer slots and pays fee + refundable deposit ★ | ✅ | [3hHS1wra…](https://testnet.nearblocks.io/txns/3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz) |
+| 3 | Ali requests access via the bridge (NEP-413 signed); the emulated printer starts the job ★ (simulation) | ❌ | — |
+| 11 | Zeynep reserves the laser without the laser_safety credential: rejected, refunded  | ✅ | [DWyA3hq1…](https://testnet.nearblocks.io/txns/DWyA3hq1TyJwyafuZGVr3CmfagmpBMokLeYMLyji2Es3) |
+| 12 | Ayşe proposes Zeynep’s laser training; Mehmet approves; Zeynep gets laser_safety, Ayşe a laser-group right  | ✅ | [B2CwNMwt…](https://testnet.nearblocks.io/txns/B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG) [6wdSrqts…](https://testnet.nearblocks.io/txns/6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM) |
 
 ### Step 1 — DAO proposal registers printer-01, sets its profile and funds its float
 
@@ -50,6 +53,43 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | :--- | :--- | :--- | :--- |
 | [3hHS1wra…](https://testnet.nearblocks.io/txns/3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz) | Ali reserves printer-01 (2 slots from slot 996827; fee 0.5 NEAR + deposit 2 NEAR) | ali.commonkit-sxflo.testnet | ok |
 - Note: printer-01: booked the next slot; its start window opens in 15 min (chain time)
+
+### Step 3 — Ali requests access via the bridge (NEP-413 signed); the emulated printer starts the job (simulation)
+
+❌ failed · 2026-11-10 05:21:02 UTC · core step
+
+Error: `RPC HTTP 429`
+
+
+### Step 11 — Zeynep reserves the laser without the laser_safety credential: rejected, refunded
+
+✅ passed · 2026-11-10 05:22:54 UTC
+
+- ✅ precondition: Zeynep holds no laser_safety credential — `false`
+- ✅ reservation_rejected reason = E_CREDENTIAL_MISSING (commons authorize_reservation) — `E_CREDENTIAL_MISSING`
+- ✅ Refund op Succeeded — `Succeeded`
+- ✅ refund = everything attached except the measured storage of the rejected record (D-213 #1) — `refund 3.0965 NEAR, storage kept 0.0034 NEAR`
+- ✅ Zeynep is out of pocket only gas + storage (< 0.02 NEAR) — `4.5 NEAR → 4.4954 NEAR`
+- ✅ reservation Rejected; its slot released — `{"status":"Rejected","slot_owner":null}`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [DWyA3hq1…](https://testnet.nearblocks.io/txns/DWyA3hq1TyJwyafuZGVr3CmfagmpBMokLeYMLyji2Es3) | Zeynep reserves laser-01 (no credential) (1 slot from slot 1993654; fee 0.1 NEAR + deposit 3 NEAR) | zeynep.commonkit-sxflo.testnet | ok |
+- Note: The rejection is a business refusal returned by commons (no panic), so the reserve tx itself succeeds and refunds; the code is in the reservation_rejected event.
+
+### Step 12 — Ayşe proposes Zeynep’s laser training; Mehmet approves; Zeynep gets laser_safety, Ayşe a laser-group right
+
+✅ passed · 2026-11-10 05:23:17 UTC
+
+- ✅ credential card + trainer right minted (2 nft_mint events) — `2`
+- ✅ training Approved — `Approved`
+- ✅ Zeynep has laser_safety — `true`
+- ✅ Ayşe received 1 usage right in makerlab-fab for training — `["right-2"]`
+
+| Tx | What | By | Result |
+| :--- | :--- | :--- | :--- |
+| [B2CwNMwt…](https://testnet.nearblocks.io/txns/B2CwNMwtPHc84ytpJUSvJQwYNnsMauMCpPBdjXmnXjFG) | ayse proposes laser_safety training for zeynep | ayse.commonkit-sxflo.testnet | ok |
+| [6wdSrqts…](https://testnet.nearblocks.io/txns/6wdSrqtsVq4Ri3pWsGMgyJ8KAPp6CD5JXewDZTPLnBeM) | Mehmet (verifier ≠ trainer ≠ trainee) approves training #1 | mehmet.commonkit-sxflo.testnet | ok |
 
 ## funding
 
