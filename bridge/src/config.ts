@@ -28,7 +28,8 @@ export const assetConfigSchema = z
     adapter: z.enum(ADAPTER_KINDS),
     adapter_config: z.record(z.string(), z.unknown()).default({}),
     telemetry_interval_sec: z.number().int().positive().max(86_400).default(60),
-    session_timeout_min: z.number().int().positive().max(24 * 60).default(240),
+    /** Up to 14 days: manual_qr loans (microscope, ladder) can span days. */
+    session_timeout_min: z.number().int().positive().max(14 * 24 * 60).default(240),
     session_poll_sec: z.number().positive().max(300).default(2),
     /** rule_id -> verification test run after a maintenance submission. */
     verification_tests: z.record(z.string(), verificationTestSchema).default({}),

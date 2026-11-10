@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { pino } from "pino";
 import { afterEach, describe, expect, it } from "vitest";
-import { ManualQrAdapter } from "../../src/adapters/manual_qr/manual_qr.js";
+import { ManualQrAdapter, manualQrConfigSchema } from "../../src/adapters/manual_qr/manual_qr.js";
 import { MoonrakerAdapter, moonrakerConfigSchema } from "../../src/adapters/moonraker/moonraker.js";
 import { initialDetector, stepDetector, type DetectorConfig } from "../../src/adapters/smart_plug/cycles.js";
 import { SmartPlugAdapter, smartPlugConfigSchema } from "../../src/adapters/smart_plug/smart_plug.js";
@@ -184,7 +184,7 @@ describe("smart_plug adapter specifics", () => {
 
 describe("manual_qr adapter", () => {
   it("only a steward other than the holder confirms; the handover code must match; uses count on return", async () => {
-    const a = new ManualQrAdapter({ code_length: 8 }, await ctxFor(new ManualClock()));
+    const a = new ManualQrAdapter(manualQrConfigSchema.parse({ code_length: 8 }), await ctxFor(new ManualClock()));
     await a.init();
     await a.unlock(session(1));
     const code = ((await a.sessionInfo(session(1))) as { manual_qr: { handover_code: string } }).manual_qr.handover_code;

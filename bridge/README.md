@@ -45,6 +45,26 @@ where `signature` is the wallet's NEP-413 `signMessage` output (base64) for `{me
 Rejections are `{ok: false, reason, detail}`; `reason` is one of the codes in `src/errors.ts`, for example
 `NONCE_USED`, `NONCE_EXPIRED`, `RECIPIENT_MISMATCH`, `BAD_SIGNATURE`, `KEY_NOT_ON_ACCOUNT` or `RESERVATION_NOT_ACCESSIBLE`.
 
+## manual_qr pilot flow (what the web app calls)
+
+For items without electronics (D-024 pilot). Deep links go to the app at `<app_base_url>/a/<assetId>`
+(`adapter_config.app_base_url`, default `http://localhost:5173/app`).
+
+| Step | Who | App does | Bridge endpoint |
+| :--- | :--- | :--- | :--- |
+| Sticker on the item | — | QR codes of the three links | `GET /manual/:asset/links` → `{links: {reserve, return, fault}}` (`?action=reserve\|return\|fault`) |
+| Reserve | member | `?action=reserve` → `reserve` on the asset contract (wallet) | — |
+| Pick up | member | NEP-413 `signMessage` → `/access` | `POST /access/challenge {action: "access"}`, `POST /access` → `device.manual_qr {handover_code, handover_link, return_link}` |
+| Handover (start) | steward | scans the member's `handover_link` QR (`?action=confirm&step=handover&session=…&code=…`), signs | `POST /access/challenge {action: "confirm", reservation_id}`, `POST /manual/:asset/:session_id/confirm {step: "handover", code}` + signed body |
+| Return (finish) | steward | scans the sticker `?action=return`, reads the loan, signs | `GET /manual/:asset/session` → `{current, outstanding[]}` (never the code), then `POST /manual/:asset/:session_id/confirm {step: "return"}` |
+| Fault | member | `?action=fault` → `report_fault` on the asset contract (wallet) | — |
+
+Rules: the confirmer must hold the `steward` role on the asset (`get_roles`) and is never the holder;
+the handover code must match; the return ends the session and counts one `use`. If the reservation's
+deadline passes first, the session ends on chain and the loan stays `outstanding`; a later
+steward-confirmed return still counts the use. Rejections: `NOT_STEWARD`, `CONFIRM_REFUSED` (holder,
+wrong code, never handed over), `NOT_MANUAL_ASSET`.
+
 ## Scenario format (simulator)
 
 YAML or JSON, validated with zod (`src/adapters/simulator/scenario.ts`). Examples: `test/fixtures/scenarios/`.

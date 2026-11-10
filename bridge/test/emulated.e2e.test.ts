@@ -137,7 +137,7 @@ chain: fake
 state_dir: ${await tempDir()}
 evidence_dir: ${await tempDir()}
 assets:
-  - { asset_id: ${ITEM}, adapter: manual_qr, emulated_device: true }
+  - { asset_id: ${ITEM}, adapter: manual_qr, emulated_device: true, session_timeout_min: 60, adapter_config: { app_base_url: "https://app.example/app" } }
 `,
       "/tmp",
       {},
@@ -155,6 +155,43 @@ assets:
   afterEach(async () => {
     await app.close();
     await bridge.stop();
+  });
+
+  it("pilot flow: sticker deep links, steward app reads the current loan (no code), handover link, late return of an outstanding loan", async () => {
+    const links = (await app.inject({ method: "GET", url: `/manual/${ITEM}/links` })).json();
+    expect(links).toEqual({
+      asset_id: ITEM,
+      simulated: true,
+      links: {
+        reserve: `https://app.example/app/a/${ITEM}?action=reserve`,
+        return: `https://app.example/app/a/${ITEM}?action=return`,
+        fault: `https://app.example/app/a/${ITEM}?action=fault`,
+      },
+    });
+    const res = await signedPost(app, "/access", { asset_id: ITEM, reservation_id: "4", account_id: ALICE }, MEMBER_SEED);
+    const sid = res.body.session_id as string;
+    const device = (res.body.device as { manual_qr: { handover_code: string; handover_link: string; return_link: string } }).manual_qr;
+    expect(device.handover_link).toBe(`https://app.example/app/a/${ITEM}?action=confirm&step=handover&session=${sid}&code=${device.handover_code}`);
+    expect(device.return_link).toBe(`https://app.example/app/a/${ITEM}?action=return`);
+    const before = (await app.inject({ method: "GET", url: `/manual/${ITEM}/session` })).json();
+    expect(before).toMatchObject({ current: { session_id: sid, holder: ALICE, handed_over: false, reservation_id: "4" }, outstanding: [] });
+    expect(JSON.stringify(before)).not.toContain(device.handover_code);
+    const confirm = (step: string, extra: Record<string, unknown> = {}) =>
+      signedPost(app, `/manual/${ITEM}/${sid}/confirm`, { asset_id: ITEM, reservation_id: "4", account_id: STEWARD, action: "confirm", step, ...extra }, STRANGER_SEED);
+    expect((await confirm("handover", { code: device.handover_code })).statusCode).toBe(200);
+    // The loan outlives the reservation: the chain-time deadline ends the session, the item is still out.
+    chain.advanceMs(61 * 60_000);
+    await bridge.sessions.pollOnce();
+    expect(bridge.sessions.get(sid)?.finishReason).toBe("timeout");
+    expect((await app.inject({ method: "GET", url: `/manual/${ITEM}/session` })).json()).toMatchObject({
+      current: null,
+      outstanding: [{ session_id: sid, holder: ALICE, handed_over_by: STEWARD, reservation_id: "4" }],
+    });
+    // Late return, still steward-confirmed; the use is counted then.
+    expect((await confirm("return")).body).toMatchObject({ ok: true, step: "return" });
+    expect((await app.inject({ method: "GET", url: `/manual/${ITEM}/session` })).json()).toMatchObject({ outstanding: [] });
+    await bridge.telemetry.tickOnce(ITEM);
+    expect((await chain.getTelemetry(ITEM)).metrics.uses).toBe(1n);
   });
 
   it("holder gets a code; only a steward (role on chain, not the holder) confirms; return ends the session", async () => {

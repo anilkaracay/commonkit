@@ -1,5 +1,5 @@
 import { pino } from "pino";
-import { ManualQrAdapter } from "../../src/adapters/manual_qr/manual_qr.js";
+import { ManualQrAdapter, manualQrConfigSchema } from "../../src/adapters/manual_qr/manual_qr.js";
 import { MoonrakerAdapter, moonrakerConfigSchema } from "../../src/adapters/moonraker/moonraker.js";
 import { OctoprintAdapter, octoprintConfigSchema } from "../../src/adapters/octoprint/octoprint.js";
 import { SmartPlugAdapter, smartPlugConfigSchema } from "../../src/adapters/smart_plug/smart_plug.js";
@@ -92,7 +92,7 @@ for (const [vendor, create] of plugVendors) {
 describeAdapterContract("manual_qr (steward-confirmed handover and return)", async () => {
   const clock = new ManualClock();
   const ctx = await ctxFor(clock);
-  const make = () => new ManualQrAdapter({ code_length: 8 }, ctx);
+  const make = () => new ManualQrAdapter(manualQrConfigSchema.parse({ code_length: 8 }), ctx);
   const adapter = make();
   return {
     adapter,

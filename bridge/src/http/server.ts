@@ -205,6 +205,34 @@ export async function buildServer(bridge: Bridge): Promise<FastifyInstance> {
     return { ok: true, session_id: session.id, resumed, key_permission: keyPermission.kind, device, simulated: rt.simulated };
   });
 
+  const manualAdapter = (assetId: string): ManualQrAdapter => {
+    const rt = asset(assetId);
+    if (rt.config.adapter !== "manual_qr") throw new BridgeError(400, "NOT_MANUAL_ASSET", `${assetId} is not a manual_qr asset`);
+    return rt.adapter as ManualQrAdapter;
+  };
+
+  /** Sticker deep links for a manual_qr item: /app/a/<assetId>?action=reserve|return|fault. */
+  app.get("/manual/:asset/links", async (req) => {
+    const { asset: id } = parse(z.object({ asset: accountIdSchema }), req.params);
+    return { asset_id: id, simulated: bridge.isSimulated(id), links: manualAdapter(id).links() };
+  });
+
+  /** Current loan (for the steward's app after scanning the sticker); never exposes the handover code. */
+  app.get("/manual/:asset/session", async (req) => {
+    const { asset: id } = parse(z.object({ asset: accountIdSchema }), req.params);
+    const m = manualAdapter(id);
+    const loan = m.currentLoan();
+    const s = loan ? bridge.sessions.get(loan.session_id) : undefined;
+    return JSON.parse(
+      toJson({
+        asset_id: id,
+        simulated: bridge.isSimulated(id),
+        current: loan ? { ...loan, reservation_id: s?.reservationId ?? null } : null,
+        outstanding: m.outstandingLoans().map((l) => ({ ...l, reservation_id: bridge.sessions.get(l.session_id)?.reservationId ?? null })),
+      }),
+    ) as unknown;
+  });
+
   /**
    * manual_qr (BRIDGE §4.4): a steward confirms the handover (with the holder's one-time code) or the
    * return. NEP-413 signed by the steward (action "confirm"); the steward role is read from the asset

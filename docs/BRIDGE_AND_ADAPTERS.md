@@ -52,6 +52,8 @@ Per-asset keys added by the bridge decisions: `verification_tests: {<rule_id>: {
 | POST | `/sessions/:id/finish` | signed like `/access` (holder can end early) | `{ok}` |
 | POST | `/verification/:asset/:task_id/run` | signed by the task claimer (action `verify`) | checks on chain: task `Submitted`, signer is the claimer, no result yet; returns 202 `{run_id}`; progress over SSE and `GET /verification/runs/:id` (D-407) |
 | GET | `/verification/runs/:id` | — | run status, `passed`, `details_hash`, `tx` |
+| GET | `/manual/:asset/links` | — | manual_qr sticker deep links `<app>/a/<assetId>?action=reserve\|return\|fault` |
+| GET | `/manual/:asset/session` | — | manual_qr current loan `{session_id, holder, handed_over, returned, reservation_id}` + `outstanding[]` (never the code) |
 | POST | `/manual/:asset/:session_id/confirm` | signed by a steward (action `confirm`), `{step: handover\|return, code?}` | manual_qr only: steward role checked with `get_roles`; the holder can never confirm (D-413) |
 | GET | `/events` | — | Server-Sent Events of bridge actions (for the live demo screen) |
 
@@ -111,6 +113,7 @@ Same contract using OctoPrint REST (research E6): `POST /api/files/local` (`sele
 
 - `unlock` creates a one-time handover code, returned to the holder in the `/access` response (`device.manual_qr.handover_code`, shown as a QR).
 - The steward confirms the handover (scanning the holder's code) and later the return with `POST /manual/:asset/:session_id/confirm`, NEP-413 signed (action `confirm`). The bridge checks the steward role on the asset (`get_roles`), and the adapter refuses the holder. The return ends the session (`sessionDone`).
+- Pilot deep links (D-024): the item sticker carries `<app>/a/<assetId>?action=reserve|return|fault`; the holder's handover QR is `…?action=confirm&step=handover&session=…&code=…`. A loan still out when the reservation's deadline ends the session stays `outstanding` until a steward confirms the return. Flow table: `bridge/README.md`.
 - Metrics: `uses` (counted once, on return). No automated verification test: the verifier inspects the item in person.
 
 ### 4.5 `simulator` (judges, CI, scenario 3+)
