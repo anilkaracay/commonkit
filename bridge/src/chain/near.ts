@@ -168,6 +168,10 @@ export class NearChainClient implements ChainClient {
     return { metrics: Object.fromEntries(t.metrics), updatedAt: t.updated_at, reports: t.reports };
   }
 
+  async getRoles(assetId: string, accountId: string): Promise<string[]> {
+    return z.array(z.string()).parse(await this.view(assetId, "get_roles", { account: accountId }));
+  }
+
   async markSessionStarted(assetId: string, reservationId: bigint, _ctx: CallContext): Promise<TxOutcome> {
     return this.call(assetId, "mark_session_started", { id: reservationId.toString() });
   }

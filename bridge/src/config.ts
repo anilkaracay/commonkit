@@ -32,6 +32,11 @@ export const assetConfigSchema = z
     session_poll_sec: z.number().positive().max(300).default(2),
     /** rule_id -> verification test run after a maintenance submission. */
     verification_tests: z.record(z.string(), verificationTestSchema).default({}),
+    /**
+     * The adapter talks to a device EMULATOR, not a device (D-022). Everything about the asset is then
+     * labelled simulated (events, logs, on-chain `simulated` metric) exactly like the simulator.
+     */
+    emulated_device: z.boolean().default(false),
     /** Env var holding this asset's bridge function-call private key (BRIDGE §2); else the keychain key from deployments. */
     signer_env: z.string().regex(/^[A-Z][A-Z0-9_]*$/).optional(),
     /** gauge name -> derived monotonic counters (D-410). */

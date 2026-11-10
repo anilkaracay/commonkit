@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { base64 } from "@scure/base";
 import { NS_PER_SEC, nsToIso } from "../util/near.js";
 
-export type ChallengeAction = "access" | "finish" | "verify";
+export type ChallengeAction = "access" | "finish" | "verify" | "confirm";
 
 export interface ChallengeRequest {
   action: ChallengeAction;

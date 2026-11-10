@@ -1,0 +1,65 @@
+# EMULATED stack (D-022): every asset is SIMULATED. The printer and laser use the REAL production
+# adapters (moonraker, smart_plug) talking to API-faithful device EMULATORS started by
+# `pnpm --filter @commonkit/bridge dev:emulated`; washer and fridge use the scenario simulator.
+# No hardware anywhere. Default chain is the in-memory fake; BRIDGE_CHAIN=near writes to testnet
+# with the bridge's function-call keys (only when the lead says so).
+network: testnet
+rpc_url: ${NEAR_RPC_URL:-https://rpc.testnet.near.org}
+bridge_account: ${BRIDGE_ACCOUNT_ID:-bridge.commonkit-sxflo.testnet}
+chain: ${BRIDGE_CHAIN:-fake}
+listen: { host: 127.0.0.1, port: ${BRIDGE_PORT:-8787} }
+state_dir: state/emulated
+evidence_dir: state/emulated/evidence
+cors_origins: ["http://localhost:5173"]
+signer: { deployments: ../deployments/testnet.json }
+assets:
+  - asset_id: printer-01.makerlab.commonkit-sxflo.testnet
+    adapter: moonraker
+    emulated_device: true
+    adapter_config:
+      base_url: ${EMU_MOONRAKER_URL:-http://127.0.0.1:7125}
+      api_key_env: EMU_MOONRAKER_API_KEY
+      default_job: gcode/demo_cube.gcode          # 20 min print, 4 m filament (emulated)
+      time_scale: ${EMU_SPEED:-60}
+      poll_ms: 1000
+    telemetry_interval_sec: 10
+    session_timeout_min: 240
+    session_poll_sec: 1
+    verification_tests:
+      nozzle_clean: { type: calibration_print, file: gcode/calibration_cube.gcode, max_minutes: 15 }
+      bed_level: { type: calibration_print, file: gcode/calibration_cube.gcode, max_minutes: 15 }
+      fault_repair: { type: calibration_print, file: gcode/calibration_cube.gcode, max_minutes: 15 }
+  - asset_id: laser-01.makerlab.commonkit-sxflo.testnet
+    adapter: smart_plug
+    emulated_device: true
+    adapter_config:
+      vendor: shelly_gen2
+      base_url: ${EMU_SHELLY_URL:-http://127.0.0.1:18081}
+      session_end: manual                        # holder or deadline ends a laser session
+      active_watts_threshold: 20
+      time_scale: ${EMU_SPEED:-60}
+      poll_ms: 2000
+      report_temperature: true
+    safety:
+      dangerous: true
+      stand_in: "emulated 60 W lamp-class load (stand-in for the laser cutter; nothing is energised)"
+    telemetry_interval_sec: 10
+    session_timeout_min: 60
+    session_poll_sec: 1
+    gauges:
+      temperature_c: [{ derive: samples_above, limit: 45, counter: plug_hot_samples }]
+    verification_tests:
+      lens_clean: { type: power_profile, expect: { min_watts: 40, max_watts: 80, seconds: 60 } }
+      monthly_safety_check: { type: power_profile, expect: { min_watts: 40, max_watts: 80, seconds: 60 } }
+  - asset_id: washer-01.dorm-b.commonkit-sxflo.testnet
+    adapter: simulator
+    adapter_config: { scenario: test/fixtures/scenarios/washer.yaml }
+    telemetry_interval_sec: 5
+    session_timeout_min: 120
+  - asset_id: fridge-01.dorm-b.commonkit-sxflo.testnet
+    adapter: simulator
+    adapter_config: { scenario: test/fixtures/scenarios/community_fridge.yaml }
+    telemetry_interval_sec: 10
+    session_timeout_min: 10
+    gauges:
+      temperature_c: [{ derive: samples_above, limit: 8, counter: temp_high_samples }]

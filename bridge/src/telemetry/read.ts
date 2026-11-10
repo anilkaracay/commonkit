@@ -24,6 +24,8 @@ export async function readCounters(rt: AssetRuntime, opts: { sample: boolean }):
   for (const name of Object.keys(derived)) {
     if (name in raw) throw new Error(`derived counter ${name} collides with a device metric`);
   }
-  const { metrics, adjustments } = await rt.counters.apply({ ...raw, ...derived });
+  // Every simulated asset (simulator, emulated device, fake chain) carries `simulated = 1` on chain (D-401).
+  const label: Metrics = rt.simulated && raw.simulated === undefined ? { simulated: 1n } : {};
+  const { metrics, adjustments } = await rt.counters.apply({ ...raw, ...derived, ...label });
   return { metrics, gauges, adjustments };
 }

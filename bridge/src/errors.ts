@@ -28,6 +28,9 @@ export type RejectReason =
   | "ALREADY_VERIFIED"
   | "NO_VERIFICATION_TEST"
   | "RUN_NOT_FOUND"
+  | "NOT_STEWARD"
+  | "NOT_MANUAL_ASSET"
+  | "CONFIRM_REFUSED"
   | "TOO_MANY_CHALLENGES";
 
 export class BridgeError extends Error {

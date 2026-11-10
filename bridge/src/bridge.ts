@@ -67,8 +67,8 @@ export class Bridge {
     const factory = o.adapterFactory ?? createAdapter;
 
     for (const a of o.config.assets) {
-      // Known before construction: the simulator is the only simulated adapter kind.
-      const simulated = a.adapter === "simulator" || fakeChain;
+      // Known before construction: simulator adapter, emulated device, or fake chain.
+      const simulated = a.adapter === "simulator" || a.emulated_device || fakeChain;
       const logger = labelled(o.logger, simulated, { asset_id: a.asset_id });
       const adapter: Adapter = factory(a, {
         assetId: a.asset_id,
@@ -135,6 +135,7 @@ export class Bridge {
         assets: [...this.assets.values()].map((a) => ({
           asset_id: a.config.asset_id,
           adapter: a.adapter.kind,
+          device: a.config.adapter === "simulator" ? "simulator" : a.config.emulated_device ? "emulated" : "real",
           simulated: a.simulated,
           stand_in: a.config.safety.stand_in ?? null,
         })),

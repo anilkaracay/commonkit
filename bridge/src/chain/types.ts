@@ -77,6 +77,8 @@ export interface ChainClient {
   getReservation(assetId: string, reservationId: bigint): Promise<ReservationView | null>;
   getTask(assetId: string, taskId: bigint): Promise<TaskView | null>;
   getTelemetry(assetId: string): Promise<TelemetryView>;
+  /** Roles pushed from commons to the asset (`get_roles(account)`), e.g. ["steward"]. */
+  getRoles(assetId: string, accountId: string): Promise<string[]>;
 
   markSessionStarted(assetId: string, reservationId: bigint, ctx: CallContext): Promise<TxOutcome>;
   markSessionFinished(assetId: string, reservationId: bigint, metrics: Metrics, ctx: CallContext): Promise<TxOutcome>;

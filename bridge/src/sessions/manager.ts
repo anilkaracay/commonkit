@@ -317,6 +317,11 @@ export class SessionManager {
     }
   }
 
+  /** Adapter-facing view of a session (for sessionInfo / manual confirmations). */
+  contextOf(s: Session): SessionContext {
+    return this.context(s);
+  }
+
   private context(s: Session): SessionContext {
     return {
       sessionId: s.id,

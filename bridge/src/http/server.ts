@@ -8,19 +8,20 @@ import { toJson, type BridgeEvent } from "../events/bus.js";
 import { standIn, type Session } from "../sessions/manager.js";
 import { labelled } from "../util/log.js";
 import { accountIdSchema, nsToIso, u64Schema } from "../util/near.js";
+import type { ManualQrAdapter } from "../adapters/manual_qr/manual_qr.js";
 import type { VerificationRun } from "../verification/runner.js";
 
 const challengeBodySchema = z
   .object({
     asset_id: accountIdSchema,
     account_id: accountIdSchema,
-    action: z.enum(["access", "finish", "verify"]).default("access"),
+    action: z.enum(["access", "finish", "verify", "confirm"]).default("access"),
     reservation_id: u64Schema.optional(),
     task_id: u64Schema.optional(),
   })
   .superRefine((b, ctx) => {
-    if ((b.action === "access" || b.action === "finish") && b.reservation_id === undefined) {
-      ctx.addIssue({ code: "custom", path: ["reservation_id"], message: "required for access and finish" });
+    if (b.action !== "verify" && b.reservation_id === undefined) {
+      ctx.addIssue({ code: "custom", path: ["reservation_id"], message: "required for access, finish and confirm" });
     }
     if (b.action === "verify" && b.task_id === undefined) {
       ctx.addIssue({ code: "custom", path: ["task_id"], message: "required for verify" });
@@ -199,7 +200,48 @@ export async function buildServer(bridge: Bridge): Promise<FastifyInstance> {
         resumed,
       },
     });
-    return { ok: true, session_id: session.id, resumed, key_permission: keyPermission.kind };
+    const rt = asset(challenge.assetId);
+    const device = rt.adapter.sessionInfo ? await rt.adapter.sessionInfo(bridge.sessions.contextOf(session)) : {};
+    return { ok: true, session_id: session.id, resumed, key_permission: keyPermission.kind, device, simulated: rt.simulated };
+  });
+
+  /**
+   * manual_qr (BRIDGE §4.4): a steward confirms the handover (with the holder's one-time code) or the
+   * return. NEP-413 signed by the steward (action "confirm"); the steward role is read from the asset
+   * contract (`get_roles`), and the adapter refuses the holder. No electronics are involved.
+   */
+  app.post("/manual/:asset/:session_id/confirm", async (req) => {
+    const params = parse(z.object({ asset: accountIdSchema, session_id: z.string().min(1).max(64) }), req.params);
+    const extra = parse(z.object({ step: z.enum(["handover", "return"]), code: z.string().max(32).optional() }), req.body);
+    const body = signed(req.body);
+    const rt = asset(params.asset);
+    const manual = rt.adapter as Partial<ManualQrAdapter>;
+    if (typeof manual.confirm !== "function") throw new BridgeError(400, "NOT_MANUAL_ASSET", `${params.asset} is not a manual_qr asset`);
+    const s = bridge.sessions.get(params.session_id);
+    if (!s || s.assetId !== params.asset) throw new BridgeError(404, "SESSION_NOT_FOUND", params.session_id);
+    if (body.asset_id !== s.assetId || body.reservation_id !== s.reservationId) {
+      throw new BridgeError(400, "REQUEST_MISMATCH", "asset or reservation does not match the session");
+    }
+    const { challenge } = await bridge.verifier.verify(body, "confirm");
+    let roles: string[];
+    try {
+      roles = await bridge.chain.getRoles(s.assetId, challenge.accountId);
+    } catch (err) {
+      throw new BridgeError(503, "CHAIN_UNAVAILABLE", (err as Error).message);
+    }
+    if (!roles.includes("steward")) throw new BridgeError(403, "NOT_STEWARD", `${challenge.accountId} has no steward role on ${s.assetId}`);
+    try {
+      await manual.confirm.call(rt.adapter, s.id, extra.step, challenge.accountId, extra.code ?? null);
+    } catch (err) {
+      throw new BridgeError(409, "CONFIRM_REFUSED", (err as Error).message);
+    }
+    bridge.bus.emit({
+      type: "manual_confirmed",
+      assetId: s.assetId,
+      simulated: rt.simulated,
+      data: { session_id: s.id, reservation_id: s.reservationId, step: extra.step, steward: challenge.accountId },
+    });
+    return { ok: true, step: extra.step };
   });
 
   app.get("/sessions/:id", async (req) => {

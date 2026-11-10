@@ -49,6 +49,7 @@ type WriteMethod = "markSessionStarted" | "markSessionFinished" | "reportTelemet
 
 interface AssetState {
   inService: boolean;
+  roles: Map<string, string[]>;
   reservations: Map<bigint, FakeReservation>;
   tasks: Map<bigint, FakeTask>;
   telemetry: TelemetryView;
@@ -89,6 +90,9 @@ export class FakeChainClient implements ChainClient {
   }
   addTask(assetId: string, t: FakeTask): void {
     this.asset(assetId).tasks.set(t.id, { ...t });
+  }
+  setRoles(assetId: string, accountId: string, roles: string[]): void {
+    this.asset(assetId).roles.set(accountId, roles);
   }
   /** Models `set_out_of_service` (D-017): blocks can_access and mark_session_started. */
   setInService(assetId: string, inService: boolean): void {
@@ -172,6 +176,10 @@ export class FakeChainClient implements ChainClient {
     return { metrics: { ...t.metrics }, updatedAt: t.updatedAt, reports: t.reports };
   }
 
+  async getRoles(assetId: string, accountId: string): Promise<string[]> {
+    return [...(this.asset(assetId).roles.get(accountId) ?? [])];
+  }
+
   // --- writes (bridge only) ------------------------------------------------
   async markSessionStarted(assetId: string, reservationId: bigint, ctx: CallContext): Promise<TxOutcome> {
     this.maybeFail("markSessionStarted");
@@ -226,7 +234,7 @@ export class FakeChainClient implements ChainClient {
   private asset(id: string): AssetState {
     let a = this.assets.get(id);
     if (!a) {
-      a = { inService: true, reservations: new Map(), tasks: new Map(), telemetry: { metrics: {}, updatedAt: 0n, reports: 0n } };
+      a = { inService: true, roles: new Map(), reservations: new Map(), tasks: new Map(), telemetry: { metrics: {}, updatedAt: 0n, reports: 0n } };
       this.assets.set(id, a);
     }
     return a;
