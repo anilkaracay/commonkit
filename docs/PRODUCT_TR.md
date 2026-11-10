@@ -588,7 +588,7 @@ Bu karşılaştırma, ilk ürün olunduğunu kanıtlamaz. Ayrışma, çalışan 
 
 - README'nin başında neden zincir cümlesi, ürün, sorun ve "X yap → Y'yi gör" adımları. Pazarlama dili yok.
 - Her iddianın yanında zincir bağlantısı veya test adı.
-- Senaryo tablosunda her satır için durum: **gerçek donanım**, **simülasyon**, **yalnız profil örneği**.
+- Senaryo tablosunda her satır için durum: **simülasyon (testnet varlığı)** veya **yalnız profil örneği (simülatör senaryosu)**; donanım kullanılmadığı için "gerçek donanım" satırı yoktur (D-022).
 - `verify.sh`: anahtarsız; varlık hesaplarında full-access anahtar olmadığını, tüm varlıkların aynı `code_hash`'i taşıdığını, DAO önerilerinin kasa fonlamalarıyla ve süpürmelerle eşleştiğini, depozito ve hak uzlaştırmasını kontrol eder.
 - `simulate.sh <senaryo>`: herhangi bir senaryoyu donanımsız uçtan uca çalıştırır.
 - Barındırılan, cüzdansız demo; en az 18 Kasım'a, tercihen 25 Kasım'a kadar açık.
@@ -649,11 +649,11 @@ Teslimde: çalışan prototip, herkese açık depo, `@NEARProtocol` ve `#NEARHac
 
 | Gün | Hedef |
 | :--- | :--- |
-| **9 Kasım** | Pilot topluluk ve donanım kesinleşir; katılımcı onayları istenir. Kontrat iskeleti, profil, kasa modeli. |
+| **9 Kasım** | Donanım alınmayacağı kesinleşir (D-022). Kontrat iskeleti, profil, kasa modeli. |
 | **10 Kasım** | Kontrat: rezervasyon, depozito, kasa süpürmesi, görev, hak ve yeterlilik kartları, itibar olayları, Sputnik öneri açma; birim ve negatif testler. İki testnet DAO. Köprü iskeleti, adaptör arayüzü, `simulator`. |
-| **11 Kasım** | `moonraker` ve `smart_plug` adaptörleri gerçek donanımla; ajan; üç varlığın deploy'u; anahtar silme; `verify.sh`, `simulate.sh`. |
+| **11 Kasım** | `moonraker` ve `smart_plug` adaptörleri API'ye sadık cihaz emülatörleriyle; ajan; dört varlığın deploy'u; anahtar silme; `verify.sh`, `simulate.sh`. |
 | **12 Kasım** | **Tasarım günü:** varlık kartı, pano, mobil rezervasyon, kanıt ekranı; cüzdansız okuma; barındırma. |
-| **13 Kasım** | **Pilot günü:** gerçek üyelerle oturumlar, bakım ve eğitim; çekim; pilot verisinin README'ye işlenmesi. |
+| **13 Kasım** | **Uçtan uca simülasyon günü:** 21 adımlık jüri akışı testnet'te, emülatörlü bridge ile; ekran kaydı; kanıtların README'ye işlenmesi. Pilot planlanmadı (D-022). |
 | **14 Kasım** | README (uyum tablosu, Trezu paragrafı, jüri akışı, dürüst sınırlar), 90 saniyelik video, X gönderisi; başvuru TR saatiyle akşam. |
 
 **Gönderimde seçilecek tracklar:** `social`; hak ve yeterlilik kartları NEP-171 olarak çalışıyorsa `nfts`; varlığın para kazanıp harcadığı ajan akışı uçtan uca doğrulandıysa `agents`.
