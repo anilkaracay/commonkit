@@ -64,6 +64,22 @@ async function checkKeyless(dep: Deployments, allowPending: boolean): Promise<vo
   }
 }
 
+/**
+ * D-218: the same source built in Docker (`cargo near build reproducible-wasm`, image
+ * sourcescan/cargo-near:0.22.0-rust-1.99.1@sha256:c9655eaf…) gives these hashes. They are
+ * informational only: the deployed code is the host build recorded in deployments/testnet.json.
+ */
+const REPRODUCIBLE_BUILD: Record<'asset' | 'commons', { code_hash: string; sha256: string }> = {
+  asset: {
+    code_hash: '3FtaAtUnyxfeMByZpnQZkVFvZdBGFa4x66ddSei3Fy3s',
+    sha256: '2187d155fd81d2044291e9e602167eff98ae9eb5492b5aa8ec05b1949f890536',
+  },
+  commons: {
+    code_hash: '5ri99gzKfa3WFRJDFdRFiAQXRo1aqJCt8L7uZ8tKZ79w',
+    sha256: '482ab99eb0fa9c751870ab650d38a563d0563f32cc0974419be560e3bf23ef9e',
+  },
+};
+
 async function checkCode(
   dep: Deployments,
   role: 'asset' | 'commons',
@@ -94,9 +110,15 @@ async function checkCode(
     out(
       check,
       'ℹ️',
-      `local ${role} wasm code_hash ${h}${h === distinct[0] ? ' (matches)' : ' (differs: local build is not the deployed one; builds are non-reproducible unless BUILD_MODE=reproducible-wasm)'}`,
+      `local ${role} wasm code_hash ${h}${h === distinct[0] ? ' (matches)' : ' (differs: the deployed code is a host build with rustc 1.98.1 + cargo-near 0.23.0, D-218)'}`,
     );
   }
+  const repro = REPRODUCIBLE_BUILD[role];
+  out(
+    check,
+    'ℹ️',
+    `${role} Docker reproducible build of the same source: code_hash ${repro.code_hash} (sha256 ${repro.sha256.slice(0, 16)}…) — not the deployed code (D-218)`,
+  );
 }
 
 async function checkDaos(dep: Deployments): Promise<void> {
