@@ -102,3 +102,21 @@ describe('demo thresholds', () => {
     expect(screen.getAllByText(/production nozzle time ≥ 200 h/).length).toBeGreaterThan(0);
   });
 });
+
+describe('no internal jargon in the UI', () => {
+  it.each([['/'], [`/a/${A.printer}`], [`/a/${A.washer}`], ['/proof'], ['/agent']])('%s shows no milestone/decision ids or Turkish headings', async (path) => {
+    renderAt(path);
+    await screen.findAllByText(/MOCK DATA/);
+    await new Promise((r) => setTimeout(r, 50));
+    const text = document.body.textContent ?? '';
+    expect(text).not.toMatch(/\bM[1-9]\b|\bD-\d{3}\b|\bTODO\b|still being written|Kasa/);
+  });
+
+  it('asset header shows at most two status badges', async () => {
+    renderAt(`/a/${A.washer}`);
+    const h1 = await screen.findByRole('heading', { level: 1 });
+    const header = h1.closest('header') as HTMLElement;
+    const badges = header.querySelectorAll('.rounded-full.px-2');
+    expect(badges.length).toBeLessThanOrEqual(2);
+  });
+});

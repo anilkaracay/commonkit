@@ -1,17 +1,28 @@
 import { deviceOf } from '../data/devices';
 import type { ReactNode } from 'react';
 
-/** Always shown on simulator assets and anything they produce. Never optional. */
-export function SimulatedBadge({ className = '' }: { className?: string }) {
+/**
+ * Always shown on simulated assets and anything they produce. With `assetId` it also names the
+ * device kind from the bridge config, so one badge says everything: "SIMULATED · EMULATED DEVICE".
+ */
+export function SimulatedBadge({ className = '', assetId }: { className?: string; assetId?: string }) {
+  const d = assetId ? deviceOf(assetId) : null;
+  const device = d?.kind === 'simulator' ? 'simulator' : d?.kind === 'emulated' ? 'emulated device' : null;
+  const title = device === 'simulator'
+    ? 'Simulated: telemetry comes from a simulator scenario. No physical machine.'
+    : device === 'emulated device'
+      ? `Simulated: the real ${d?.adapter} adapter talks to an emulated device. No physical machine.`
+      : 'Simulated asset. No physical machine.';
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border border-sim bg-sim-soft px-2 py-0.5 font-mono text-[11px] font-semibold tracking-[0.08em] text-sim ${className}`}
-      title="This asset is driven by the simulator adapter. No physical machine."
+      title={title}
     >
       <svg aria-hidden width="10" height="10" viewBox="0 0 10 10">
         <path d="M1 9 9 1M1 5l4-4M5 9l4-4" stroke="currentColor" strokeWidth="1.3" />
       </svg>
       SIMULATED
+      {device && <span className="font-normal tracking-[0.04em] uppercase opacity-80">· {device}</span>}
     </span>
   );
 }
@@ -55,24 +66,6 @@ export function MockBanner() {
     >
       MOCK DATA · not from testnet · for design only
     </div>
-  );
-}
-
-/**
- * Device label from the bridge config (data/devices.ts): SIMULATOR for the scenario simulator,
- * EMULATED DEVICE for a real adapter against an emulated device. Nothing if the bridge does not run it.
- */
-export function DeviceBadge({ assetId }: { assetId: string }) {
-  const d = deviceOf(assetId);
-  if (!d || d.kind === 'device') return null;
-  const sim = d.kind === 'simulator';
-  return (
-    <span
-      className="inline-flex items-center rounded-full border border-dashed border-sim px-2 py-0.5 font-mono text-[10px] font-semibold tracking-[0.06em] text-sim uppercase"
-      title={sim ? 'Telemetry from a simulator scenario (bridge/config.emulated.yaml)' : `Real ${d.adapter} adapter talking to an emulated device (bridge/config.emulated.yaml)`}
-    >
-      {sim ? 'simulator' : 'emulated device'}
-    </span>
   );
 }
 

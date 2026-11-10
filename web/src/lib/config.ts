@@ -1,4 +1,4 @@
-/** Build-time config. Explorer base URL is pending research B16; override with VITE_EXPLORER_URL. */
+/** Build-time config. Explorer: NearBlocks testnet by default; override with VITE_EXPLORER_URL. */
 const env = import.meta.env;
 
 export const config = {

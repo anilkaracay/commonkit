@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import type { BoardSnapshot } from '../data/hooks';
 import type { DeployedAsset } from '../data/offchain';
 import { AssetIcon } from './AssetIcon';
-import { DeviceBadge, Pill, SimulatedBadge } from './Badges';
+import { Pill, SimulatedBadge } from './Badges';
 import { KasaBar } from './KasaBar';
 import { UpkeepGauge } from './UpkeepGauge';
 import { assetStatus } from './assetStatus';
@@ -42,8 +42,7 @@ export function AssetCard({ deployed, snap }: { deployed: DeployedAsset; snap: B
                 {snap.meta.display_name}
               </Link>
             </h3>
-            {sim && <SimulatedBadge />}
-            <DeviceBadge assetId={deployed.asset_id} />
+            {sim && <SimulatedBadge assetId={deployed.asset_id} />}
           </div>
           <p className="mono-id truncate">{deployed.asset_id}</p>
         </div>

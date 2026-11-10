@@ -5,7 +5,7 @@ import { useAssetSnapshot, useCommunities, useDemoThresholds, useDeployment, use
 import { useDataSource } from '../data/source';
 import type { Reservation } from '../data/types';
 import { AssetIcon } from '../components/AssetIcon';
-import { DeviceBadge, keylessLabel, Pill, SimulatedBadge, type Tone } from '../components/Badges';
+import { keylessLabel, Pill, SimulatedBadge, type Tone } from '../components/Badges';
 import { KasaBar } from '../components/KasaBar';
 import { KeepersList } from '../components/KeepersList';
 import { UpkeepGauge, RuleBars } from '../components/UpkeepGauge';
@@ -93,15 +93,19 @@ export function AssetPage() {
               </p>
               <h1 className="text-3xl font-extrabold sm:text-4xl">{s.meta.display_name}</h1>
               <p className="mono-id mt-1">{assetId}</p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Pill tone={status.tone}>{status.label}</Pill>
-                {sim && <SimulatedBadge />}
-                {s.profile.required_credential && <Pill tone="danger">needs {s.profile.required_credential}</Pill>}
-                <DeviceBadge assetId={assetId} />
-                <Pill tone={deployed.keyless === true ? 'alive' : 'due'}>
-                  {keylessLabel(deployed.keyless)} · {s.profile.adapter} adapter
-                </Pill>
+              <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-ink-3">
+                <span className={deployed.keyless === true ? 'text-alive' : 'text-due'}>{keylessLabel(deployed.keyless)}</span>
+                <span>· {s.profile.adapter} adapter</span>
+                {s.profile.required_credential && (
+                  <span>
+                    · needs a <span className="num font-semibold text-cred">{s.profile.required_credential}</span> credential
+                  </span>
+                )}
                 <TxLink hash={deployed.deploy_tx} label="deploy tx" />
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {sim && <SimulatedBadge assetId={assetId} />}
+                <Pill tone={status.tone}>{status.label}</Pill>
               </div>
               <p className="mt-3 max-w-xl text-sm text-ink-2">{s.meta.scenario_story_en}</p>
             </div>
@@ -143,7 +147,7 @@ export function AssetPage() {
               </>
             )}
           </span>
-          <span className="ml-auto text-xs text-ink-3">status from chain · bridge live feed connects in M7</span>
+          <span className="ml-auto text-xs text-ink-3">Status read live from NEAR testnet.</span>
         </div>
       </header>
 
@@ -152,7 +156,7 @@ export function AssetPage() {
       {sim && <SimulationPanel assetType={s.profile.asset_type} assetId={assetId} />}
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-        <Section title="Kasa" eyebrow="what this machine holds">
+        <Section title="Money" eyebrow="what this machine holds">
           <div className="tag p-4">
             <KasaBar ledger={s.ledger} floatCap={s.profile.float_cap} />
             <p className={`mt-3 text-xs ${s.ledger.invariant_ok ? 'text-alive' : 'text-danger'}`}>
@@ -365,39 +369,35 @@ export function AssetPage() {
 /** Simulator assets: the button does nothing on-chain; it shows how to run it and the last run. */
 function SimulationPanel({ assetType, assetId }: { assetType: string; assetId: string }) {
   const evidence = useEvidence();
-  const run = evidence.data?.find((st) => st.step === 15);
+  // Judge step 15 is the washer's simulate.sh run on testnet; other assets have no such step.
+  const run = assetType === 'washer' ? evidence.data?.find((st) => st.step === 15) : undefined;
   const device = deviceOf(assetId);
-  const emulated = device?.kind === 'emulated';
-  const adapter = device?.adapter ?? '';
   return (
     <div className="tag tag-sim flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-      <div className="flex-1">
-        <p className="flex items-center gap-2 font-medium">
-          <SimulatedBadge /> This machine is simulated
+      <div className="min-w-0 flex-1">
+        <p className="flex flex-wrap items-center gap-2 font-medium">
+          <SimulatedBadge assetId={assetId} /> No physical machine behind this account
         </p>
         <p className="mt-1 text-sm text-ink-2">
-          {emulated ? (
+          {device?.kind === 'emulated' ? (
             <>
-              The real <span className="num">{adapter}</span> adapter talks to an emulated device; no physical machine is involved. Run the emulated stack yourself:
+              The real <span className="num">{device.adapter}</span> adapter drives an emulated device that implements the device's API.
             </>
           ) : (
-            <>
-              Telemetry comes from a simulator scenario for <span className="num">{assetType}</span>, not hardware.
-            </>
-          )}
+            <>Telemetry comes from a simulator scenario.</>
+          )}{' '}
+          Run the same loop yourself: it starts a local NEAR sandbox with the real contracts, bridge and agent, then reserves, opens the
+          upkeep task, approves it and mints the rights, printing ✅/❌ for every step.
         </p>
-        <code className="mt-2 block rounded-md bg-ink px-3 py-2 font-mono text-xs break-all text-paper">
-          {emulated ? 'pnpm --filter @commonkit/bridge dev:emulated' : `./scripts/simulate.sh ${assetType}`}
-        </code>
-        {!emulated && <p className="mt-1 text-xs text-ink-3">simulate.sh is still being written (README); until then the bridge simulator runs this scenario.</p>}
+        <code className="mt-2 block rounded-md bg-ink px-3 py-2 font-mono text-xs break-all text-paper">./scripts/simulate.sh {assetType}</code>
       </div>
       <div className="text-sm sm:w-64">
         <a href={`${config.repoUrl}#simulation`} target="_blank" rel="noreferrer" className="inline-block rounded-full border border-sim px-4 py-1.5 font-medium text-sim">
-          Run simulation
+          How to run it
         </a>
         {run && (
           <p className="mt-2 text-xs text-ink-2">
-            Latest run: step {run.step} · {new Date(run.timestamp).toISOString().slice(0, 16).replace('T', ' ')} UTC <TxLink hash={run.txHashes[0]} />
+            Latest testnet run: step {run.step} · {new Date(run.timestamp).toISOString().slice(0, 16).replace('T', ' ')} UTC <TxLink hash={run.txHashes[0]} />
           </p>
         )}
       </div>
