@@ -366,6 +366,9 @@ importers:
       '@fontsource-variable/jetbrains-mono':
         specifier: ^5.3.0
         version: 5.3.0
+      '@hot-labs/near-connect':
+        specifier: 0.12.0
+        version: 0.12.0
       '@tanstack/react-query':
         specifier: ^5.107.1
         version: 5.107.1(@types/react@19.3.0)(react@19.3.1)
@@ -896,6 +899,9 @@ packages:
 
   '@fontsource-variable/jetbrains-mono@5.3.0':
     resolution: {integrity: sha512-F32xpS2NsGYoQi2ADSkKTgpJj7ozajsGgDJ8woTnqjmIB+dxDIqImjl4pXZVEExu8UFZ2ndhmX18EBS/hdz3Lw==}
+
+  '@hot-labs/near-connect@0.12.0':
+    resolution: {integrity: sha512-aBb1UPGr43tHPsj/uk3fEwCn83Y7+cO6Ct8B6G/dm9EkTwXh9/xntXyWhQ6fA1eSt2WtYqSczOCENXlrBAXZqg==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -3387,6 +3393,8 @@ snapshots:
   '@fontsource-variable/instrument-sans@5.3.0': {}
 
   '@fontsource-variable/jetbrains-mono@5.3.0': {}
+
+  '@hot-labs/near-connect@0.12.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:
