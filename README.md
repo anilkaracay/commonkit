@@ -116,7 +116,7 @@ The deployed WASM is a host build (rustc 1.98.1, cargo-near 0.23.0) that a rebui
 
 Invariant tests ([`contracts/tests/tests/invariants.rs`](contracts/tests/tests/invariants.rs), all passing): `inv_custody_float_cap_sweeps_excess`, `inv_custody_deposits_never_swept`, `inv_no_retroactive_revocation`, `inv_no_self_verification_task`, `inv_no_self_verification_training`, `inv_exactly_once_reward_retry`, `inv_failed_refund_keeps_claim`, `inv_no_double_booking_concurrent`, `inv_slots_released_on_rejection`, `inv_agent_bounded_rule_not_due`, `inv_agent_bounded_quota`, `inv_agent_revoked`, `inv_ledger_balance_covers_obligations`, `inv_rights_group_scope`, `inv_non_transferable`, `inv_credential_required`, `inv_restock_expense_capped_and_not_from_deposits`, `inv_out_of_service_blocks_access_and_refunds`, `inv_fault_report_requires_recent_session`, `inv_schedule_rule_due_only_after_interval`.
 
-`./scripts/simulate.sh <asset_type>` for all 12 profiles is pending.
+`./scripts/simulate.sh <asset_type>` runs the full loop for any of the 12 profiles on a local NEAR sandbox with the real contract WASMs, the unmodified Sputnik DAO, keyless asset accounts and the real bridge + agent (SIMULATED devices; no keys or testnet needed). `./scripts/simulate.sh all` passed 12/12 in 441.8 s ([evidence/simulate-all-2026-11-10.txt](evidence/simulate-all-2026-11-10.txt), [D-420](docs/DECISIONS.md)); a single washer run takes ~44 s. `--fake` runs without the sandbox binary and says which checks it skips.
 
 ## Social Money compliance
 

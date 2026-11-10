@@ -8,7 +8,7 @@ Three layers. Each layer must be runnable by a judge from a clean clone with one
 | Contract integration | `near-workspaces` sandbox | `pnpm test:contracts:int` | `contracts/tests/` |
 | TS unit | vitest | `pnpm test` | `packages/sdk`, `bridge`, `agent`, `web` |
 | Testnet e2e | scripts | `pnpm demo:all` then `./scripts/verify.sh` | `scripts/` |
-| Simulation e2e | bridge simulator + agent + testnet | `./scripts/simulate.sh washer` (any of the 12 `asset_type`s, PROFILES.md) | `scripts/`, `scenarios/` |
+| Simulation e2e | local near-sandbox 2.14.0 + real WASMs + Sputnik + bridge simulator/emulators + agent (D-420); `--fake` without sandbox | `./scripts/simulate.sh washer` (any of the 12 `asset_type`s, PROFILES.md) | `scripts/`, `scenarios/` |
 
 ## 1. Sandbox setup
 

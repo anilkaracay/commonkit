@@ -102,7 +102,7 @@ Suggested subagent assignment (see `.claude/agents/`): `researcher` (M0), `contr
 - [ ] `scripts/demo/step-01..21.ts` per DEMO_SCRIPT; device steps run through the bridge against the emulators or the simulator (step 21 = `verify.sh`).
 - [ ] Upkeep steps 18–20: printer Restock with capped reimbursement (+ `E_EXPENSE_CAP`), washer fault → out of service → refund → Repair → back in service (+ `E_NO_RECENT_SESSION`), fridge Schedule cleaning (+ `E_RULE_NOT_DUE`).
 - [ ] `pnpm demo:all` green; `evidence/steps.json` + `EVIDENCE.md`.
-- [ ] `scripts/simulate.sh <asset_type>` for all 12 profiles with `scenarios/<asset_type>.yaml`, labelled simulation.
+- [x] `scripts/simulate.sh <asset_type>` for all 12 profiles with `scenarios/<asset_type>.yaml`, labelled simulation (D-420; evidence/simulate-all-2026-11-10.txt: 12/12).
 - [ ] verify.sh full version green (incl. reimbursement caps and out-of-service periods, TEST_PLAN §6).
 
 **Accept:** all 21 steps with tx hashes; verify.sh green.
