@@ -1,0 +1,23 @@
+# SIMULATION. Makerlab laser cutter (profiles/laser_cutter.json). In sandbox mode the bridge's REAL
+# smart_plug adapter switches an EMULATED Shelly Gen2 with a 60 W lamp-class load: a labelled
+# STAND-IN, nothing is energised and no laser is modelled (D-413). Needs the laser_safety credential.
+# lens_clean uses the demo threshold 600 run seconds (meta.pilot_overrides). The metrics below
+# drive the simulator in --fake mode only.
+scenario: laser_cutter
+description: Simulated laser cutter power profile; never energises anything.
+simulated: true
+seed: 31
+speed: 120
+metrics:
+  run_seconds: { initial: 300, per_session: 480, curve: linear }
+  energy_wh:   { initial: 150, per_session: 240, curve: linear, idle_per_hour: 2 }
+  cycles:      { initial: 1, per_session: 1, curve: step }
+session: { duration_sec: 600, jitter_pct: 0 }
+verification: { duration_sec: 120, default: pass }   # power profile test
+failures: []
+simulate:
+  rule: lens_clean
+  device: shelly_emulator
+  emulator_speed: 120
+  hold_seconds: 8
+  note: emulated Shelly + stand-in lamp, real smart_plug adapter; 8 s at x120 = 960 run seconds > 600 demo threshold

@@ -1,0 +1,18 @@
+# SIMULATION. Rehearsal room (profiles/rehearsal_room.json, profile example only; the real adapter
+# would be a smart lock: the simulator stands in). 9 sessions; the 10th crosses room_clean
+# (sessions >= 10, the profile's own threshold). room_clean needs no verification test: the
+# independent verifier inspects.
+scenario: rehearsal_room
+description: Simulated room bookings.
+simulated: true
+seed: 10
+speed: 1200
+metrics:
+  sessions:          { initial: 9, per_session: 1, curve: step }
+  occupied_seconds:  { initial: 64800, per_session: 7200, curve: linear }
+session: { duration_sec: 7200, jitter_pct: 0 }
+verification: { duration_sec: 60, default: pass }
+failures: []
+simulate:
+  rule: room_clean
+  note: 9 sessions + 1 = 10 = room_clean threshold (Cleaning, no device test)

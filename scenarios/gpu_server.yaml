@@ -1,0 +1,18 @@
+# SIMULATION. Shared GPU server (profiles/gpu_server.json, profile example only; the real adapter
+# would be an API gateway: the simulator stands in). 998 GPU hours; one 2-hour job crosses
+# dust_clean (gpu_hours >= 1000, the profile's own threshold). Needs the gpu_basics credential.
+scenario: gpu_server
+description: Simulated GPU jobs.
+simulated: true
+seed: 1000
+speed: 1200
+metrics:
+  gpu_hours:  { initial: 998, per_session: 2, curve: step }
+  jobs_total: { initial: 412, per_session: 1, curve: step }
+  energy_wh:  { initial: 650000, per_session: 1400, curve: linear }
+session: { duration_sec: 7200, jitter_pct: 0 }
+verification: { duration_sec: 600, default: pass }   # burn-in run after cleaning
+failures: []
+simulate:
+  rule: dust_clean
+  note: 998 GPU hours + one 2-hour job = 1000 = dust_clean threshold (Cleaning)

@@ -1,0 +1,23 @@
+# SIMULATION. Cooperative tractor (profiles/tractor.json, profile example only). Based on
+# bridge/test/fixtures/scenarios/tractor.yaml: 98 engine hours; one 4-hour job crosses oil_change
+# (engine_seconds >= 360 000, the profile's own threshold). fuel_level is a GAUGE: the bridge
+# derives fuel_used_dl and refills from it (D-410). Needs the tractor_operator credential.
+scenario: tractor
+description: Simulated tractor hours and fuel.
+simulated: true
+seed: 1913
+speed: 1800
+metrics:
+  engine_seconds: { initial: 352800, per_session: 14400, curve: linear }
+  sessions:       { initial: 40, per_session: 1, curve: step }
+  fuel_level:     { type: gauge, initial: 60, per_session: -18, min: 0, max: 80 }
+session: { duration_sec: 14400, jitter_pct: 15 }
+verification: { duration_sec: 300, default: pass, sets: { fuel_level: 80 } }
+failures: []
+simulate:
+  rule: oil_change
+  gauges:
+    fuel_level:
+      - { derive: decrease_sum, counter: fuel_used_dl, scale: 10 }
+      - { derive: increase_count, min_step: 5, counter: refills }
+  note: 98 h + one 4-hour job = 102 h >= 100 h = oil_change threshold (Maintenance)

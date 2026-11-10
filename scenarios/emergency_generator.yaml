@@ -1,0 +1,26 @@
+# SIMULATION. Emergency generator (profiles/emergency_generator.json, profile example only).
+# fuel_level is a GAUGE in litres; the bridge derives fuel_used_dl (sum of drops x 10) and refills
+# (rises >= 5 l) from it (D-410). One 1-hour test run burns 24 l = 240 dl, crossing fuel_refill
+# (fuel_used_dl >= 200, the profile's own threshold): a Restock task with a reimbursed receipt.
+# Operators need the generator_operator credential.
+scenario: emergency_generator
+description: Simulated generator test runs and fuel.
+simulated: true
+seed: 112
+speed: 600
+metrics:
+  run_seconds: { initial: 7200, per_session: 3600, curve: linear }
+  starts:      { initial: 14, per_session: 1, curve: step }
+  fuel_level:  { type: gauge, initial: 40, per_session: -24, min: 0, max: 60 }
+session: { duration_sec: 3600, jitter_pct: 0 }
+verification: { duration_sec: 300, default: pass, sets: { fuel_level: 60 } }
+failures: []
+simulate:
+  rule: fuel_refill
+  telemetry_interval_sec: 1
+  gauges:
+    fuel_level:
+      - { derive: decrease_sum, counter: fuel_used_dl, scale: 10 }
+      - { derive: increase_count, min_step: 5, counter: refills }
+  expense_near: "0.3"
+  note: one test run burns 24 l (240 dl) → fuel_refill (Restock) due; refill receipt 0.3 NEAR, cap 1 NEAR

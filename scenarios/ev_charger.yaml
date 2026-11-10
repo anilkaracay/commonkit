@@ -1,0 +1,18 @@
+# SIMULATION. Shared EV charger (profiles/ev_charger.json, profile example only; the real adapter
+# would be OCPP, which the bridge does not have: the simulator stands in). 99 sessions so far; the
+# 100th crosses cable_check (sessions >= 100, the profile's own threshold).
+scenario: ev_charger
+description: Simulated charging sessions.
+simulated: true
+seed: 2200
+speed: 600
+metrics:
+  sessions:        { initial: 99, per_session: 1, curve: step }
+  energy_wh:       { initial: 1980000, per_session: 22000, curve: linear }
+  plugged_seconds: { initial: 356400, per_session: 3600, curve: linear }
+session: { duration_sec: 3600, jitter_pct: 10 }
+verification: { duration_sec: 120, default: pass }   # test charge after the cable check
+failures: []
+simulate:
+  rule: cable_check
+  note: 99 sessions + 1 charge = 100 = cable_check threshold (Inspection)

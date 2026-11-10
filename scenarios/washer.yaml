@@ -1,0 +1,18 @@
+# SIMULATION. Dorm washing machine (profiles/washer.json). Never a real device.
+# Based on bridge/test/fixtures/scenarios/washer.yaml; starts at 29 cycles so ONE simulated cycle
+# crosses filter_clean (cycles >= 30, the profile's own threshold). detergent (>= 40) stays quiet.
+scenario: washer
+description: Simulated dorm washing machine; one session = one wash cycle.
+simulated: true
+seed: 20261114
+speed: 300                # 1 real second = 5 simulated minutes (a 45-minute cycle takes ~9 s)
+metrics:
+  cycles:      { initial: 29, per_session: 1, curve: step }
+  run_seconds: { initial: 104400, per_session: 2700, curve: linear }
+  energy_wh:   { initial: 26100, per_session: 700, curve: linear, idle_per_hour: 1 }
+session: { duration_sec: 2700, jitter_pct: 10 }
+verification: { duration_sec: 300, default: pass }   # test spin after cleaning the filter
+failures: []
+simulate:
+  rule: filter_clean
+  note: 29 cycles + 1 wash cycle = 30 = filter_clean threshold (Cleaning, verification spin)

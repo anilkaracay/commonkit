@@ -1,0 +1,17 @@
+# SIMULATION. Lab microscope (profiles/microscope.json, profile example only). Its real adapter is
+# manual_qr (steward-confirmed handover); here the simulator stands in for the loan. 19 uses; the
+# 20th crosses clean_inventory (uses >= 20, the profile's own threshold).
+scenario: microscope
+description: Simulated microscope loans.
+simulated: true
+seed: 20
+speed: 600
+metrics:
+  uses:         { initial: 19, per_session: 1, curve: step }
+  lamp_seconds: { initial: 68400, per_session: 3600, curve: linear }
+session: { duration_sec: 3600, jitter_pct: 0 }
+verification: { duration_sec: 300, default: pass }   # optics check after cleaning
+failures: []
+simulate:
+  rule: clean_inventory
+  note: 19 uses + 1 loan = 20 = clean_inventory threshold (Cleaning)

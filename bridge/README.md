@@ -21,6 +21,10 @@ laser cutter stand-in), then the bridge: printer-01 → `moonraker` adapter, las
 adapter, washer-01 and fridge-01 → simulator. No hardware is involved anywhere (D-022). Every asset is
 labelled simulated, and every emulator response carries `x-commonkit-emulated`.
 
+`./scripts/simulate.sh <asset_type>` (repo root, D-420) runs this bridge as a child process with
+`network: sandbox` against a local NEAR sandbox node with the real contracts; `--fake` runs
+`scripts/simulate-fake.ts` (bridge + agent on their fake chains, in-process).
+
 `dev` uses an **in-memory fake chain**: nothing is written to NEAR. Every log line, event and evidence
 line is labelled `simulated: true`, and sim evidence goes to `state/sim/evidence/`, never to `evidence/`.
 `chain: near` reads through `@commonkit/sdk` and writes through `@commonkit/sdk/signer`, with one
@@ -67,7 +71,9 @@ wrong code, never handed over), `NOT_MANUAL_ASSET`.
 
 ## Scenario format (simulator)
 
-YAML or JSON, validated with zod (`src/adapters/simulator/scenario.ts`). Examples: `test/fixtures/scenarios/`.
+YAML or JSON, validated with zod (`src/adapters/simulator/scenario.ts`). One scenario per profile in
+`../scenarios/<asset_type>.yaml` (used by `./scripts/simulate.sh`, D-420; their extra top-level
+`simulate:` block is stripped by this schema); unit-test fixtures in `test/fixtures/scenarios/`.
 
 ```yaml
 scenario: washer            # id; also the simulator state key

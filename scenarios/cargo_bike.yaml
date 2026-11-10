@@ -1,0 +1,17 @@
+# SIMULATION. Shared cargo bike (profiles/cargo_bike.json, profile example only; the real adapter
+# would be a smart lock: the simulator stands in). 291 km; one 12 km ride crosses brake_check
+# (km >= 300, the profile's own threshold). tire_check (500 km) stays quiet.
+scenario: cargo_bike
+description: Simulated cargo bike rides.
+simulated: true
+seed: 300
+speed: 600
+metrics:
+  km:    { initial: 291, per_session: 12, curve: linear }
+  rides: { initial: 61, per_session: 1, curve: step }
+session: { duration_sec: 3600, jitter_pct: 0 }
+verification: { duration_sec: 300, default: pass }   # brake test ride
+failures: []
+simulate:
+  rule: brake_check
+  note: 291 km + one 12 km ride = 303 km >= 300 = brake_check threshold (Inspection)

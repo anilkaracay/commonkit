@@ -1,0 +1,16 @@
+# SIMULATION. Tool-library ladder (profiles/tool_library_ladder.json, profile example only). Its
+# real adapter is manual_qr; here the simulator stands in for the loan. 24 uses; the 25th crosses
+# safety_inspection (uses >= 25, the profile's own threshold).
+scenario: tool_library_ladder
+description: Simulated ladder loans.
+simulated: true
+seed: 25
+speed: 1200
+metrics:
+  uses: { initial: 24, per_session: 1, curve: step }
+session: { duration_sec: 7200, jitter_pct: 0 }
+verification: { duration_sec: 300, default: pass }   # inspection checklist
+failures: []
+simulate:
+  rule: safety_inspection
+  note: 24 uses + 1 loan = 25 = safety_inspection threshold (Inspection)

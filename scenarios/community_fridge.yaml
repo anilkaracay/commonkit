@@ -1,0 +1,26 @@
+# SIMULATION. Community fridge (profiles/community_fridge.json). temperature_c is a GAUGE: it never
+# goes on chain raw; the bridge derives the monotonic counter temp_high_samples (telemetry samples
+# above 8 C) from it (D-410). The door is left ajar early on (gauge_set), so temperature_check
+# (temp_high_samples >= 6, the profile's own threshold) becomes due after six samples.
+scenario: community_fridge
+description: Simulated shared fridge; door openings warm it, the compressor cools it back.
+simulated: true
+seed: 8
+speed: 60
+metrics:
+  uses:          { initial: 140, per_session: 1, curve: step }
+  door_opens:    { initial: 410, per_session: 3, curve: step }
+  temperature_c: { type: gauge, initial: 4, per_session: 1.5, idle_per_hour: -2, min: 3, max: 18 }
+session: { duration_sec: 120, jitter_pct: 50 }        # someone takes or leaves food
+verification:
+  duration_sec: 600        # 10 min temperature check after cleaning the seal
+  default: pass
+  sets: { temperature_c: 4 }
+failures:
+  - { kind: gauge_set, metric: temperature_c, at_sec: 30, value: 12 }   # door left ajar
+simulate:
+  rule: temperature_check
+  telemetry_interval_sec: 2
+  gauges:
+    temperature_c: [{ derive: samples_above, limit: 8, counter: temp_high_samples }]
+  note: door left ajar → 12 C; six telemetry samples above 8 C make temperature_check due (gauge → counter, D-410)

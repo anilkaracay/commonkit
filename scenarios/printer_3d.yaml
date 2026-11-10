@@ -1,0 +1,23 @@
+# SIMULATION. Makerlab 3D printer (profiles/printer_3d.json). In sandbox mode the bridge's REAL
+# moonraker adapter drives an EMULATED Moonraker (bridge/src/emulators, D-413): a used printer with
+# 14 400 s of prints, so nozzle_clean (demo threshold 1 800 s from meta.pilot_overrides) is due
+# after the demo cube. The metrics below drive the simulator in --fake mode only.
+scenario: printer_3d
+description: Simulated Klipper printer (fake mode); emulated Moonraker in sandbox mode.
+simulated: true
+seed: 413
+speed: 240
+metrics:
+  print_seconds:    { initial: 600, per_session: 1200, curve: linear }
+  nozzle_seconds:   { initial: 600, per_session: 1200, curve: linear }
+  jobs_total:       { initial: 12, per_session: 1, curve: step }
+  jobs_failed:      { initial: 1, per_session: 0, curve: step }
+  filament_used_mm: { initial: 318000, per_session: 4000, curve: linear }
+session: { duration_sec: 1200, jitter_pct: 5 }
+verification: { duration_sec: 900, default: pass }   # calibration cube
+failures: []
+simulate:
+  rule: nozzle_clean
+  device: moonraker_emulator
+  emulator_speed: 120
+  note: emulated Moonraker, real moonraker adapter; nozzle_seconds crosses the 1 800 s demo threshold
