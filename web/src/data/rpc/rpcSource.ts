@@ -14,10 +14,13 @@ import { bundledAgentLimits, bundledDeployment, bundledSteps, bundledTxLog } fro
 
 const MAX_PAGE = 100;
 /**
- * FastNEAR's public testnet RPC answers browsers with CORS headers; rpc.testnet.near.org
- * rate-limits bursts with 429s that carry no CORS header (seen 2026-11-10). Override with VITE_NEAR_RPC.
+ * FastNEAR's public testnet RPC answers browsers with CORS headers (D-106: FastNEAR primary);
+ * rpc.testnet.near.org rate-limits bursts with 429s that carry no CORS header (seen 2026-11-10).
+ * Override with VITE_NEAR_RPC (e.g. a keyed endpoint for the hosted demo).
  */
 export const DEFAULT_TESTNET_RPC = 'https://test.rpc.fastnear.com';
+// rpc.testnet.near.org is left out: its 429s carry no CORS header, so browsers cannot even retry cleanly.
+const FALLBACK_TESTNET_RPC = ['https://rpc.testnet.fastnear.com'];
 const lim = (n: number) => Math.min(n, MAX_PAGE);
 
 export interface RpcSourceOptions {
@@ -26,7 +29,8 @@ export interface RpcSourceOptions {
 }
 
 export function createRpcSource(opts: RpcSourceOptions = {}): DataSource {
-  const rpc = opts.rpc ?? new NearRpc(opts.rpcUrl ?? DEFAULT_TESTNET_RPC, throttledFetch());
+  const url = opts.rpcUrl ?? DEFAULT_TESTNET_RPC;
+  const rpc = opts.rpc ?? new NearRpc(url, throttledFetch(3, 6, 8, undefined, FALLBACK_TESTNET_RPC));
   const v = <T,>(account: string, method: string, args: object = {}) => rpc.view<T>(account, method, args);
   const txLog = bundledTxLog();
   const profileFiles = new Map(bundledDeployment.assets.map((a) => [a.asset_id, a.profile_file]));

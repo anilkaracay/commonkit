@@ -3,9 +3,17 @@
  * backoff (honours Retry-After up to 5 s). Public endpoints rate-limit bursts; the board alone
  * issues ~70 views.
  */
-export function throttledFetch(concurrency = 3, retries = 4, perSecond = 10, base: typeof fetch = (i, o) => fetch(i, o)) {
+export function throttledFetch(
+  concurrency = 3,
+  retries = 5,
+  perSecond = 10,
+  base: typeof fetch = (i, o) => fetch(i, o),
+  /** Tried in turn after a rate-limit or network failure (D-106: FastNEAR first, rpc.testnet.near.org fallback). */
+  fallbacks: string[] = [],
+) {
   let active = 0;
   let nextStart = 0;
+  let counter = 0;
   const spacing = 1000 / perSecond;
   const queue: (() => void)[] = [];
   const acquire = () =>
@@ -30,10 +38,14 @@ export function throttledFetch(concurrency = 3, retries = 4, perSecond = 10, bas
     nextStart = Math.max(now, nextStart) + spacing;
     if (wait > 0) await sleep(wait);
     try {
+      // Round-robin over the endpoints spreads a page load across their separate rate limits.
+      const urls = [input, ...fallbacks.filter((u) => u !== input)];
+      const first = counter++;
       for (let attempt = 0; ; attempt += 1) {
+        const url = urls[(first + attempt) % urls.length] ?? input;
         let res: Response;
         try {
-          res = await base(input, init);
+          res = await base(url, init);
         } catch (e) {
           // A rate-limited reply without CORS headers surfaces as a network TypeError.
           if (attempt >= retries) throw e;
