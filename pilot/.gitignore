@@ -1,0 +1,6 @@
+# Participant data never goes into git (docs/PILOT.md §1, D-024).
+*.local.json
+*.local.*
+consents/
+paper-log*.jpg
+paper-log*.png

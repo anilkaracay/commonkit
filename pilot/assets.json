@@ -1,0 +1,59 @@
+{
+  "$comment": "Input for scripts/pilot/qr-sheets.ts. No personal data. An entry with assetId null is skipped until the asset is deployed (pilot item and plug asset wait on HUMAN TODO H1/H2, D-024). label: simulated | stand-in | real.",
+  "assets": [
+    {
+      "alias": "printer-01",
+      "assetId": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "name_en": "Makerlab 3D printer",
+      "name_tr": "Makerlab 3D yazıcı",
+      "label": "simulated",
+      "label_note_en": "No physical printer: the bridge drives an emulated Moonraker (D-022).",
+      "label_note_tr": "Fiziksel yazıcı yok: köprü emüle bir Moonraker'ı sürer (D-022)."
+    },
+    {
+      "alias": "laser-01",
+      "assetId": "laser-01.makerlab.commonkit-sxflo.testnet",
+      "name_en": "Makerlab laser cutter",
+      "name_tr": "Makerlab lazer kesici",
+      "label": "simulated",
+      "label_note_en": "No physical laser: the bridge drives an emulated Shelly plug (D-022).",
+      "label_note_tr": "Fiziksel lazer yok: köprü emüle bir Shelly prizi sürer (D-022)."
+    },
+    {
+      "alias": "washer-01",
+      "assetId": "washer-01.dorm-b.commonkit-sxflo.testnet",
+      "name_en": "Dorm B washer",
+      "name_tr": "Yurt B çamaşır makinesi",
+      "label": "simulated",
+      "label_note_en": "Simulator only; no physical washer.",
+      "label_note_tr": "Yalnız simülatör; fiziksel çamaşır makinesi yok."
+    },
+    {
+      "alias": "fridge-01",
+      "assetId": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+      "name_en": "Dorm B fridge",
+      "name_tr": "Yurt B buzdolabı",
+      "label": "simulated",
+      "label_note_en": "Simulator only; no physical fridge.",
+      "label_note_tr": "Yalnız simülatör; fiziksel buzdolabı yok."
+    },
+    {
+      "alias": "pilot-item",
+      "assetId": null,
+      "name_en": "Pilot item (to be chosen, H1)",
+      "name_tr": "Pilot eşyası (seçilecek, H1)",
+      "label": "real",
+      "label_note_en": "Real shared item, manual_qr adapter: a steward hands it over and takes it back.",
+      "label_note_tr": "Gerçek ortak eşya, manual_qr adaptörü: teslimi ve iadeyi sorumlu üye yapar."
+    },
+    {
+      "alias": "plug-standin",
+      "assetId": null,
+      "name_en": "Smart plug with desk-lamp stand-in (H2)",
+      "name_tr": "Masa lambası yedekli akıllı priz (H2)",
+      "label": "stand-in",
+      "label_note_en": "Real smart plug powering a desk lamp that stands in for the machine.",
+      "label_note_tr": "Gerçek akıllı priz, makinenin yerine bir masa lambasını açar."
+    }
+  ]
+}
