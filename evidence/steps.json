@@ -2376,5 +2376,33 @@
       "task_id": "0"
     },
     "timestamp": "2026-11-10T05:47:40.498Z"
+  },
+  {
+    "step": 21,
+    "title": "./scripts/verify.sh — read-only, keyless verification of every on-chain claim",
+    "core": true,
+    "simulated": false,
+    "negative": false,
+    "status": "passed",
+    "txHashes": [],
+    "explorerLinks": [],
+    "transactions": [],
+    "assertions": [
+      {
+        "what": "verify.sh exit code",
+        "ok": true,
+        "detail": "0"
+      },
+      {
+        "what": "no ❌ (87 ✅ lines)",
+        "ok": true
+      }
+    ],
+    "notes": [
+      "Full output: evidence/verify-step21.txt (run without any keychain: NEAR_CREDENTIALS_DIR points nowhere)."
+    ],
+    "outputs": {},
+    "no_tx_reason": "read-only verification",
+    "timestamp": "2026-11-10T09:31:18.008Z"
   }
 ]

@@ -1,0 +1,17 @@
+[
+  {
+    "at": "2026-11-10T09:31:54.500Z",
+    "label": "mark_no_show printer-01 reservation 1 (ali, unused demo booking)",
+    "hash": "2rBuxwVc8MGBoX9Xd3YMzkiDsNegU79fUhAnDnbiP3eX",
+    "signer": "commonkit-sxflo.testnet",
+    "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "ok": true,
+    "explorer": "https://testnet.nearblocks.io/txns/2rBuxwVc8MGBoX9Xd3YMzkiDsNegU79fUhAnDnbiP3eX",
+    "events": [
+      "commonkit:op_created",
+      "commonkit:no_show",
+      "commonkit:reputation_recorded",
+      "commonkit:op_result"
+    ]
+  }
+]

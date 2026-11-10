@@ -5,7 +5,7 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ## Judge flow
 
-20 of 21 steps passed. ★ = one of the five core steps shown in the README.
+21 of 21 steps passed. ★ = one of the five core steps shown in the README.
 
 | # | Step | Result | Transactions |
 | :--- | :--- | :--- | :--- |
@@ -29,6 +29,7 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | 18 | Printer Restock: agent opens the filament task; capped reimbursement (0.6 refused, 0.4 paid after verifier + council) (simulation) | ✅ | [51RZ2jTg…](https://testnet.nearblocks.io/txns/51RZ2jTgNn7dVKLdxaU5at6tWv6ydmCmjry1Um7PF5Xk) [272p86af…](https://testnet.nearblocks.io/txns/272p86afn345eRMQBcsJptys6dfmy5EJBhag6zwTs2xT) [FNT5MNsm…](https://testnet.nearblocks.io/txns/FNT5MNsmA4q899unZkwQV1wktcF78hGPgWtJqjbRB4KV) [HsdKEEiL…](https://testnet.nearblocks.io/txns/HsdKEEiLQfrP5WNCbKrQKEjZV4ZsDzUktx1mL9cagoZA) [Eo7uzx1N…](https://testnet.nearblocks.io/txns/Eo7uzx1NJp8BpFgpJokpBH8PNB4ibmoGFNQnJSjJYHjW) [Ej4HpM7X…](https://testnet.nearblocks.io/txns/Ej4HpM7XQG7RaKRCRYf25yPSnUdte52VpHNaYBGQ1JH6) [58w5xba5…](https://testnet.nearblocks.io/txns/58w5xba5zoV1QELf11uBUcfqHuJNfD7Rr7xY1VYam1bJ) [4yqekSny…](https://testnet.nearblocks.io/txns/4yqekSnycURPTGC42tVYE8TtPjvbqe5AAxd6bbXBR9dX) [42VT5eby…](https://testnet.nearblocks.io/txns/42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG) |
 | 19 | Washer fault (simulation): report → out of service → refunds → agent Repair task → verified repair → back in service (simulation) | ✅ | [CcWVpNKt…](https://testnet.nearblocks.io/txns/CcWVpNKty8D7FE4NjffLCX61ZCPDTAxQRqGrGPKDFx4L) [5iiVC5Wp…](https://testnet.nearblocks.io/txns/5iiVC5WpFpN3gWFQEiLyncDMq7MQ65idiU7nYi7toXxu) [2fJMYr4q…](https://testnet.nearblocks.io/txns/2fJMYr4q3pREhuEsKngS6UMe1ezVnG1PfWNAi1AoB2B5) [GsLS5b6j…](https://testnet.nearblocks.io/txns/GsLS5b6jwA9HYfWDYWpbcvrSsk4mAg9rorMEsBjdSXvz) [z2zfYqXv…](https://testnet.nearblocks.io/txns/z2zfYqXvTNBuhC6EcPsoGoaRLLxCvA2GVFS796gchyr) [2Lz7yZmo…](https://testnet.nearblocks.io/txns/2Lz7yZmoKUermgzebC5L1hTksWcLPihaKSPJRA9dwsPp) [ANuszYvx…](https://testnet.nearblocks.io/txns/ANuszYvxC6ne7G2KZZwVdHAoe6D7bDApDvHfS14T7sE) [82QJPDzc…](https://testnet.nearblocks.io/txns/82QJPDzcef5Zp52U4EjexZuan3yAoPURUeFWULvjw4R6) [4VZW5por…](https://testnet.nearblocks.io/txns/4VZW5porXWwrCZKgw3vXbYWMRhtQinCA9QpEhNSEXCLB) [EDCv2LZu…](https://testnet.nearblocks.io/txns/EDCv2LZu7vxSL8AG5AYaX3Yifkq5DjtCdZZk7nRRimso) [77MfpBnB…](https://testnet.nearblocks.io/txns/77MfpBnBudDauU1abf5x3a9CKnaYbRDvZSqauXA8WBGu) [2wCgjLvM…](https://testnet.nearblocks.io/txns/2wCgjLvMY4nrcCfcP94S9nGrLEcSTNADKHoJxJFcCW7t) |
 | 20 | Fridge Schedule cleaning (simulation): refused before the interval, opened by the agent after it (simulation) | ✅ | [DQB7f6cD…](https://testnet.nearblocks.io/txns/DQB7f6cDKswiuR5sbFRaBaz5fzeav2zVpGqphSCiEE8G) [P973x4zL…](https://testnet.nearblocks.io/txns/P973x4zLpq8PcBHXoZJzH6xuQHHDaGEc267ZAS8n646) [GzM8sBy2…](https://testnet.nearblocks.io/txns/GzM8sBy2efNGKfFtx9Yx5Dv6iUZqE5BjsmaSszKZ16NA) [7uKxVanU…](https://testnet.nearblocks.io/txns/7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7) [2vUsX2Qa…](https://testnet.nearblocks.io/txns/2vUsX2Qaqtwj5LLRRKfUb2ursPv8v5QVgHNfuv4Nr5oC) |
+| 21 | ./scripts/verify.sh — read-only, keyless verification of every on-chain claim ★ | ✅ | — (read-only verification) |
 
 ### Step 1 — DAO proposal registers printer-01, sets its profile and funds its float
 
@@ -440,6 +441,14 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | [7uKxVanU…](https://testnet.nearblocks.io/txns/7uKxVanUsqUzdKnJMyDEG7xib4PA6YNia8dWqxf5BqM7) | dorm-b-ck.sputnikv2.testnet#12 demo override weekly_clean 1h (production 168h) on fridge-01 — D-018: testnet time cannot be fast-forwarded; 168 h covered by sandbox test inv_schedule_rule_due_only_after_interval | ozan.dorm-b.commonkit-sxflo.testnet | ok |
 | [2vUsX2Qa…](https://testnet.nearblocks.io/txns/2vUsX2Qaqtwj5LLRRKfUb2ursPv8v5QVgHNfuv4Nr5oC) | agent open_upkeep_task("weekly_clean") | agent.commonkit-sxflo.testnet | ok |
 
+### Step 21 — ./scripts/verify.sh — read-only, keyless verification of every on-chain claim
+
+✅ passed · 2026-11-10 09:31:18 UTC · core step
+
+- ✅ verify.sh exit code — `0`
+- ✅ no ❌ (87 ✅ lines)
+- Note: Full output: evidence/verify-step21.txt (run without any keychain: NEAR_CREDENTIALS_DIR points nowhere).
+
 ## Demo overrides (`evidence/demo-overrides.json`)
 
 Every value changed for the demo went through a DAO proposal. **live** = still in force on chain.
@@ -615,3 +624,9 @@ Every value changed for the demo went through a DAO proposal. **live** = still i
 | 2026-11-10 05:01:36 | dorm-b-ck.sputnikv2.testnet#9 invariant top-up fridge-01 0.001 NEAR | [JBDkAu7J…](https://testnet.nearblocks.io/txns/JBDkAu7JFzikyb8tXFEsYNoa2vTX4rLHfTnXbiVG4Jva) | ✅ |
 | 2026-11-10 05:01:36 | dorm-b-ck.sputnikv2.testnet#9 invariant top-up fridge-01 0.001 NEAR | [6muK52Fd…](https://testnet.nearblocks.io/txns/6muK52FdwGsVYvXK4wnSRbUJsXDuydoD5mEnDy5FAbeZ) | ✅ |
 | 2026-11-10 05:01:36 | dorm-b-ck.sputnikv2.testnet#9 invariant top-up fridge-01 0.001 NEAR | [9NgLqBs5…](https://testnet.nearblocks.io/txns/9NgLqBs5KbxFzumvz8dNXnefgjpiUr7f8C6sTL9YBh3a) | ✅ |
+
+## demo-housekeeping
+
+| When (UTC) | What | Tx | OK |
+| :--- | :--- | :--- | :--- |
+| 2026-11-10 09:31:54 | mark_no_show printer-01 reservation 1 (ali, unused demo booking) | [2rBuxwVc…](https://testnet.nearblocks.io/txns/2rBuxwVc8MGBoX9Xd3YMzkiDsNegU79fUhAnDnbiP3eX) | ✅ |

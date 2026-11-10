@@ -1,5 +1,5 @@
 {
-  "taken_at": "2026-11-10T05:28:47.257Z",
+  "taken_at": "2026-11-10T09:31:42.358Z",
   "network": "testnet",
   "assets": [
     {
@@ -10,12 +10,12 @@
       "display_name": "Makerlab 3D printer",
       "in_service": true,
       "ledger": {
-        "float_free": "2549959398775000000000000",
+        "float_free": "2600000000000000000000000",
         "float_cap": "3000000000000000000000000",
         "deposits_held": "2000000000000000000000000",
         "rewards_reserved": "0",
-        "total_fees_in": "500000000000000000000000",
-        "total_swept": "0",
+        "total_fees_in": "1000000000000000000000000",
+        "total_swept": "49959398775000000000000",
         "total_rewards_paid": "0",
         "invariant_ok": true
       },
@@ -29,10 +29,10 @@
               "threshold": 1800
             }
           },
-          "current": "14400",
-          "baseline": "0",
-          "due_value": "14400",
-          "due": true,
+          "current": "16800",
+          "baseline": "15600",
+          "due_value": "1200",
+          "due": false,
           "next_due_estimate": null,
           "open_task": null,
           "reward_rights": 2,
@@ -48,12 +48,12 @@
               "threshold": 50
             }
           },
-          "current": "12",
+          "current": "14",
           "baseline": "0",
-          "due_value": "12",
+          "due_value": "14",
           "due": false,
           "next_due_estimate": null,
-          "open_task": null,
+          "open_task": "1",
           "reward_rights": 1,
           "reward_cash": "0",
           "reimbursable_max": "0"
@@ -64,12 +64,12 @@
           "trigger": {
             "Metric": {
               "metric": "filament_used_mm",
-              "threshold": 330000
+              "threshold": 5000
             }
           },
-          "current": "318000",
-          "baseline": "0",
-          "due_value": "318000",
+          "current": "326000",
+          "baseline": "322000",
+          "due_value": "4000",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,
@@ -96,7 +96,41 @@
           "reimbursable_max": "500000000000000000000000"
         }
       ],
-      "tasks": [],
+      "tasks": [
+        {
+          "id": "0",
+          "rule_id": "nozzle_clean",
+          "kind": "Maintenance",
+          "status": "Rewarded",
+          "rationale": "Nozzle time since last maintenance: 4.3 h (threshold 0.5 h). Opening 'Clean the nozzle and run a calibration print' with reward: 2 usage rights. [rationale: template]",
+          "opened_by": "agent.commonkit-sxflo.testnet",
+          "claimer": "ayse.commonkit-sxflo.testnet",
+          "verifier": "mehmet.commonkit-sxflo.testnet",
+          "reward_rights": 2
+        },
+        {
+          "id": "1",
+          "rule_id": "bed_level",
+          "kind": "Maintenance",
+          "status": "Open",
+          "rationale": "Limits demo setup: the rule is due, so the first task opens normally.",
+          "opened_by": "agent.commonkit-sxflo.testnet",
+          "claimer": null,
+          "verifier": null,
+          "reward_rights": 1
+        },
+        {
+          "id": "2",
+          "rule_id": "filament_spool",
+          "kind": "Restock",
+          "status": "Rewarded",
+          "rationale": "Filament used since last restock: 322 m (threshold 5 m). Opening 'Load a new filament spool (receipt for reimbursement)' with reward: 1 usage right; a receipt of up to 0.5 NEAR can be reimbursed. [rationale: template]",
+          "opened_by": "agent.commonkit-sxflo.testnet",
+          "claimer": "ayse.commonkit-sxflo.testnet",
+          "verifier": "mehmet.commonkit-sxflo.testnet",
+          "reward_rights": 1
+        }
+      ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
       "full_access_keys": 0
     },
@@ -108,11 +142,11 @@
       "display_name": "Makerlab laser cutter",
       "in_service": true,
       "ledger": {
-        "float_free": "1053420000000000000000000",
+        "float_free": "1154379398775000000000000",
         "float_cap": "3000000000000000000000000",
         "deposits_held": "0",
         "rewards_reserved": "0",
-        "total_fees_in": "0",
+        "total_fees_in": "100000000000000000000000",
         "total_swept": "0",
         "total_rewards_paid": "0",
         "invariant_ok": true
@@ -127,9 +161,9 @@
               "threshold": 144000
             }
           },
-          "current": "0",
+          "current": "488",
           "baseline": "0",
-          "due_value": "0",
+          "due_value": "488",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,
@@ -145,9 +179,9 @@
               "every_hours": 720
             }
           },
-          "current": "0",
+          "current": "4",
           "baseline": "1794286016313435563",
-          "due_value": "0",
+          "due_value": "4",
           "due": false,
           "next_due_estimate": "1796878016313435563",
           "open_task": null,
@@ -168,12 +202,12 @@
       "display_name": "Dorm B washer",
       "in_service": true,
       "ledger": {
-        "float_free": "1000000000000000000000000",
+        "float_free": "800000000000000000000000",
         "float_cap": "1000000000000000000000000",
         "deposits_held": "0",
         "rewards_reserved": "0",
-        "total_fees_in": "200000000000000000000000",
-        "total_swept": "250959398775000000000000",
+        "total_fees_in": "600000000000000000000000",
+        "total_swept": "654449398775000000000000",
         "total_rewards_paid": "0",
         "invariant_ok": true
       },
@@ -187,9 +221,9 @@
               "threshold": 30
             }
           },
-          "current": "28",
+          "current": "29",
           "baseline": "0",
-          "due_value": "28",
+          "due_value": "29",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,
@@ -206,9 +240,9 @@
               "threshold": 120
             }
           },
-          "current": "28",
+          "current": "29",
           "baseline": "0",
-          "due_value": "28",
+          "due_value": "29",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,
@@ -225,9 +259,9 @@
               "threshold": 40
             }
           },
-          "current": "28",
+          "current": "29",
           "baseline": "0",
-          "due_value": "28",
+          "due_value": "29",
           "due": false,
           "next_due_estimate": null,
           "open_task": null,
@@ -254,7 +288,19 @@
           "reimbursable_max": "500000000000000000000000"
         }
       ],
-      "tasks": [],
+      "tasks": [
+        {
+          "id": "0",
+          "rule_id": "fault_repair",
+          "kind": "Repair",
+          "status": "Rewarded",
+          "rationale": "1 member reported a fault (needed: 1). Opening 'Diagnose and repair the reported fault' with reward: 3 usage rights; parts up to 0.5 NEAR can be reimbursed with a receipt. The asset stays out of service until the repair is approved and rewarded. [rationale: template]",
+          "opened_by": "agent.commonkit-sxflo.testnet",
+          "claimer": "can.commonkit-sxflo.testnet",
+          "verifier": "ozan.dorm-b.commonkit-sxflo.testnet",
+          "reward_rights": 3
+        }
+      ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
       "full_access_keys": 0
     },
@@ -266,7 +312,7 @@
       "display_name": "Neighbourhood community fridge",
       "in_service": true,
       "ledger": {
-        "float_free": "550000000000000000000000",
+        "float_free": "554429398775000000000000",
         "float_cap": "1000000000000000000000000",
         "deposits_held": "0",
         "rewards_reserved": "0",
@@ -281,15 +327,15 @@
           "kind": "Cleaning",
           "trigger": {
             "Schedule": {
-              "every_hours": 168
+              "every_hours": 1
             }
           },
-          "current": "0",
+          "current": "4",
           "baseline": "1794286046062014543",
-          "due_value": "0",
-          "due": false,
-          "next_due_estimate": "1794890846062014543",
-          "open_task": null,
+          "due_value": "4",
+          "due": true,
+          "next_due_estimate": "1794289646062014543",
+          "open_task": "0",
           "reward_rights": 2,
           "reward_cash": "0",
           "reimbursable_max": "0"
@@ -314,7 +360,19 @@
           "reimbursable_max": "0"
         }
       ],
-      "tasks": [],
+      "tasks": [
+        {
+          "id": "0",
+          "rule_id": "weekly_clean",
+          "kind": "Cleaning",
+          "status": "Open",
+          "rationale": "No cleaning recorded in the last 1 h (every 1 h). Opening 'Empty, clean and sanitize the fridge' with reward: 2 usage rights. [rationale: template]",
+          "opened_by": "agent.commonkit-sxflo.testnet",
+          "claimer": null,
+          "verifier": null,
+          "reward_rights": 2
+        }
+      ],
       "code_hash": "3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h",
       "full_access_keys": 0
     }

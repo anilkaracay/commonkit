@@ -1,0 +1,95 @@
+COMMONKIT verify (read-only, testnet) — 34 accounts, 2 communities
+
+✅ [1] makerlab-ck.sputnikv2.testnet access keys: 0
+✅ [1] commons.makerlab.commonkit-sxflo.testnet access keys: 0
+✅ [1] dorm-b-ck.sputnikv2.testnet access keys: 0
+✅ [1] commons.dorm-b.commonkit-sxflo.testnet access keys: 0
+✅ [1] printer-01.makerlab.commonkit-sxflo.testnet access keys: 0
+✅ [1] laser-01.makerlab.commonkit-sxflo.testnet access keys: 0
+✅ [1] washer-01.dorm-b.commonkit-sxflo.testnet access keys: 0
+✅ [1] fridge-01.dorm-b.commonkit-sxflo.testnet access keys: 0
+✅ [2] 4 asset account(s) share code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h
+✅ [2] asset code_hash matches deployments record (non-reproducible build, sha256 24132b0a373391de…)
+ℹ️ [2] local asset wasm code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h (matches)
+ℹ️ [2] asset Docker reproducible build of the same source: code_hash 3FtaAtUnyxfeMByZpnQZkVFvZdBGFa4x66ddSei3Fy3s (sha256 2187d155fd81d204…) — not the deployed code (D-218)
+✅ [3] 2 commons account(s) share code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn
+✅ [3] commons code_hash matches deployments record (non-reproducible build, sha256 fe408b7045483ba9…)
+ℹ️ [3] local commons wasm code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn (matches)
+ℹ️ [3] commons Docker reproducible build of the same source: code_hash 5ri99gzKfa3WFRJDFdRFiAQXRo1aqJCt8L7uZ8tKZ79w (sha256 482ab99eb0fa9c75…) — not the deployed code (D-218)
+✅ [4] makerlab-ck.sputnikv2.testnet is listed by sputnikv2.testnet.get_dao_list
+✅ [4] makerlab-ck.sputnikv2.testnet runs the factory default code (AA4nA45vauiac3jdVwJTzSdUP3oj2r1fDaPAb2mHdgcH)
+✅ [4] makerlab-ck.sputnikv2.testnet council = 3 recorded accounts
+✅ [4] dorm-b-ck.sputnikv2.testnet is listed by sputnikv2.testnet.get_dao_list
+✅ [4] dorm-b-ck.sputnikv2.testnet runs the factory default code (AA4nA45vauiac3jdVwJTzSdUP3oj2r1fDaPAb2mHdgcH)
+✅ [4] dorm-b-ck.sputnikv2.testnet council = 3 recorded accounts
+✅ [5] commons.makerlab.commonkit-sxflo.testnet → dao makerlab-ck.sputnikv2.testnet
+✅ [5] printer-01.makerlab.commonkit-sxflo.testnet → dao makerlab-ck.sputnikv2.testnet, commons commons.makerlab.commonkit-sxflo.testnet
+✅ [5] printer-01.makerlab.commonkit-sxflo.testnet registered in group makerlab-fab (active true)
+✅ [5] bridge key ed25519:7BRPTG1N… → printer-01.makerlab.commonkit-sxflo.testnet: mark_session_started, mark_session_finished, report_telemetry, submit_verification_result
+✅ [5] agent key ed25519:CpQpnHMP… → printer-01.makerlab.commonkit-sxflo.testnet: open_upkeep_task, annotate_task, escalate, sync_escalation, refresh_dao_policy
+✅ [5] laser-01.makerlab.commonkit-sxflo.testnet → dao makerlab-ck.sputnikv2.testnet, commons commons.makerlab.commonkit-sxflo.testnet
+✅ [5] laser-01.makerlab.commonkit-sxflo.testnet registered in group makerlab-fab (active true)
+✅ [5] bridge key ed25519:7KM4PCKp… → laser-01.makerlab.commonkit-sxflo.testnet: mark_session_started, mark_session_finished, report_telemetry, submit_verification_result
+✅ [5] agent key ed25519:HiM9HNyZ… → laser-01.makerlab.commonkit-sxflo.testnet: open_upkeep_task, annotate_task, escalate, sync_escalation, refresh_dao_policy
+✅ [5] commons.dorm-b.commonkit-sxflo.testnet → dao dorm-b-ck.sputnikv2.testnet
+✅ [5] washer-01.dorm-b.commonkit-sxflo.testnet → dao dorm-b-ck.sputnikv2.testnet, commons commons.dorm-b.commonkit-sxflo.testnet
+✅ [5] washer-01.dorm-b.commonkit-sxflo.testnet registered in group dorm-b-laundry (active true)
+✅ [5] bridge key ed25519:AFH7RGr2… → washer-01.dorm-b.commonkit-sxflo.testnet: mark_session_started, mark_session_finished, report_telemetry, submit_verification_result
+✅ [5] agent key ed25519:DLurP7KA… → washer-01.dorm-b.commonkit-sxflo.testnet: open_upkeep_task, annotate_task, escalate, sync_escalation, refresh_dao_policy
+✅ [5] fridge-01.dorm-b.commonkit-sxflo.testnet → dao dorm-b-ck.sputnikv2.testnet, commons commons.dorm-b.commonkit-sxflo.testnet
+✅ [5] fridge-01.dorm-b.commonkit-sxflo.testnet registered in group street-fridge (active true)
+✅ [5] bridge key ed25519:E34W8gVx… → fridge-01.dorm-b.commonkit-sxflo.testnet: mark_session_started, mark_session_finished, report_telemetry, submit_verification_result
+✅ [5] agent key ed25519:5SMdyi7S… → fridge-01.dorm-b.commonkit-sxflo.testnet: open_upkeep_task, annotate_task, escalate, sync_escalation, refresh_dao_policy
+✅ [5] printer-01.makerlab.commonkit-sxflo.testnet ledger invariant_ok (balance 11.6 NEAR)
+✅ [5] printer-01.makerlab.commonkit-sxflo.testnet float 2.6 ≤ cap 3 NEAR
+✅ [5] printer-01.makerlab.commonkit-sxflo.testnet storage 4.75 NEAR = 67% of reserve (must be < 80%)
+✅ [5] laser-01.makerlab.commonkit-sxflo.testnet ledger invariant_ok (balance 8.1543 NEAR)
+✅ [5] laser-01.makerlab.commonkit-sxflo.testnet float 1.1543 ≤ cap 3 NEAR
+✅ [5] laser-01.makerlab.commonkit-sxflo.testnet storage 4.71 NEAR = 67% of reserve (must be < 80%)
+✅ [5] washer-01.dorm-b.commonkit-sxflo.testnet ledger invariant_ok (balance 7.8 NEAR)
+✅ [5] washer-01.dorm-b.commonkit-sxflo.testnet float 0.8 ≤ cap 1 NEAR
+✅ [5] washer-01.dorm-b.commonkit-sxflo.testnet storage 4.73 NEAR = 67% of reserve (must be < 80%)
+✅ [5] fridge-01.dorm-b.commonkit-sxflo.testnet ledger invariant_ok (balance 7.5544 NEAR)
+✅ [5] fridge-01.dorm-b.commonkit-sxflo.testnet float 0.5544 ≤ cap 1 NEAR
+✅ [5] fridge-01.dorm-b.commonkit-sxflo.testnet storage 4.7 NEAR = 67% of reserve (must be < 80%)
+✅ [6] printer-01 total_swept 0.0499 NEAR = 1 Sweep op(s) to makerlab-ck.sputnikv2.testnet (0.0499 NEAR)
+✅ [7] printer-01 task #0 Rewarded → right-3, right-4 owned by ayse
+✅ [7] printer-01 task #2 Rewarded → right-7 owned by ayse
+✅ [8] printer-01 escalation #0 → makerlab-ck.sputnikv2.testnet#10 Approved (asset: Approved)
+✅ [9] printer-01 Reimbursement op #3 0.4 NEAR for task #2 (Restock, rule max 0.5 NEAR, receipt yes)
+✅ [6] laser-01 total_swept 0 NEAR = 0 Sweep op(s) to makerlab-ck.sputnikv2.testnet (0 NEAR)
+✅ [7] makerlab right-2 ← training #1 Approved
+✅ [7] makerlab right-3 ← task printer-01#0 Rewarded
+✅ [7] makerlab right-4 ← task printer-01#0 Rewarded
+✅ [7] makerlab right-6 ← training #2 Approved
+✅ [7] makerlab right-7 ← task printer-01#2 Rewarded
+✅ [6] washer-01 total_swept 0.6544 NEAR = 4 Sweep op(s) to dorm-b-ck.sputnikv2.testnet (0.6544 NEAR)
+✅ [7] washer-01 task #0 Rewarded → right-1, right-2, right-3 owned by can
+✅ [10] washer-01 period #0 closed by Rewarded Repair task #0
+✅ [6] fridge-01 total_swept 0 NEAR = 0 Sweep op(s) to dorm-b-ck.sputnikv2.testnet (0 NEAR)
+✅ [7] dorm-b right-1 ← task washer-01#0 Rewarded
+✅ [7] dorm-b right-2 ← task washer-01#0 Rewarded
+✅ [7] dorm-b right-3 ← task washer-01#0 Rewarded
+✅ [11] evidence step 1: passed, 7 tx
+✅ [11] evidence step 2: passed, 1 tx
+✅ [11] evidence step 3: passed, 1 tx
+✅ [11] evidence step 4: passed, 0 tx (refused by the bridge before any transaction (read-only can_access))
+✅ [11] evidence step 5: passed, 2 tx
+✅ [11] evidence step 6: passed, 1 tx
+✅ [11] evidence step 7: passed, 1 tx
+✅ [11] evidence step 8: passed, 4 tx
+✅ [11] evidence step 9: passed, 4 tx
+✅ [11] evidence step 10: passed, 5 tx
+✅ [11] evidence step 11: passed, 1 tx
+✅ [11] evidence step 12: passed, 2 tx
+✅ [11] evidence step 13: passed, 4 tx
+✅ [11] evidence step 14: passed, 8 tx
+✅ [11] evidence step 15: passed, 4 tx
+✅ [11] evidence step 16: passed, 23 tx
+✅ [11] evidence step 17: passed, 5 tx
+✅ [11] evidence step 18: passed, 9 tx
+✅ [11] evidence step 19: passed, 12 tx
+✅ [11] evidence step 20: passed, 5 tx
+ℹ️ [11] evidence step 21: missing
+
+✅ all checks passed (91 lines)
