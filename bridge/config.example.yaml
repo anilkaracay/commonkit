@@ -1,6 +1,6 @@
 # Copy to config.yaml (gitignored). Values in ${...} come from the environment / .env.
 network: testnet
-rpc_url: ${NEAR_RPC_URL:-https://rpc.testnet.near.org}
+rpc_url: ${NEAR_RPC_URL:-https://test.rpc.fastnear.com}
 bridge_account: ${BRIDGE_ACCOUNT_ID}
 chain: near
 listen: { host: 0.0.0.0, port: 8787 }

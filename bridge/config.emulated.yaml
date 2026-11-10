@@ -4,7 +4,7 @@
 # No hardware anywhere. Default chain is the in-memory fake; BRIDGE_CHAIN=near writes to testnet
 # with the bridge's function-call keys (only when the lead says so).
 network: testnet
-rpc_url: ${NEAR_RPC_URL:-https://rpc.testnet.near.org}
+rpc_url: ${NEAR_RPC_URL:-https://test.rpc.fastnear.com}
 bridge_account: ${BRIDGE_ACCOUNT_ID:-bridge.commonkit-sxflo.testnet}
 chain: ${BRIDGE_CHAIN:-fake}
 listen: { host: 127.0.0.1, port: ${BRIDGE_PORT:-8787} }

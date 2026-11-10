@@ -26,7 +26,8 @@
     "gen:vectors": "tsx test/gen-nep413-vectors.ts",
     "emulate": "tsx src/emulators/cli.ts",
     "dev:emulated": "tsx src/emulated-stack.ts",
-    "device:add": "tsx src/cli/device-add.ts"
+    "device:add": "tsx src/cli/device-add.ts",
+    "washer-loop": "tsx scripts/washer-loop.ts"
   },
   "dependencies": {
     "@commonkit/sdk": "workspace:*",

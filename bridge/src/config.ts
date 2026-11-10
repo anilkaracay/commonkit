@@ -63,7 +63,7 @@ export type AssetConfig = z.infer<typeof assetConfigSchema>;
 export const bridgeConfigSchema = z
   .object({
     network: z.literal("testnet"),
-    rpc_url: z.url().default("https://rpc.testnet.near.org"),
+    rpc_url: z.url().default("https://test.rpc.fastnear.com"),
     bridge_account: accountIdSchema,
     /** fake = in-memory chain for tests and sim mode (everything labelled simulated). */
     chain: z.enum(["fake", "near"]).default("near"),
