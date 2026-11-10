@@ -6,6 +6,26 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { yoctoToNear } from '@commonkit/sdk';
+import type { TxStatusFn } from './tx-status.js';
+
+interface StepEvidence {
+  step: number;
+  status?: string;
+  negative?: boolean;
+  txHashes: string[];
+  no_tx_reason?: string;
+  transactions?: { label: string; hash: string; ok: boolean; by: string; error_code?: string | null; expected_failure?: boolean }[];
+}
+
+/** The tx that best represents a step: its expected refusal for a negative step, else its last success. */
+export function pickProbe(s: StepEvidence): NonNullable<StepEvidence['transactions']>[number] | null {
+  const txs = s.transactions ?? [];
+  if (s.negative) {
+    const refusal = txs.find((t) => t.expected_failure || (!t.ok && t.error_code));
+    if (refusal) return refusal;
+  }
+  return [...txs].reverse().find((t) => t.ok) ?? txs[0] ?? null;
+}
 
 export interface CheckLine {
   check: number;
@@ -40,6 +60,8 @@ export async function runEvidenceChecks(
   d: { communities: Record<string, { dao_id: string; commons_id: string; assets: string[] }> },
   evidenceDir: string,
   totalSteps = 21,
+  /** Online check 11 (on-chain re-read of one tx per step); omit for `--offline`. */
+  txStatus?: TxStatusFn,
 ): Promise<CheckLine[]> {
   const L: CheckLine[] = [];
   const push = (check: number, ok: boolean, text: string, info = false) => L.push({ check, ok, text, ...(info ? { info } : {}) });
@@ -134,13 +156,35 @@ export async function runEvidenceChecks(
     }
   }
 
-  // 11. evidence/steps.json: every judge step passed, with tx hashes or a stated reason.
+  // 11. Every judge step: passed in evidence/steps.json, and (online) one of its transactions
+  // re-read on chain — success or failure and the E_* code must match what the evidence says.
   const path = join(evidenceDir, 'steps.json');
-  const steps = existsSync(path) ? (JSON.parse(readFileSync(path, 'utf8')) as { step: number; status?: string; txHashes: string[]; no_tx_reason?: string }[]) : [];
+  const steps = existsSync(path) ? (JSON.parse(readFileSync(path, 'utf8')) as StepEvidence[]) : [];
   for (let n = 1; n <= totalSteps; n++) {
     const s = steps.find((x) => x.step === n);
-    const ok = !!s && s.status !== 'failed' && (s.txHashes.length > 0 || !!s.no_tx_reason);
-    push(11, ok || n === totalSteps, `evidence step ${n}: ${s ? `${s.status ?? 'recorded'}, ${s.txHashes.length} tx${s.no_tx_reason ? ` (${s.no_tx_reason})` : ''}` : 'missing'}`, n === totalSteps && !s);
+    if (!s) {
+      push(11, n === totalSteps, `step ${n}: missing in evidence/steps.json`, n === totalSteps);
+      continue;
+    }
+    const passed = s.status !== 'failed';
+    const probe = pickProbe(s);
+    if (!probe) {
+      push(11, passed && !!s.no_tx_reason, `step ${n}: ${s.status ?? 'recorded'}, no tx (${s.no_tx_reason ?? 'no reason given'})`);
+      continue;
+    }
+    if (!txStatus) {
+      push(11, passed, `step ${n}: ${s.status ?? 'recorded'}, ${s.txHashes.length} tx — evidence completeness (not on-chain)`);
+      continue;
+    }
+    try {
+      const o = await txStatus(probe.hash, probe.by);
+      const want = probe.ok ? 'success' : `failure ${probe.error_code ?? ''}`.trim();
+      const got = o.ok ? 'success' : `failure ${o.code ?? ''}`.trim();
+      const match = o.ok === probe.ok && (probe.ok || !probe.error_code || probe.error_code === o.code);
+      push(11, passed && match, `step ${n}: on chain ${probe.hash.slice(0, 10)}… (${probe.label.slice(0, 60)}) ${got}; evidence says ${want}`);
+    } catch (e) {
+      push(11, false, `step ${n}: could not read ${probe.hash} on chain (${(e as Error).message})`);
+    }
   }
   return L;
 }

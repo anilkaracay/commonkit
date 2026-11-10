@@ -330,11 +330,11 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | [946wLUkg…](https://testnet.nearblocks.io/txns/946wLUkg7RDhhY6QFQ38i82oaapdX6kzoZVJZNKexA8f) | makerlab-ck.sputnikv2.testnet#15 restore printer-01 profile (bed_level threshold) after the duplicate-task demo | elif.makerlab.commonkit-sxflo.testnet | ok |
 | [57HaCMJ9…](https://testnet.nearblocks.io/txns/57HaCMJ9UUx5B1vAspALp3cepCMxa8ijBTXRcatKmSX) | makerlab-ck.sputnikv2.testnet#15 restore printer-01 profile (bed_level threshold) after the duplicate-task demo | elif.makerlab.commonkit-sxflo.testnet | ok |
 | [DPWHpngq…](https://testnet.nearblocks.io/txns/DPWHpngqR1KXoKik1GYqMEdCuyivVHtMq6rTvbgDSAL1) | makerlab-ck.sputnikv2.testnet#15 restore printer-01 profile (bed_level threshold) after the duplicate-task demo | burak.makerlab.commonkit-sxflo.testnet | ok |
-| [CeKXhvUM…](https://testnet.nearblocks.io/txns/CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j) | agent key: rule_not_due_metric (E_RULE_NOT_DUE) | agent.commonkit-sxflo.testnet | failed (see tx) |
-| [E5z6dYSt…](https://testnet.nearblocks.io/txns/E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg) | agent key: rule_not_due_schedule (E_RULE_NOT_DUE) | agent.commonkit-sxflo.testnet | failed (see tx) |
-| [2pTH2ej1…](https://testnet.nearblocks.io/txns/2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a) | agent key: task_already_open (E_TASK_ALREADY_OPEN) | agent.commonkit-sxflo.testnet | failed (see tx) |
-| [BpuNwpok…](https://testnet.nearblocks.io/txns/BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod) | agent key: quota_exceeded (E_QUOTA_EXCEEDED) | agent.commonkit-sxflo.testnet | failed (see tx) |
-| [4LTTFcJq…](https://testnet.nearblocks.io/txns/4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc) | agent key: not_agent_after_revocation (E_NOT_AGENT) | agent.commonkit-sxflo.testnet | failed (see tx) |
+| [CeKXhvUM…](https://testnet.nearblocks.io/txns/CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j) | agent key: rule_not_due_metric (E_RULE_NOT_DUE) | agent.commonkit-sxflo.testnet | failed (E_RULE_NOT_DUE) |
+| [E5z6dYSt…](https://testnet.nearblocks.io/txns/E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg) | agent key: rule_not_due_schedule (E_RULE_NOT_DUE) | agent.commonkit-sxflo.testnet | failed (E_RULE_NOT_DUE) |
+| [2pTH2ej1…](https://testnet.nearblocks.io/txns/2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a) | agent key: task_already_open (E_TASK_ALREADY_OPEN) | agent.commonkit-sxflo.testnet | failed (E_TASK_ALREADY_OPEN) |
+| [BpuNwpok…](https://testnet.nearblocks.io/txns/BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod) | agent key: quota_exceeded (E_QUOTA_EXCEEDED) | agent.commonkit-sxflo.testnet | failed (E_QUOTA_EXCEEDED) |
+| [4LTTFcJq…](https://testnet.nearblocks.io/txns/4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc) | agent key: not_agent_after_revocation (E_NOT_AGENT) | agent.commonkit-sxflo.testnet | failed (E_NOT_AGENT) |
 
 ### Step 17 — Second reward for the same task, claimer self-approval, council revoking a right: all refused
 
@@ -353,8 +353,8 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 | [9URscBHQ…](https://testnet.nearblocks.io/txns/9URscBHQD69i8L1iPRYpUnRrfajERszRpvE8PLsrTtXJ) | Ayşe asks for the reward of task #0 again (retry_reward) | ayse.commonkit-sxflo.testnet | refused as expected (E_ALREADY_REWARDED) |
 | [8TVggJbH…](https://testnet.nearblocks.io/txns/8TVggJbHvMecXucRykG7oEPRnt5AmmCQy4XVVo4zPKMj) | Ayşe, the claimer, tries to approve her own task | ayse.commonkit-sxflo.testnet | refused as expected (E_SELF_VERIFY) |
 | [35LAjegU…](https://testnet.nearblocks.io/txns/35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov) | council member Elif tries nft_transfer of Ayşe's right-2 to herself | elif.makerlab.commonkit-sxflo.testnet | refused as expected (E_NON_TRANSFERABLE) |
-| [8baJx53v…](https://testnet.nearblocks.io/txns/8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi) | council member Elif looks for a revoke method (revoke_right): none exists | elif.makerlab.commonkit-sxflo.testnet | refused as expected (protocol) |
-| [7SQ1suu3…](https://testnet.nearblocks.io/txns/7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr) | council member Elif looks for a burn method (nft_burn): none exists | elif.makerlab.commonkit-sxflo.testnet | refused as expected (protocol) |
+| [8baJx53v…](https://testnet.nearblocks.io/txns/8baJx53vEdMZ7WK5U7M729JTbnFxXxkZw8n9UTT2RKBi) | council member Elif looks for a revoke method (revoke_right): none exists | elif.makerlab.commonkit-sxflo.testnet | refused as expected (PROTOCOL:MethodNotFound) |
+| [7SQ1suu3…](https://testnet.nearblocks.io/txns/7SQ1suu3BW3NZM8F9VvgW2AHH5wPLJPezoy1Wz7bPRYr) | council member Elif looks for a burn method (nft_burn): none exists | elif.makerlab.commonkit-sxflo.testnet | refused as expected (PROTOCOL:MethodNotFound) |
 - Note: The DAO has no path either: commons exposes no revoke/burn/transfer method (CONTRACT_SPEC §5.1, invariant 2); suspend_credential on a usage right fails with E_NO_REVOCATION (sandbox test).
 
 ### Step 18 — Printer Restock: agent opens the filament task; capped reimbursement (0.6 refused, 0.4 paid after verifier + council) (simulation)
@@ -443,10 +443,11 @@ Devices are never real hardware (D-022): steps marked *simulation* ran through t
 
 ### Step 21 — ./scripts/verify.sh — read-only, keyless verification of every on-chain claim
 
-✅ passed · 2026-11-10 09:31:18 UTC · core step
+✅ passed · 2026-11-10 09:44:28 UTC · core step
 
+- ✅ no ❌ (87 ✅ lines) (earlier attempt)
 - ✅ verify.sh exit code — `0`
-- ✅ no ❌ (87 ✅ lines)
+- ✅ no ❌ (88 ✅ lines)
 - Note: Full output: evidence/verify-step21.txt (run without any keychain: NEAR_CREDENTIALS_DIR points nowhere).
 
 ## Demo overrides (`evidence/demo-overrides.json`)

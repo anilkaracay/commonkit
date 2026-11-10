@@ -6,7 +6,8 @@
  *   pnpm demo:step all --from <n>  resume demo:all from step n
  *   pnpm demo:step render          regenerate evidence/EVIDENCE.md from evidence/*.json
  *   pnpm demo:step list            list the steps (core ★, simulated, negative)
- *   pnpm demo:step checks          TEST_PLAN §6 checks 6–11 (read-only; for verify.ts to adopt)
+ *   pnpm demo:step checks [--offline]  TEST_PLAN §6 checks 6–11 (read-only; also part of verify.sh)
+ *   pnpm demo:step backfill        fill receiver, events and E_* codes of recorded txs from RPC
  *   pnpm demo:step housekeeping    mark ended, unused demo reservations as no-shows (deposit refunds)
  *
  * Each step prints one line, executes, waits for FINAL, asserts through views (or the expected
@@ -25,6 +26,8 @@ import { readSteps, upsertStep } from './lib/record.js';
 import { runStep, type RunnerDeps } from './lib/runner.js';
 import { STEPS } from './steps/index.js';
 import { runEvidenceChecks } from './lib/verify-checks.js';
+import { txStatusFn } from './lib/tx-status.js';
+import { backfillTxDetails } from './lib/backfill.js';
 
 function flag(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -44,8 +47,10 @@ async function main(): Promise<void> {
   const dep = loadDeployments();
   const cast = buildCast(dep);
   if (cmd === 'housekeeping') return housekeeping(chain, cast);
+  if (cmd === 'backfill') return backfillTxDetails(txStatusFn());
   if (cmd === 'checks') {
-    const lines = await runEvidenceChecks((c, m, a) => chain.view(c, m, a), dep, EVIDENCE_DIR);
+    const tx = process.argv.includes('--offline') ? undefined : txStatusFn();
+    const lines = await runEvidenceChecks((c, m, a) => chain.view(c, m, a), dep, EVIDENCE_DIR, 21, tx);
     for (const l of lines) console.log(`${l.info ? 'ℹ️' : l.ok ? '✅' : '❌'} [${l.check}] ${l.text}`);
     if (lines.some((l) => !l.ok && !l.info)) process.exitCode = 1;
     return;

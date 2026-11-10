@@ -2,14 +2,17 @@
  * verify — read-only, keyless verification of the on-chain claims in deployments/testnet.json
  * (TEST_PLAN §6). Uses only public RPC views; never loads a key. Exit code 1 on any ❌.
  *
- *   tsx verify.ts [--allow-pending]   --allow-pending: accounts still marked keyless "pending"
- *                                     (before M1c sign-off) print ⏳ instead of ❌
+ *   tsx verify.ts [--allow-pending] [--offline]
+ *     --allow-pending: accounts still marked keyless "pending" (before M1c sign-off) print ⏳ instead of ❌
+ *     --offline: check 11 reads evidence/steps.json only ("evidence completeness (not on-chain)")
+ *                instead of re-reading one transaction per judge step on chain
  */
 import './demo/lib/rpc-throttle.mjs';
 import { existsSync } from 'node:fs';
 import { NearRpc, RpcError, yoctoToNear } from '@commonkit/sdk';
 import { EVIDENCE_DIR, RPC_URLS, SPUTNIK_FACTORY, WASM_PATHS } from './lib/config.js';
 import { runEvidenceChecks } from './demo/lib/verify-checks.js';
+import { txStatusFn } from './demo/lib/tx-status.js';
 import { codeHash } from './lib/code.js';
 import { loadDeployments, type Deployments } from './lib/deployments.js';
 import { RESERVE_MAX_USAGE_PCT } from './lib/funding.js';
@@ -260,7 +263,9 @@ async function main(): Promise<void> {
   await checkWiring(dep);
   await checkLedgers(dep);
   // TEST_PLAN §6 checks 6–11: sweeps, rights ↔ tasks, escalations, reimbursement caps, service log, evidence steps.
-  for (const l of await runEvidenceChecks(view, dep, EVIDENCE_DIR))
+  // --offline: check 11 reads evidence only ("evidence completeness (not on-chain)").
+  const offline = process.argv.includes('--offline');
+  for (const l of await runEvidenceChecks(view, dep, EVIDENCE_DIR, 21, offline ? undefined : txStatusFn()))
     out(l.check, l.info ? 'ℹ️' : l.ok ? '✅' : '❌', l.text);
   const failed = lines.filter((l) => l.mark === '❌').length;
   console.log(

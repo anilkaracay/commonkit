@@ -228,7 +228,12 @@
         "label": "bridge mark_session_started (session_started event)",
         "hash": "ARRc2y3M1WwSKcCfcCkp7PpmMDBGBrqWoJ3zkTNMmKwz",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "session_started"
+        ],
+        "error_code": null
       }
     ],
     "assertions": [
@@ -322,7 +327,14 @@
         "label": "bridge mark_session_finished with telemetry (emulated Moonraker job done)",
         "hash": "597JnHejCidKsZtmQjwvYwptHQDqCKrUG9fMnRwAZjUZ",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "telemetry_reported",
+          "session_finished",
+          "reputation_recorded"
+        ],
+        "error_code": null
       },
       {
         "label": "steward (Elif) confirms a clean return",
@@ -457,7 +469,12 @@
         "label": "agent open_upkeep_task(\"nozzle_clean\") with its function-call key",
         "hash": "AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem",
         "ok": true,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "task_opened"
+        ],
+        "error_code": null
       }
     ],
     "assertions": [
@@ -544,7 +561,12 @@
         "label": "bridge submit_verification_result (calibration print on the emulated Moonraker)",
         "hash": "5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "verification_reported"
+        ],
+        "error_code": null
       },
       {
         "label": "Mehmet (verifier, independent) approves",
@@ -648,13 +670,28 @@
         "label": "bridge mark_session_started",
         "hash": "7A414BdkYUzcP7LJbGtdajXCDSHE9WyRLfpFnzER6G9s",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "session_started"
+        ],
+        "error_code": null
       },
       {
         "label": "bridge mark_session_finished (emulated job done) → finalize_right",
         "hash": "77GL79HW25Rn6bNoJRnvhDFWrGiWBXhw33WL92Thoe7a",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "telemetry_reported",
+          "op_created",
+          "session_finished",
+          "reputation_recorded",
+          "right_consumed",
+          "op_result"
+        ],
+        "error_code": null
       },
       {
         "label": "steward (Elif) confirms a clean return (deposit refund)",
@@ -737,7 +774,15 @@
         "label": "agent escalate(kind=\"purchase\") → printer-01 calls dao.add_proposal with its bond",
         "hash": "4vcji9GSXnsZcSwhN74r1raEnRZXVnEVUpPFHeCYh3Df",
         "ok": true,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "op_created",
+          "escalation_created",
+          "op_result",
+          "escalation_submitted"
+        ],
+        "error_code": null
       },
       {
         "label": "treasury top-up makerlab-ck.sputnikv2.testnet +4.2793 NEAR from the team root (plain transfer, research C10)",
@@ -993,13 +1038,25 @@
         "label": "bridge mark_session_started",
         "hash": "6CVR6bgWqps1K2avZZSzUw7QsCpNHjacDdMZ7km66NVW",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "session_started"
+        ],
+        "error_code": null
       },
       {
         "label": "bridge mark_session_finished (energy/run time telemetry)",
         "hash": "ADoxyxM2pNkYxc3AerE4a5LKPPCDxsqSMmqeWt9cRFvq",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "telemetry_reported",
+          "session_finished",
+          "reputation_recorded"
+        ],
+        "error_code": null
       },
       {
         "label": "steward (Elif) confirms a clean return (deposit refund)",
@@ -1280,13 +1337,25 @@
         "label": "bridge mark_session_started",
         "hash": "BeLx28MDF4QszMPHrJfYyX8WR2veiEqa2Yg4JY9jZwSA",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "session_started"
+        ],
+        "error_code": null
       },
       {
         "label": "bridge mark_session_finished with simulated cycle telemetry",
         "hash": "7Zdhx7pyXFHtWkpVRTxZuSXpNfA1A5cRzYcwBhyWgf4n",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "telemetry_reported",
+          "session_finished",
+          "reputation_recorded"
+        ],
+        "error_code": null
       },
       {
         "label": "dorm-b steward (Nil) confirms the return",
@@ -1573,31 +1642,51 @@
         "label": "agent key: rule_not_due_metric (E_RULE_NOT_DUE)",
         "hash": "CeKXhvUMFR3iLWEbfMUAQKdVtuuWEko8SEiHVDKVTU5j",
         "ok": false,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_RULE_NOT_DUE",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_RULE_NOT_DUE: the rule's trigger has not fired\"}}}}"
       },
       {
         "label": "agent key: rule_not_due_schedule (E_RULE_NOT_DUE)",
         "hash": "E5z6dYStTvQzkcmWpQTCN7t1wdpB5TD68bwXiKc1mXNg",
         "ok": false,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_RULE_NOT_DUE",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_RULE_NOT_DUE: the rule's trigger has not fired\"}}}}"
       },
       {
         "label": "agent key: task_already_open (E_TASK_ALREADY_OPEN)",
         "hash": "2pTH2ej1anG8NyQJ95JTdw3Dkiv98unHGr2yp2QNUD8a",
         "ok": false,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_TASK_ALREADY_OPEN",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_TASK_ALREADY_OPEN: rule already has an open task\"}}}}"
       },
       {
         "label": "agent key: quota_exceeded (E_QUOTA_EXCEEDED)",
         "hash": "BpuNwpokThi92A5ytqCK1T3sdRmLDLKS4aTnHtuwJrod",
         "ok": false,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_QUOTA_EXCEEDED",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_QUOTA_EXCEEDED: period reward quota reached\"}}}}"
       },
       {
         "label": "agent key: not_agent_after_revocation (E_NOT_AGENT)",
         "hash": "4LTTFcJq3aJZM2UwMDaqBymkdMUZ9RH7SaAkyBF9Yomc",
         "ok": false,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "laser-01.makerlab.commonkit-sxflo.testnet",
+        "events": [],
+        "error_code": "E_NOT_AGENT",
+        "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"ExecutionError\":\"Smart contract panicked: E_NOT_AGENT: caller is not the agent or a council member\"}}}}"
       }
     ],
     "assertions": [
@@ -1748,7 +1837,7 @@
         "by": "elif.makerlab.commonkit-sxflo.testnet",
         "receiver": "commons.makerlab.commonkit-sxflo.testnet",
         "events": [],
-        "error_code": null,
+        "error_code": "PROTOCOL:MethodNotFound",
         "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"MethodResolveError\":\"MethodNotFound\"}}}}",
         "expected_failure": true
       },
@@ -1759,7 +1848,7 @@
         "by": "elif.makerlab.commonkit-sxflo.testnet",
         "receiver": "commons.makerlab.commonkit-sxflo.testnet",
         "events": [],
-        "error_code": null,
+        "error_code": "PROTOCOL:MethodNotFound",
         "failure": "{\"ActionError\":{\"index\":0,\"kind\":{\"FunctionCallError\":{\"MethodResolveError\":\"MethodNotFound\"}}}}",
         "expected_failure": true
       }
@@ -1870,7 +1959,12 @@
         "label": "agent open_upkeep_task(\"filament_spool\")",
         "hash": "HsdKEEiLQfrP5WNCbKrQKEjZV4ZsDzUktx1mL9cagoZA",
         "ok": true,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "events": [
+          "task_opened"
+        ],
+        "error_code": null
       },
       {
         "label": "Ayşe claims task #2",
@@ -2112,7 +2206,12 @@
         "label": "agent open_upkeep_task(\"fault_repair\")",
         "hash": "ANuszYvxC6ne7G2KZZwVdHAoe6D7bDApDvHfS14T7sE",
         "ok": true,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "task_opened"
+        ],
+        "error_code": null
       },
       {
         "label": "claim task #0",
@@ -2140,7 +2239,12 @@
         "label": "bridge submit_verification_result (simulated check)",
         "hash": "EDCv2LZu7vxSL8AG5AYaX3Yifkq5DjtCdZZk7nRRimso",
         "ok": true,
-        "by": "bridge.commonkit-sxflo.testnet"
+        "by": "bridge.commonkit-sxflo.testnet",
+        "receiver": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "verification_reported"
+        ],
+        "error_code": null
       },
       {
         "label": "Ozan (dorm-b verifier) approves",
@@ -2334,7 +2438,12 @@
         "label": "agent open_upkeep_task(\"weekly_clean\")",
         "hash": "2vUsX2Qaqtwj5LLRRKfUb2ursPv8v5QVgHNfuv4Nr5oC",
         "ok": true,
-        "by": "agent.commonkit-sxflo.testnet"
+        "by": "agent.commonkit-sxflo.testnet",
+        "receiver": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+        "events": [
+          "task_opened"
+        ],
+        "error_code": null
       }
     ],
     "assertions": [
@@ -2389,12 +2498,16 @@
     "transactions": [],
     "assertions": [
       {
+        "what": "no ❌ (87 ✅ lines) (earlier attempt)",
+        "ok": true
+      },
+      {
         "what": "verify.sh exit code",
         "ok": true,
         "detail": "0"
       },
       {
-        "what": "no ❌ (87 ✅ lines)",
+        "what": "no ❌ (88 ✅ lines)",
         "ok": true
       }
     ],
@@ -2403,6 +2516,6 @@
     ],
     "outputs": {},
     "no_tx_reason": "read-only verification",
-    "timestamp": "2026-11-10T09:31:18.008Z"
+    "timestamp": "2026-11-10T09:44:28.843Z"
   }
 ]

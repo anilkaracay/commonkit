@@ -40,7 +40,7 @@ COMMONKIT verify (read-only, testnet) — 34 accounts, 2 communities
 ✅ [5] fridge-01.dorm-b.commonkit-sxflo.testnet registered in group street-fridge (active true)
 ✅ [5] bridge key ed25519:E34W8gVx… → fridge-01.dorm-b.commonkit-sxflo.testnet: mark_session_started, mark_session_finished, report_telemetry, submit_verification_result
 ✅ [5] agent key ed25519:5SMdyi7S… → fridge-01.dorm-b.commonkit-sxflo.testnet: open_upkeep_task, annotate_task, escalate, sync_escalation, refresh_dao_policy
-✅ [5] printer-01.makerlab.commonkit-sxflo.testnet ledger invariant_ok (balance 11.6 NEAR)
+✅ [5] printer-01.makerlab.commonkit-sxflo.testnet ledger invariant_ok (balance 9.6 NEAR)
 ✅ [5] printer-01.makerlab.commonkit-sxflo.testnet float 2.6 ≤ cap 3 NEAR
 ✅ [5] printer-01.makerlab.commonkit-sxflo.testnet storage 4.75 NEAR = 67% of reserve (must be < 80%)
 ✅ [5] laser-01.makerlab.commonkit-sxflo.testnet ledger invariant_ok (balance 8.1543 NEAR)
@@ -70,26 +70,26 @@ COMMONKIT verify (read-only, testnet) — 34 accounts, 2 communities
 ✅ [7] dorm-b right-1 ← task washer-01#0 Rewarded
 ✅ [7] dorm-b right-2 ← task washer-01#0 Rewarded
 ✅ [7] dorm-b right-3 ← task washer-01#0 Rewarded
-✅ [11] evidence step 1: passed, 7 tx
-✅ [11] evidence step 2: passed, 1 tx
-✅ [11] evidence step 3: passed, 1 tx
-✅ [11] evidence step 4: passed, 0 tx (refused by the bridge before any transaction (read-only can_access))
-✅ [11] evidence step 5: passed, 2 tx
-✅ [11] evidence step 6: passed, 1 tx
-✅ [11] evidence step 7: passed, 1 tx
-✅ [11] evidence step 8: passed, 4 tx
-✅ [11] evidence step 9: passed, 4 tx
-✅ [11] evidence step 10: passed, 5 tx
-✅ [11] evidence step 11: passed, 1 tx
-✅ [11] evidence step 12: passed, 2 tx
-✅ [11] evidence step 13: passed, 4 tx
-✅ [11] evidence step 14: passed, 8 tx
-✅ [11] evidence step 15: passed, 4 tx
-✅ [11] evidence step 16: passed, 23 tx
-✅ [11] evidence step 17: passed, 5 tx
-✅ [11] evidence step 18: passed, 9 tx
-✅ [11] evidence step 19: passed, 12 tx
-✅ [11] evidence step 20: passed, 5 tx
-ℹ️ [11] evidence step 21: missing
+✅ [11] step 1: on chain At6SwzzVjE… (makerlab-ck.sputnikv2.testnet#9 printer-01 profile (demo ove) success; evidence says success
+✅ [11] step 2: on chain 3hHS1wra65… (Ali reserves printer-01 (2 slots from slot 996827; fee 0.5 N) success; evidence says success
+✅ [11] step 3: on chain ARRc2y3M1W… (bridge mark_session_started (session_started event)) success; evidence says success
+✅ [11] step 4: passed, no tx (refused by the bridge before any transaction (read-only can_access))
+✅ [11] step 5: on chain B55Q3hhRyg… (steward (Elif) confirms a clean return) success; evidence says success
+✅ [11] step 6: on chain DBTLyXkrBu… (Ali books more printer time ahead (2 slots from slot 996833;) success; evidence says success
+✅ [11] step 7: on chain AbQSVeSayT… (agent open_upkeep_task("nozzle_clean") with its function-cal) success; evidence says success
+✅ [11] step 8: on chain Gr7bwqmCWq… (Mehmet (verifier, independent) approves) success; evidence says success
+✅ [11] step 9: on chain 7Ze39MQyQ3… (steward (Elif) confirms a clean return (deposit refund)) success; evidence says success
+✅ [11] step 10: on chain 7km7HAcHZq… (sync_escalation (ANY) maps the DAO status back to the asset) success; evidence says success
+✅ [11] step 11: on chain DWyA3hq1Ty… (Zeynep reserves laser-01 (no credential) (1 slot from slot 1) success; evidence says success
+✅ [11] step 12: on chain 6wdSrqtsVq… (Mehmet (verifier ≠ trainer ≠ trainee) approves training #1) success; evidence says success
+✅ [11] step 13: on chain HF8cj7WdXF… (steward (Elif) confirms a clean return (deposit refund)) success; evidence says success
+✅ [11] step 14: on chain 7iWi8ExRko… (Ayşe tries her makerlab right on washer-01 (dorm-b) (1 slot ) success; evidence says success
+✅ [11] step 15: on chain 2qYJpx6UaA… (dorm-b steward (Nil) confirms the return) success; evidence says success
+✅ [11] step 16: on chain CeKXhvUMFR… (agent key: rule_not_due_metric (E_RULE_NOT_DUE)) failure E_RULE_NOT_DUE; evidence says failure E_RULE_NOT_DUE
+✅ [11] step 17: on chain 9URscBHQD6… (Ayşe asks for the reward of task #0 again (retry_reward)) failure E_ALREADY_REWARDED; evidence says failure E_ALREADY_REWARDED
+✅ [11] step 18: on chain Ej4HpM7XQG… (Ayşe submits with expense 0.6 NEAR (> reimbursable_max 0.5)) failure E_EXPENSE_CAP; evidence says failure E_EXPENSE_CAP
+✅ [11] step 19: on chain 5iiVC5WpFp… (Can (no washer session) tries to report a fault) failure E_NO_RECENT_SESSION; evidence says failure E_NO_RECENT_SESSION
+✅ [11] step 20: on chain DQB7f6cDKs… (agent key: open_upkeep_task("weekly_clean") before the inter) failure E_RULE_NOT_DUE; evidence says failure E_RULE_NOT_DUE
+✅ [11] step 21: passed, no tx (read-only verification)
 
 ✅ all checks passed (91 lines)
