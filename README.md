@@ -235,11 +235,15 @@ Full list: [`deployments/testnet.json`](deployments/testnet.json). Specs: [`docs
 - **One account is not one person.** Roles are managed by the DAO.
 - **Privacy:** photos and notes never go on chain, only their sha256.
 - **Demo values:** thresholds and limits were lowered by labelled DAO proposals (table above). The DAO treasuries were topped up from the team's root account by plain transfers before steps 1 and 10 (listed in those steps' txs); the members Alex, Casey, Ava, Mark, Zoe and the council members are team-controlled demo accounts ([`deployments/testnet.json`](deployments/testnet.json)), not real users.
-- **The hosted Trezu app is mainnet-only** and was not used (see "Trezu" for what was done on testnet). **No security audit. Business model not validated.**
+- **The hosted Trezu app is mainnet-only** and was not used (see [Trezu](#trezu) for what was done on testnet). **No security audit. Business model not validated.**
 
 ## Trezu
 
-<!-- TREZU: filled from integrations/trezu/README.md -->
+Five COMMONKIT custom-proposal templates ([`integrations/trezu/templates/`](integrations/trezu/templates/)) compile with Trezu's own template engine (NEAR-DevHub/trezu at commit `62cf0e4`) into exactly the Sputnik `FunctionCall` our scripts send (`pnpm trezu:test`, [`scripts/trezu/templates.test.ts`](scripts/trezu/templates.test.ts)). One of them filed a real testnet proposal, `dorm-b-ck.sputnikv2.testnet#13` (fund washer-01's float with 0.05 NEAR), which the council passed: [add_proposal `D521qH6m…`](https://testnet.nearblocks.io/txns/D521qH6mg4qm3Tt1Ck57Mo9JVsY6pgzqXZxjAWpPVF6n), [executing vote `EHzqNtod…`](https://testnet.nearblocks.io/txns/EHzqNtodFNQjiEYFFEMswNX9VCbPjYsje9NjgkeEb8b2) ([`evidence/trezu.json`](evidence/trezu.json)). Trezu's open-source UI, run locally on Trezu's official testnet mock backend, shows our DAOs' proposals, including the payment request opened by the printer's own contract (`makerlab-ck#10`, 4 NEAR to the supplier):
+
+![Trezu UI (local, testnet mock backend) showing makerlab-ck proposal #10 opened by printer-01](integrations/trezu/screenshots/trezu-local-makerlab-10-transfer-to-supplier-1440.png)
+
+Limits: #13 was filed by our script with the engine's exact output, not through Trezu's form with a wallet; Trezu's UI shows it as a plain function call because templates live in Trezu's mainnet backend; the hosted Trezu app is mainnet-only, so it was not tested ([`integrations/trezu/README.md`](integrations/trezu/README.md), D-037).
 
 ## Run locally
 
