@@ -1,7 +1,7 @@
 /** React binding for the NEAR mark: <NearMark /> renders the official mark (aria-hidden) at 1em; wrap amounts as
  * <span className="ck-near"><NearMark className="ck-near-mark" /><span className="ck-num">2.60</span><span className="ck-sr"> NEAR</span></span>. */
 import { createElement, type SVGProps } from 'react';
-import { NEAR_MARK_FILL, NEAR_MARK_PATH, NEAR_MARK_VIEWBOX } from './near.ts';
+import { NEAR_MARK_FILL, NEAR_MARK_PATH, NEAR_MARK_VIEWBOX } from './near';
 
 export function NearMark(props: SVGProps<SVGSVGElement>) {
   return createElement('svg', { viewBox: NEAR_MARK_VIEWBOX, 'aria-hidden': true, focusable: false, ...props },

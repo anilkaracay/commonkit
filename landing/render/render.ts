@@ -4,7 +4,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { AssetSnap } from '../src/lib/chain.ts';
 import { esc, firstLabel, int, near, triggerText, type Trigger } from '../src/lib/format.ts';
-import { nearAmountHtml, nearMarkSvg } from '@commonkit/design';
+// The /near entry has no internal imports, so Node can load it as-is when vite.config renders the page.
+import { nearAmountHtml, nearMarkSvg } from '@commonkit/design/near';
 import { REPO, type DemoOverride, type JudgeStep, type LandingData, type Profile } from './data.ts';
 
 export const REPO_URL = 'https://github.com/anilkaracay/commonkit';
