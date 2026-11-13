@@ -32,8 +32,8 @@ export function ProofPage() {
               <span className="text-text-2">checks pass</span>
             </p>
             <p className="num text-sm text-text-3">
-              <span className="font-medium text-text">{pass} pass</span> · <span className={counts.fail ? 'font-medium text-danger' : ''}>{counts.fail ?? 0} fail</span> ·{' '}
-              <span className={counts.warn ? 'font-medium text-due' : ''}>{counts.warn ?? 0} warning</span>
+              <span className="font-medium text-text">{pass} pass</span> · <span className={counts.fail ? 'font-medium text-danger' : ''}>{counts.fail ?? 0} fail</span>
+              {counts.warn ? <span className="font-medium text-due"> · {counts.warn} warning</span> : null}
             </p>
           </div>
           <div className="ck-gauge" style={{ ['--v' as string]: `${total ? (pass / total) * 100 : 0}%` }}>

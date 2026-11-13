@@ -49,8 +49,8 @@ export function ProofRow({ check, defaultOpen = false }: { check: ProofCheck; de
         <ul className="mx-5 mb-4 divide-y divide-line rounded-md bg-bg-alt px-4 sm:ml-15">
           {check.items.map((item, i) => (
             <li key={i} className="flex items-start gap-3 py-2.5 text-sm">
-              <span aria-label={item.ok ? 'ok' : 'not ok'} className={item.ok ? 'text-accent' : 'text-danger'}>
-                {item.ok ? '✓' : '✗'}
+              <span aria-label={item.info ? 'information' : item.ok ? 'ok' : 'not ok'} className={item.info ? 'text-text-3' : item.ok ? 'text-accent' : 'text-danger'}>
+                {item.info ? 'ℹ' : item.ok ? '✓' : '✗'}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="mono-id text-text-2">{item.account && item.label === item.account ? <Account id={item.account} full link /> : item.label}</p>

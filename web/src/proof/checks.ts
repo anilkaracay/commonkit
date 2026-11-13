@@ -3,6 +3,7 @@
  * from the same sources. Order, numbering and pass/fail rules stay one-to-one with verify.sh.
  */
 import type { DataSource } from '../data/source';
+import type { EvidenceStep } from '../data/offchain';
 import type { Card, Task } from '../data/types';
 import { formatNearUnit, toYocto } from '../lib/near';
 import { formatDateTime } from '../lib/time';
@@ -14,6 +15,8 @@ export interface ProofItem {
   label: string;
   value: string;
   ok: boolean;
+  /** Information only, like verify.sh's ℹ️ lines: never fails the check. */
+  info?: boolean;
   /** Account or tx to open in the explorer. */
   account?: string;
   tx?: string;
@@ -28,7 +31,7 @@ export interface ProofCheck {
 }
 
 const statusOf = (items: ProofItem[], warnIfEmpty = false): CheckStatus =>
-  items.length === 0 ? (warnIfEmpty ? 'warn' : 'pass') : items.every((i) => i.ok) ? 'pass' : 'fail';
+  items.length === 0 ? (warnIfEmpty ? 'warn' : 'pass') : items.every((i) => i.ok || i.info) ? 'pass' : 'fail';
 
 
 export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
@@ -66,8 +69,14 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
     } else if (allSame && first !== expected) {
       summary += ` ≠ recorded ${expected}`;
     } else if (allSame && rec.build !== 'reproducible') {
-      status = 'warn';
-      summary += ' = hash recorded at deployment; the build is not reproducible, so it is not compared with a rebuilt wasm';
+      // verify.sh: ✅ matches the deployments record, ℹ️ for the local and Docker rebuilds.
+      summary += ' = hash recorded at deployment';
+      items.push({
+        label: 'build',
+        value: `${rec.build} build: compared with the deployments record; verify.sh also prints the local and Docker reproducible rebuilds as information`,
+        ok: true,
+        info: true,
+      });
     } else if (allSame) {
       summary += ' = reproducible build';
     }
@@ -213,14 +222,37 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
   }
   checks.push({ id: 10, title: 'Every out-of-service period ended properly', status: statusOf(oosItems), summary: 'closed only by a rewarded Repair task or a council member', items: oosItems });
 
-  // 9. evidence
+  // 11. evidence completeness, with the rules of scripts/demo/lib/verify-checks.ts: a step passes
+  // when it did not fail and has tx hashes or a no_tx_reason. The on-chain re-read of one tx per
+  // step runs in verify.sh, not in the browser.
   const steps = await ds.getEvidenceSteps();
-  const stepItems: ProofItem[] = Array.from({ length: EXPECTED_STEPS }, (_, i) => {
-    const s = steps.find((x) => x.step === i + 1);
-    const tx = s?.txHashes[0];
-    return { label: `step ${i + 1}${s ? ` · ${s.title}` : ''}`, value: s ? `${s.txHashes.length} tx` : 'missing', ok: !!s && s.txHashes.length > 0, ...(tx ? { tx } : {}) };
+  const stepItems: ProofItem[] = evidenceItems(steps, EXPECTED_STEPS);
+  const counted = stepItems.filter((i) => !i.info);
+  checks.push({
+    id: 11,
+    title: 'Every judge step is in the evidence',
+    status: statusOf(stepItems),
+    summary: `${counted.filter((i) => i.ok).length}/${EXPECTED_STEPS} steps complete · evidence completeness; the on-chain re-check of each step runs in verify.sh`,
+    items: stepItems,
   });
-  checks.push({ id: 11, title: `Evidence has ${EXPECTED_STEPS} steps with tx hashes`, status: statusOf(stepItems), summary: `${stepItems.filter((i) => i.ok).length}/${EXPECTED_STEPS} steps recorded`, items: stepItems });
 
   return checks;
+}
+
+/** Check 11 lines, one per judge step, mirroring verify-checks.ts (evidence-only mode). */
+export function evidenceItems(steps: EvidenceStep[], total: number): ProofItem[] {
+  return Array.from({ length: total }, (_, i) => {
+    const n = i + 1;
+    const s = steps.find((x) => x.step === n);
+    if (!s) {
+      // verify.sh: the last step (verify.sh itself) may be missing; that line is information only.
+      return { label: `step ${n}`, value: 'missing in evidence/steps.json', ok: n === total, ...(n === total ? { info: true } : {}) };
+    }
+    const passed = s.status !== 'failed';
+    const tx = s.txHashes[0];
+    if (s.txHashes.length === 0) {
+      return { label: `step ${n} · ${s.title}`, value: `no tx: ${s.no_tx_reason ?? 'no reason given'}`, ok: passed && !!s.no_tx_reason };
+    }
+    return { label: `step ${n} · ${s.title}`, value: `${s.txHashes.length} tx`, ok: passed, ...(tx ? { tx } : {}) };
+  });
 }

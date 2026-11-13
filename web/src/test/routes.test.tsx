@@ -71,7 +71,7 @@ describe('every route renders with the mock source', () => {
 
   it('proof page lists every verify.sh check', async () => {
     renderAt('/proof');
-    expect(await screen.findByText(/9 pass/)).toBeInTheDocument();
+    expect(await screen.findByText(/11 pass/)).toBeInTheDocument();
   });
 
   it('task page shows minted cards as non-transferable', async () => {

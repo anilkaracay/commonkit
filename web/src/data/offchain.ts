@@ -159,6 +159,10 @@ export interface EvidenceStep {
   txHashes: string[];
   /** Labelled transactions of the step (scripts/demo), when recorded. */
   transactions?: { label: string; hash: string; ok: boolean }[];
+  /** 'passed' | 'failed' as recorded by scripts/demo. */
+  status?: string;
+  /** Why a step legitimately has no transaction (e.g. a refusal before any tx, a read-only step). */
+  no_tx_reason?: string;
   explorerLinks: string[];
   assertions: EvidenceAssertion[];
   timestamp: string; // ISO 8601
