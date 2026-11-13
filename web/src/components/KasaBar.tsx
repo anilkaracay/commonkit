@@ -1,8 +1,9 @@
 import type { LedgerView } from '../data/types';
-import { displayRatio, formatNear as fmt, toYocto, type YoctoLike } from '../lib/near';
+import { displayRatio, toYocto } from '../lib/near';
+import { Near } from './Near';
 
-/** Every amount on the money views: at least two decimals, at most four, tabular figures. */
-const formatNear = (v: YoctoLike) => fmt(v, { minDecimals: 2, maxDecimals: 4 });
+/** Every amount on the money views: at least two decimals, at most four; the card meter uses two. */
+const D = { minDecimals: 2, maxDecimals: 4 } as const;
 
 /** Float against its cap as one 4 px meter. Used on the board card. */
 export function FloatMeter({ ledger, floatCap }: { ledger: LedgerView; floatCap: string }) {
@@ -14,7 +15,10 @@ export function FloatMeter({ ledger, floatCap }: { ledger: LedgerView; floatCap:
       <div className="flex items-baseline justify-between gap-3 text-sm">
         <span className="text-text-2">Float</span>
         <span className="num text-text-3">
-          <span className="font-semibold text-text">{formatNear(float)}</span> / {formatNear(cap)} NEAR
+          <span className="font-semibold text-text">
+            <Near value={float} opts={{ minDecimals: 2, maxDecimals: 2 }} />
+          </span>{' '}
+          / <Near value={cap} opts={{ minDecimals: 2, maxDecimals: 2 }} />
         </span>
       </div>
       <div className="ck-gauge mt-2" style={{ ['--v' as string]: `${v}%` }}>
@@ -39,9 +43,11 @@ export function MoneyFigures({ ledger, floatCap }: { ledger: LedgerView; floatCa
         <dt className="text-sm text-text-3">Float</dt>
         <dd className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
           <span className="key-num display leading-none" style={{ ['--key-base' as string]: '2.125rem' }}>
-            {formatNear(float)}
+            <Near value={float} opts={D} />
           </span>
-          <span className="num text-sm text-text-3">/ {formatNear(cap)} NEAR</span>
+          <span className="text-sm text-text-3">
+            / <Near value={cap} opts={D} />
+          </span>
         </dd>
         <dd className="ck-gauge mt-3" style={{ ['--v' as string]: `${v}%` }}>
           <span />
@@ -52,9 +58,8 @@ export function MoneyFigures({ ledger, floatCap }: { ledger: LedgerView; floatCa
         <dt className="text-sm text-text-3">Deposits held</dt>
         <dd className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
           <span className="key-num display leading-none text-liability" style={{ ['--key-base' as string]: '2.125rem' }}>
-            {formatNear(deposits)}
+            <Near value={deposits} opts={D} />
           </span>
-          <span className="text-sm text-text-3">NEAR</span>
         </dd>
         <dd className="mt-3 h-1" aria-hidden />
         <dd className="mt-2 text-xs text-text-3">Members' money, owed back</dd>
@@ -86,7 +91,10 @@ export function KasaBar({ ledger, floatCap }: { ledger: LedgerView; floatCap: st
         <div className="flex items-baseline justify-between gap-3 text-sm">
           <span className="font-medium">Operating float</span>
           <span className="num text-text-3">
-            <span className="font-semibold text-text">{formatNear(float)}</span> / {formatNear(cap)} NEAR cap
+            <span className="font-semibold text-text">
+              <Near value={float} opts={D} />
+            </span>{' '}
+            / <Near value={cap} opts={D} /> cap
           </span>
         </div>
         <div className="relative mt-3 h-2 rounded-full bg-track">
@@ -102,16 +110,16 @@ export function KasaBar({ ledger, floatCap }: { ledger: LedgerView; floatCap: st
             {reserved > 0n && (
               <span className="inline-flex items-center gap-1.5">
                 <span aria-hidden className="size-2 rounded-full bg-sky-300" />
-                <span className="num">{formatNear(reserved)}</span> reserved for rewards
+                <Near value={reserved} opts={D} /> reserved for rewards
               </span>
             )}
             {pending > 0n && (
               <span className="inline-flex items-center gap-1.5">
                 <span aria-hidden className="size-2 rounded-full bg-ice-200" />
-                <span className="num">{formatNear(pending)}</span> in flight
+                <Near value={pending} opts={D} /> in flight
               </span>
             )}
-            <span>{atCap ? 'At cap: new fees go to the DAO' : <><span className="num">{formatNear(cap - float)}</span> until cap</>}</span>
+            <span>{atCap ? 'At cap: new fees go to the DAO' : <><Near value={cap - float} opts={D} /> until cap</>}</span>
           </span>
           <span>Beyond the cap → DAO treasury</span>
         </div>
@@ -120,7 +128,9 @@ export function KasaBar({ ledger, floatCap }: { ledger: LedgerView; floatCap: st
       <div>
         <div className="flex items-baseline justify-between gap-3 text-sm">
           <span className="font-medium text-liability">Deposits held</span>
-          <span className="num font-semibold text-liability">{formatNear(deposits)} NEAR</span>
+          <span className="font-semibold text-liability">
+            <Near value={deposits} opts={D} />
+          </span>
         </div>
         <div className="mt-3 h-2 rounded-full bg-track">
           <div className="h-full rounded-full bg-liability" style={{ width: deposits === 0n ? '0%' : `max(6px, ${w(deposits)})` }} />
@@ -140,7 +150,7 @@ export function KasaBar({ ledger, floatCap }: { ledger: LedgerView; floatCap: st
           <div key={k}>
             <dt className="text-xs text-text-3">{k}</dt>
             <dd className="num mt-0.5 text-lg font-medium">
-              {formatNear(v)} <span className="text-sm font-normal text-text-3">NEAR</span>
+              <Near value={v} opts={D} />
             </dd>
           </div>
         ))}

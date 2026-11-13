@@ -23,6 +23,7 @@ import { formatAgo, formatDateTime, formatTime, slotOf, slotStartNs } from '../l
 import { NotFoundPage } from './NotFound';
 import { deviceOf } from '../data/devices';
 import { ReservationActions } from '../components/ReservationActions';
+import { Near } from '../components/Near';
 
 const resTone: Partial<Record<Reservation['status'], Tone>> = {
   Confirmed: 'ok',
@@ -125,11 +126,14 @@ export function AssetPage() {
               </button>
             </div>
             <p className="text-sm text-text-3">
-              <span className="num font-semibold text-text">{formatNear(s.profile.price_per_slot)} NEAR</span> per {s.profile.slot_minutes} min
+              <span className="font-semibold text-text">
+                <Near value={s.profile.price_per_slot} />
+              </span>{' '}
+              per {s.profile.slot_minutes} min
               {toYocto(s.profile.deposit) > 0n && (
                 <>
                   {' '}
-                  · <span className="num">{formatNear(s.profile.deposit)}</span> NEAR refundable deposit
+                  · <Near value={s.profile.deposit} /> refundable deposit
                 </>
               )}
               {s.profile.required_credential && (
@@ -172,7 +176,7 @@ export function AssetPage() {
           <div className="panel p-5 sm:p-6">
             <KasaBar ledger={s.ledger} floatCap={s.profile.float_cap} />
             <p className={`mt-4 text-xs ${s.ledger.invariant_ok ? 'text-text-3' : 'text-danger'}`}>
-              Balance <span className="num">{formatNear(s.ledger.balance)}</span> NEAR, including <span className="num">{formatNear(s.ledger.storage_reserve)}</span> storage reserve
+              Balance <Near value={s.ledger.balance} />, including <Near value={s.ledger.storage_reserve} /> storage reserve
               {s.ledger.invariant_ok ? ' · invariant_ok' : ''}
             </p>
           </div>
@@ -310,13 +314,16 @@ export function AssetPage() {
                 <li key={e.id} className="px-5 py-4 text-sm">
                   <div className="flex items-start justify-between gap-3">
                     <p>
-                      <span className="num font-semibold">{formatNear(e.amount)} NEAR</span> {e.kind} → <Account id={e.receiver} />
+                      <span className="font-semibold">
+                        <Near value={e.amount} />
+                      </span>{' '}
+                      {e.kind} → <Account id={e.receiver} />
                     </p>
                     <Mark tone={e.status === 'Approved' ? 'ok' : 'quiet'}>{e.status}</Mark>
                   </div>
                   <p className="mt-1 text-text-2">{e.reason}</p>
                   <p className="num mt-1 text-xs text-text-3">
-                    proposal #{e.proposal_id ?? '—'} in {s.wiring.dao_id} · bond {formatNear(e.bond_paid)} NEAR from float
+                    proposal #{e.proposal_id ?? '—'} in {s.wiring.dao_id} · bond <Near value={e.bond_paid} /> from float
                   </p>
                 </li>
               ))}

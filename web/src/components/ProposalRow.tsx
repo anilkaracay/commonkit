@@ -1,11 +1,11 @@
 import type { Proposal } from '../data/offchain';
-import { formatNear } from '../lib/near';
 import { formatAgo } from '../lib/time';
 import { variantOf } from '../lib/enums';
 import { proposalTitle } from '../lib/proposalTitle';
 import { Mark, type Tone } from './Badges';
 import { Account, TxLink } from './TxLink';
 import { useDataSource } from '../data/source';
+import { Near } from './Near';
 
 const tone: Record<string, Tone> = { Approved: 'ok', InProgress: 'quiet', Rejected: 'danger', Failed: 'danger', Expired: 'quiet', Removed: 'quiet', Moved: 'quiet' };
 
@@ -23,7 +23,7 @@ export function ProposalRow({ proposal: p, daoId, assetIds, nowMs }: { proposal:
           <span>{kind}</span>
           {transfer && (
             <span className="num text-text-2">
-              {formatNear(transfer.amount)} NEAR → <Account id={transfer.receiver_id} />
+              <Near value={transfer.amount} /> → <Account id={transfer.receiver_id} />
             </span>
           )}
           <span>

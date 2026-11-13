@@ -12,6 +12,7 @@ import { ERROR_MESSAGES } from '../lib/errors';
 import { formatNear, toYocto } from '../lib/near';
 import { formatTime, slotOf, slotStartNs } from '../lib/time';
 import { useWallet } from '../wallet/wallet';
+import { Near } from '../components/Near';
 
 const SHOWN = 16;
 
@@ -139,7 +140,9 @@ export function ReservePage() {
         <dl className="text-sm">
           <div className="flex justify-between gap-4 pb-3">
             <dt className="text-text-2">Fee {useRight ? '(paid by your right)' : `(${count} × ${formatNear(p.price_per_slot)})`}</dt>
-            <dd className="num whitespace-nowrap">{formatNear(fee)} NEAR</dd>
+            <dd className="whitespace-nowrap">
+              <Near value={fee} />
+            </dd>
           </div>
           <div className="flex justify-between gap-4 border-t border-line py-3">
             <dt className="text-text-2">
@@ -148,12 +151,14 @@ export function ReservePage() {
                 Refunded after a clean return · {formatNear(p.deposit_trusted)} after {p.trusted_after} clean returns
               </span>
             </dt>
-            <dd className="num whitespace-nowrap">{formatNear(deposit)} NEAR</dd>
+            <dd className="whitespace-nowrap">
+              <Near value={deposit} />
+            </dd>
           </div>
           <div className="flex items-baseline justify-between gap-4 border-t border-line pt-4">
             <dt className="font-medium">Attached exactly</dt>
             <dd className="key-num display whitespace-nowrap" style={{ ['--key-base' as string]: '1.75rem' }}>
-              {formatNear(attached)} <span className="text-base text-text-3">NEAR</span>
+              <Near value={attached} />
             </dd>
           </div>
         </dl>

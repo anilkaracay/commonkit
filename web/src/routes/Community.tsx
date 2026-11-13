@@ -6,10 +6,10 @@ import { Empty, LoadError, Loading, Section } from '../components/Section';
 import { Account } from '../components/TxLink';
 import { ProposalRow } from '../components/ProposalRow';
 import { MachineVisual } from '../components/MachineVisual';
-import { formatNear } from '../lib/near';
 import { shortAccount } from '../lib/enums';
 import { useDemoLink } from '../demo/demo';
 import { NotFoundPage } from './NotFound';
+import { Near } from '../components/Near';
 
 /** `/c/:community` — DAO, council, treasury, commons, groups, credential kinds, roles, governance. */
 export function CommunityPage() {
@@ -51,9 +51,8 @@ export function CommunityPage() {
             <dt className="text-sm text-text-3">DAO treasury</dt>
             <dd className="mt-1 flex items-baseline gap-1.5">
               <span className="key-num display leading-none" style={{ ['--key-base' as string]: '2.25rem' }}>
-                {formatNear(c.treasury.amount, { maxDecimals: 2 })}
+                <Near value={c.treasury.amount} opts={{ minDecimals: 2, maxDecimals: 2 }} />
               </span>
-              <span className="text-sm text-text-3">NEAR</span>
             </dd>
             <dd className="mono-id mt-3">{c.community.dao_id}</dd>
           </div>
@@ -65,7 +64,7 @@ export function CommunityPage() {
               ))}
             </dd>
             <dd className="mt-3 text-xs text-text-3">
-              Proposal bond <span className="num">{formatNear(c.policy.proposal_bond)}</span> NEAR
+              Proposal bond <Near value={c.policy.proposal_bond} />
             </dd>
           </div>
           <div className="bg-surface p-5 sm:p-6">

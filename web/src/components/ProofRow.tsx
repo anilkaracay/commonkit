@@ -1,5 +1,6 @@
 import type { ProofCheck } from '../proof/checks';
 import { Account, TxLink } from './TxLink';
+import { NearText } from './Near';
 
 const mark = {
   pass: { label: 'pass', cls: 'bg-accent text-on-accent' },
@@ -54,7 +55,9 @@ export function ProofRow({ check, defaultOpen = false }: { check: ProofCheck; de
               </span>
               <div className="min-w-0 flex-1">
                 <p className="mono-id text-text-2">{item.account && item.label === item.account ? <Account id={item.account} full link /> : item.label}</p>
-                <p className="num mt-0.5 text-xs break-all text-text-3">{item.value}</p>
+                <p className="num mt-0.5 text-xs break-all text-text-3">
+                  <NearText text={item.value} />
+                </p>
               </div>
               <TxLink hash={item.tx} />
             </li>

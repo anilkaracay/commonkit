@@ -1,11 +1,12 @@
 import { Link } from 'react-router';
 import type { Task, UpkeepRule } from '../data/types';
 import { KindChip } from './UpkeepKind';
-import { formatNear, toYocto } from '../lib/near';
+import { toYocto } from '../lib/near';
 import { formatAgo } from '../lib/time';
 import { Mark, SimulatedBadge, type Tone } from './Badges';
 import { Account, TxLink } from './TxLink';
 import { useDemoLink } from '../demo/demo';
+import { Near } from './Near';
 
 export const taskTone: Record<Task['status'], Tone> = {
   Open: 'due',
@@ -52,11 +53,17 @@ export function TaskRow({
             <span className="num font-medium text-text-2">
               {task.reward_rights} right{task.reward_rights === 1 ? '' : 's'}
             </span>
-            {toYocto(task.reward_cash) > 0n && <span className="num"> + {formatNear(task.reward_cash)} NEAR</span>}
+            {toYocto(task.reward_cash) > 0n && (
+              <>
+                {' '}
+                + <Near value={task.reward_cash} />
+              </>
+            )}
           </span>
           {(task.kind === 'Restock' || task.kind === 'Repair') && toYocto(task.expense) > 0n && (
             <span className="num" title={task.receipt_hash ? `receipt sha256 ${task.receipt_hash}` : undefined}>
-              expense {formatNear(task.expense)} NEAR{task.receipt_hash ? ` · receipt ${task.receipt_hash.slice(0, 8)}…` : ''}
+              expense <Near value={task.expense} />
+              {task.receipt_hash ? ` · receipt ${task.receipt_hash.slice(0, 8)}…` : ''}
             </span>
           )}
           <span>{task.claimer ? <>by <Account id={task.claimer} /></> : 'unclaimed'}</span>

@@ -6,9 +6,10 @@ import { useDataSource } from '../data/source';
 import { SimulatedBadge } from '../components/Badges';
 import { PageHead } from '../components/Section';
 import { useToast } from '../components/Toast';
-import { formatNear, parseNear, toYocto } from '../lib/near';
+import { parseNear, toYocto } from '../lib/near';
 import { useLang } from '../pilot/lang';
 import { useWallet } from '../wallet/wallet';
+import { Near } from '../components/Near';
 
 /** Only same-app paths are allowed as `next`, so a QR can never redirect off-site. */
 export function safeNext(next: string | null): string | null {
@@ -110,7 +111,7 @@ export function PilotPage() {
                 {copied ? t.copied : t.copyId}
               </button>
               <p className="num text-sm text-text-3">
-                {t.balance}: {balance.data ? `${formatNear(balance.data.amount)} NEAR` : '…'} · {funded ? t.funded : t.notFunded}
+                {t.balance}: {balance.data ? <Near value={balance.data.amount} /> : '…'} · {funded ? t.funded : t.notFunded}
               </p>
             </>
           )}

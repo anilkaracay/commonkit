@@ -5,7 +5,8 @@ import { SimulatedBadge } from '../components/Badges';
 import { WalletGate } from '../components/WalletGate';
 import { Account } from '../components/TxLink';
 import { useDemoLink } from '../demo/demo';
-import { formatNear, toYocto } from '../lib/near';
+import { toYocto } from '../lib/near';
+import { Near } from '../components/Near';
 
 /** `/approvals` — stewards confirm returns, verifiers approve work, council gives second approvals. */
 export function ApprovalsPage() {
@@ -39,7 +40,7 @@ export function ApprovalsPage() {
       rows: toVerify.map(({ deployed, snap, t }) => (
         <li key={`${deployed.alias}-${t.id}`} className="px-5 py-3.5 text-sm">
           <Link to={link(`/t/${deployed.asset_id}/${t.id}`)} className="font-medium no-underline hover:text-accent">{snap.profile.rules.find((r) => r.rule_id === t.rule_id)?.title}</Link> · {t.kind} · {deployed.alias} · by <Account id={t.claimer} />
-          {toYocto(t.expense) > 0n && <span className="num text-text-3"> · expense {formatNear(t.expense)} NEAR with receipt</span>}
+          {toYocto(t.expense) > 0n && <span className="text-text-3"> · expense <Near value={t.expense} /> with receipt</span>}
         </li>
       )),
     },

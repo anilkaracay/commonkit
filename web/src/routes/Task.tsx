@@ -19,6 +19,7 @@ import { KindChip } from '../components/UpkeepKind';
 import type { ExpenseState } from '../data/types';
 import { formatDateTime } from '../lib/time';
 import { NotFoundPage } from './NotFound';
+import { Near } from '../components/Near';
 
 function expenseLabel(e: ExpenseState): string {
   if (typeof e !== 'string') return `escalated to the DAO (#${e.Escalated.escalation_id})`;
@@ -123,7 +124,7 @@ export function TaskPage() {
             <div className="rounded-md bg-bg-alt p-4 text-sm">
               <p className="text-text-3">Expense claimed</p>
               <p className="num mt-1 font-semibold">
-                {formatNear(task.expense)} NEAR <span className="font-normal text-text-3">· {expenseLabel(task.expense_state)}</span>
+                <Near value={task.expense} /> <span className="font-normal text-text-3">· {expenseLabel(task.expense_state)}</span>
               </p>
               {task.receipt_hash && <p className="mono-id mt-1 break-all">receipt sha256 {task.receipt_hash}</p>}
               <p className="mt-2 text-xs text-text-3">Paid from the float only, never from deposits; above the cash cap it goes through a DAO proposal.</p>

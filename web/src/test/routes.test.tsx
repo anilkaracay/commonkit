@@ -60,7 +60,9 @@ describe('every route renders with the mock source', () => {
     expect(await screen.findByRole('heading', { name: /Same contract, different commons/ })).toBeInTheDocument();
     const open = screen.getByRole('heading', { name: 'Open tasks' }).closest('section') as HTMLElement;
     for (const kind of ['Maintenance', 'Restock', 'Repair']) expect(within(open).getByRole('heading', { name: kind })).toBeInTheDocument();
-    expect(screen.getAllByText(/expense 1\.2 NEAR/).length).toBeGreaterThan(0);
+    const expense = screen.getAllByText((_, el) => el?.tagName === 'SPAN' && /^expense 1\.2 NEAR/.test(el.textContent ?? ''));
+    expect(expense.length).toBeGreaterThan(0);
+    expect(expense[0]?.querySelector('.ck-near svg')).not.toBeNull();
   });
 
   it('simulated asset page carries the SIMULATED badge and the simulate.sh command', async () => {
@@ -100,6 +102,25 @@ describe('demo thresholds', () => {
     renderAt(`/a/${A.printer}`);
     expect((await screen.findAllByText('demo threshold')).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/production nozzle time ≥ 200 h/).length).toBeGreaterThan(0);
+  });
+});
+
+describe('NEAR amounts carry the official mark', () => {
+  it.each([[`/a/${A.printer}`], [`/a/${A.laser}/reserve`], ['/']])('%s renders amounts as mark + figures + hidden word', async (path) => {
+    renderAt(path);
+    await screen.findAllByText(/MOCK DATA/);
+    await waitFor(() => expect(document.querySelectorAll('.ck-near').length).toBeGreaterThan(0));
+    for (const el of document.querySelectorAll('.ck-near')) {
+      expect(el.querySelector('svg.ck-near-mark')?.getAttribute('aria-hidden')).toBe('true');
+      expect(el.querySelector('.ck-num')?.textContent).toMatch(/^\d[\d,]*(\.\d+)?$/);
+      expect(el.querySelector('.ck-sr')?.textContent).toBe(' NEAR');
+    }
+  });
+
+  it('the money section shows float, cap and deposits with the mark', async () => {
+    renderAt(`/a/${A.printer}`);
+    const box = await screen.findByLabelText('Asset cash box');
+    expect(box.querySelectorAll('.ck-near').length).toBeGreaterThanOrEqual(6);
   });
 });
 
