@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>browser bar</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 56px; overflow: hidden; }
+  body { display: flex; align-items: center; gap: 22px; padding: 0 22px; background: #eef1f5; border-bottom: 1px solid #d9dfe8;
+         font-family: -apple-system, 'SF Pro Text', system-ui, sans-serif; color: #0a1526; }
+  .dots { display: flex; gap: 9px; }
+  .dots i { width: 13px; height: 13px; border-radius: 50%; background: #c9d0db; }
+  .nav { display: flex; gap: 16px; color: #8994a6; font-size: 22px; line-height: 1; }
+  .addr { flex: 1; max-width: 1180px; height: 38px; display: flex; align-items: center; gap: 12px; padding: 0 16px;
+          background: #fff; border: 1px solid #d9dfe8; border-radius: 9px; font-size: 19px; white-space: nowrap; overflow: hidden; }
+  .addr svg { flex: none; }
+  .host { color: #0a1526; }
+  .path { color: #6a768a; }
+</style>
+</head>
+<body>
+  <div class="dots"><i></i><i></i><i></i></div>
+  <div class="nav"><span>&#8592;</span><span>&#8594;</span></div>
+  <div class="addr">
+    <svg width="14" height="17" viewBox="0 0 14 17" aria-hidden="true"><rect x="1" y="7" width="12" height="9" rx="2" fill="#6a768a"/><path d="M4 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="#6a768a" stroke-width="1.8"/></svg>
+    <span class="host" id="host"></span><span class="path" id="path"></span>
+  </div>
+  <script>
+    const q = new URLSearchParams(location.search);
+    document.getElementById('host').textContent = q.get('host') ?? '';
+    document.getElementById('path').textContent = q.get('path') ?? '';
+  </script>
+</body>
+</html>

@@ -1,59 +1,75 @@
 1
-00:00:00,200 --> 00:00:04,400
-Casey has no booking, but asks the shared printer to unlock. (simulated printer)
+00:00:00,000 --> 00:00:03,200
+Shared machines are used by everyone and looked after by no one. COMMONKIT gives each one its own NEAR account.
 
 2
-00:00:04,400 --> 00:00:08,900
-Refused: the printer checks its own NEAR account first. No booking, no print.
+00:00:03,200 --> 00:00:05,067
+Open the app. No wallet is needed to look around.
 
 3
-00:00:08,800 --> 00:00:14,500
-A shared machine's money and rules usually sit in one admin's spreadsheet. Here they live in its own keyless NEAR account.
+00:00:05,067 --> 00:00:07,767
+The app: Two communities, four shared machines. Everything here is read live from NEAR testnet.
 
 4
-00:00:14,400 --> 00:00:20,600
-Booking is a NEAR transaction: a fee plus a refundable deposit. (simulated printer)
+00:00:07,767 --> 00:00:09,233
+Open the makerlab's 3D printer.
 
 5
-00:00:20,600 --> 00:00:24,100
-Alex's booking on testnet: reservation_confirmed.
+00:00:09,233 --> 00:00:13,033
+The machine: The printer has its own account with no keys: nobody can empty it. The printer itself is simulated.
 
 6
-00:00:24,000 --> 00:00:30,400
-With a valid booking, the bridge unlocks the printer and the job starts. (simulated)
+00:00:13,033 --> 00:00:14,400
+To use it, book it.
 
 7
-00:00:30,400 --> 00:00:36,700
-Telemetry crosses a rule, so the machine's agent opens an upkeep task. (demo threshold)
+00:00:14,400 --> 00:00:20,067
+Book: Pick a time. You pay a small fee plus a deposit that comes back after a clean return.
 
 8
-00:00:36,600 --> 00:00:41,000
-The agent's task on testnet, with its reason. Demo threshold 0.5 h (production 200 h).
+00:00:20,067 --> 00:00:23,067
+You sign this with a NEAR wallet, and the booking becomes a testnet transaction.
 
 9
-00:00:41,000 --> 00:00:45,300
-Ava does the upkeep. Mark, another member, approves it.
+00:00:23,067 --> 00:00:29,233
+Here is Alex's booking on testnet: reservation_confirmed.
 
 10
-00:00:45,300 --> 00:00:49,300
-She earns usage rights for this machine: non-transferable cards.
+00:00:29,233 --> 00:00:33,833
+Upkeep: At the printer, a small bridge unlocks it only for a valid booking and reports usage on chain (simulated).
 
 11
-00:00:49,200 --> 00:00:53,800
-The machine keeps a small operating float, capped at 3 NEAR.
+00:00:33,833 --> 00:00:39,300
+When usage passes a rule, the printer's agent opens an upkeep task. Demo rule: 30 min (real: 200 h).
 
 12
-00:00:53,800 --> 00:00:58,900
-Everything above the cap is swept to the community's DAO treasury.
+00:00:39,300 --> 00:00:43,700
+The task: The task says why it was opened: 4.3 h of nozzle time, over the rule.
 
 13
-00:00:58,833 --> 00:01:06,533
-A council member tries to take Ava's right. Refused on chain: E_NON_TRANSFERABLE.
+00:00:43,700 --> 00:00:48,500
+Ava did the work, the bridge ran a test print, and Mark, another member, approved it.
 
 14
-00:01:06,433 --> 00:01:16,133
-Check it yourself: ./scripts/verify.sh re-reads every claim from testnet, no keys needed.
+00:00:48,500 --> 00:00:53,000
+Earn: Ava earned two usage rights for this printer. They cannot be sold or moved.
 
 15
-00:01:16,033 --> 00:01:20,833
-Same contract, different machines and rules: twelve profiles run in simulation.
+00:00:53,000 --> 00:00:58,767
+A council member tried to move one of Ava's cards. Refused on chain: E_NON_TRANSFERABLE.
+
+16
+00:00:58,767 --> 00:01:03,367
+Money: Fees go into the printer's own account, kept under a 3 NEAR cap.
+
+17
+00:01:03,367 --> 00:01:08,933
+Everything above the cap goes to the community's DAO treasury.
+
+18
+00:01:08,933 --> 00:01:13,033
+Check it: Every claim can be checked: the Proof page re-reads them from testnet.
+
+19
+00:01:13,033 --> 00:01:16,033
+Or run ./scripts/verify.sh. No wallet, no keys.

@@ -7,11 +7,12 @@
   @font-face { font-family: 'CK Sans'; src: url('../../packages/design/fonts/ck-sans.woff2') format('woff2'); font-weight: 400 640; font-stretch: 100% 112%; }
   @font-face { font-family: 'CK Sans'; src: url('../../packages/design/fonts/ck-sans-tr.woff2') format('woff2'); font-weight: 400 640; font-stretch: 100% 112%; unicode-range: U+011E-011F, U+0130-0131, U+015E-015F, U+00C7, U+00E7, U+00D6, U+00F6, U+00DC, U+00FC; }
   * { box-sizing: border-box; margin: 0; }
-  html, body { width: 1920px; height: 1080px; background: transparent; overflow: hidden; }
-  body { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 64px; }
-  p { max-width: 1560px; padding: 16px 30px 18px; border-radius: 12px; background: rgba(10, 21, 38, 0.88); color: #fff;
-      font-family: 'CK Sans', system-ui, sans-serif; font-size: 46px; font-weight: 520; line-height: 1.22; text-align: center; letter-spacing: -0.005em; }
+  html, body { width: 1920px; height: 150px; background: transparent; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; padding: 0 120px; }
+  p { color: #0a1526; font-family: 'CK Sans', system-ui, sans-serif; font-size: 40px; font-weight: 500; line-height: 1.25; text-align: center; letter-spacing: -0.005em; }
+  b { color: #2453e0; font-weight: 620; margin-right: 0.45em; }
+  b:empty { display: none; }
 </style>
 </head>
-<body><p id="t"></p></body>
+<body><p><b id="c"></b><span id="t"></span></p></body>
 </html>
