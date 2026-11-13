@@ -1,5 +1,7 @@
-// The demo video's story: chapters and captions, in the order scripts/video/tour.mjs walks the site (D-038).
-// Rule: every on-chain claim is a real testnet tx from evidence/steps.json or a live view; simulated devices are said so.
+// The demo video's story: chapters, captions and narration, in the order scripts/video/tour.mjs walks the site (D-038, D-039).
+// Each line is { text, say? }: `text` is the caption, `say` what the narrator speaks (defaults to `text`; differs where a
+// code name reads badly aloud). Rule: every on-chain claim is a real testnet tx from evidence/steps.json or a live view;
+// simulated devices are said so.
 
 export const PRINTER = 'printer-01.makerlab.commonkit-sxflo.testnet';
 
@@ -12,54 +14,73 @@ export const CHAPTERS = {
   intro: {
     title: null,
     lines: [
-      'Shared machines are used by everyone and looked after by no one. COMMONKIT gives each one its own NEAR account.',
-      'Open the app. No wallet is needed to look around.',
+      { text: 'Shared machines are used by everyone and looked after by no one. COMMONKIT gives each one its own NEAR account.' },
+      { text: 'Open the app. No wallet is needed to look around.' },
     ],
   },
   board: {
     title: 'The app',
-    lines: ['Two communities, four shared machines. Everything here is read live from NEAR testnet.', "Open the makerlab's 3D printer."],
+    lines: [
+      { text: 'Four shared machines in two communities, read live from NEAR testnet.' },
+      { text: 'Open the 3D printer.', say: "Let's open the 3D printer." },
+    ],
   },
   printer: {
     title: 'The machine',
     lines: [
-      'The printer has its own account with no keys: nobody can empty it. The printer itself is simulated.',
-      'To use it, book it.',
+      { text: 'Its account has no keys, so nobody can empty it. The printer itself is simulated.' },
+      { text: 'To use it, book it.' },
     ],
   },
   book: {
     title: 'Book',
     lines: [
-      'Pick a time. You pay a small fee plus a deposit that comes back after a clean return.',
-      'You sign this with a NEAR wallet, and the booking becomes a testnet transaction.',
-      "Here is Alex's booking on testnet: reservation_confirmed.",
+      { text: 'Pick a time: a small fee, plus a deposit you get back after a clean return.' },
+      { text: 'You sign with a NEAR wallet, and the booking is a testnet transaction.' },
+      { text: "Alex's booking on testnet: reservation_confirmed.", say: "Here is Alex's booking, confirmed on chain." },
     ],
   },
   upkeep: {
     title: 'Upkeep',
     lines: [
-      'At the printer, a small bridge unlocks it only for a valid booking and reports usage on chain (simulated).',
-      "When usage passes a rule, the printer's agent opens an upkeep task. Demo rule: 30 min (real: 200 h).",
+      { text: 'At the machine, a bridge unlocks it only for a valid booking and reports usage on chain (simulated).', say: 'At the machine, a bridge unlocks it only for a valid booking, and reports usage on chain.' },
+      { text: "When usage passes a rule, the printer's agent opens an upkeep task. Demo rule: 30 min (real: 200 h).", say: "When usage passes a rule, the printer's agent opens an upkeep task." },
     ],
   },
   task: {
     title: 'The task',
     lines: [
-      'The task says why it was opened: 4.3 h of nozzle time, over the rule.',
-      'Ava did the work, the bridge ran a test print, and Mark, another member, approved it.',
-      'Ava earned two usage rights for this printer. They cannot be sold or moved.',
+      { text: 'It says why: 4.3 h of nozzle time, over the rule.', say: 'It says why: four point three hours of nozzle time, over the rule.' },
+      { text: 'Ava did the work, the bridge ran a test print, and Mark, another member, approved it.' },
     ],
   },
   earn: {
     title: 'Earn',
-    lines: ["A council member tried to move one of Ava's cards. Refused on chain: E_NON_TRANSFERABLE."],
+    lines: [
+      { text: 'Ava earned two usage rights for this printer. They cannot be sold or moved.', say: "Ava earned two usage rights for this printer. They can't be sold, or moved." },
+      { text: 'A council member tried to move one. Refused on chain: E_NON_TRANSFERABLE.', say: 'A council member tried to move one. The chain refused.' },
+    ],
   },
   money: {
     title: 'Money',
-    lines: ["Fees go into the printer's own account, kept under a 3 NEAR cap.", "Everything above the cap goes to the community's DAO treasury."],
+    lines: [
+      { text: "Fees stay in the printer's own account, up to a 3 NEAR cap.", say: "Fees stay in the printer's own account, up to a three NEAR cap." },
+      { text: "Everything above the cap goes to the community's DAO treasury." },
+    ],
   },
   proof: {
     title: 'Check it',
-    lines: ['Every claim can be checked: the Proof page re-reads them from testnet.', 'Or run ./scripts/verify.sh. No wallet, no keys.'],
+    lines: [
+      { text: 'Every claim can be checked: the Proof page re-reads them from testnet.', say: 'And every claim can be checked. The proof page re-reads them, live, from testnet.' },
+      { text: 'Or run ./scripts/verify.sh. No wallet, no keys.', say: 'Or run one script. No wallet, no keys.' },
+    ],
   },
 };
+
+/** All-caps names are spelled letter by letter by the voice model; say them as words. */
+const spoken = (s) => s.replace(/\bNEAR\b/g, 'Near').replace(/\bCOMMONKIT\b/g, 'CommonKit');
+
+/** Every spoken line with a stable key (chapter-index), for scripts/video/voice.py. */
+export function voiceLines() {
+  return Object.entries(CHAPTERS).flatMap(([id, c]) => c.lines.map((l, i) => ({ key: `${id}-${i}`, say: spoken(l.say ?? l.text) })));
+}

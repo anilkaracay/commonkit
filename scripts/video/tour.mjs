@@ -7,7 +7,7 @@
 // video/build/end.png (end card). Frames are piped straight into ffmpeg (no PNGs on disk).
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { FPS, HERE, dir, playwright, settle, startSite } from './lib.mjs';
 import { CHAPTERS, PRINTER, TX } from './story.mjs';
@@ -18,6 +18,8 @@ const VIEW = { width: 1600, height: 728 }; // CSS px; deviceScaleFactor 1.2 → 
 const PAGE_H = 1080 - BAR - BAND;
 const BUILD = dir();
 const OUT = join(BUILD, 'tour.mp4');
+const GAP = 0.35; // breath between narration lines
+const VOICE = JSON.parse(readFileSync(join(BUILD, 'voice/durations.json'), 'utf8')); // scripts/video/voice.py
 
 // Cursor and highlight, drawn in the page so screenshots include them. Re-created after every full navigation.
 const OVERLAY_JS = `(() => {
@@ -138,7 +140,7 @@ class Recorder {
     const u = new URL(this.page.url());
     const local = u.origin === this.base;
     for (const k of ['3d', 'live', 'demo']) u.searchParams.delete(k);
-    const host = local ? (process.env.VIDEO_HOST ?? 'localhost:4320') : u.host;
+    const host = local ? (process.env.VIDEO_HOST ?? '') : u.host; // the hosted domain once there is one; never localhost
     const path = u.pathname + (u.searchParams.size ? `?${u.searchParams}` : '');
     const last = this.bars.at(-1);
     if (last && last.host === host && last.path === path) return;
@@ -146,20 +148,33 @@ class Recorder {
     this.bars.push({ start: this.t, end: null, host, path });
   }
 
-  /** Start a caption; the previous one ends here. `chapter` labels the first caption of a chapter. */
-  say(text, chapter = null) {
+  /** Wait until the narration of the current line has finished (plus a short breath). */
+  async settleVoice() {
     const last = this.cues.at(-1);
-    if (last && last.end === null) last.end = this.t;
-    this.cues.push({ start: this.t, end: null, text, chapter });
+    if (!last || last.end !== null) return;
+    const until = last.start + last.voiceDur + GAP;
+    if (this.t < until) await this.hold(until - this.t);
   }
 
-  quiet() {
+  /** Start a caption + narration line once the previous one has been spoken; the previous caption ends here. */
+  async say(key, line, chapter = null) {
+    await this.settleVoice();
+    const last = this.cues.at(-1);
+    if (last && last.end === null) last.end = this.t;
+    const voiceDur = VOICE[key];
+    if (voiceDur === undefined) throw new Error(`[video] no narration for ${key}: run scripts/video/voice.py (build.sh does)`);
+    this.cues.push({ start: this.t, end: null, text: line.text, chapter, voice: key, voiceDur });
+  }
+
+  /** Let the narration finish, then clear the caption (before leaving a page). */
+  async quiet() {
+    await this.settleVoice();
     const last = this.cues.at(-1);
     if (last && last.end === null) last.end = this.t;
   }
 
   async finish() {
-    this.quiet();
+    await this.quiet();
     const last = this.bars.at(-1);
     if (last) last.end = this.t;
     this.ff.stdin.end();
@@ -246,6 +261,7 @@ async function main() {
   const rec = new Recorder(page, site.base);
   const printerLink = `a[href$="/a/${PRINTER}"]`;
   const C = CHAPTERS;
+  const line = (ch, i, titleOf = null) => rec.say(`${ch}-${i}`, C[ch].lines[i], titleOf ? C[titleOf].title : null);
 
   try {
     // 1 · The landing page: what COMMONKIT is, then "Open the app".
@@ -255,9 +271,9 @@ async function main() {
     await page.waitForTimeout(800);
     await rec.overlays();
     rec.tick = (f) => page.evaluate((t) => window.__hero.renderAt(t), f / FPS);
-    rec.say(C.intro.lines[0], C.intro.title);
-    await rec.hold(3.2);
-    rec.say(C.intro.lines[1]);
+    await rec.hold(0.6); // a beat before the first word
+    await line('intro', 0, 'intro');
+    await line('intro', 1);
     await rec.click(page.locator('.hero .ctas a.ck-btn').first(), {
       sec: 1.4,
       wait: async () => {
@@ -268,7 +284,7 @@ async function main() {
     });
 
     // 2 · The board: every machine, read live, no wallet needed.
-    rec.say(C.board.lines[0], C.board.title);
+    await line('board', 0, 'board');
     await rec.hold(0.6);
     const cards = page.locator('article');
     for (const i of [1, 2, 3]) {
@@ -276,110 +292,109 @@ async function main() {
       if (b) await rec.move(b.x + b.width * 0.5, b.y + b.height * 0.38, 0.55);
     }
     await rec.hold(0.4);
-    rec.say(C.board.lines[1]);
+    await line('board', 1);
     await rec.click(page.locator(printerLink).first(), { sec: 1, wait: () => appReady(page, 'a.ck-btn:has-text("Reserve")') });
 
     // 3 · The printer: its account, its float, and the Reserve button.
-    rec.say(C.printer.lines[0], C.printer.title);
+    await line('printer', 0, 'printer');
     await rec.hold(0.5);
     const float = page.getByText('Float', { exact: true }).first();
     const fb = await float.boundingBox();
     if (fb) await rec.move(fb.x + 120, fb.y + 50, 0.9);
-    await rec.hold(2.4);
-    rec.say(C.printer.lines[1]);
+    await rec.hold(0.3);
+    await line('printer', 1);
     await rec.click(page.locator('a.ck-btn:has-text("Reserve")').first(), { sec: 0.9, wait: () => appReady(page, 'fieldset button') });
 
     // 4 · Booking: pick a slot, see fee + deposit, sign in a wallet → the real booking tx.
-    rec.say(C.book.lines[0], C.book.title);
+    await line('book', 0, 'book');
     await rec.hold(0.4);
     await rec.click(page.locator('fieldset button:not([disabled])').nth(3), { sec: 0.9 });
     const total = page.getByText('Attached exactly').first();
     await rec.scrollTo((await boxOf(total)).y - 330, 0.8); // fee, deposit, total and the wallet step in view
     const tb = await total.boundingBox();
     if (tb) await rec.move(tb.x + tb.width + 520, tb.y + tb.height / 2, 0.9);
-    await rec.hold(2.2);
-    rec.say(C.book.lines[1]);
+    await rec.hold(0.3);
+    await line('book', 1);
     const gate = page.getByText('Signing a reservation needs a wallet.').first();
     const gb = await gate.boundingBox();
     if (gb) await rec.move(gb.x + 40, gb.y + gb.height / 2, 0.8);
-    await rec.hold(2.2);
-    rec.quiet();
+    await rec.quiet();
     const booked = await openTx(rec, TX.reserve, /reservation_confirmed/);
-    rec.say(C.book.lines[2]);
+    await line('book', 2);
     await rec.hold(0.4);
     await rec.scrollTo(booked.y - VIEW.height * 0.45, 1.3);
     await fadeMark(rec, booked);
     await rec.move(booked.x + booked.w + 30, booked.y - (await page.evaluate(() => window.scrollY)) + booked.h, 0.6);
-    await rec.hold(2.2);
+    await rec.hold(0.8);
     rec.mark = null;
 
     // 5 · Use + upkeep: the bridge reports usage, rules fill up, the agent opens a task.
     await back(rec, () => page.waitForSelector('fieldset button', { timeout: 180_000 }));
     await rec.click(page.locator(`main a[href$="/a/${PRINTER}"]`).first(), { sec: 0.8, wait: () => appReady(page, 'a.ck-btn:has-text("Reserve")') });
-    rec.say(C.upkeep.lines[0], C.upkeep.title);
+    await line('upkeep', 0, 'upkeep');
     const upkeep = await boxOf(heading(page, 'Upkeep'));
     await rec.scrollTo(upkeep.y - 110, 1.2);
-    await rec.hold(3.4);
-    rec.say(C.upkeep.lines[1]);
+    await rec.hold(0.3);
+    await line('upkeep', 1);
     const rule = page.getByText('Clean the nozzle and run a calibration print').first();
     const rb = await rule.boundingBox();
     if (rb) await rec.move(rb.x + rb.width + 40, rb.y + rb.height / 2, 0.8);
-    await rec.hold(2.2);
+    await rec.hold(0.3);
     const tasks = await boxOf(heading(page, 'Tasks'));
     await rec.scrollTo(tasks.y - 110, 1.1);
     await rec.click(page.locator(`a[href$="/t/${PRINTER}/0"]`).first(), { sec: 0.9, wait: () => appReady(page, 'text=Why the machine asked') });
 
     // 6 · The task: why it was opened, who did it, who approved, what was earned.
-    rec.say(C.task.lines[0], C.task.title);
+    await line('task', 0, 'task');
     const why = page.getByText('Why the machine asked').first();
     const wb = await why.boundingBox();
     if (wb) await rec.move(wb.x + 420, wb.y + 70, 0.8);
-    await rec.hold(3.6);
-    rec.say(C.task.lines[1]);
+    await rec.hold(0.3);
+    await line('task', 1);
     const progress = await boxOf(heading(page, 'Progress'));
     await rec.scrollTo(progress.y - 110, 1.1);
     const approved = page.getByText('Approved by an independent verifier').first();
     const ab = await approved.boundingBox();
     if (ab) await rec.move(ab.x + ab.width + 30, ab.y + ab.height, 0.9);
-    await rec.hold(2.8);
-    rec.say(C.task.lines[2], C.earn.title);
+    await rec.hold(0.3);
+    await line('earn', 0, 'earn');
     const earned = await boxOf(heading(page, 'Cards earned'));
     await rec.scrollTo(earned.y - 100, 1.1);
-    await rec.hold(3.4);
-    rec.quiet();
+    await rec.hold(0.4);
+    await rec.quiet();
     const refused = await openTx(rec, TX.transfer, /E_NON_TRANSFERABLE/);
-    rec.say(C.earn.lines[0]);
+    await line('earn', 1);
     await rec.scrollTo(refused.y - VIEW.height * 0.45, 1.3);
     await fadeMark(rec, refused);
-    await rec.hold(2.8);
+    await rec.hold(0.6);
     rec.mark = null;
 
     // 7 · Money: the float cap and the sweep to the DAO.
     await back(rec, () => page.waitForSelector('text=Why the machine asked', { timeout: 180_000 }));
     await rec.click(page.locator(`main a[href$="/a/${PRINTER}"]`).first(), { sec: 0.8, wait: () => appReady(page, 'a.ck-btn:has-text("Reserve")') });
-    rec.say(C.money.lines[0], C.money.title);
+    await line('money', 0, 'money');
     const money = await boxOf(heading(page, 'Money'));
     await rec.scrollTo(money.y - 110, 1.2);
     const op = page.getByText('Operating float', { exact: true }).first();
     const ob = await op.boundingBox();
     if (ob) await rec.move(ob.x + 380, ob.y + ob.height + 14, 0.8);
-    await rec.hold(2.6);
-    rec.say(C.money.lines[1]);
+    await rec.hold(0.3);
+    await line('money', 1);
     const swept = page.getByText('Swept to DAO', { exact: true }).first();
     const sb = await swept.boundingBox();
     if (sb) await rec.move(sb.x + sb.width / 2, sb.y + sb.height + 16, 0.8);
-    await rec.hold(2.6);
+    await rec.hold(0.3);
 
     // 8 · Proof: every claim re-read from testnet.
     await rec.scrollTo(0, 0.8);
     await rec.click(page.locator('header a', { hasText: /^Proof$/ }).first(), { sec: 0.9, wait: () => appReady(page, 'text=checks pass') });
-    rec.say(C.proof.lines[0], C.proof.title);
+    await line('proof', 0, 'proof');
     const passed = page.getByText('checks pass').first();
     const pb = await passed.boundingBox();
     if (pb) await rec.move(pb.x + pb.width + 30, pb.y + pb.height / 2, 0.9);
-    await rec.hold(3.2);
-    rec.say(C.proof.lines[1]);
-    await rec.hold(3);
+    await rec.hold(0.3);
+    await line('proof', 1);
+    await rec.hold(0.8);
 
     const timeline = await rec.finish();
     writeFileSync(join(BUILD, 'tour.json'), `${JSON.stringify(timeline, null, 2)}\n`);

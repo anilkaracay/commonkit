@@ -2,7 +2,7 @@
 // page) and the burned-in English captions are overlaid for their time windows, then the end card follows.
 //   node scripts/video/assemble.mjs
 // This ffmpeg build has neither the `subtitles` nor the `drawtext` filter, so every bar and caption is rendered once as
-// a PNG (chrome.html, caption.html) and overlaid. Silent AAC track for player/X compatibility; no music.
+// a PNG (chrome.html, caption.html) and overlaid. Audio: the narration (scripts/video/voice.py, D-039); no music.
 import { copyFileSync, existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { FPS, H, HERE, OUT, SRT, W, dir, ff, joinClips, newPage, panelsToClip, playwright, probeDuration, rmrf } from './lib.mjs';
@@ -76,15 +76,25 @@ panelsToClip([{ png: endPng, dur: END, hold: 0 }], endClip);
 const joined = join(build, 'joined.mp4');
 const total = joinClips([{ file: walk, dur: tourDur }, { file: endClip, dur: END }], joined, XFADE);
 
-// 3. Master: H.264 High 1080p30 + silent AAC LC.
-const master = join(OUT, 'commonkit-demo-1080p.mp4');
+// 3. Narration track: every spoken line placed at its caption start, mixed and loudness-normalized (-16 LUFS).
+const voiced = cues.filter((c) => c.voice);
+const narration = join(build, 'narration.m4a');
+const delays = voiced.map((c, i) => `[${i}:a]aresample=48000,adelay=${Math.round(c.start * 1000)}:all=1[a${i}]`).join(';');
 ff([
-  '-i', joined, '-f', 'lavfi', '-t', total.toFixed(3), '-i', 'anullsrc=channel_layout=stereo:sample_rate=48000',
-  '-map', '0:v', '-map', '1:a', '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-r', String(FPS), '-preset', 'slow', '-crf', '18',
-  '-maxrate', '10M', '-bufsize', '20M', '-c:a', 'aac', '-b:a', '128k', '-t', total.toFixed(3), '-movflags', '+faststart', master,
+  ...voiced.flatMap((c) => ['-i', join(build, 'voice', `${c.voice}.wav`)]),
+  '-filter_complex', `${delays};${voiced.map((_, i) => `[a${i}]`).join('')}amix=inputs=${voiced.length}:normalize=0,apad,atrim=0:${total.toFixed(3)},loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,pan=stereo|c0=c0|c1=c0[a]`,
+  '-map', '[a]', '-c:a', 'aac', '-b:a', '160k', narration,
 ]);
 
-// 4. X export: 1280×720, 30 fps, H.264 High, AAC LC (limits: ≤ 60 fps, ≤ 140 s, ≤ 512 MB).
+// 4. Master: H.264 High 1080p30 + AAC LC narration.
+const master = join(OUT, 'commonkit-demo-1080p.mp4');
+ff([
+  '-i', joined, '-i', narration,
+  '-map', '0:v', '-map', '1:a', '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-r', String(FPS), '-preset', 'slow', '-crf', '18',
+  '-maxrate', '10M', '-bufsize', '20M', '-c:a', 'copy', '-t', total.toFixed(3), '-movflags', '+faststart', master,
+]);
+
+// 5. X export: 1280×720, 30 fps, H.264 High, AAC LC (limits: ≤ 60 fps, ≤ 140 s, ≤ 512 MB).
 const xfile = join(OUT, 'commonkit-demo-x-1280x720.mp4');
 ff(['-i', master, '-vf', 'scale=1280:720:flags=lanczos', '-c:v', 'libx264', '-profile:v', 'high', '-pix_fmt', 'yuv420p', '-r', String(FPS),
   '-preset', 'slow', '-b:v', '5M', '-maxrate', '6M', '-bufsize', '12M', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', xfile]);
@@ -92,7 +102,7 @@ const xd = probeDuration(xfile);
 const xmb = statSync(xfile).size / 1e6;
 if (xd > 140 || xmb > 512) throw new Error(`X export over the limits: ${xd.toFixed(1)} s, ${xmb.toFixed(1)} MB`);
 
-// 5. Contact sheet: one frame per caption (middle of its window), plus the end card.
+// 6. Contact sheet: one frame per caption (middle of its window), plus the end card.
 const sheetDir = dir('sheet');
 const tiles = [...cues.map((c) => ({ at: (c.start + c.end) / 2, label: `${c.start.toFixed(1)}–${c.end.toFixed(1)} s`, text: c.text })),
   { at: total - 1, label: 'end card', text: '' }].map((t, i) => {
@@ -112,7 +122,7 @@ await sheet.waitForTimeout(400);
 await sheet.screenshot({ path: join(OUT, 'commonkit-demo-contact-sheet.png'), fullPage: true });
 await browser.close();
 
-for (const f of [walk, endClip, joined]) rmrf(f);
+for (const f of [walk, endClip, joined, narration]) rmrf(f);
 rmrf(pngDir);
 rmrf(sheetDir);
 console.log(`[video] ${master} (${probeDuration(master).toFixed(1)} s, ${(statSync(master).size / 1e6).toFixed(1)} MB, ${W}×${H})`);

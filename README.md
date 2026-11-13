@@ -297,6 +297,7 @@ AI tools: **Claude Code** (Anthropic) wrote most of the code, tests and docs und
 | Tooling | typescript, tsx, vitest, eslint, eslint-plugin-react-hooks, typescript-eslint, globals, prettier, jsdom, @testing-library/*, @types/* | see `package.json` files | Apache-2.0 (typescript); MIT (others) |
 | Tooling | playwright (screenshots and the demo video's browser shots, [`scripts/video/`](scripts/video)) | 1.64.1 | Apache-2.0 |
 | Video render (local tool, not shipped) | ffmpeg, called by [`scripts/video/build.sh`](scripts/video/build.sh) | 9.0.2 (Homebrew) | GPL build (`--enable-gpl`); only its output video is published |
+| Video narration (local tool, not shipped) | Kokoro-82M text-to-speech (voice `af_heart`) via kokoro-onnx, called by [`scripts/video/voice.py`](scripts/video/voice.py) | model v1.0, kokoro-onnx 0.4.9 | Apache-2.0 (model), MIT (kokoro-onnx); the narration is a synthetic voice |
 
 Reference only, not used: GSAP, Lenis, Motion ([`docs/LANDING_RESEARCH.md`](docs/LANDING_RESEARCH.md)).
 
