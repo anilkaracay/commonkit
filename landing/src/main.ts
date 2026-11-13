@@ -37,7 +37,7 @@ addEventListener('resize', () => drawLeaders(anchors), { passive: true });
 const io = new IntersectionObserver((es) => {
   for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
 }, { rootMargin: '0px 0px -8% 0px' });
-for (const el of document.querySelectorAll('.sheet, .how-step, .care-tile, .tile, .stat, .pass-wrap, .agent-card, .proof-card, .near-tiles li'))
+for (const el of document.querySelectorAll('.sheet, .how-step, .care-tile, .tile, .stat, .pass-wrap, .facts li, .near-tiles li'))
   if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('reveal'); io.observe(el); }
 
 const idle = (cb: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(cb, { timeout: 2500 }) : setTimeout(cb, 1200));

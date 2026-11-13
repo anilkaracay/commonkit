@@ -21,12 +21,10 @@ const SECTIONS: [string, string][] = [
   ['04-care', '.care'],
   ['05-money', '#money'],
   ['06-rights', '#rights'],
-  ['07-agent', '#agent'],
-  ['08-proof', '#proof'],
-  ['09-near', '#near'],
-  ['10-pilot', '.pilot'],
-  ['11-final', '.final'],
-  ['12-footer', '.foot'],
+  ['07-proof', '#proof'],
+  ['08-near', '#near'],
+  ['09-final', '.final'],
+  ['10-footer', '.foot'],
 ];
 
 const browser = await chromium.launch();

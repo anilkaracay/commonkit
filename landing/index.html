@@ -44,7 +44,7 @@
       <img class="poster" src="/posters/hero-1200.webp" srcset="/posters/hero-600.webp 600w, /posters/hero-800.webp 800w, /posters/hero-1200.webp 1200w" sizes="(min-width: 1024px) 54vw, 100vw" width="1200" height="1200" alt="" fetchpriority="high" decoding="async">
       <svg class="leaders" aria-hidden="true" viewBox="0 0 1000 1000" preserveAspectRatio="none"><path data-leader="screen"/><path data-leader="nozzle"/><path data-leader="upkeep"/></svg>
       <ul class="callouts"><!--ck:hero-callouts--></ul>
-      <figcaption class="stage-note"><span class="ck-sim">Simulated device</span><span data-live="read">State from NEAR testnet, read <!--ck:read-at--></span></figcaption>
+      <figcaption class="stage-note"><span class="ck-sim">Simulated devices · NEAR testnet</span></figcaption>
     </figure>
   </section>
 
@@ -73,7 +73,7 @@
   <section class="how wrap" id="how" aria-labelledby="how-title">
     <header class="head">
       <h2 id="how-title" class="ck-display h2">The machine keeps the rules.</h2>
-      <p class="lede">Reserve, unlock, upkeep, earned access: each step is a transaction on its own account.</p>
+      <p class="lede">Four steps, each a transaction on the machine’s own account.</p>
     </header>
     <ol class="how-steps"><!--ck:how--></ol>
   </section>
@@ -82,7 +82,7 @@
     <div class="wrap">
       <header class="head center">
         <h2 id="care-title" class="ck-display h2">One contract, every kind of care.</h2>
-        <p class="lede">The same code runs every commons; only the profile and the device adapter change.</p>
+        <p class="lede">The same contract runs every machine. Only the profile and the device adapter change.</p>
       </header>
       <ul class="care-grid"><!--ck:care--></ul>
       <p class="ck-note center-note">Status as in the README scenario table. “simulation”: runs on testnet or in <span class="ck-mono">simulate.sh</span> with a simulated or emulated device.</p>
@@ -92,7 +92,7 @@
   <section class="money wrap" id="money" aria-labelledby="money-title">
     <header class="head center">
       <h2 id="money-title" class="ck-display h2">Fees in. Upkeep out.</h2>
-      <p class="lede">Each machine keeps a capped float; everything above the cap goes to the community treasury.</p>
+      <p class="lede">Each machine keeps a capped float. Everything above the cap goes to the community DAO.</p>
     </header>
     <ol class="lineup"><!--ck:money-lineup--></ol>
     <div class="stats"><!--ck:money-stats--></div>
@@ -102,55 +102,35 @@
     <div class="wrap rights-grid">
       <div class="rights-copy">
         <h2 id="rights-title" class="ck-display h2">Earned access, never taken back.</h2>
-        <p class="lede">Maintain the machine, an independent member verifies, and you receive rights no admin can revoke.</p>
-        <ul class="refused" aria-label="Attempts to take the right back, refused on testnet"><!--ck:rights-refused--></ul>
+        <p class="lede">Maintain the machine, have another member verify it, and earn rights no admin can revoke.</p>
+        <ul class="refused" aria-label="Attempts to take a right back, each refused on testnet"><!--ck:rights-refused--></ul>
       </div>
       <div class="pass-wrap"><!--ck:rights-pass--></div>
     </div>
-  </section>
-
-  <section class="agent wrap" id="agent" aria-labelledby="agent-title">
-    <header class="head">
-      <h2 id="agent-title" class="ck-display h2">An agent with hard limits.</h2>
-      <p class="lede">It opens a task only when telemetry crosses a rule; the contract refuses everything else.</p>
-    </header>
-    <div class="agent-card ck-card"><!--ck:agent--></div>
   </section>
 
   <section class="proof" id="proof" aria-labelledby="proof-title">
     <div class="wrap">
       <header class="head center">
         <h2 id="proof-title" class="ck-display h2">Check it yourself.</h2>
-        <p class="lede">One read-only script with no keys checks the on-chain claims against testnet.</p>
+        <p class="lede">The machines’ accounts, code and transactions are public on NEAR testnet.</p>
       </header>
-      <div class="proof-card ck-card">
-        <p class="cmd ck-mono">./scripts/verify.sh</p>
-        <ol class="checks"><!--ck:proof-checks--></ol>
-        <p class="proof-meta"><!--ck:proof-meta--></p>
-      </div>
-      <p class="center-cta"><a class="ck-btn ck-btn--ghost" href="/app/proof">Open the proof page</a></p>
+      <ul class="facts"><!--ck:proof--></ul>
+      <p class="center-cta"><a class="ck-btn ck-btn--ghost" href="/app/proof">See the proof</a></p>
     </div>
   </section>
 
   <section class="near wrap" id="near" aria-labelledby="near-title">
     <header class="head">
-      <h2 id="near-title" class="ck-display h2">Why this needs NEAR.</h2>
-      <p class="lede">Accounts, keys and DAOs the protocol already provides, measured on our deployment.</p>
+      <h2 id="near-title" class="ck-display h2">Built on what NEAR provides.</h2>
+      <p class="lede">Accounts, keys and governance the protocol already provides.</p>
     </header>
     <!--ck:near-->
   </section>
 
-  <section class="pilot wrap" aria-labelledby="pilot-title">
-    <div class="pilot-band">
-      <h2 id="pilot-title">Pilot: pending.</h2>
-      <p>No physical device has been tested yet. Every machine on this page is simulated or emulated, and labelled so.</p>
-      <!--ck:pilot-->
-    </div>
-  </section>
-
   <section class="final wrap" aria-labelledby="final-title">
     <h2 id="final-title" class="ck-display">Open the machine’s books.</h2>
-    <p class="lede">Read-only without a wallet. Every number links to testnet.</p>
+    <p class="lede">Browse every machine, its float and its upkeep, without a wallet.</p>
     <a class="ck-btn ck-btn--lg" href="/app">Open the app</a>
   </section>
 </main>
@@ -158,9 +138,9 @@
 <footer class="foot wrap">
   <div class="foot-row">
     <span class="mark">COMMONKIT</span>
-    <nav aria-label="Footer"><a href="/app">App</a><a href="/app/proof">Proof</a><a href="<!--ck:repo-url-->">Source</a><a href="/llms.txt">llms.txt</a></nav>
+    <nav aria-label="Footer"><a href="/app">App</a><a href="/app/proof">Proof</a><a href="<!--ck:repo-url-->">Source</a></nav>
   </div>
-  <p class="foot-note">Built at NEAR HACKATHON 2026 · Social Money track · NEAR testnet only, testnet NEAR has no value · asset code_hash <span class="ck-mono"><!--ck:code-hash--></span> · built <!--ck:build-stamp--></p>
+  <p class="foot-note">Built at NEAR HACKATHON 2026 · NEAR testnet only</p>
 </footer>
 <!--ck:live-config-->
 <script type="module" src="./src/main.ts"></script>
