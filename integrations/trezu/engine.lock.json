@@ -1,0 +1,21 @@
+{
+  "note": "Trezu's template engine is fetched, not vendored: github.com/NEAR-DevHub/trezu has no license file (GitHub API license: null, checked 2026-11-13), so we do not copy its source into this MIT repo. scripts/trezu/fetch-engine.sh downloads these files at the pinned commit into a temp dir outside the repo and checks every sha256.",
+  "repo": "https://github.com/NEAR-DevHub/trezu",
+  "commit": "62cf0e41d4b2d2358a496d47c80fcd2e59094247",
+  "commit_date": "2026-11-09T14:33:09+01:00",
+  "files": {
+    "nt-fe/features/proposal-templates/manifest.ts": "f924f9a89ef97956bc7ffc7ec3127133a122d9fdb92960d3be689f5c2407bb9c",
+    "nt-fe/features/proposal-templates/build-proposal.ts": "837b0427f456d57b76b7f26fc4ff778b0d854015c2e5a41dc42d08ea7647d056",
+    "nt-fe/features/proposal-templates/form-schema.ts": "41db2e12a8c06e6de622d51308415140216ab81cc3e54c30e92d250c2ba8ef98",
+    "nt-fe/lib/utils.ts": "e632ab2e2e15c2b8733fd8efd42895563746559ac838b09874b7d57fe32651bb",
+    "nt-fe/lib/big.ts": "73eb560853bc7f2c4c3ced8dbd89077c4fc6b114668c27ef76e7c71cf6e8af6a",
+    "nt-fe/constants/network-ids.ts": "db5d045b97d81bdb95575e525701ef5ab9aecf79e22cad949bd389598ff100e4"
+  },
+  "dependencies": {
+    "zod": "4.4.3",
+    "big.js": "7.0.1",
+    "clsx": "2.1.1",
+    "tailwind-merge": "3.6.0",
+    "date-fns": "4.4.0"
+  }
+}

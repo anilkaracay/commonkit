@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "id": "commonkit-fund-float-washer-01",
+  "title": "COMMONKIT: top up washer-01 float (0.05 NEAR)",
+  "description": "Dorm B DAO only. Calls fund_float on the keyless washer-01 asset account with 0.05 NEAR from the DAO treasury. The asset sweeps anything above its float_cap back to the DAO, so a top-up can never park community money on the machine.",
+  "binding": {
+    "receiver_id": "washer-01.dorm-b.commonkit-sxflo.testnet",
+    "method_name": "fund_float",
+    "deposit": "50000000000000000000000",
+    "gas": "60000000000000"
+  },
+  "fields": [],
+  "args": {},
+  "summary": "fund_float washer-01 0.05 NEAR (Dorm B treasury -> washer-01 operating float)"
+}

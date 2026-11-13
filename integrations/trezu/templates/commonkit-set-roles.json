@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "id": "commonkit-set-roles",
+  "title": "COMMONKIT: set a member's roles in Makerlab commons",
+  "description": "Makerlab DAO only. Replaces one member's roles (steward, verifier, trainer, council) in commons.makerlab, which pushes them to every active asset. Gas is 60 Tgas = 10 + 25 per active asset for the 2 active Makerlab assets; re-author the template if that count changes.",
+  "binding": {
+    "receiver_id": "commons.makerlab.commonkit-sxflo.testnet",
+    "method_name": "set_roles",
+    "deposit": "0",
+    "gas": "60000000000000"
+  },
+  "fields": [
+    { "name": "account", "label": "Member account", "type": "account", "required": true },
+    {
+      "name": "roles",
+      "label": "Roles (JSON array)",
+      "type": "json",
+      "required": true,
+      "help": "e.g. [\"steward\",\"trainer\"]; any of steward, verifier, trainer, council."
+    }
+  ],
+  "args": { "account": "{{account}}", "roles": "{{roles}}" },
+  "summary": "set_roles {{account}}: {{roles}}"
+}

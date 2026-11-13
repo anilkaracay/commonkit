@@ -10,7 +10,9 @@
     "seed": "tsx seed-testnet.ts",
     "fund": "tsx fund-testnet.ts",
     "verify": "tsx verify.ts",
-    "pilot:qr": "tsx pilot/qr-sheets.ts"
+    "pilot:qr": "tsx pilot/qr-sheets.ts",
+    "trezu:engine": "bash trezu/fetch-engine.sh",
+    "trezu:file": "D=$(bash trezu/fetch-engine.sh) && tsx --tsconfig \"$D/tsconfig.json\" trezu/file-proposal.ts"
   },
   "dependencies": {
     "@commonkit/sdk": "workspace:*",

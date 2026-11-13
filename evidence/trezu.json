@@ -1,0 +1,132 @@
+{
+  "what": "One real testnet proposal filed from the COMMONKIT Trezu template commonkit-fund-float-washer-01, compiled by Trezu's own engine, passed by the Dorm B council",
+  "engine": {
+    "repo": "https://github.com/NEAR-DevHub/trezu",
+    "commit": "62cf0e41d4b2d2358a496d47c80fcd2e59094247",
+    "files": [
+      "nt-fe/features/proposal-templates/manifest.ts",
+      "nt-fe/features/proposal-templates/build-proposal.ts",
+      "nt-fe/features/proposal-templates/form-schema.ts",
+      "nt-fe/lib/utils.ts",
+      "nt-fe/lib/big.ts",
+      "nt-fe/constants/network-ids.ts"
+    ]
+  },
+  "template": "integrations/trezu/templates/commonkit-fund-float-washer-01.json",
+  "dao": "dorm-b-ck.sputnikv2.testnet",
+  "proposal_id": 13,
+  "proposal": "dorm-b-ck.sputnikv2.testnet#13",
+  "description": "* Proposal Action: custom <br>* Template: [trezu-tmpl:commonkit-fund-float-washer-01] <br>* Summary: fund_float washer-01 0.05 NEAR (Dorm B treasury -> washer-01 operating float)",
+  "kind": {
+    "FunctionCall": {
+      "receiver_id": "washer-01.dorm-b.commonkit-sxflo.testnet",
+      "actions": [
+        {
+          "method_name": "fund_float",
+          "args": "e30=",
+          "deposit": "50000000000000000000000",
+          "gas": "60000000000000"
+        }
+      ]
+    }
+  },
+  "votes": {
+    "ozan.dorm-b.commonkit-sxflo.testnet": "Approve",
+    "nil.dorm-b.commonkit-sxflo.testnet": "Approve"
+  },
+  "txs": [
+    {
+      "at": "2026-11-13T07:28:19.454Z",
+      "label": "add_proposal (bond 1 NEAR)",
+      "hash": "D521qH6mg4qm3Tt1Ck57Mo9JVsY6pgzqXZxjAWpPVF6n",
+      "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+      "receiver": "dorm-b-ck.sputnikv2.testnet",
+      "ok": true,
+      "explorer": "https://testnet.nearblocks.io/txns/D521qH6mg4qm3Tt1Ck57Mo9JVsY6pgzqXZxjAWpPVF6n",
+      "events": []
+    },
+    {
+      "at": "2026-11-13T07:28:19.455Z",
+      "label": "act_proposal VoteApprove",
+      "hash": "3e2fuLVdKXjYxTE3SFqWwBweP6nDREdYrdsP9mv6MVct",
+      "signer": "nil.dorm-b.commonkit-sxflo.testnet",
+      "receiver": "dorm-b-ck.sputnikv2.testnet",
+      "ok": true,
+      "explorer": "https://testnet.nearblocks.io/txns/3e2fuLVdKXjYxTE3SFqWwBweP6nDREdYrdsP9mv6MVct",
+      "events": []
+    },
+    {
+      "at": "2026-11-13T07:28:19.455Z",
+      "label": "act_proposal VoteApprove",
+      "hash": "EHzqNtodFNQjiEYFFEMswNX9VCbPjYsje9NjgkeEb8b2",
+      "signer": "ozan.dorm-b.commonkit-sxflo.testnet",
+      "receiver": "dorm-b-ck.sputnikv2.testnet",
+      "ok": true,
+      "explorer": "https://testnet.nearblocks.io/txns/EHzqNtodFNQjiEYFFEMswNX9VCbPjYsje9NjgkeEb8b2",
+      "events": [
+        "commonkit:float_funded"
+      ]
+    }
+  ],
+  "tx_hashes": [
+    "D521qH6mg4qm3Tt1Ck57Mo9JVsY6pgzqXZxjAWpPVF6n",
+    "3e2fuLVdKXjYxTE3SFqWwBweP6nDREdYrdsP9mv6MVct",
+    "EHzqNtodFNQjiEYFFEMswNX9VCbPjYsje9NjgkeEb8b2"
+  ],
+  "explorer": [
+    "https://testnet.nearblocks.io/txns/D521qH6mg4qm3Tt1Ck57Mo9JVsY6pgzqXZxjAWpPVF6n",
+    "https://testnet.nearblocks.io/txns/3e2fuLVdKXjYxTE3SFqWwBweP6nDREdYrdsP9mv6MVct",
+    "https://testnet.nearblocks.io/txns/EHzqNtodFNQjiEYFFEMswNX9VCbPjYsje9NjgkeEb8b2"
+  ],
+  "near_spent": {
+    "nil.dorm-b.commonkit-sxflo.testnet": "0.000512",
+    "ozan.dorm-b.commonkit-sxflo.testnet": "0.000808",
+    "ece.dorm-b.commonkit-sxflo.testnet": "0",
+    "dorm-b-ck.sputnikv2.testnet": "0.05"
+  },
+  "assertions": [
+    {
+      "what": "proposal dorm-b-ck.sputnikv2.testnet#13 status Approved",
+      "ok": true,
+      "detail": "Approved"
+    },
+    {
+      "what": "on-chain kind equals the Trezu engine output",
+      "ok": true
+    },
+    {
+      "what": "on-chain description equals the Trezu engine output",
+      "ok": true
+    },
+    {
+      "what": "description carries [trezu-tmpl:commonkit-fund-float-washer-01]",
+      "ok": true
+    },
+    {
+      "what": "washer-01 float_free rose by 0.05 NEAR",
+      "ok": true,
+      "detail": "0.05"
+    }
+  ],
+  "at": "2026-11-13T07:28:19.826Z",
+  "reverified_at": "2026-11-13T07:28:26.081Z",
+  "reverify": [
+    {
+      "what": "proposal dorm-b-ck.sputnikv2.testnet#13 status Approved",
+      "ok": true,
+      "detail": "Approved"
+    },
+    {
+      "what": "on-chain kind equals the Trezu engine output",
+      "ok": true
+    },
+    {
+      "what": "on-chain description equals the Trezu engine output",
+      "ok": true
+    },
+    {
+      "what": "description carries [trezu-tmpl:commonkit-fund-float-washer-01]",
+      "ok": true
+    }
+  ]
+}

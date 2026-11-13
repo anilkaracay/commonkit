@@ -640,3 +640,7 @@ Decision: The human confirmed no team member submits another NEAR HACKATHON proj
 ## D-036 — English display names for the demo cast
 2026-11-13 · accepted (human)
 Decision: All user-facing names use English display names from `packages/sdk/src/cast.ts` (ali→Alex, can→Casey, ayse→Ava, mehmet→Mark, zeynep→Zoe; councils elif→Ellie, burak→Ben, selin→Sam, nil→Nina, ozan→Oscar, ece→Emma). On-chain account ids, evidence files and tx data are unchanged; UIs show the real account id in details, and the README states the mapping once.
+
+## D-037 — Trezu templates: engine fetched at a pinned commit, not vendored
+2026-11-13 · accepted (chain-ops)
+Decision: The Trezu repo has no license file (GitHub `license: null`), so its template engine is not copied into this MIT repo. `scripts/trezu/fetch-engine.sh` fetches 6 files from NEAR-DevHub/trezu@62cf0e4 into a temp dir outside the repo, checks each sha256 against `integrations/trezu/engine.lock.json`, and installs its five MIT dependencies at exact versions with `--ignore-scripts`. `scripts/vitest.config.ts` maps Trezu's `@/` imports to that dir. Without the engine, the engine tests are skipped, not failed. The five templates and the comparison against `scripts/lib` `encodeProposal` are in `integrations/trezu/`. The one real proposal (dorm-b-ck#13, fund_float 0.05 NEAR to washer-01) went through `proposeAndPass`, and it is recorded in `evidence/trezu.json`. Claims are limited to integrations/trezu/README.md.

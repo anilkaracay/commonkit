@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "id": "commonkit-set-profile-washer-01",
+  "title": "COMMONKIT: set washer-01 profile (override or restore)",
+  "description": "Dorm B DAO only. Replaces the whole profile of the keyless washer-01 asset account. Use it for a labelled demo override (change one rule) and again to restore the block from profiles/washer.json. Granted usage rights are not touched by a profile change.",
+  "binding": {
+    "receiver_id": "washer-01.dorm-b.commonkit-sxflo.testnet",
+    "method_name": "set_profile",
+    "deposit": "0",
+    "gas": "30000000000000"
+  },
+  "fields": [
+    {
+      "name": "profile",
+      "label": "Profile JSON",
+      "type": "json",
+      "required": true,
+      "help": "The full `profile` object (see profiles/washer.json). Paste the file's block back to restore production values."
+    },
+    {
+      "name": "reason",
+      "label": "Why (override or restore)",
+      "type": "text",
+      "required": true,
+      "help": "Shown in the proposal summary only; not sent to the contract."
+    }
+  ],
+  "args": { "profile": "{{profile}}" },
+  "summary": "set_profile washer-01: {{reason}}"
+}

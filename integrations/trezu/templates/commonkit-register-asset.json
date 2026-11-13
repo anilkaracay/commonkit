@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "id": "commonkit-register-asset",
+  "title": "COMMONKIT: register an asset in Makerlab commons",
+  "description": "Makerlab DAO only. Registers an already deployed keyless asset account in commons.makerlab, in an asset group whose usage rights it will honour.",
+  "binding": {
+    "receiver_id": "commons.makerlab.commonkit-sxflo.testnet",
+    "method_name": "register_asset",
+    "deposit": "0",
+    "gas": "100000000000000"
+  },
+  "fields": [
+    { "name": "asset_id", "label": "Asset account", "type": "account", "required": true },
+    {
+      "name": "group_id",
+      "label": "Asset group",
+      "type": "text",
+      "required": true,
+      "validation": { "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+      "help": "Must equal the group_id in the asset's profile, e.g. makerlab-fab."
+    }
+  ],
+  "args": { "asset_id": "{{asset_id}}", "group_id": "{{group_id}}" },
+  "summary": "register_asset {{asset_id}} in {{group_id}}"
+}

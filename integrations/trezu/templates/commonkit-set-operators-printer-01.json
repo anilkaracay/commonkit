@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "id": "commonkit-set-operators-printer-01",
+  "title": "COMMONKIT: set printer-01 bridge and agent",
+  "description": "Makerlab DAO only. Sets which bridge account may report sessions and telemetry, and which operations agent may open upkeep tasks, on the keyless printer-01 asset account.",
+  "binding": {
+    "receiver_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "method_name": "set_operators",
+    "deposit": "0",
+    "gas": "30000000000000"
+  },
+  "fields": [
+    { "name": "bridge_id", "label": "Bridge account", "type": "account", "required": true },
+    { "name": "agent_id", "label": "Agent account", "type": "account", "required": true }
+  ],
+  "args": { "bridge_id": "{{bridge_id}}", "agent_id": "{{agent_id}}" },
+  "summary": "set_operators printer-01: bridge {{bridge_id}}, agent {{agent_id}}"
+}
