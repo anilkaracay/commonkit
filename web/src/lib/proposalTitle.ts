@@ -3,7 +3,10 @@
  * scripts/seed, scripts/demo and the asset contract's escalations). The description itself is never
  * changed: the UI shows it in full behind an expand.
  */
-const short = (account: string) => account.split('.')[0] ?? account;
+import { displayName } from '@commonkit/sdk';
+import { castText } from './cast';
+
+const short = (account: string) => displayName(account);
 const units = (s: string) =>
   s
     .replace(/\b(\d{4,})\b/g, (n) => Number(n).toLocaleString('en-US'))
@@ -24,8 +27,8 @@ const RULES: Rule[] = [
   [/^set_operators ([\w-]+): agent revoked/, (m) => `Operators · ${m[1]} agent revoked`],
   [/^set_operators ([\w-]+): restore (.+?)(?: after|$)/, (m) => `Operators · ${m[1]} ${m[2]} restored`],
   [/^set_operators on ([\w-]+)/, (m) => `Operators · ${m[1]} bridge and agent set`],
-  [/^set roles for (.+)$/, (m) => `Roles · ${m[1]}`],
-  [/^set_roles (\w+): ([^(]+?)\s*(?:\(|$)/, (m) => `Roles · ${m[1]}: ${m[2]}`],
+  [/^set roles for (.+)$/, (m) => `Roles · ${(m[1] ?? '').split(/,\s*/).map(displayName).join(', ')}`],
+  [/^set_roles (\w+): ([^(]+?)\s*(?:\(|$)/, (m) => `Roles · ${displayName(m[1] ?? '')}: ${m[2]}`],
   [/^credential kind (\w+)/, (m) => `Credential kind · ${m[1]}`],
   [/^fund_storage (\S+) ([\d.]+) NEAR/, (m) => `Storage · ${m[2]} NEAR to ${short(m[1] ?? '')}`],
   [/^fund_float ([\w-]+) ([\d.]+) NEAR/, (m) => `Float · ${m[2]} NEAR to ${m[1]}`],
@@ -41,5 +44,6 @@ export function proposalTitle(description: string): string {
   }
   // Fallback: the description without the script prefix, decision ids or trailing notes.
   const clean = body.replace(/\s*[—–-]\s*D-\d{3}.*$/, '').replace(/\bD-\d{3}:?\s*/g, '').split(' — ')[0] ?? body;
-  return cap(clean.length > 90 ? `${clean.slice(0, 88).trimEnd()}…` : clean);
+  const named = castText(clean);
+  return cap(named.length > 90 ? `${named.slice(0, 88).trimEnd()}…` : named);
 }

@@ -37,7 +37,7 @@ export function ProposalRow({ proposal: p, daoId, assetIds, nowMs }: { proposal:
           <summary className="cursor-pointer list-none text-xs text-text-3 hover:text-accent [&::-webkit-details-marker]:hidden">
             On-chain description <span aria-hidden className="inline-block transition-transform group-open:rotate-90">›</span>
           </summary>
-          <p className="mt-1.5 rounded-sm bg-bg-alt px-3 py-2 font-mono text-xs break-words text-text-2">{p.description}</p>
+          <p data-raw className="mt-1.5 rounded-sm bg-bg-alt px-3 py-2 font-mono text-xs break-words text-text-2">{p.description}</p>
         </details>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5">

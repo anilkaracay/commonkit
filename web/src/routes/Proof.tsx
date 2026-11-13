@@ -12,7 +12,7 @@ export function ProofPage() {
   const total = q.data?.length ?? 0;
   const pass = counts?.pass ?? 0;
   return (
-    <div className="mx-auto max-w-3xl space-y-10">
+    <div className="max-w-4xl space-y-10">
       <PageHead title="Proof">
         <span className="text-[15px]">
           The checks of <span className="font-mono text-sm">scripts/verify.sh</span>, read live.

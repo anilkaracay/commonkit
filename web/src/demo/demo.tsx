@@ -7,6 +7,7 @@ import { useLocation } from 'react-router';
 import { useEvidence } from '../data/hooks';
 
 import { JUDGE_FLOW_STEPS as TOTAL_STEPS } from './flow';
+import { castText } from '../lib/cast';
 
 export { TOTAL_STEPS };
 
@@ -72,7 +73,7 @@ export function DemoOverlay() {
       <p className="num text-xs font-semibold tracking-[0.1em] text-sky-300">
         STEP {step}/{TOTAL_STEPS}
       </p>
-      {entry && <p className="text-sm leading-snug">{entry.title}</p>}
+      {entry && <p className="text-sm leading-snug">{castText(entry.title)}</p>}
     </div>
   );
 }

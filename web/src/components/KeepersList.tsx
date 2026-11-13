@@ -56,7 +56,7 @@ export function KeepersList({ tasks, trainings, nowMs }: { tasks: Task[]; traini
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate">
-              <Account id={k.account} />
+              <Account id={k.account} demoTag />
             </p>
             <p className="mt-0.5 text-sm text-text-3">
               {[k.maintenances && `${k.maintenances} upkeep${k.maintenances > 1 ? 's' : ''}`, k.trainings && `${k.trainings} training${k.trainings > 1 ? 's' : ''}`]

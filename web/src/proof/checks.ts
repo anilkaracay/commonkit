@@ -8,6 +8,7 @@ import type { Card, Task } from '../data/types';
 import { formatNearUnit, toYocto } from '../lib/near';
 import { formatDateTime } from '../lib/time';
 import { JUDGE_FLOW_STEPS as EXPECTED_STEPS } from '../demo/flow';
+import { castText } from '../lib/cast';
 
 export type CheckStatus = 'pass' | 'fail' | 'warn';
 
@@ -135,7 +136,7 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
     const sent = ops.filter((o) => o.kind === 'Sweep' && o.status === 'Succeeded').reduce((s, o) => s + toYocto(o.amount), 0n);
     return { label: `${a.alias} total_swept`, value: `${formatNearUnit(ledger.total_swept)} = ${formatNearUnit(sent)} in sweep transfers`, ok: sent === toYocto(ledger.total_swept), account: a.asset_id };
   });
-  checks.push({ id: 6, title: 'Swept totals match sweep transfers', status: statusOf(sweepItems), summary: 'total_swept equals the succeeded Sweep transfers to the DAO (best effort)', items: sweepItems });
+  checks.push({ id: 6, title: 'Swept totals match sweep transfers', status: statusOf(sweepItems), summary: "each asset's total_swept equals the sum of its succeeded Sweep transfers (get_ops)", items: sweepItems });
 
   // 7. rights ↔ tasks
   const rightsItems: ProofItem[] = [];
@@ -146,14 +147,21 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
     const cards: Card[] = (await Promise.all(owners.map((o) => cv.get_cards_for_owner(o)))).flat();
     const byId = new Map(cards.map((card) => [card.token_id, card]));
     const tasksByAsset = new Map<string, Task[]>(assetData.filter((d) => d.a.community === c.slug).map((d) => [d.a.asset_id, d.tasks]));
+    const trainings = await cv.get_trainings(0, 1000);
     const seen = new Set<string>();
     for (const card of cards) {
       if (card.kind.type !== 'UsageRight') continue;
       const src = card.kind.source;
-      if (src.type !== 'Maintenance') continue;
-      const task = tasksByAsset.get(src.asset)?.find((t) => t.id === src.task_id);
-      const ok = !!task && task.status === 'Rewarded' && task.minted_right_ids.includes(card.token_id);
-      rightsItems.push({ label: `${c.slug} ${card.token_id}`, value: task ? `task #${task.id} ${task.status}` : 'source task missing', ok });
+      if (src.type === 'Maintenance') {
+        const task = tasksByAsset.get(src.asset)?.find((t) => t.id === src.task_id);
+        const ok = !!task && task.status === 'Rewarded' && task.minted_right_ids.includes(card.token_id);
+        rightsItems.push({ label: `${c.slug} ${card.token_id}`, value: task ? `task #${task.id} ${task.status}` : 'source task missing', ok });
+      } else {
+        // Same rule as verify.sh: a training right must be minted by an Approved training.
+        const tr = trainings.find((t) => t.id === src.training_id);
+        const ok = !!tr && tr.status === 'Approved' && tr.minted.includes(card.token_id);
+        rightsItems.push({ label: `${c.slug} ${card.token_id}`, value: tr ? `training #${tr.id} ${tr.status}` : 'source training missing', ok });
+      }
     }
     for (const [assetId, tasks] of tasksByAsset) {
       for (const task of tasks.filter((t) => t.status === 'Rewarded')) {
@@ -167,7 +175,7 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
       }
     }
   }
-  checks.push({ id: 7, title: 'Every right comes from a rewarded task', status: statusOf(rightsItems), summary: 'no orphan right, no duplicate, owner = task claimer', items: rightsItems });
+  checks.push({ id: 7, title: 'Every usage right traces to a rewarded task or an approved training', status: statusOf(rightsItems), summary: 'no orphan right, no duplicate; task rights are owned by the claimer', items: rightsItems });
 
   // 8. escalations resolve to DAO proposals
   const escItems: ProofItem[] = [];
@@ -251,8 +259,8 @@ export function evidenceItems(steps: EvidenceStep[], total: number): ProofItem[]
     const passed = s.status !== 'failed';
     const tx = s.txHashes[0];
     if (s.txHashes.length === 0) {
-      return { label: `step ${n} · ${s.title}`, value: `no tx: ${s.no_tx_reason ?? 'no reason given'}`, ok: passed && !!s.no_tx_reason };
+      return { label: `step ${n} · ${castText(s.title)}`, value: `no tx: ${s.no_tx_reason ?? 'no reason given'}`, ok: passed && !!s.no_tx_reason };
     }
-    return { label: `step ${n} · ${s.title}`, value: `${s.txHashes.length} tx`, ok: passed, ...(tx ? { tx } : {}) };
+    return { label: `step ${n} · ${castText(s.title)}`, value: `${s.txHashes.length} tx`, ok: passed, ...(tx ? { tx } : {}) };
   });
 }

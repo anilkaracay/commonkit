@@ -2,6 +2,7 @@
  * deployments/testnet.json → the normalized `Deployment` the app uses. The raw file is written by
  * scripts/setup-testnet.ts (chain-ops); this is the only place that knows its layout.
  */
+import { displayName } from '@commonkit/sdk';
 import type { CodeRecord, DeployedAsset, DeployedCommunity, DeployedMember, Deployment, Keyless, MemberKind } from './offchain';
 
 interface RawAccount {
@@ -33,11 +34,6 @@ const code = (c: Partial<CodeRecord> | undefined): CodeRecord => ({
 });
 
 const MEMBER_ROLES = new Set(['member', 'council', 'supplier', 'pilot']);
-
-function displayName(accountId: string): string {
-  const first = accountId.split('.')[0] ?? accountId;
-  return first.charAt(0).toUpperCase() + first.slice(1);
-}
 
 export function parseDeployment(raw: RawDeployment): Deployment {
   const accounts = Object.entries(raw.accounts);
@@ -76,7 +72,7 @@ export function parseDeployment(raw: RawDeployment): Deployment {
     .filter(([, a]) => MEMBER_ROLES.has(a.role))
     .map(([id, a]) => ({
       account_id: id,
-      display_name: a.kind === 'demo-bot' ? `${displayName(id)} (demo)` : displayName(id),
+      display_name: displayName(id),
       kind: (['team', 'pilot', 'demo-bot'].includes(a.kind) ? a.kind : 'team') as MemberKind,
       role: a.role,
       community: a.community ?? null,

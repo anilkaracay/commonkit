@@ -20,6 +20,7 @@ import type { ExpenseState } from '../data/types';
 import { formatDateTime } from '../lib/time';
 import { NotFoundPage } from './NotFound';
 import { Near } from '../components/Near';
+import { displayRationale } from '../lib/cast';
 
 function expenseLabel(e: ExpenseState): string {
   if (typeof e !== 'string') return `escalated to the DAO (#${e.Escalated.escalation_id})`;
@@ -91,7 +92,13 @@ export function TaskPage() {
 
       <figure className="border-l-2 border-due-fill pl-5 sm:pl-6">
         <figcaption className="text-sm text-text-3">Why the machine asked</figcaption>
-        <blockquote className="mt-2 max-w-3xl text-lg leading-snug tracking-tight sm:text-[22px]">{task.rationale}</blockquote>
+        <blockquote className="mt-2 max-w-3xl text-lg leading-snug tracking-tight sm:text-[22px]">{displayRationale(task.rationale)}</blockquote>
+        <details className="group mt-2">
+          <summary className="cursor-pointer list-none text-xs text-text-3 hover:text-accent [&::-webkit-details-marker]:hidden">
+            On-chain rationale <span aria-hidden className="inline-block transition-transform group-open:rotate-90">›</span>
+          </summary>
+          <p data-raw className="mt-1.5 max-w-3xl rounded-sm bg-bg-alt px-3 py-2 font-mono text-xs break-words text-text-2">{task.rationale}</p>
+        </details>
         <p className="mt-3">
           <TxLink hash={ds.rowTx(`task-${alias}-${task.id}`)} label="task_opened tx" />
         </p>

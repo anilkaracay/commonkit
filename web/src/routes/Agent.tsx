@@ -8,6 +8,7 @@ import { useDemoLink } from '../demo/demo';
 import { formatNear } from '../lib/near';
 import { formatAgo } from '../lib/time';
 import { NearText } from '../components/Near';
+import { displayRationale } from '../lib/cast';
 
 /** `/agent` — what the operations agent did, why, and the limits it cannot cross. */
 export function AgentPage() {
@@ -54,7 +55,7 @@ export function AgentPage() {
                 <Link to={link(f.href)} className="mt-2 block text-lg font-medium no-underline hover:text-accent">
                   <NearText text={f.title} />
                 </Link>
-                <p className="mt-1 max-w-3xl text-text-2">{f.text}</p>
+                <p className="mt-1 max-w-3xl text-text-2">{displayRationale(f.text)}</p>
               </li>
             ))}
           </ol>

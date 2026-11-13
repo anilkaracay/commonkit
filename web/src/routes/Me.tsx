@@ -48,7 +48,7 @@ export function MePage() {
                   to={link(`/me?as=${m.account_id}`)}
                   className="flex items-center justify-between gap-4 px-5 py-3.5 no-underline hover:bg-bg-alt"
                 >
-                  <span className="font-medium">{m.display_name}</span>
+                  <Account id={m.account_id} demoTag />
                   <span className="text-sm text-text-3">{m.kind} →</span>
                 </Link>
               </li>
@@ -68,7 +68,7 @@ export function MePage() {
     <div className="space-y-16">
       <PageHead
         context={wallet.accountId ? 'Connected' : 'Read-only view'}
-        title={<Account id={account} />}
+        title={<Account id={account} demoTag />}
       >
         <span className="mono-id">{account}</span>
       </PageHead>

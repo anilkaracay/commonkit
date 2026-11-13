@@ -134,6 +134,20 @@ describe('demo thresholds everywhere a threshold is shown', () => {
 
 });
 
+describe('display names (D-036)', () => {
+  it.each([['/'], [`/a/${A.printer}`], [`/a/${A.washer}`], [`/t/${A.printer}/1`], ['/proof'], ['/agent'], ['/me'], [`/me?as=${A.ayse}`], ['/train'], ['/approvals'], ['/c/makerlab']])(
+    '%s shows no original cast names outside raw on-chain text',
+    async (path) => {
+      renderAt(path);
+      await screen.findAllByText(/MOCK DATA/);
+      await new Promise((r) => setTimeout(r, 80));
+      const body = document.body.cloneNode(true) as HTMLElement;
+      for (const raw of body.querySelectorAll('[data-raw]')) raw.remove();
+      expect(body.textContent ?? '').not.toMatch(/\b(Ali|Can|Ay[sş]e|Mehmet|Zeynep|Elif|Burak|Selin|Nil|Ozan|Ece)\b/);
+    },
+  );
+});
+
 describe('no internal jargon in the UI', () => {
   it.each([['/'], [`/a/${A.printer}`], [`/a/${A.washer}`], ['/proof'], ['/agent']])('%s shows no milestone/decision ids or Turkish headings', async (path) => {
     renderAt(path);
