@@ -247,7 +247,7 @@ Full list: [`deployments/testnet.json`](deployments/testnet.json). Specs: [`docs
 pnpm install --frozen-lockfile
 pnpm test                           # all TypeScript packages, ~1 min
 ./scripts/verify.sh                 # read-only checks against NEAR testnet (keyless accounts, code_hash, ledgers, 21 judge steps)
-pnpm build:site && pnpm serve:site  # → http://localhost:4320/ (landing) and http://localhost:4320/app/proof (app)
+pnpm build:site && pnpm serve:site  # → http://localhost:4320/ (landing) and http://localhost:4320/app/proof (app); other port: node scripts/serve-site.mjs 4330
 ./scripts/simulate.sh washer --fake # loop on in-memory fake chains, seconds (says which checks it skips)
 ```
 

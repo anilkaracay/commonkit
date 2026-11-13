@@ -59,7 +59,7 @@ export function purchaseNeeds(
       amount: h.amount,
       taskId: anchor.id,
       reason: clip(
-        `${h.item} for '${h.rule_id}': ${rewarded.length} rewarded tasks so far, the profile suggests a new one every ${h.after_n} (latest task #${anchor.id}). Amount ${near(h.amount)}.${supplier}`,
+        `${h.item} for '${h.rule_id}': ${rewarded.length} rewarded ${rewarded.length === 1 ? 'task' : 'tasks'} so far, the profile suggests a new one every ${h.after_n} (latest task #${anchor.id}). Amount ${near(h.amount)}.${supplier}`,
       ),
     });
   }

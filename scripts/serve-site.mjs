@@ -2,6 +2,7 @@
 // Usage: node scripts/serve-site.mjs [port]   (no dependencies)
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
+import { gzipSync } from 'node:zlib';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -31,6 +32,22 @@ createServer(async (req, res) => {
     res.writeHead(404, { 'content-type': 'text/plain' });
     return res.end('not found');
   }
-  res.writeHead(200, { 'content-type': types[extname(path)] ?? 'application/octet-stream' });
-  res.end(await readFile(path));
-}).listen(port, () => console.log(`site/ on http://localhost:${port}  (app: /app/)`));
+  const type = types[extname(path)] ?? 'application/octet-stream';
+  let body = await readFile(path);
+  const headers = { 'content-type': type };
+  // gzip text assets like a real static host would, so local Lighthouse numbers are meaningful
+  if (/text|javascript|json|svg/.test(type) && /gzip/.test(req.headers['accept-encoding'] ?? '')) {
+    body = gzipSync(body);
+    headers['content-encoding'] = 'gzip';
+  }
+  res.writeHead(200, headers);
+  res.end(body);
+})
+  .on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is busy. Run: node scripts/serve-site.mjs <port>  (e.g. 4330)`);
+      process.exit(1);
+    }
+    throw err;
+  })
+  .listen(port, () => console.log(`site/ on http://localhost:${port}  (app: /app/)`));
