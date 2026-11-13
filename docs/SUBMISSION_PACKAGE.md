@@ -27,16 +27,17 @@ Do these in order; tick each one.
 
 ## (b) X demo post (≤ 280 characters, D-023)
 
-Requirements (HACKATHON.md §2): says it was built at NEAR HACKATHON, tags @NEARProtocol and #NEARHackathon, video attached, problem first, NEAR's concrete role, demo and repo links.
+Requirements (HACKATHON.md §2, re-read live 2026-11-13): says it was built at NEAR HACKATHON, tags @NEARProtocol and #NEARHackathon, video attached, problem first, NEAR's concrete role, demo and repo links, and "ask a genuine question or invite specific feedback" (the question line, added 2026-11-13). Optional tags @NearLegion and @NearBuilders do not fit in 280 characters; they can go in a reply.
 
-<!-- character count: 279 / 280 (each <url> counted as 23, as X does) -->
+<!-- character count: 280 / 280 (each <url> counted as 23, as X does); first <url> = hosted demo, second = public repo -->
 ```
 Shared machines get used, not fixed.
 
-Built at NEAR HACKATHON: a keyless NEAR account per machine. It opens only for on-chain bookings and pays fixers in access nobody can revoke.
+Built at NEAR HACKATHON: each one is a keyless NEAR account that opens only for bookings and pays fixers in irrevocable access.
 
-Simulated demo: <url>
-Code: <url>
+What would you share?
+Simulated demo <url>
+<url>
 @NEARProtocol #NEARHackathon
 ```
 

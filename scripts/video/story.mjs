@@ -57,7 +57,7 @@ export const CHAPTERS = {
   earn: {
     title: 'Earn',
     lines: [
-      { text: 'Ava earned two usage rights for this printer. They cannot be sold or moved.', say: "Ava earned two usage rights for this printer. They can't be sold, or moved." },
+      { text: 'Ava earned two usage-right NFTs (NEP-171) for this printer. They cannot be sold or moved.', say: "Ava earned two usage-right NFTs for this printer. They can't be sold, or moved." },
       { text: 'A council member tried to move one. Refused on chain: E_NON_TRANSFERABLE.', say: 'A council member tried to move one. The chain refused.' },
     ],
   },
@@ -65,7 +65,7 @@ export const CHAPTERS = {
     title: 'Money',
     lines: [
       { text: "Fees stay in the printer's own account, up to a 3 NEAR cap.", say: "Fees stay in the printer's own account, up to a three NEAR cap." },
-      { text: "Everything above the cap goes to the community's DAO treasury." },
+      { text: "Everything above the cap goes to the community's Sputnik DAO treasury." },
     ],
   },
   proof: {
