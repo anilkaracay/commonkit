@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <!-- Tile for apple-touch-icon and social avatars: symbol at 96/180 (2 px per grid unit), centred. -->
+  <rect width="180" height="180" rx="40" fill="#2453e0"/>
+  <g transform="translate(42 42)" fill="#ffffff">
+    <rect x="0" y="0" width="72" height="18" rx="4"/>
+    <rect x="78" y="0" width="18" height="72" rx="4"/>
+    <rect x="24" y="78" width="72" height="18" rx="4"/>
+    <rect x="0" y="24" width="18" height="72" rx="4"/>
+    <rect x="24" y="24" width="48" height="48" rx="4"/>
+  </g>
+</svg>

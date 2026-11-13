@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="#0a1526">
+  <!-- COMMONKIT symbol, concept A "Kept". 48-unit grid, 3-unit module: bars 9, gaps 3, held square 24.
+       Four identical bars (the members) turn around one square (the machine). Every value is a multiple of 3,
+       so the master is pixel-exact at 16 px (module 1 px) and 32 px (module 2 px). -->
+  <title>COMMONKIT</title>
+  <rect x="0" y="0" width="36" height="9" rx="2"/>
+  <rect x="39" y="0" width="9" height="36" rx="2"/>
+  <rect x="12" y="39" width="36" height="9" rx="2"/>
+  <rect x="0" y="12" width="9" height="36" rx="2"/>
+  <rect x="12" y="12" width="24" height="24" rx="2"/>
+</svg>
