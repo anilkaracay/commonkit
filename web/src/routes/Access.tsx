@@ -47,14 +47,6 @@ export function AccessPage() {
   if (!r) return <NotFoundPage what={`reservation #${reservationId}`} />;
   const sim = q.data.profile.adapter === 'simulator' || !!dep.data?.assets.find((a) => a.asset_id === assetId)?.simulated;
 
-  const steps = [
-    'Your wallet signs a NEP-413 message naming this reservation. No transaction, no fee.',
-    <>
-      The bridge next to the machine verifies the signature and calls <span className="font-mono text-xs">can_access</span> on this account.
-    </>,
-    `Only if the chain says yes does it unlock the ${q.data.profile.adapter === 'smart_plug' ? 'plug' : 'device'} and report the session start.`,
-  ];
-
   return (
     <div className="mx-auto max-w-xl space-y-10">
       <div>
@@ -100,14 +92,10 @@ export function AccessPage() {
         )}
       </dl>
 
-      <ol className="space-y-4">
-        {steps.map((step, i) => (
-          <li key={i} className="flex gap-4 text-text-2">
-            <span className="num grid size-7 shrink-0 place-items-center rounded-full bg-bg-alt text-sm font-medium text-text">{i + 1}</span>
-            <span className="pt-0.5">{step}</span>
-          </li>
-        ))}
-      </ol>
+      <p className="text-sm text-text-3">
+        Sign a message (no fee). The bridge checks <span className="font-mono text-xs">can_access</span> on chain, then unlocks the{' '}
+        {q.data.profile.adapter === 'smart_plug' ? 'plug' : 'device'}.
+      </p>
 
       <WalletGate action="Starting a session">
         <button type="button" disabled={busy} onClick={() => void start()} className="ck-btn ck-btn--lg">

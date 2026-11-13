@@ -13,13 +13,12 @@ export function ProofPage() {
   const pass = counts?.pass ?? 0;
   return (
     <div className="mx-auto max-w-3xl space-y-10">
-      <PageHead title="Don't trust this page. Check it.">
-        The same checks <span className="font-mono text-[15px]">scripts/verify.sh</span> runs, in the same order, read live without a wallet.
+      <PageHead title="Proof">
+        <span className="text-[15px]">
+          The checks of <span className="font-mono text-sm">scripts/verify.sh</span>, read live.
+        </span>
       </PageHead>
-      <div className="space-y-2">
-        <p className="text-sm text-text-3">Run it yourself from a clean clone</p>
-        <code className="code">./scripts/verify.sh</code>
-      </div>
+      <code className="code">./scripts/verify.sh</code>
       {q.error && <LoadError error={q.error} />}
       {!q.data && !q.error && <Loading what="every check" />}
       {q.data && counts && (

@@ -153,7 +153,7 @@ export function AssetPage() {
 
       {sim && <SimulationPanel assetType={s.profile.asset_type} assetId={assetId} />}
 
-      <Section title="Upkeep" note={`Profile v${s.wiring.profile_version} · the rule closest to its trigger, then every rule`}>
+      <Section title="Upkeep" note={`Profile v${s.wiring.profile_version}`}>
         <div className="panel grid gap-10 p-5 pb-6 sm:p-8 md:grid-cols-[220px_minmax(0,1fr)] md:items-center md:gap-12">
           <div className="flex justify-center">
             <UpkeepGauge rules={s.rules} ruleDefs={s.profile.rules} size={196} />
@@ -163,7 +163,7 @@ export function AssetPage() {
       </Section>
 
       <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-10">
-        <Section title="Who keeps me alive" note="Members whose upkeep or training was rewarded">
+        <Section title="Who keeps me alive">
           <div className="panel p-5 sm:p-6">
             <KeepersList tasks={s.tasks} trainings={trainings} nowMs={now} />
           </div>
@@ -200,7 +200,7 @@ export function AssetPage() {
         </dl>
       </Section>
 
-      <Section title="Tasks" note="Upkeep opened by the operations agent">
+      <Section title="Tasks">
         {s.tasks.length === 0 ? (
           <Empty>No upkeep tasks yet. One opens when a rule above is due.</Empty>
         ) : (
@@ -301,7 +301,7 @@ export function AssetPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
-        <Section title="Escalations" note="Payments above the cash cap become DAO proposals">
+        <Section title="Escalations" note="Above the cash cap: DAO proposals">
           {s.escalations.length === 0 ? (
             <Empty>No escalations. Purchases above the cap become Sputnik proposals opened by this contract.</Empty>
           ) : (
@@ -359,7 +359,7 @@ export function AssetPage() {
         </Section>
       </div>
 
-      <Section title="Profile" note="The rules this account enforces">
+      <Section title="Profile">
         <dl className="panel grid grid-cols-1 gap-x-8 px-5 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
           {(
             [
@@ -400,15 +400,14 @@ function SimulationPanel({ assetType, assetId }: { assetType: string; assetId: s
         <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-medium">
           No physical machine behind this account <SimulatedBadge assetId={assetId} />
         </p>
-        <p className="mt-2 text-sm text-text-2">
+        <p className="mt-1 text-sm text-text-3">
           {device?.kind === 'emulated' ? (
             <>
-              The real <span className="font-mono text-xs">{device.adapter}</span> adapter drives an emulated device that implements the device's API.
+              Real <span className="font-mono text-xs">{device.adapter}</span> adapter, emulated device.
             </>
           ) : (
-            <>Telemetry comes from a simulator scenario.</>
-          )}{' '}
-          The same loop runs locally against a NEAR sandbox with the real contracts, bridge and agent: reserve, upkeep task, approval, rights.
+            <>Telemetry from a simulator scenario.</>
+          )}
         </p>
       </div>
       <div className="min-w-0 space-y-2.5">

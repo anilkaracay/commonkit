@@ -30,25 +30,11 @@ export function AgentPage() {
 
   return (
     <div className="space-y-16 sm:space-y-20">
-      <div className="space-y-8">
-        <PageHead title="The machine's operator, on a short leash" />
-        <dl className="grid gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-2">
-          <div className="bg-surface p-5 sm:p-6">
-            <dt className="flex items-center gap-2 font-medium">
-              <span aria-hidden className="size-2 rounded-full bg-blue-500" /> Can
-            </dt>
-            <dd className="mt-2 text-text-2">Open an upkeep task when on-chain telemetry crossed a profile threshold, explain it, and ask the DAO for purchases.</dd>
-          </div>
-          <div className="bg-surface p-5 sm:p-6">
-            <dt className="flex items-center gap-2 font-medium">
-              <span aria-hidden className="size-2 rounded-full bg-danger" /> Cannot
-            </dt>
-            <dd className="mt-2 text-text-2">Approve work, pay anyone, change profiles, or open a task the telemetry does not justify. The DAO can switch it off.</dd>
-          </div>
-        </dl>
-      </div>
+      <PageHead title="Agent">
+        <span className="text-[15px]">Opens upkeep only when on-chain telemetry crosses a rule. Cannot approve, pay or change profiles.</span>
+      </PageHead>
 
-      <Section title="Feed" note="What it did, with its rationale">
+      <Section title="Feed">
         {feed.length === 0 ? (
           <Empty>The agent has not acted yet.</Empty>
         ) : (
@@ -74,7 +60,7 @@ export function AgentPage() {
         )}
       </Section>
 
-      <Section title="Limits demo" note="Each attempt must fail with the expected error code">
+      <Section title="Limits demo" note="Each attempt must be refused">
         {!limits.data ? (
           <Loading what="limits evidence" />
         ) : (

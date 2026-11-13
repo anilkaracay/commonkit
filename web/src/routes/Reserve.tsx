@@ -71,15 +71,14 @@ export function ReservePage() {
           <h1 className="display text-[34px] sm:text-[44px]">Reserve</h1>
           {sim && <SimulatedBadge />}
         </div>
-        <p className="mt-3 text-text-2">
-          {p.slot_minutes}-minute slots, up to {p.max_slots_per_reservation} per reservation. Times in UTC.
+        <p className="mt-2 text-sm text-text-3">
+          {p.slot_minutes} min slots · up to {p.max_slots_per_reservation} · UTC
         </p>
       </div>
 
       {p.required_credential && (
         <p className="rounded-md bg-bg-alt p-4 text-sm text-text-2">
-          This machine needs a <span className="font-mono text-xs text-text">{p.required_credential}</span> credential card. Without it the contract rejects
-          the reservation and refunds everything: <em>{ERROR_MESSAGES.E_CREDENTIAL_MISSING}</em>
+          Needs a <span className="font-mono text-xs text-text">{p.required_credential}</span> credential card. {ERROR_MESSAGES.E_CREDENTIAL_MISSING}
         </p>
       )}
 
@@ -166,7 +165,6 @@ export function ReservePage() {
           </WalletGate>
         </div>
       </div>
-      <p className="text-xs text-text-3">The contract checks the amount to the yocto; anything else fails with: {ERROR_MESSAGES.E_WRONG_AMOUNT}</p>
     </div>
   );
 }

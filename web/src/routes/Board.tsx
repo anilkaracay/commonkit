@@ -7,14 +7,12 @@ import { useDataSource } from '../data/source';
 import { AssetCard } from '../components/AssetCard';
 import { SimulatedBadge } from '../components/Badges';
 import { SameContractStrip } from '../components/SameContractStrip';
-import { Empty, LoadError, Loading, PageHead, Section } from '../components/Section';
+import { Empty, LoadError, Loading, Section } from '../components/Section';
 import { TaskRow } from '../components/TaskRow';
 import { Account, TxLink } from '../components/TxLink';
 import { ProposalRow } from '../components/ProposalRow';
 import { useDemoLink } from '../demo/demo';
 import { formatAgo } from '../lib/time';
-
-const WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
 
 /** `/` — the board. The machines are the page. */
 export function BoardPage() {
@@ -45,9 +43,12 @@ export function BoardPage() {
 
   return (
     <div className="space-y-16 sm:space-y-20">
-      <PageHead title="Shared machines">
-        {WORDS[count] ?? count} machines, each in its own {keyless ? 'keyless ' : ''}NEAR account. Read live from testnet, no wallet needed.
-      </PageHead>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <h1 className="display text-[30px] sm:text-[36px]">Machines</h1>
+        <p className="text-sm text-text-3">
+          {count} {keyless ? 'keyless ' : ''}accounts · live from NEAR testnet
+        </p>
+      </div>
 
       {/* ≥1280 px: communities side by side, two machines each → four cards across. */}
       <div className="grid grid-cols-1 gap-x-8 gap-y-14 xl:grid-cols-2">
@@ -82,7 +83,7 @@ export function BoardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
-        <Section title="Open tasks" note="Upkeep the machines asked for">
+        <Section title="Open tasks">
           {openTasks.length === 0 ? (
             <Empty>No open upkeep. The agent opens a task only when a profile rule is due.</Empty>
           ) : (
@@ -117,7 +118,7 @@ export function BoardPage() {
           )}
         </Section>
 
-        <Section title="Rights earned" note="Usage rights minted for upkeep">
+        <Section title="Rights earned">
           {minted.length === 0 ? (
             <Empty>No rights minted yet.</Empty>
           ) : (
@@ -147,7 +148,7 @@ export function BoardPage() {
         </Section>
       </div>
 
-      <Section title="Same contract, different commons" note="One code_hash on every machine account; every profile in profiles/, by kind of upkeep">
+      <Section title="Same contract, different commons">
         <div className="space-y-5">
           <SameContractStrip
             assets={all.data.map(({ deployed, snap }) => ({
@@ -160,7 +161,7 @@ export function BoardPage() {
         </div>
       </Section>
 
-      <Section title="Latest proposals" note="Sputnik DAO governance. Proposals opened by a machine are escalations above its cash cap.">
+      <Section title="Latest proposals" note="Sputnik DAO">
         {proposals.length === 0 ? (
           <Empty>No proposals yet.</Empty>
         ) : (

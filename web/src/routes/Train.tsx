@@ -14,7 +14,7 @@ export function TrainPage() {
   return (
     <div className="space-y-14">
       <PageHead title="Trainings">
-        A trainer proposes a credential; a different verifier approves. The trainee gets a credential card, the trainer earns usage rights.
+        <span className="text-[15px]">Trainer proposes, a different verifier approves.</span>
       </PageHead>
       <Section title="Credential trainings" note="All communities">
         {trainings.length === 0 ? (

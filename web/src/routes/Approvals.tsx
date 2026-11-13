@@ -67,7 +67,9 @@ export function ApprovalsPage() {
 
   return (
     <div className="space-y-14">
-      <PageHead title="Approvals">Every approval comes from someone other than the person who did the work. The contracts enforce it.</PageHead>
+      <PageHead title="Approvals">
+        <span className="text-[15px]">Never by the person who did the work.</span>
+      </PageHead>
       <WalletGate action="Approving" />
       <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
         {groups.map((g) => (

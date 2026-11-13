@@ -125,7 +125,7 @@ export function KasaBar({ ledger, floatCap }: { ledger: LedgerView; floatCap: st
         <div className="mt-3 h-2 rounded-full bg-track">
           <div className="h-full rounded-full bg-liability" style={{ width: deposits === 0n ? '0%' : `max(6px, ${w(deposits)})` }} />
         </div>
-        <p className="mt-2 text-xs text-text-3">Members' money, owed back. Never used for fees, rewards, sweeps or bonds.</p>
+        <p className="mt-2 text-xs text-text-3">Owed back to members, never revenue</p>
       </div>
 
       <dl className="grid grid-cols-2 gap-x-6 gap-y-3 border-t border-line pt-4 sm:grid-cols-4">
