@@ -22,6 +22,10 @@ coverage/
 *.tsbuildinfo
 .vite/
 
+# demo video renders and intermediates (scripts/video/build.sh)
+video/build/
+video/out/
+
 # runtime state
 bridge/state/
 agent/state/

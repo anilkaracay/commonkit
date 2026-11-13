@@ -1,0 +1,59 @@
+1
+00:00:00,200 --> 00:00:04,400
+Can has no booking. He asks the shared printer to unlock. (simulated printer)
+
+2
+00:00:04,400 --> 00:00:08,900
+Refused: the printer checks its own NEAR account first. No booking, no print.
+
+3
+00:00:08,800 --> 00:00:14,500
+A shared machine's money and rules usually sit in one admin's spreadsheet. Here they live in its own keyless NEAR account.
+
+4
+00:00:14,400 --> 00:00:20,600
+Booking is a NEAR transaction: a fee plus a refundable deposit. (simulated printer)
+
+5
+00:00:20,600 --> 00:00:24,100
+Ali's booking on testnet: reservation_confirmed.
+
+6
+00:00:24,000 --> 00:00:30,400
+With a valid booking, the bridge unlocks the printer and the job starts. (simulated)
+
+7
+00:00:30,400 --> 00:00:36,700
+Telemetry crosses a rule, so the machine's agent opens an upkeep task. (demo threshold)
+
+8
+00:00:36,600 --> 00:00:41,000
+The agent's task on testnet, with its reason. Demo threshold 0.5 h (production 200 h).
+
+9
+00:00:41,000 --> 00:00:45,300
+Ayşe does the upkeep. Mehmet, another member, approves it.
+
+10
+00:00:45,300 --> 00:00:49,300
+She earns usage rights for this machine: non-transferable cards.
+
+11
+00:00:49,200 --> 00:00:53,800
+The machine keeps a small operating float, capped at 3 NEAR.
+
+12
+00:00:53,800 --> 00:00:58,900
+Everything above the cap is swept to the community's DAO treasury.
+
+13
+00:00:58,833 --> 00:01:06,533
+A council member tries to take Ayşe's right. Refused on chain: E_NON_TRANSFERABLE.
+
+14
+00:01:06,433 --> 00:01:16,133
+Check it yourself: ./scripts/verify.sh re-reads every claim from testnet, no keys needed.
+
+15
+00:01:16,033 --> 00:01:20,833
+Same contract, different machines and rules: twelve profiles run in simulation.

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>terminal pane</title>
+<style>
+  @font-face { font-family: 'CK Sans'; src: url('../../packages/design/fonts/ck-sans.woff2') format('woff2'); font-weight: 400 640; font-stretch: 100% 112%; }
+  @font-face { font-family: 'CK Sans'; src: url('../../packages/design/fonts/ck-sans-tr.woff2') format('woff2'); font-weight: 400 640; font-stretch: 100% 112%; unicode-range: U+011E-011F, U+0130-0131, U+015E-015F, U+00C7, U+00E7, U+00D6, U+00F6, U+00DC, U+00FC; }
+  @font-face { font-family: 'Geist Mono'; src: url('../../packages/design/fonts/geist-mono.woff2') format('woff2'); font-weight: 100 900; }
+  :root {
+    --bg: #eaf0f8; --win: #0a1526; --bar: #0d1f3c; --text: #dce6f4; --dim: #8fa3c2; --ok: #7fd6a4; --info: #9cc3ff;
+    --tag: #f07a2a; --line: #1c3a6b; --who-bridge: #9cc3ff; --who-agent: #f5b37f; --who-moonraker: #b9c6dd;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; background: var(--bg); overflow: hidden; }
+  body { font-family: 'CK Sans', system-ui, sans-serif; padding: 56px 72px 210px; display: flex; flex-direction: column; gap: 22px; }
+  .win { background: var(--win); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-height: 0; box-shadow: 0 30px 60px -30px rgba(10, 21, 38, .45); }
+  .split .win:first-child { flex: 1.15; } .split .win:last-child { flex: 1; }
+  .single .win { flex: 1; }
+  .bar { display: flex; align-items: center; gap: 16px; padding: 14px 22px; background: var(--bar); border-bottom: 1px solid var(--line); }
+  .bar .title { font-family: 'Geist Mono', monospace; font-size: 21px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .badge { margin-left: auto; font-size: 18px; font-weight: 600; letter-spacing: .04em; color: var(--win); background: var(--tag); padding: 5px 12px; border-radius: 6px; white-space: nowrap; }
+  .badge.quiet { background: var(--info); }
+  .body { flex: 1; padding: 14px 22px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+  .ln { font-family: 'Geist Mono', monospace; font-size: 20px; line-height: 1.42; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+  .ln .tag { color: var(--tag); font-weight: 600; margin-right: 10px; }
+  .ln .who { display: inline-block; min-width: 9.5ch; margin-right: 6px; }
+  .ln .who.bridge { color: var(--who-bridge); } .ln .who.agent { color: var(--who-agent); } .ln .who.moonraker { color: var(--who-moonraker); }
+  .ln.ok { color: var(--text); } .ln .mark-ok { color: var(--ok); }
+  .ln.info { color: var(--dim); }
+  .ln.head { color: #ffffff; font-weight: 600; }
+  .ln.new { color: #ffffff; }
+  .big .single .win, body.big .win { flex: 0 0 auto; margin: auto 0; }
+  body.big .body { min-height: 330px; padding: 26px 30px; }
+  body.big .ln { font-size: 29px; line-height: 1.55; }
+  body.big .bar .title { font-size: 26px; }
+  body.big .badge { font-size: 22px; }
+  .note { position: absolute; left: 72px; bottom: 170px; font-size: 18px; color: #4e5d76; }
+</style>
+</head>
+<body>
+<div id="root" style="display:contents"></div>
+<div class="note" id="note"></div>
+<script>
+  const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  let spec = null;
+  function lineHtml(l, fresh) {
+    let cls = 'ln';
+    let text = esc(l.text);
+    if (/^\s*✅/.test(l.text)) { cls += ' ok'; text = text.replace('✅', '<span class="mark-ok">✅</span>'); }
+    else if (/^\s*ℹ️/.test(l.text)) cls += ' info';
+    else if (/^(COMMONKIT|All checks|\d+ check)/.test(l.text)) cls += ' head';
+    if (fresh) cls += ' new';
+    const tag = l.tag ? `<span class="tag">[${l.tag}]</span>` : '';
+    const who = l.who ? `<span class="who ${l.who}">${l.who === 'moonraker' ? 'moonraker*' : l.who}</span>` : '';
+    return `<div class="${cls}">${tag}${who}${text}</div>`;
+  }
+  window.term = {
+    load(s) {
+      spec = s;
+      document.getElementById('root').innerHTML = `<div class="${s.layout}" style="display:contents">` + s.panes.map((p, i) =>
+        `<section class="win"><div class="bar"><span class="title">${esc(p.title)}</span><span class="badge ${/SIMULATED/.test(p.badge) ? '' : 'quiet'}">${esc(p.badge)}</span></div><div class="body" id="pane${i}"></div></section>`).join('') + '</div>';
+      document.body.classList.add(s.layout);
+      if (s.big) document.body.classList.add('big');
+      document.getElementById('note').textContent = (s.note || '') + (s.panes.some((p) => p.lines.some((l) => l.who === 'moonraker')) ? ' · * emulated device' : '');
+    },
+    at(t) {
+      spec.panes.forEach((p, i) => {
+        const shown = p.lines.filter((l) => l.at <= t);
+        const last = shown.length ? shown[shown.length - 1].at : -1;
+        // Render the tail; the flex column keeps the newest line at the bottom, as a terminal does.
+        document.getElementById(`pane${i}`).innerHTML = shown.slice(-40).map((l) => lineHtml(l, t - l.at < 0.35 && l.at === last)).join('');
+      });
+    },
+  };
+</script>
+</body>
+</html>

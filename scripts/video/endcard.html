@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>end card</title>
+<style>
+  @font-face { font-family: 'CK Sans'; src: url('../../packages/design/fonts/ck-sans.woff2') format('woff2'); font-weight: 400 640; font-stretch: 100% 112%; }
+  @font-face { font-family: 'Geist Mono'; src: url('../../packages/design/fonts/geist-mono.woff2') format('woff2'); font-weight: 100 900; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #ffffff; color: #0a1526; }
+  body { font-family: 'CK Sans', system-ui, sans-serif; display: flex; flex-direction: column; justify-content: center; padding: 0 180px; gap: 34px; }
+  .mark { font-size: 30px; font-weight: 640; letter-spacing: .14em; color: #2453e0; }
+  h1 { font-size: 104px; font-weight: 600; font-stretch: 104%; line-height: 1.02; letter-spacing: -0.02em; max-width: 1400px; }
+  .links { display: flex; gap: 28px; margin-top: 22px; font-family: 'Geist Mono', monospace; font-size: 34px; }
+  .links span { padding: 14px 22px; border: 1px solid #c6d1e1; border-radius: 10px; background: #f5f8fc; }
+  .foot { font-size: 26px; color: #4e5d76; }
+</style>
+</head>
+<body>
+  <div class="mark">COMMONKIT</div>
+  <h1>Shared things that pay for their own upkeep.</h1>
+  <div class="links"><span id="site">DEMO_URL</span><span id="repo">REPO_URL</span></div>
+  <div class="foot">NEAR testnet · every step is a transaction you can check · devices simulated</div>
+  <script>
+    const q = new URLSearchParams(location.search);
+    if (q.get('site')) document.getElementById('site').textContent = q.get('site');
+    if (q.get('repo')) document.getElementById('repo').textContent = q.get('repo');
+  </script>
+</body>
+</html>
