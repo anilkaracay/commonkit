@@ -18,13 +18,14 @@ if (!opt('widths')) for (const f of readdirSync(out)) if (f.endsWith('.png')) rm
 const SECTIONS: [string, string][] = [
   ['02-problem', '.problem'],
   ['03-how', '#how'],
-  ['04-care', '.care'],
-  ['05-money', '#money'],
-  ['06-rights', '#rights'],
-  ['07-proof', '#proof'],
-  ['08-near', '#near'],
-  ['09-final', '.final'],
-  ['10-footer', '.foot'],
+  ['04-scenes', '#scenes'],
+  ['05-care', '.care'],
+  ['06-money', '#money'],
+  ['07-rights', '#rights'],
+  ['08-proof', '#proof'],
+  ['09-near', '#near'],
+  ['10-final', '.final'],
+  ['11-footer', '.foot'],
 ];
 
 const browser = await chromium.launch();
@@ -44,6 +45,21 @@ for (const w of widths) {
     await el.scrollIntoViewIfNeeded();
     await page.waitForTimeout(150);
     await el.screenshot({ path: resolve(out, `${name}-${w}.png`) });
+  }
+  // The pinned sequence on wide screens: one viewport shot per scene, mid-scene.
+  if (w >= 1024) {
+    const n = await page.locator('.scene').count();
+    for (let i = 0; i < n; i++) {
+      await page.evaluate((k) => {
+        const el = document.querySelectorAll<HTMLElement>('.scene')[k]!;
+        scrollTo(0, scrollY + el.getBoundingClientRect().top - innerHeight * 0.5 + el.offsetHeight * 0.55);
+      }, i);
+      await page.waitForTimeout(250);
+      await page.screenshot({ path: resolve(out, `04-scene-${i + 1}-${w}.png`) });
+    }
+  } else {
+    const n = await page.locator('.scene').count();
+    for (let i = 0; i < n; i++) await page.locator('.scene').nth(i).screenshot({ path: resolve(out, `04-scene-${i + 1}-${w}.png`) });
   }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   console.log(`${w}: ${overflow > 0 ? `HORIZONTAL OVERFLOW ${overflow}px` : 'no overflow'}`);

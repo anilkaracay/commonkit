@@ -70,5 +70,18 @@ for (const [name, q] of CLOSE) {
   webp(png, resolve(out, `${name}-960.webp`), 82);
   console.log(name);
 }
+// Scroll-world scene stills (stage poster at 1000, phone poster at 800), each at its telling moment.
+const SCENE_P = [0.32, 1.45, 2.66, 3.62, 4.38];
+for (const [i, p] of SCENE_P.entries()) {
+  const name = `scene-${i + 1}`;
+  if (only && !only.includes(name) && !only.includes('scenes')) continue;
+  const page = await studio(`world=1&p=${p}&t=1.5`, 1000);
+  const png = resolve(tmp, `${name}.png`);
+  await page.screenshot({ path: png, omitBackground: true });
+  await page.close();
+  webp(png, resolve(out, `${name}-1000.webp`), 82);
+  webp(png, resolve(out, `${name}-800.webp`), 80, 800);
+  console.log(name);
+}
 rmSync(tmp, { recursive: true, force: true });
 await browser.close();

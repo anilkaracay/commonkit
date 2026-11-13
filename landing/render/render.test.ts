@@ -32,6 +32,14 @@ describe('landing render (honest and quiet)', () => {
     const printer = d.profiles.find((p) => p.asset_type === 'printer_3d')!;
     expect(s['rights-pass']).toContain(`${printer.right_validity_days} days`);
   });
+  it('marks every real-world scene as Simulated or Example, with demo thresholds where a lowered value shows', () => {
+    const items = s['scenes-list']!.split('class="scene"').slice(1);
+    expect(items).toHaveLength(5);
+    for (const it of items) expect(it).toMatch(/ck-sim scene-note">(Simulated|Example)/);
+    expect(items[0]).toContain('demo threshold 30 min of printing');
+    expect(items[3]).toContain('demo threshold 1 h');
+    expect(items[4]).toContain('Example');
+  });
   it('links each refusal to its testnet transaction', () => {
     expect(s['rights-refused']!.match(/nearblocks\.io\/txns\//g)).toHaveLength(3);
   });

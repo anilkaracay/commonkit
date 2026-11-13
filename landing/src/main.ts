@@ -2,6 +2,7 @@
  * without JS the page is complete (poster still + build-time numbers). */
 import './styles/main.css';
 import posterAnchors from './data/hero-anchors.json';
+import { initScenes } from './scenes.ts';
 
 type Pt = { x: number; y: number };
 document.documentElement.classList.add('js');
@@ -39,6 +40,8 @@ const io = new IntersectionObserver((es) => {
 }, { rootMargin: '0px 0px -8% 0px' });
 for (const el of document.querySelectorAll('.sheet, .how-step, .care-tile, .tile, .stat, .pass-wrap, .facts li, .near-tiles li'))
   if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('reveal'); io.observe(el); }
+
+initScenes(reduced);
 
 const idle = (cb: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(cb, { timeout: 2500 }) : setTimeout(cb, 1200));
 

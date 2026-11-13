@@ -10,6 +10,8 @@ export interface MachineState {
   /** an upkeep task is open (get_rule_status open_task) */
   taskOpen: boolean;
   inService: boolean;
+  /** running right now (drum turning, engine under load); undefined = idle motion as usual */
+  active?: boolean;
 }
 
 export interface Machine {

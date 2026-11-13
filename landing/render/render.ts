@@ -3,7 +3,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { AssetSnap } from '../src/lib/chain.ts';
-import { esc, firstLabel, int } from '../src/lib/format.ts';
+import { esc, firstLabel, int, triggerText, type Trigger } from '../src/lib/format.ts';
 import { REPO, type DemoOverride, type JudgeStep, type LandingData, type Profile } from './data.ts';
 
 export const REPO_URL = 'https://github.com/anilkaracay/commonkit';
@@ -121,6 +121,80 @@ export function how(d: LandingData): string {
         </dl>
       </div>`, 'how-earn'),
   ].join('');
+}
+
+// ---------- the real-world sequence (scroll stage) ----------
+
+/** Profile rule trigger, and the demo value in force on testnet when it was lowered (evidence/demo-overrides.json). */
+function ruleText(d: LandingData, type: string, rule: string): { prod: string; demo: string | null } {
+  const p = d.profiles.find((x) => x.asset_type === type);
+  const r = p?.rules.find((x) => x.rule_id === rule);
+  if (!p || !r) throw new Error(`profile rule ${type}.${rule} missing`);
+  const a = d.snapshot.assets.find((x) => x.asset_type === type);
+  const ov = a ? overrideAt(d.overrides[a.account], rule, Date.now()) : null;
+  const demo = ov ? (/h$/.test(ov.value) ? `${ov.value.replace(/h$/, '')} h` : triggerText(withThreshold(r.trigger, Number(ov.value)))) : null;
+  return { prod: triggerText(r.trigger), demo };
+}
+const withThreshold = (t: Trigger, v: number): Trigger => ('Metric' in t ? { Metric: { ...t.Metric, threshold: v } } : 'Schedule' in t ? { Schedule: { every_hours: v } } : t);
+
+/** "every 30 min of printing" → "30 min"; "every week" stays. */
+const trim = (x: string) => (/^every \d/.test(x) ? x.replace(/^every /, '').replace(/ of \w+$/, '') : x);
+
+interface SceneCopy { kind: string; place: string; title: string; line: string; beats: string[]; note: string; poster: string }
+
+export function sceneCopy(d: LandingData): SceneCopy[] {
+  const { a } = printer(d);
+  const t0 = a.tasks.find((t) => t.id === String(step(d, 7).outputs.task_id ?? '0') && t.status === 'Rewarded');
+  if (!t0) throw new Error('printer task from step 7 is not rewarded');
+  const nozzle = ruleText(d, 'printer_3d', 'nozzle_clean');
+  // Washer (step 19): who reported, that bookings were refused while out of service, who verified the repair.
+  const s19 = step(d, 19).txs;
+  const reporter = /^(\w+) .*reports a fault/.exec(s19.find((t) => t.ok && /reports a fault/.test(t.label))?.label ?? '')?.[1];
+  const verifier = /^(\w+) \(dorm-b verifier\) approves/.exec(s19.find((t) => /approves/.test(t.label))?.label ?? '')?.[1];
+  if (!reporter || !verifier || !s19.some((t) => t.error_code === 'E_OUT_OF_SERVICE')) throw new Error('step 19 evidence changed');
+  const washer = d.snapshot.assets.find((x) => x.asset_type === 'washer');
+  // Laser (steps 11–13).
+  if (!step(d, 11).txs.length || !/Mehmet .*approves training/.test(step(d, 12).txs.map((t) => t.label).join('\n')) || !stepTx(d, 13, /session_started/)) throw new Error('laser evidence changed');
+  const fridge = ruleText(d, 'community_fridge', 'weekly_clean');
+  if (!step(d, 20).txs.some((t) => t.error_code === 'E_RULE_NOT_DUE')) throw new Error('step 20 evidence changed');
+  const gen = d.profiles.find((x) => x.asset_type === 'emergency_generator')!;
+  const fuel = gen.rules.find((r) => r.rule_id === 'fuel_refill')!;
+  const test = gen.rules.find((r) => r.rule_id === 'monthly_test_run')!;
+  const cap = nearFixed(fuel.reimbursable_max).replace(/\.00$/, '');
+  return [
+    { kind: 'printer_3d', place: 'Makerspace · 3D printer', title: 'The printer asks for care.', line: `Nozzle time crosses its rule. ${who(t0.claimer)} cleans it, ${who(t0.verifier)} verifies, ${who(t0.claimer)} earns ${t0.reward_rights} usage rights.`,
+      beats: ['Nozzle time due', 'The agent opens a task', `Cleaned by ${who(t0.claimer)}`, `Verified by ${who(t0.verifier)} · ${t0.reward_rights} rights`],
+      note: nozzle.demo ? `Simulated · demo threshold ${nozzle.demo.replace(/^every /, "")}, normally ${trim(nozzle.prod)}` : 'Simulated', poster: 'scene-1' },
+    { kind: 'washer', place: 'Dorm laundry · washer', title: 'A fault stops the washer.', line: `${reporter} reports a fault. Bookings stop until a repair is done and verified.`,
+      beats: [`Fault reported by ${reporter}`, 'Out of service, bookings refused', `Repair verified by ${verifier}`, washer?.in_service ? 'Back in service' : 'Waiting for service'],
+      note: 'Simulated', poster: 'scene-2' },
+    { kind: 'laser_cutter', place: 'Workshop · laser cutter', title: 'Locked until you are trained.', line: 'Zeynep is refused without laser safety. Ayşe trains her, Mehmet approves, the plug turns on.',
+      beats: ['Refused without the credential', 'Trained by Ayşe', 'Approved by Mehmet', 'Plug on for Zeynep’s session'],
+      note: 'Simulated · emulated smart plug', poster: 'scene-3' },
+    { kind: 'community_fridge', place: 'Neighbourhood · community fridge', title: 'Cleaning comes due on schedule.', line: 'The weekly clean cannot open early. Once the interval passes, the agent opens it.',
+      beats: ['Too early: refused', 'The interval passes', 'The agent opens the task'],
+      note: fridge.demo ? `Simulated · demo threshold ${trim(fridge.demo)}, normally ${trim(fridge.prod)}` : 'Simulated', poster: 'scene-4' },
+    { kind: 'emergency_generator', place: 'Co-op · emergency generator', title: 'Fuel paid back, within a cap.', line: `Test run under load ${triggerText(test.trigger)}, then a receipt-backed refill, capped at ${cap} NEAR.`,
+      beats: ['Monthly test run', 'Fuel low, task opened', 'Refilled with a receipt', `Reimbursed, at most ${cap} NEAR`],
+      note: 'Example · profile rules, not deployed on testnet', poster: 'scene-5' },
+  ];
+}
+
+export function scenes(d: LandingData): { list: string; progress: string; posters: string } {
+  const c = sceneCopy(d);
+  const list = c.map((s, i) => `<li class="scene" data-i="${i}">
+      <img class="scene-poster" src="/posters/${s.poster}-800.webp" width="800" height="800" alt="${esc(s.place)}, rendered model" loading="lazy" decoding="async">
+      <div class="scene-copy">
+        <p class="scene-place">${esc(s.place)}</p>
+        <h3 class="scene-title">${esc(s.title)}</h3>
+        <p class="scene-line">${esc(s.line)}</p>
+        <ol class="beats">${s.beats.map((b) => `<li>${esc(b)}</li>`).join('')}</ol>
+        <p class="ck-sim scene-note">${esc(s.note)}</p>
+      </div>
+    </li>`).join('');
+  const progress = c.map((s, i) => `<li${i === 0 ? ' class="on"' : ''}><span class="visually-hidden">${esc(s.place)}</span></li>`).join('');
+  const posters = c.map((s, i) => `<img class="stage-poster${i === 0 ? ' on' : ''}" data-i="${i}" src="/posters/${s.poster}-1000.webp" width="1000" height="1000" alt="" loading="lazy" decoding="async">`).join('');
+  return { list, progress, posters };
 }
 
 // ---------- care: the twelve commons ----------
@@ -242,6 +316,7 @@ export function renderSlots(d: LandingData): Record<string, string> {
   const { a } = printer(d);
   const m = money(d);
   const r = rights(d);
+  const sc = scenes(d);
   const live = { account: a.account, community: a.community, dao: a.dao };
   return {
     'hero-callouts': heroCallouts(d),
@@ -253,6 +328,9 @@ export function renderSlots(d: LandingData): Record<string, string> {
     'rights-refused': r.refused,
     'rights-pass': r.pass,
     proof: proof(d),
+    'scenes-list': sc.list,
+    'scenes-progress': sc.progress,
+    'scenes-posters': sc.posters,
     near: nearSection(d),
     'repo-url': REPO_URL,
   };

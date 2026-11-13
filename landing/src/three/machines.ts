@@ -10,12 +10,15 @@ import { printer } from './printer.ts';
 type Screen = ReturnType<typeof screen>;
 const drawState = (scr: Screen | null, s: MachineState) => scr?.draw([{ v: s.float, color: '#8db9ff' }, { v: s.wear, color: s.due ? '#f07a2a' : '#4d7ff0' }]);
 
-function base(M: Materials, g: Group, scr: Screen | null, led: { material: unknown } | null, update: (t: number, s: MachineState) => void = () => {}, anchors: Machine['anchors'] = {}): Machine {
+/** Shared behaviour: screen bars, status lens, and an orange tab (at `tabAt`) while an upkeep task is open. */
+function base(M: Materials, g: Group, scr: Screen | null, led: { material: unknown } | null, update: (t: number, s: MachineState) => void = () => {}, anchors: Machine['anchors'] = {}, tabAt?: [number, number, number]): Machine {
   let st: MachineState = { float: 0, wear: 0, due: false, taskOpen: false, inService: true };
+  const tab = tabAt ? rbox(0.32, 0.12, 0.08, 0.03, M.due, ...tabAt) : null;
+  if (tab) { tab.visible = false; g.add(tab); }
   return {
     group: g,
     anchors,
-    setState(s) { st = s; drawState(scr, s); if (led) led.material = s.inService ? M.ledOn : M.navy; },
+    setState(s) { st = s; drawState(scr, s); if (led) led.material = s.inService ? M.ledOn : M.navy; if (tab) tab.visible = s.taskOpen; },
     update(t) { update(t, st); },
   };
 }
@@ -38,7 +41,14 @@ export function washer(M: Materials): Machine {
   for (let i = 0; i < 3; i++) { const h = new Group(); h.rotation.z = (i * Math.PI * 2) / 3; h.add(rbox(0.1, 0.36, 0.05, 0.02, M.pla, 0, 0.38, 0)); drum.add(h); }
   drum.position.set(0, cy, front + 0.05);
   g.add(drum);
-  return base(M, g, scr, led, (t, s) => { drum.rotation.z = s.inService ? -t * 0.9 : 0; }, { screen: anchor(g, -0.55, y0 + H - 0.4, front + 0.06) });
+  let drumAngle = 0, lastT = 0;
+  return base(M, g, scr, led, (t, s) => {
+    // The drum turns while a cycle runs and coasts to a stop when the washer goes out of service.
+    const on = s.inService && s.active !== false;
+    const dt = Math.min(0.1, Math.max(0, t - lastT)); lastT = t;
+    drumAngle -= dt * (on ? 2.4 : 0);
+    drum.rotation.z = drumAngle;
+  }, { screen: anchor(g, -0.55, y0 + H - 0.4, front + 0.06) }, [0.75, y0 + H - 0.72, front + 0.03]);
 }
 
 export function laser(M: Materials): Machine {
@@ -70,7 +80,7 @@ export function fridge(M: Materials): Machine {
   g.add(rbox(0.62, 0.32, 0.06, 0.05, M.navyGloss, -0.45, y0 + 3.6, front + 0.005));
   const scr = screen(0.5, 0.18); scr.mesh.position.set(-0.45, y0 + 3.6, front + 0.04); g.add(scr.mesh);
   const led = cylZ(0.04, 0.05, M.ledOn, -0.05, y0 + 3.6, front + 0.02, 24); g.add(led);
-  return base(M, g, scr, led);
+  return base(M, g, scr, led, undefined, {}, [-0.45, y0 + 3.3, front + 0.03]);
 }
 
 export function gpuServer(M: Materials): Machine {
@@ -131,7 +141,12 @@ export function generator(M: Materials): Machine {
   for (let i = 0; i < 5; i++) g.add(rbox(0.05, 0.6, 0.02, 0.012, M.navy, 0.45 + i * 0.14, 0.95, 0.86));
   const led = cylZ(0.05, 0.05, M.ledOn, 0.45, 1.45, 0.86, 24); g.add(led);
   g.add(tube([[-1.3, 2.1, 1.0], [-1.3, 2.6, 1.3], [1.3, 2.6, 1.3], [1.3, 2.1, 1.0]], 0.06, M.alu, 48));
-  return base(M, g, scr, led);
+  return base(M, g, scr, led, (t, s) => {
+    // A small, fast shake while the test run is under load.
+    const k = s.active ? 0.012 : 0;
+    g.position.y = k * Math.sin(t * 61);
+    g.position.x = k * 0.6 * Math.sin(t * 47 + 1);
+  }, {}, [-0.4, 0.62, 0.9]);
 }
 
 export function microscope(M: Materials): Machine {

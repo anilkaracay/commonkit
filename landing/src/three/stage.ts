@@ -61,7 +61,7 @@ function footprint(w: number, d: number, blur: number, alpha: number): CanvasTex
   return new CanvasTexture(cv);
 }
 
-function contact(w: number, d: number): Mesh[] {
+export function contact(w: number, d: number): Mesh[] {
   const span = Math.max(w, d) * (512 / (512 - 336));
   return [
     [footprint(w * 0.96, d * 0.96, 14, 0.5), 1],
