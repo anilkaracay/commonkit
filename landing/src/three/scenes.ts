@@ -14,7 +14,7 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * Math.max(0, Math
 
 export const SCENES: SceneDef[] = [
   {
-    // printer-01, judge steps 7–8: nozzle time crosses the (demo) rule, the agent opens task #0, Ayşe cleans, Mehmet verifies.
+    // printer-01, judge steps 7–8: nozzle time crosses the (demo) rule, the agent opens task #0, the member cleans, another verifies.
     kind: 'printer_3d',
     steps: [{ at: 0 }, { at: 0.3 }, { at: 0.52 }, { at: 0.74 }],
     apply(u, b) {
@@ -31,7 +31,7 @@ export const SCENES: SceneDef[] = [
     },
   },
   {
-    // laser-01, judge steps 11–13: refused without laser_safety, trained by Ayşe, approved by Mehmet, plug on.
+    // laser-01, judge steps 11–13: refused without laser_safety, trained by a trainer, approved by a verifier, plug on.
     kind: 'laser_cutter',
     steps: [{ at: 0 }, { at: 0.3 }, { at: 0.52 }, { at: 0.74 }],
     apply(u, b) {

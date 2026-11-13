@@ -16,7 +16,9 @@ export function mountWorld(section: HTMLElement, box: HTMLElement, target: () =>
   world.renderAt(cur, 0);
   requestAnimationFrame(() => box.classList.add('live'));
   const loop = (now: number) => {
-    cur += (target() - cur) * 0.12;
+    // Same scroll progress as the captions: ease small steps, snap when the 3D would lag by more than half a scene.
+    const tgt = target();
+    cur = Math.abs(tgt - cur) > 0.5 ? tgt : cur + (tgt - cur) * 0.18;
     world.renderAt(cur, (now - t0) / 1000);
     raf = requestAnimationFrame(loop);
   };

@@ -83,7 +83,7 @@ section { scroll-margin-top: 24px; }
 .comment b { font-size: 12.5px; }
 .sheet-status { display: flex; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--ck-line); font-size: 12.5px; color: var(--ck-text-3); }
 .sheet-status .none { color: var(--ck-text); font-weight: 600; }
-/* Played once, in three beats (JS removes the pre-* classes): the admin moves in, retypes Ayşe's credit, Ayşe comments. */
+/* Played once, in three beats (JS removes the pre-* classes): the admin moves in, retypes a member's credit, the member comments. */
 .sheet .cursor { transition: opacity 300ms var(--ck-ease-out), transform 700ms var(--ck-ease-out); }
 .sheet .comment { transition: opacity 320ms var(--ck-ease-out), transform 320ms var(--ck-ease-out); }
 .sheet .edit { transition: box-shadow 200ms, background-color 300ms; }
@@ -176,6 +176,8 @@ section { scroll-margin-top: 24px; }
   .stage-poster { opacity: 0; transition: opacity var(--ck-dur-4) var(--ck-ease-out); }
   .stage-poster.on { opacity: 1; }
   .stage-box canvas { opacity: 0; transition: opacity var(--ck-dur-4) var(--ck-ease-out); }
+  /* Soft side edges so a neighbouring machine never appears hard-clipped during a camera move. */
+  .stage-box canvas, .stage-poster { -webkit-mask-image: linear-gradient(90deg, transparent 0, black 9%, black 91%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, black 9%, black 91%, transparent 100%); }
   .stage-box.live canvas { opacity: 1; }
   .stage-box.live .stage-poster { opacity: 0; }
   .outcome-stage { display: block; position: absolute; left: 4%; bottom: 8%; z-index: 2; min-width: 220px; opacity: 0; transform: translateY(12px); transition: opacity 320ms var(--ck-ease-out), transform 320ms var(--ck-ease-out); pointer-events: none; }
@@ -273,8 +275,10 @@ section { scroll-margin-top: 24px; }
 .foot nav a { color: var(--ck-text-2); text-decoration: none; width: fit-content; }
 .foot nav a:hover { color: var(--ck-text); }
 .foot-hack p { margin: 0; }
-.foot-word { display: block; width: 100%; height: auto; margin: clamp(48px, 7vw, 96px) 0 0; user-select: none; }
-.foot-word text { font-family: var(--ck-font-sans); font-stretch: 112%; font-weight: 600; font-size: 160px; fill: var(--ck-ice-200); }
+.foot-machines { list-style: none; margin: clamp(48px, 6vw, 80px) 0 0; padding: 32px 0 0; border-top: 1px solid var(--ck-line); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px 8px; }
+.foot-machines li { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.foot-machines img { width: 100%; height: auto; aspect-ratio: 1; }
+.foot-machines span { font-size: 11.5px; color: var(--ck-text-3); text-align: center; white-space: nowrap; }
 .foot-legal { display: flex; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; padding: 24px 0 32px; border-top: 1px solid var(--ck-line); font-size: 12.5px; color: var(--ck-text-3); }
 
 /* Reveal: content is visible without JS; JS opts in for elements below the fold. */
@@ -287,6 +291,7 @@ section { scroll-margin-top: 24px; }
   .stage { justify-self: center; margin-top: 16px; width: min(100%, 640px); }
   .problem-grid, .rights-grid { grid-template-columns: 1fr; }
   .foot-cols { grid-template-columns: 1fr 1fr; }
+  .foot-machines { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .foot-brand { grid-column: 1 / -1; }
   .near-tiles { grid-template-columns: 1fr 1fr; }
   .care-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -300,9 +305,10 @@ section { scroll-margin-top: 24px; }
   .stage .poster { position: relative; height: auto; aspect-ratio: 1; }
   .stage canvas { inset: 0 0 auto 0; height: auto; aspect-ratio: 1; }
   .leaders { display: none; }
-  .callouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 4px; }
+  .callouts { display: grid; grid-template-columns: auto auto auto; justify-content: space-between; gap: 12px; margin-top: 4px; }
   .callout { position: static; transform: none; max-width: none; }
-  .callout .v { font-size: 14px; white-space: normal; }
+  .callout .v { font-size: 13.5px; white-space: nowrap; }
+  .callout .c { max-width: 9.5em; }
   .callout .c { font-size: 12px; }
   .callout[data-anchor='screen'] { order: -1; }
   .stage { margin-bottom: 0; }
@@ -313,6 +319,9 @@ section { scroll-margin-top: 24px; }
   .tile-meta { flex-direction: column; gap: 2px; }
   .sheet th, .sheet td { padding: 8px 8px; }
   .sheet .rh { width: 28px; }
+  .cursor { top: 50%; bottom: auto; right: auto; left: 6px; transform: translateY(-50%); }
+  .cursor span { border-radius: 4px; }
+  .foot-machines { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .comment { position: relative; right: auto; bottom: auto; margin: 12px; max-width: none; }
   .pass { padding: 26px; transform: none; }
   .pass-count .n { font-size: 96px; }

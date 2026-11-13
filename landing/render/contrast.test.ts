@@ -11,8 +11,9 @@ describe('landing colours', () => {
   it('main.css uses tokens only (no hex, rgb or hsl literals)', () => {
     expect(css).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
   });
-  it('main.css uses no banned effects (D-029)', () => {
-    expect(css).not.toMatch(/background-clip:\s*text|backdrop-filter|filter:\s*blur|text-shadow|gradient\(/);
+  it('main.css uses no banned effects (D-029); an alpha mask for soft canvas edges is not a colour gradient', () => {
+    const noMasks = css.replace(/(-webkit-)?mask-image:[^;]+;/g, '');
+    expect(noMasks).not.toMatch(/background-clip:\s*text|backdrop-filter|filter:\s*blur|text-shadow|gradient\(/);
   });
   it.each(textPairs)('design pair %s reaches AA', (_, fg, bg) => expect(contrast(color[fg], color[bg])).toBeGreaterThanOrEqual(4.5));
   it('the "admin" cursor label (ink on orange) reaches AA', () => expect(contrast(color.ink, color.orange500)).toBeGreaterThanOrEqual(4.5));

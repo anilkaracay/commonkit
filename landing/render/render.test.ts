@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { loadData } from './data.ts';
 import { renderSlots } from './render.ts';
@@ -10,7 +12,7 @@ describe('landing render (honest and quiet)', () => {
   it('labels the lowered nozzle threshold and tells the verified upkeep in the hero', () => {
     expect(s['hero-callouts']).toContain('Nozzle time · demo threshold');
     expect(s['hero-callouts']).toContain('Nozzle cleaned');
-    expect(s['hero-callouts']).toContain('Done by Ayşe, verified by Mehmet');
+    expect(s['hero-callouts']).toContain('Done by Ava, verified by Mark');
   });
   it('shows all twelve commons with their README status verbatim', () => {
     expect(s.care!.match(/class="care-tile"/g)).toHaveLength(12);
@@ -57,6 +59,12 @@ describe('landing render (honest and quiet)', () => {
       expect(s[k]!.replace(/aria-label="[^"]*"/g, '')).not.toMatch(/\d NEAR\b/);
     }
     expect(s['scenes-list']).toContain('class="ck-near-mark"');
+  });
+  it('shows only English display names from the SDK cast (D-036), never the Turkish demo names', () => {
+    const html = readFileSync(resolve(import.meta.dirname, '../index.html'), 'utf8').replace(/<!--ck:([a-z0-9-]+)-->/g, (_, k: string) => s[k] ?? '');
+    const text = html.replace(/<[^>]+>/g, ' ');
+    expect(text).not.toMatch(/Ayşe|Ayse|Mehmet|Zeynep|\bAli\b|\bCan\b|Elif|\bNil\b|Ozan|Burak|Selin|\bEce\b/);
+    for (const n of ['Ava', 'Mark', 'Zoe', 'Alex', 'Casey', 'Nina', 'Oscar']) expect(text).toContain(n);
   });
   it('links each refusal to its testnet transaction', () => {
     expect(s['rights-refused']!.match(/nearblocks\.io\/txns\//g)).toHaveLength(3);

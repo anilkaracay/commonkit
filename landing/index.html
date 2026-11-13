@@ -54,7 +54,7 @@
         <h2 id="problem-title" class="ck-display h2">One spreadsheet. One admin.</h2>
         <p class="lede">Today a shared machine’s money and rules live in one person’s spreadsheet.</p>
       </div>
-      <figure class="sheet" id="sheet" aria-label="Example: a shared printer fund kept in a spreadsheet; the admin changes Ayşe’s upkeep credit from 3 h to 0 h">
+      <figure class="sheet" id="sheet" aria-label="Example: a shared printer fund kept in a spreadsheet; the admin changes a member’s upkeep credit from 3 h to 0 h">
         <div class="sheet-top">
           <span class="sheet-file"><span class="sheet-icon" aria-hidden="true"></span>Printer fund</span>
           <span class="sheet-people" aria-hidden="true"><span class="av av-admin">A</span></span>
@@ -72,14 +72,14 @@
             </thead>
             <tbody>
               <tr class="hdr"><th class="rh" scope="row">1</th><td>Member</td><td>Hours</td><td>Paid</td><td>Upkeep credit</td></tr>
-              <tr><th class="rh" scope="row">2</th><td>Ayşe</td><td class="n ck-num">6</td><td class="n ck-num">€18</td><td class="n ck-num edit"><span class="old">3 h</span><span class="new">0 h</span><span class="cursor" aria-hidden="true"><span>Admin</span></span></td></tr>
-              <tr><th class="rh" scope="row">3</th><td>Mehmet</td><td class="n ck-num">4</td><td class="n ck-num">€12</td><td class="n ck-num">1 h</td></tr>
-              <tr><th class="rh" scope="row">4</th><td>Can</td><td class="n ck-num">9</td><td class="n ck-num">€27</td><td class="n">–</td></tr>
+              <tr><th class="rh" scope="row">2</th><td><!--ck:sheet-a--></td><td class="n ck-num">6</td><td class="n ck-num">€18</td><td class="n ck-num edit"><span class="old">3 h</span><span class="new">0 h</span><span class="cursor" aria-hidden="true"><span>Admin</span></span></td></tr>
+              <tr><th class="rh" scope="row">3</th><td><!--ck:sheet-b--></td><td class="n ck-num">4</td><td class="n ck-num">€12</td><td class="n ck-num">1 h</td></tr>
+              <tr><th class="rh" scope="row">4</th><td><!--ck:sheet-c--></td><td class="n ck-num">9</td><td class="n ck-num">€27</td><td class="n">–</td></tr>
               <tr class="total"><th class="rh" scope="row">5</th><td>Balance</td><td></td><td class="n ck-num">€57</td><td></td></tr>
             </tbody>
           </table>
         </div>
-        <div class="comment" role="note"><span class="av">A</span><p><b>Ayşe</b>Who changed my hours?</p></div>
+        <div class="comment" role="note"><span class="av" aria-hidden="true">A</span><p><b><!--ck:sheet-a--></b>Who changed my hours?</p></div>
         <figcaption class="sheet-status"><span>Version history</span><span class="none">None</span><span class="sep">·</span><span>Only the admin can edit</span></figcaption>
       </figure>
     </div>
@@ -110,7 +110,7 @@
   <section class="care" aria-labelledby="care-title">
     <div class="wrap">
       <header class="head center">
-        <h2 id="care-title" class="ck-display h2">Twelve commons, one contract.</h2>
+        <h2 id="care-title" class="ck-display h2">Twelve kinds of commons, one contract.</h2>
         <p class="lede">The same contract runs every machine. Only the profile and the device adapter change.</p>
       </header>
       <ul class="care-grid"><!--ck:care--></ul>
@@ -181,9 +181,9 @@
       </div>
       <nav aria-label="Product"><h3>Product</h3><a href="/app">App</a><a href="/app/proof">Proof</a><a href="#scenes">Machines</a></nav>
       <nav aria-label="Build"><h3>Build</h3><a href="<!--ck:repo-url-->">GitHub</a><a href="<!--ck:repo-url-->/blob/main/scripts/verify.sh">verify.sh</a><a href="<!--ck:repo-url-->/blob/main/scripts/simulate.sh">simulate.sh</a><a href="<!--ck:repo-url-->/tree/main/docs">Docs</a></nav>
-      <div class="foot-hack"><h3>Hackathon</h3><p>Built at NEAR HACKATHON 2026</p><p>Social Money track</p><p>NEAR testnet only</p></div>
+      <div class="foot-hack"><h3>Hackathon</h3><p>Built at NEAR HACKATHON 2026</p><p>Social Money · NFTs That Do Something</p><p>NEAR testnet only</p></div>
     </div>
-    <svg class="foot-word" viewBox="0 0 1000 132" aria-hidden="true" focusable="false"><text x="0" y="118" textLength="1000" lengthAdjust="spacingAndGlyphs">COMMONKIT</text></svg>
+    <ul class="foot-machines" aria-label="The twelve kinds of commons COMMONKIT runs"><!--ck:foot-machines--></ul>
     <div class="foot-legal"><span>MIT License · © 2026 COMMONKIT contributors</span><span>Testnet NEAR has no value. Devices are simulated or emulated.</span></div>
   </div>
 </footer>

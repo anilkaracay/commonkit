@@ -6,6 +6,7 @@ import type { AssetSnap } from '../src/lib/chain.ts';
 import { esc, firstLabel, int, near, triggerText, type Trigger } from '../src/lib/format.ts';
 // The /near entry has no internal imports, so Node can load it as-is when vite.config renders the page.
 import { nearAmountHtml, nearMarkSvg } from '@commonkit/design/near';
+import { displayName } from '@commonkit/sdk/cast';
 import { REPO, type DemoOverride, type JudgeStep, type LandingData, type Profile } from './data.ts';
 
 export const REPO_URL = 'https://github.com/anilkaracay/commonkit';
@@ -27,9 +28,9 @@ export const SHORT: Record<string, string> = {
   rehearsal_room: 'Rehearsal room', ev_charger: 'EV charger', cargo_bike: 'Cargo bike', tool_library_ladder: 'Ladder',
 };
 export const CARE_ORDER = ['printer_3d', 'laser_cutter', 'washer', 'community_fridge', 'gpu_server', 'tractor', 'emergency_generator', 'ev_charger', 'cargo_bike', 'microscope', 'rehearsal_room', 'tool_library_ladder'];
-/** Display names for the demo members (account ids are ali, ayse, mehmet, can …). */
-const PERSON: Record<string, string> = { ali: 'Ali', ayse: 'Ayşe', mehmet: 'Mehmet', can: 'Can', elif: 'Elif', zeynep: 'Zeynep' };
-const who = (acct: string | null | undefined) => { const n = firstLabel(acct ?? ''); return PERSON[n] ?? n; };
+/** Display names (D-036) derived from account ids through the SDK's cast; the /cast entry has no imports, so
+ * Node can load it while vite.config renders the page. */
+const who = (acct: string | null | undefined) => displayName(firstLabel(acct ?? ''));
 const RULE_NAME: Record<string, string> = { nozzle_clean: 'Nozzle clean', bed_level: 'Bed level', filament_spool: 'Filament spool', fault_repair: 'Fault repair' };
 
 function step(d: LandingData, n: number): JudgeStep {
@@ -65,7 +66,7 @@ export function heroCallouts(d: LandingData): string {
   const nozzle = a.rules.find((r) => r.rule_id === 'nozzle_clean')!;
   const thr = 'Metric' in nozzle.trigger ? Number((nozzle.trigger as { Metric: { threshold: number } }).Metric.threshold) : 0;
   const ov = nowOverride(d, a, 'nozzle_clean');
-  // The positive real story: the upkeep task the agent opened in judge step 7 and Mehmet approved in step 8.
+  // The positive real story: the upkeep task the agent opened in judge step 7 and the verifier approved in step 8.
   const doneId = String(step(d, 7).outputs.task_id ?? '0');
   const done = a.tasks.find((t) => t.id === doneId && t.status === 'Rewarded');
   step(d, 8);
@@ -94,7 +95,7 @@ export function how(d: LandingData): string {
     card(1, 'Reserve', 'Pay the fee and a refundable deposit to the machine’s own account.', `<div class="mini ck-card">
         <p class="mini-k">Reservation · ${esc(SHORT.printer_3d!)}</p>
         <dl class="ck-rows">
-          <div><dt>Member</dt><dd>Ali</dd></div>
+          <div><dt>Member</dt><dd>${esc(who(stepTx(d, 2, /reserves/).by))}</dd></div>
           <div><dt>Slots</dt><dd class="ck-num">2</dd></div>
           <div><dt>Fee</dt><dd>${nearAmountHtml(nearFixed(fee))}</dd></div>
           <div><dt>Deposit, refundable</dt><dd>${nearAmountHtml(nearFixed(p.deposit))}</dd></div>
@@ -104,8 +105,8 @@ export function how(d: LandingData): string {
     card(2, 'Unlock', 'The bridge unlocks only for a valid on-chain reservation.', `<div class="mini ck-card">
         <p class="mini-k">Bridge access check</p>
         <ul class="mini-list">
-          <li><span>Ali · reservation valid</span><b>Unlocked</b></li>
-          <li><span>Can · no reservation</span><b class="no">Refused</b></li>
+          <li><span>${esc(who(stepTx(d, 2, /reserves/).by))} · reservation valid</span><b>Unlocked</b></li>
+          <li><span>${esc(who('can'))} · no reservation</span><b class="no">Refused</b></li>
         </ul>
       </div>`, 'how-unlock'),
     card(3, 'Upkeep', 'The machine’s agent opens a task only when telemetry crosses a rule. Another member verifies.', `<div class="mini ck-card">
@@ -159,14 +160,19 @@ export function sceneCopy(d: LandingData): SceneCopy[] {
   const nozzle = ruleText(d, 'printer_3d', 'nozzle_clean');
   // Washer (step 19).
   const s19 = step(d, 19);
-  const reporter = /^(\w+) .*reports a fault/.exec(s19.txs.find((t) => t.ok && /reports a fault/.test(t.label))?.label ?? '')?.[1];
-  const verifier = /^(\w+) \(dorm-b verifier\) approves/.exec(s19.txs.find((t) => /approves/.test(t.label))?.label ?? '')?.[1];
-  const steward = /steward (\w+) sets out_of_service/.exec(s19.txs.find((t) => /out_of_service/.test(t.label))?.label ?? '')?.[1];
+  const signer = (re: RegExp) => { const t = s19.txs.find((x) => x.ok && re.test(x.label)); return t ? who(t.by) : undefined; };
+  const reporter = signer(/reports a fault/);
+  const verifier = signer(/approves/);
+  const steward = signer(/out_of_service/);
   const canFee = String(s19.outputs.can_fee ?? '');
   const repairer = who(s19.txs.find((t) => /^claim task/.test(t.label))?.by);
   const repairRights = d.profiles.find((x) => x.asset_type === 'washer')!.rules.find((r) => r.rule_id === 'fault_repair')!.reward_rights;
   if (!reporter || !verifier || !steward || !canFee || !s19.txs.some((t) => t.error_code === 'E_OUT_OF_SERVICE')) throw new Error('step 19 evidence changed');
   const washer = d.snapshot.assets.find((x) => x.asset_type === 'washer');
+  // Laser (steps 11–13): names from the signers of the evidence transactions.
+  const trainee = who(stepTx(d, 11, /no credential/).by);
+  const trainer = who(stepTx(d, 12, /proposes/).by);
+  const approver = who(stepTx(d, 12, /approves training/).by);
   const fridge = ruleText(d, 'community_fridge', 'weekly_clean');
   const fridgeRule = d.profiles.find((x) => x.asset_type === 'community_fridge')!.rules.find((r) => r.rule_id === 'weekly_clean')!;
   if (!step(d, 20).txs.some((t) => t.error_code === 'E_RULE_NOT_DUE')) throw new Error('step 20 evidence changed');
@@ -192,8 +198,9 @@ export function sceneCopy(d: LandingData): SceneCopy[] {
       line: `${reporter} reports a fault. Bookings stop until a repair is done and verified.`,
       beats: [
         { who: reporter, role: 'member', what: 'Reports a fault after his wash', chain: 'fault report accepted', tx: txOf(d, 19, /reports a fault/) },
-        { who: steward, role: 'steward', what: 'Takes the washer out of service', chain: `bookings refused · Can refunded ${near(canFee)} NEAR`, tx: txOf(d, 19, /out_of_service/) },
-        { who: repairer, role: 'member', what: 'Repairs it; the bridge runs a check', chain: 'repair submitted', tx: txOf(d, 19, /^submit task/) },
+        { who: steward, role: 'steward', what: 'Takes the washer out of service', chain: 'new bookings refused', tx: txOf(d, 19, /out_of_service/) },
+        // The refund came from the member's own cancel tx (reason out_of_service, full fee); he then claimed the repair.
+        { who: repairer, role: 'member', what: 'Cancels his booking, then repairs the washer', chain: `booking refunded ${near(canFee)} NEAR`, tx: txOf(d, 19, /cancels his future booking/) },
         { who: verifier, role: 'verifier', what: 'Approves the repair', chain: `service restored · +${repairRights} usage rights to ${repairer}`, tx: txOf(d, 19, /approves/) },
       ],
       outcome: { k: 'Washer', v: washer?.in_service ? 'Back in service' : 'Out of service', sub: 'Repair verified on chain' },
@@ -201,14 +208,14 @@ export function sceneCopy(d: LandingData): SceneCopy[] {
     },
     {
       kind: 'laser_cutter', place: 'Workshop · laser cutter', title: 'Locked until you are trained.', poster: 'scene-3',
-      line: 'Zeynep is refused without laser safety. Ayşe trains her, Mehmet approves, the plug turns on.',
+      line: `${trainee} is refused without laser safety. ${trainer} trains her, ${approver} approves, the plug turns on.`,
       beats: [
-        { who: 'Zeynep', role: 'member', what: 'Tries to book without the credential', chain: 'refused, payment refunded', tx: txOf(d, 11, /no credential/) },
-        { who: 'Ayşe', role: 'trainer', what: 'Proposes Zeynep’s laser training', tx: txOf(d, 12, /proposes/) },
-        { who: 'Mehmet', role: 'verifier', what: 'Approves the training', chain: 'laser_safety credential issued · +1 usage right to Ayşe', tx: txOf(d, 12, /approves training/) },
-        { who: 'Zeynep', role: 'member', what: 'Books; the plug powers on for her session', tx: txOf(d, 13, /session_started/) },
+        { who: trainee, role: 'member', what: 'Tries to book without the credential', chain: 'refused, payment refunded', tx: txOf(d, 11, /no credential/) },
+        { who: trainer, role: 'trainer', what: `Proposes ${trainee}’s laser training`, tx: txOf(d, 12, /proposes/) },
+        { who: approver, role: 'verifier', what: 'Approves the training', chain: `laser_safety credential issued · +1 usage right to ${trainer}`, tx: txOf(d, 12, /approves training/) },
+        { who: trainee, role: 'member', what: 'Books; the plug powers on for her session', tx: txOf(d, 13, /session_started/) },
       ],
-      outcome: { k: 'Credential', v: 'laser_safety → Zeynep', sub: 'Non-transferable · NEP-171' },
+      outcome: { k: 'Credential', v: `laser_safety → ${trainee}`, sub: 'Non-transferable · NEP-171' },
       note: 'Simulated',
     },
     {
@@ -413,5 +420,10 @@ export function renderSlots(d: LandingData): Record<string, string> {
     near: nearSection(d),
     'repo-url': REPO_URL,
     'foot-status': footStatus(d),
+    // Spreadsheet cast (illustrative "Example"): the same display names as the rest of the page.
+    'sheet-a': displayName('ayse'),
+    'sheet-b': displayName('mehmet'),
+    'sheet-c': displayName('can'),
+    'foot-machines': CARE_ORDER.map((t) => `<li><img src="/posters/m-${t}-640.webp" width="640" height="640" alt="" loading="lazy" decoding="async"><span>${esc(SHORT[t]!)}</span></li>`).join(''),
   };
 }
