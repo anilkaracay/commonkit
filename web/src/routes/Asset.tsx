@@ -155,8 +155,8 @@ export function AssetPage() {
 
       <Section title="Upkeep" note={`Profile v${s.wiring.profile_version}`}>
         <div className="panel grid gap-10 p-5 pb-6 sm:p-8 md:grid-cols-[220px_minmax(0,1fr)] md:items-center md:gap-12">
-          <div className="flex justify-center">
-            <UpkeepGauge rules={s.rules} ruleDefs={s.profile.rules} size={196} />
+          <div className="flex justify-center pb-8">
+            <UpkeepGauge rules={s.rules} ruleDefs={s.profile.rules} size={196} demo={demo} />
           </div>
           <RuleBars rules={s.rules} ruleDefs={s.profile.rules} demo={demo} />
         </div>

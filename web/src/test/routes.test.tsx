@@ -103,6 +103,16 @@ describe('demo thresholds', () => {
   });
 });
 
+describe('demo thresholds everywhere a threshold is shown', () => {
+  it('task page rule facts carry the demo-threshold label with the production value', async () => {
+    renderAt(`/t/${A.printer}/1`);
+    const facts = (await screen.findByRole('heading', { name: 'Rule facts' })).closest('section') as HTMLElement;
+    await waitFor(() => expect(within(facts).getByText('demo threshold')).toBeInTheDocument());
+    expect(within(facts).getByText(/production nozzle time ≥ 200 h/)).toBeInTheDocument();
+  });
+
+});
+
 describe('no internal jargon in the UI', () => {
   it.each([['/'], [`/a/${A.printer}`], [`/a/${A.washer}`], ['/proof'], ['/agent']])('%s shows no milestone/decision ids or Turkish headings', async (path) => {
     renderAt(path);

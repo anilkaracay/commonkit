@@ -1,9 +1,9 @@
 import type { RuleStatus, UpkeepRule } from '../data/types';
-import { describeTrigger, mostDueRule, ruleProgress } from '../lib/metrics';
+import { mostDueRule, ruleProgress } from '../lib/metrics';
 import { KindIcon } from './UpkeepKind';
 import { formatDateTime } from '../lib/time';
 import type { DemoThreshold } from '../data/hooks';
-import { DemoThresholdChip } from './DemoThreshold';
+import { DemoThresholdChip, RuleThreshold } from './DemoThreshold';
 
 const ARC = 240; // degrees of the dial, open at the bottom
 
@@ -24,7 +24,7 @@ function isHot(fraction: number, open: boolean): boolean {
  * (never past 100 %); a due rule says so in words, with the real figure. Works for Metric, Schedule
  * and Report triggers. Fraction is display-only.
  */
-export function UpkeepGauge({ rules, ruleDefs, size = 168 }: { rules: RuleStatus[]; ruleDefs: UpkeepRule[]; size?: number }) {
+export function UpkeepGauge({ rules, ruleDefs, size = 168, demo }: { rules: RuleStatus[]; ruleDefs: UpkeepRule[]; size?: number; demo?: Map<string, DemoThreshold> }) {
   const p = mostDueRule(rules);
   if (!p) return null;
   const title = ruleDefs.find((r) => r.rule_id === p.rule.rule_id)?.title ?? p.rule.rule_id;
@@ -72,6 +72,11 @@ export function UpkeepGauge({ rules, ruleDefs, size = 168 }: { rules: RuleStatus
       <p className="absolute inset-x-[20%] bottom-0 line-clamp-2 text-center text-xs leading-snug font-medium text-text-2" title={title}>
         {title}
       </p>
+      {demo?.get(p.rule.rule_id) && (
+        <span className="absolute inset-x-0 top-full mt-2 flex justify-center">
+          <DemoThresholdChip demo={demo.get(p.rule.rule_id) as DemoThreshold} compact />
+        </span>
+      )}
     </figure>
   );
 }
@@ -111,7 +116,7 @@ export function RuleBars({ rules, ruleDefs, demo }: { rules: RuleStatus[]; ruleD
             </div>
             <div className="mt-1.5 flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs text-text-3">
               <span>
-                {rule.kind} · {describeTrigger(rule.trigger)}
+                {rule.kind} · <RuleThreshold trigger={rule.trigger} />
               </span>
               {rule.open_task ? (
                 <span className="inline-flex items-center gap-1.5 text-due">

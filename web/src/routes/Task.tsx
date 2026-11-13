@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { useAssetSnapshot, useDeployment } from '../data/hooks';
+import { useAssetSnapshot, useDemoThresholds, useDeployment } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { CardTile } from '../components/CardTile';
 import { Mark, SimulatedBadge } from '../components/Badges';
@@ -12,7 +12,8 @@ import { WalletGate } from '../components/WalletGate';
 import { Account, TxLink } from '../components/TxLink';
 import { useDemoLink } from '../demo/demo';
 import { rewardStateLabel } from '../lib/enums';
-import { describeTrigger, ruleProgress } from '../lib/metrics';
+import { ruleProgress } from '../lib/metrics';
+import { RuleThreshold } from '../components/DemoThreshold';
 import { formatNear, toYocto } from '../lib/near';
 import { KindChip } from '../components/UpkeepKind';
 import type { ExpenseState } from '../data/types';
@@ -38,6 +39,7 @@ export function TaskPage() {
   const link = useDemoLink();
   const [hash, setHash] = useState<string | null>(null);
   const task = q.data?.tasks.find((t) => t.id === taskId);
+  const demo = useDemoThresholds(assetId, q.data?.rules ?? []);
   const cards = useQuery({
     queryKey: ['task-cards', ds.kind, assetId, taskId],
     enabled: !!task?.claimer && !!q.data,
@@ -99,7 +101,7 @@ export function TaskPage() {
           <dl className="ck-rows text-sm">
             <div>
               <dt>Trigger</dt>
-              <dd className="num">{rule ? describeTrigger(rule.trigger) : task.rule_id}</dd>
+              <dd>{rule ? <RuleThreshold trigger={rule.trigger} demo={demo.get(rule.rule_id)} /> : task.rule_id}</dd>
             </div>
             <div>
               <dt>Due value at open</dt>
