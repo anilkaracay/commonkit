@@ -19,7 +19,7 @@ const browser = await chromium.launch();
 
 async function settle(page) {
   await page.waitForTimeout(400);
-  await page.waitForFunction(() => !document.querySelector('[role="status"].animate-pulse'), null, { timeout: 120_000 });
+  await page.waitForFunction(() => !document.querySelector('[role="status"].animate-pulse'), null, { timeout: 300_000 });
   await page.waitForLoadState('networkidle').catch(() => {});
   await page.waitForTimeout(800);
 }
@@ -57,7 +57,7 @@ for (const width of [390, 1440]) {
     await go(page, '/me');
     // Prefer a member who has earned cards (the demo maintainer), else the first one listed.
     const links = await page.$$eval('a[href*="/me?as="]', (xs) => xs.map((x) => [x.getAttribute('href'), x.textContent ?? '']));
-    return (links.find(([, t]) => /ay[sş]e/i.test(t)) ?? links[0])?.[0] ?? null;
+    return (links.find(([, t]) => /\bAva\b/.test(t)) ?? links[0])?.[0] ?? null;
   })());
 
   const routes = [

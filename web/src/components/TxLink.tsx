@@ -33,7 +33,7 @@ export function Account({ id, link = false, full = false, demoTag = false }: { i
   const inner = (
     <span className={name && !full ? 'font-medium' : 'font-mono text-[12px] tracking-[-0.01em]'} title={isDemoAccount(id) ? `${id} · demo account` : id}>
       {text}
-      {demoTag && name && !full && isDemoAccount(id) && <span className="text-xs font-normal text-text-3"> · demo account</span>}
+      {demoTag && name && !full && isDemoAccount(id) && <span className="ml-1.5 align-middle text-xs font-normal tracking-normal whitespace-nowrap text-text-3 [font-stretch:100%]">· demo account</span>}
     </span>
   );
   return link ? (
