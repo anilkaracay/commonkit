@@ -10,7 +10,7 @@ export function MachineVisual({ type, className = '', priority = false }: { type
   return (
     <div className={`relative grid aspect-[4/3] place-items-center overflow-hidden bg-bg-alt ${className}`}>
       {src ? (
-        <img src={src} alt="" width={640} height={640} loading={priority ? 'eager' : 'lazy'} decoding="async" className="h-full w-full object-contain" />
+        <img src={src} alt="" width={640} height={640} loading={priority ? 'eager' : 'lazy'} decoding="async" className="absolute inset-0 h-full w-full object-contain p-[3%]" />
       ) : (
         <AssetIcon type={type} size={56} className="text-slate-400" />
       )}

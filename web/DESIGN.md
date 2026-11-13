@@ -6,8 +6,9 @@ Tailwind v4 theme. The app imports it in `src/styles/index.css` and adds only ap
 `.display`, `.key-num`, `.mono-id`, `.field`, `.code`). There is no second token set. Light only.
 
 **Visual first, little text.** The machine is the hero: every asset card and asset page leads with the
-poster still of its 3D model (`src/assets/machines/*.webp`, cropped 4:3 from `landing/explore/v2/posters`;
-other asset types fall back to their line icon on the same ice tile). Big numbers carry the story; captions
+poster still of its 3D model (`machinePosters` from `@commonkit/design`, the same stills the landing uses;
+other asset types fall back to their line icon on the same ice tile). The app is the application, not a
+pitch: no taglines or explainer paragraphs, at most one short line per page; explanations live on the landing. Big numbers carry the story; captions
 stay one line.
 
 ## Character of an asset
