@@ -35,10 +35,21 @@ describe('landing render (honest and quiet)', () => {
   it('marks every real-world scene as Simulated or Example, with demo thresholds where a lowered value shows', () => {
     const items = s['scenes-list']!.split('class="scene"').slice(1);
     expect(items).toHaveLength(5);
-    for (const it of items) expect(it).toMatch(/ck-sim scene-note">(Simulated|Example)/);
+    for (const it of items) expect(it).toMatch(/class="sim-mark">(Simulated|Example)/);
     expect(items[0]).toContain('demo threshold 30 min of printing');
     expect(items[3]).toContain('demo threshold 1 h');
     expect(items[4]).toContain('Example');
+  });
+  it('gives every timeline step a who, a role and what happened, and links only evidence txs', () => {
+    const steps = s['scenes-list']!.match(/<li class="tl-step">[\s\S]*?<\/li>/g)!;
+    expect(steps.length).toBe(19);
+    for (const st of steps) {
+      expect(st).toMatch(/<b>[^<]+<\/b><span class="role">· [^<]+<\/span>/);
+      expect(st).toMatch(/class="tl-what">[^<]{4,}</);
+    }
+    const links = [...s['scenes-list']!.matchAll(/txns\/([1-9A-HJ-NP-Za-km-z]{43,44})/g)].map((m) => m[1]);
+    const known = new Set(d.steps.flatMap((x) => x.txs.map((t) => t.hash)));
+    for (const h of links) expect(known.has(h!)).toBe(true);
   });
   it('links each refusal to its testnet transaction', () => {
     expect(s['rights-refused']!.match(/nearblocks\.io\/txns\//g)).toHaveLength(3);

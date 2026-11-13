@@ -39,12 +39,12 @@
         <a class="ck-btn ck-btn--lg" href="/app">Open the app</a>
         <a class="ck-link" href="/app/proof">See the proof <span aria-hidden="true">→</span></a>
       </div>
+      <p class="sim-mark hero-status">Simulated devices · NEAR testnet</p>
     </div>
     <figure class="stage" id="stage" aria-label="Makerlab 3D printer with its state read from NEAR testnet">
       <img class="poster" src="/posters/hero-1200.webp" srcset="/posters/hero-600.webp 600w, /posters/hero-800.webp 800w, /posters/hero-1200.webp 1200w" sizes="(min-width: 1024px) 54vw, 100vw" width="1200" height="1200" alt="" fetchpriority="high" decoding="async">
       <svg class="leaders" aria-hidden="true" viewBox="0 0 1000 1000" preserveAspectRatio="none"><path data-leader="screen"/><path data-leader="nozzle"/><path data-leader="upkeep"/></svg>
       <ul class="callouts"><!--ck:hero-callouts--></ul>
-      <figcaption class="stage-note"><span class="ck-sim">Simulated devices · NEAR testnet</span></figcaption>
     </figure>
   </section>
 
@@ -54,18 +54,33 @@
         <h2 id="problem-title" class="ck-display h2">One spreadsheet. One admin.</h2>
         <p class="lede">Today a shared machine’s money and rules live in one person’s spreadsheet.</p>
       </div>
-      <figure class="sheet" aria-label="Example: a shared printer fund kept in a spreadsheet">
-        <div class="sheet-bar"><span>Printer fund.xlsx</span><span class="example">Example</span></div>
-        <table>
-          <thead><tr><th scope="col">Member</th><th scope="col">Hours</th><th scope="col">Paid</th><th scope="col">Upkeep credit</th></tr></thead>
-          <tbody>
-            <tr><td>Member A</td><td class="ck-num">6</td><td class="ck-num">€18</td><td class="ck-num">2 h</td></tr>
-            <tr class="edited"><td>Member B</td><td class="ck-num">4</td><td class="ck-num">€12</td><td class="ck-num"><s>3 h</s> <ins>0 h</ins></td></tr>
-            <tr><td>Member C</td><td class="ck-num">9</td><td class="ck-num">€27</td><td class="ck-num">—</td></tr>
-            <tr class="total"><td>Balance</td><td></td><td class="ck-num">€57</td><td class="ck-num">?</td></tr>
-          </tbody>
-        </table>
-        <figcaption><span class="cursor" aria-hidden="true">admin</span>Edited by the only admin. No history, no one else can check.</figcaption>
+      <figure class="sheet" id="sheet" aria-label="Example: a shared printer fund kept in a spreadsheet; the admin changes Ayşe’s upkeep credit from 3 h to 0 h">
+        <div class="sheet-top">
+          <span class="sheet-file"><span class="sheet-icon" aria-hidden="true"></span>Printer fund</span>
+          <span class="sheet-people" aria-hidden="true"><span class="av av-admin">A</span></span>
+          <span class="example">Example</span>
+        </div>
+        <div class="sheet-fx" aria-hidden="true">
+          <span class="fx-ref"><span class="before">C5</span><span class="after">D2</span></span>
+          <span class="fx-sym">fx</span>
+          <span class="fx-val"><span class="before">=SUM(C2:C4)</span><span class="after">0 h</span></span>
+        </div>
+        <div class="sheet-grid">
+          <table>
+            <thead>
+              <tr><th class="rh" scope="col"><span class="visually-hidden">Row</span></th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th><th scope="col">D</th></tr>
+            </thead>
+            <tbody>
+              <tr class="hdr"><th class="rh" scope="row">1</th><td>Member</td><td>Hours</td><td>Paid</td><td>Upkeep credit</td></tr>
+              <tr><th class="rh" scope="row">2</th><td>Ayşe</td><td class="n ck-num">6</td><td class="n ck-num">€18</td><td class="n ck-num edit"><span class="old">3 h</span><span class="new">0 h</span><span class="cursor" aria-hidden="true"><span>Admin</span></span></td></tr>
+              <tr><th class="rh" scope="row">3</th><td>Mehmet</td><td class="n ck-num">4</td><td class="n ck-num">€12</td><td class="n ck-num">1 h</td></tr>
+              <tr><th class="rh" scope="row">4</th><td>Can</td><td class="n ck-num">9</td><td class="n ck-num">€27</td><td class="n">–</td></tr>
+              <tr class="total"><th class="rh" scope="row">5</th><td>Balance</td><td></td><td class="n ck-num">€57</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="comment" role="note"><span class="av">A</span><p><b>Ayşe</b>Who changed my hours?</p></div>
+        <figcaption class="sheet-status"><span>Version history</span><span class="none">None</span><span class="sep">·</span><span>Only the admin can edit</span></figcaption>
       </figure>
     </div>
   </section>
@@ -142,19 +157,35 @@
     <!--ck:near-->
   </section>
 
-  <section class="final wrap" aria-labelledby="final-title">
-    <h2 id="final-title" class="ck-display">Open the machine’s books.</h2>
-    <p class="lede">Browse every machine, its float and its upkeep, without a wallet.</p>
-    <a class="ck-btn ck-btn--lg" href="/app">Open the app</a>
+  <section class="final" aria-labelledby="final-title">
+    <div class="wrap final-band">
+      <div>
+        <h2 id="final-title" class="ck-display">Open COMMONKIT.</h2>
+        <p class="lede">Every machine, its float and its upkeep. No wallet needed to look.</p>
+      </div>
+      <div class="final-ctas">
+        <a class="ck-btn ck-btn--lg" href="/app">Open COMMONKIT</a>
+        <a class="ck-btn ck-btn--lg ck-btn--ghost" href="<!--ck:repo-url-->">Read the code</a>
+      </div>
+    </div>
   </section>
 </main>
 
-<footer class="foot wrap">
-  <div class="foot-row">
-    <span class="mark">COMMONKIT</span>
-    <nav aria-label="Footer"><a href="/app">App</a><a href="/app/proof">Proof</a><a href="<!--ck:repo-url-->">Source</a></nav>
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-cols">
+      <div class="foot-brand">
+        <span class="mark">COMMONKIT</span>
+        <p>Shared machines that pay for their own upkeep, and open up to the people who keep them running.</p>
+        <p class="foot-status"><span class="ck-dot" aria-hidden="true"></span><!--ck:foot-status--></p>
+      </div>
+      <nav aria-label="Product"><h3>Product</h3><a href="/app">App</a><a href="/app/proof">Proof</a><a href="#scenes">Machines</a></nav>
+      <nav aria-label="Build"><h3>Build</h3><a href="<!--ck:repo-url-->">GitHub</a><a href="<!--ck:repo-url-->/blob/main/scripts/verify.sh">verify.sh</a><a href="<!--ck:repo-url-->/blob/main/scripts/simulate.sh">simulate.sh</a><a href="<!--ck:repo-url-->/tree/main/docs">Docs</a></nav>
+      <div class="foot-hack"><h3>Hackathon</h3><p>Built at NEAR HACKATHON 2026</p><p>Social Money track</p><p>NEAR testnet only</p></div>
+    </div>
+    <svg class="foot-word" viewBox="0 0 1000 132" aria-hidden="true" focusable="false"><text x="0" y="118" textLength="1000" lengthAdjust="spacingAndGlyphs">COMMONKIT</text></svg>
+    <div class="foot-legal"><span>MIT License · © 2026 COMMONKIT contributors</span><span>Testnet NEAR has no value. Devices are simulated or emulated.</span></div>
   </div>
-  <p class="foot-note">Built at NEAR HACKATHON 2026 · NEAR testnet only</p>
 </footer>
 <!--ck:live-config-->
 <script type="module" src="./src/main.ts"></script>

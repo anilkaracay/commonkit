@@ -61,6 +61,14 @@ for (const w of widths) {
     const n = await page.locator('.scene').count();
     for (let i = 0; i < n; i++) await page.locator('.scene').nth(i).screenshot({ path: resolve(out, `04-scene-${i + 1}-${w}.png`) });
   }
+  if (w >= 1024) {
+    // The caption column must never meet the pinned stage.
+    const gap = await page.evaluate(() => {
+      const box = document.querySelector('.stage-box')!.getBoundingClientRect();
+      return Math.min(...[...document.querySelectorAll('.scene-copy')].map((c) => box.left - c.getBoundingClientRect().right));
+    });
+    console.log(`${w}: caption-to-stage gap ${Math.round(gap)}px${gap < 32 ? '  TOO TIGHT' : ''}`);
+  }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   console.log(`${w}: ${overflow > 0 ? `HORIZONTAL OVERFLOW ${overflow}px` : 'no overflow'}`);
   await ctx.close();

@@ -3,7 +3,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { AssetSnap } from '../src/lib/chain.ts';
-import { esc, firstLabel, int, triggerText, type Trigger } from '../src/lib/format.ts';
+import { esc, firstLabel, int, near, triggerText, type Trigger } from '../src/lib/format.ts';
 import { REPO, type DemoOverride, type JudgeStep, type LandingData, type Profile } from './data.ts';
 
 export const REPO_URL = 'https://github.com/anilkaracay/commonkit';
@@ -140,60 +140,128 @@ const withThreshold = (t: Trigger, v: number): Trigger => ('Metric' in t ? { Met
 /** "every 30 min of printing" → "30 min"; "every week" stays. */
 const trim = (x: string) => (/^every \d/.test(x) ? x.replace(/^every /, '').replace(/ of \w+$/, '') : x);
 
-interface SceneCopy { kind: string; place: string; title: string; line: string; beats: string[]; note: string; poster: string }
+/** One beat of a scene's timeline: who acted (with role), what happened, and one quiet on-chain detail. */
+interface Beat { who: string; role: string; what: string; chain?: string; tx?: string }
+interface SceneCopy { kind: string; place: string; title: string; line: string; beats: Beat[]; outcome: { k: string; v: string; sub: string }; note: string; poster: string }
+
+/** The tx in a judge step whose label matches, or a build error (every linked detail must exist in evidence). */
+const txOf = (d: LandingData, n: number, re: RegExp) => stepTx(d, n, re).hash;
+const nearOf = (y: string) => nearFixed(y).replace(/\.00$/, '');
 
 export function sceneCopy(d: LandingData): SceneCopy[] {
   const { a } = printer(d);
   const t0 = a.tasks.find((t) => t.id === String(step(d, 7).outputs.task_id ?? '0') && t.status === 'Rewarded');
   if (!t0) throw new Error('printer task from step 7 is not rewarded');
   const nozzle = ruleText(d, 'printer_3d', 'nozzle_clean');
-  // Washer (step 19): who reported, that bookings were refused while out of service, who verified the repair.
-  const s19 = step(d, 19).txs;
-  const reporter = /^(\w+) .*reports a fault/.exec(s19.find((t) => t.ok && /reports a fault/.test(t.label))?.label ?? '')?.[1];
-  const verifier = /^(\w+) \(dorm-b verifier\) approves/.exec(s19.find((t) => /approves/.test(t.label))?.label ?? '')?.[1];
-  if (!reporter || !verifier || !s19.some((t) => t.error_code === 'E_OUT_OF_SERVICE')) throw new Error('step 19 evidence changed');
+  // Washer (step 19).
+  const s19 = step(d, 19);
+  const reporter = /^(\w+) .*reports a fault/.exec(s19.txs.find((t) => t.ok && /reports a fault/.test(t.label))?.label ?? '')?.[1];
+  const verifier = /^(\w+) \(dorm-b verifier\) approves/.exec(s19.txs.find((t) => /approves/.test(t.label))?.label ?? '')?.[1];
+  const steward = /steward (\w+) sets out_of_service/.exec(s19.txs.find((t) => /out_of_service/.test(t.label))?.label ?? '')?.[1];
+  const canFee = String(s19.outputs.can_fee ?? '');
+  const repairer = who(s19.txs.find((t) => /^claim task/.test(t.label))?.by);
+  const repairRights = d.profiles.find((x) => x.asset_type === 'washer')!.rules.find((r) => r.rule_id === 'fault_repair')!.reward_rights;
+  if (!reporter || !verifier || !steward || !canFee || !s19.txs.some((t) => t.error_code === 'E_OUT_OF_SERVICE')) throw new Error('step 19 evidence changed');
   const washer = d.snapshot.assets.find((x) => x.asset_type === 'washer');
-  // Laser (steps 11–13).
-  if (!step(d, 11).txs.length || !/Mehmet .*approves training/.test(step(d, 12).txs.map((t) => t.label).join('\n')) || !stepTx(d, 13, /session_started/)) throw new Error('laser evidence changed');
   const fridge = ruleText(d, 'community_fridge', 'weekly_clean');
+  const fridgeRule = d.profiles.find((x) => x.asset_type === 'community_fridge')!.rules.find((r) => r.rule_id === 'weekly_clean')!;
   if (!step(d, 20).txs.some((t) => t.error_code === 'E_RULE_NOT_DUE')) throw new Error('step 20 evidence changed');
   const gen = d.profiles.find((x) => x.asset_type === 'emergency_generator')!;
   const fuel = gen.rules.find((r) => r.rule_id === 'fuel_refill')!;
   const test = gen.rules.find((r) => r.rule_id === 'monthly_test_run')!;
-  const cap = nearFixed(fuel.reimbursable_max).replace(/\.00$/, '');
+  const cap = nearOf(fuel.reimbursable_max);
   return [
-    { kind: 'printer_3d', place: 'Makerspace · 3D printer', title: 'The printer asks for care.', line: `Nozzle time crosses its rule. ${who(t0.claimer)} cleans it, ${who(t0.verifier)} verifies, ${who(t0.claimer)} earns ${t0.reward_rights} usage rights.`,
-      beats: ['Nozzle time due', 'The agent opens a task', `Cleaned by ${who(t0.claimer)}`, `Verified by ${who(t0.verifier)} · ${t0.reward_rights} rights`],
-      note: nozzle.demo ? `Simulated · demo threshold ${nozzle.demo.replace(/^every /, "")}, normally ${trim(nozzle.prod)}` : 'Simulated', poster: 'scene-1' },
-    { kind: 'washer', place: 'Dorm laundry · washer', title: 'A fault stops the washer.', line: `${reporter} reports a fault. Bookings stop until a repair is done and verified.`,
-      beats: [`Fault reported by ${reporter}`, 'Out of service, bookings refused', `Repair verified by ${verifier}`, washer?.in_service ? 'Back in service' : 'Waiting for service'],
-      note: 'Simulated', poster: 'scene-2' },
-    { kind: 'laser_cutter', place: 'Workshop · laser cutter', title: 'Locked until you are trained.', line: 'Zeynep is refused without laser safety. Ayşe trains her, Mehmet approves, the plug turns on.',
-      beats: ['Refused without the credential', 'Trained by Ayşe', 'Approved by Mehmet', 'Plug on for Zeynep’s session'],
-      note: 'Simulated · emulated smart plug', poster: 'scene-3' },
-    { kind: 'community_fridge', place: 'Neighbourhood · community fridge', title: 'Cleaning comes due on schedule.', line: 'The weekly clean cannot open early. Once the interval passes, the agent opens it.',
-      beats: ['Too early: refused', 'The interval passes', 'The agent opens the task'],
-      note: fridge.demo ? `Simulated · demo threshold ${trim(fridge.demo)}, normally ${trim(fridge.prod)}` : 'Simulated', poster: 'scene-4' },
-    { kind: 'emergency_generator', place: 'Co-op · emergency generator', title: 'Fuel paid back, within a cap.', line: `Test run under load ${triggerText(test.trigger)}, then a receipt-backed refill, capped at ${cap} NEAR.`,
-      beats: ['Monthly test run', 'Fuel low, task opened', 'Refilled with a receipt', `Reimbursed, at most ${cap} NEAR`],
-      note: 'Example · profile rules, not deployed on testnet', poster: 'scene-5' },
+    {
+      kind: 'printer_3d', place: 'Makerspace · 3D printer', title: 'The printer asks for care.', poster: 'scene-1',
+      line: `Nozzle time crosses its rule. ${who(t0.claimer)} cleans it, ${who(t0.verifier)} verifies, ${who(t0.claimer)} earns ${t0.reward_rights} usage rights.`,
+      beats: [
+        { who: 'Printer', role: 'telemetry', what: 'Nozzle time crosses the cleaning rule', chain: nozzle.demo ? `${nozzle.demo.replace(/^every /, '')} · demo threshold` : undefined },
+        { who: 'Agent', role: 'operations agent', what: 'Opens the nozzle task', chain: `reward ${t0.reward_rights} usage rights`, tx: txOf(d, 7, /open_upkeep_task/) },
+        { who: who(t0.claimer), role: 'member', what: 'Cleans the nozzle; the bridge runs a calibration print', chain: 'work submitted', tx: txOf(d, 8, /^submit task/) },
+        { who: who(t0.verifier), role: 'verifier', what: 'Approves the work', chain: `+${t0.reward_rights} usage rights to ${who(t0.claimer)}`, tx: txOf(d, 8, /approves/) },
+      ],
+      outcome: { k: 'Usage rights', v: `${t0.reward_rights} → ${who(t0.claimer)}`, sub: 'Non-transferable · NEP-171' },
+      note: nozzle.demo ? `Simulated · demo threshold ${nozzle.demo.replace(/^every /, '')}, normally ${trim(nozzle.prod)}` : 'Simulated',
+    },
+    {
+      kind: 'washer', place: 'Dorm laundry · washer', title: 'A fault stops the washer.', poster: 'scene-2',
+      line: `${reporter} reports a fault. Bookings stop until a repair is done and verified.`,
+      beats: [
+        { who: reporter, role: 'member', what: 'Reports a fault after his wash', chain: 'fault report accepted', tx: txOf(d, 19, /reports a fault/) },
+        { who: steward, role: 'steward', what: 'Takes the washer out of service', chain: `bookings refused · Can refunded ${near(canFee)} NEAR`, tx: txOf(d, 19, /out_of_service/) },
+        { who: repairer, role: 'member', what: 'Repairs it; the bridge runs a check', chain: 'repair submitted', tx: txOf(d, 19, /^submit task/) },
+        { who: verifier, role: 'verifier', what: 'Approves the repair', chain: `service restored · +${repairRights} usage rights to ${repairer}`, tx: txOf(d, 19, /approves/) },
+      ],
+      outcome: { k: 'Washer', v: washer?.in_service ? 'Back in service' : 'Out of service', sub: 'Repair verified on chain' },
+      note: 'Simulated',
+    },
+    {
+      kind: 'laser_cutter', place: 'Workshop · laser cutter', title: 'Locked until you are trained.', poster: 'scene-3',
+      line: 'Zeynep is refused without laser safety. Ayşe trains her, Mehmet approves, the plug turns on.',
+      beats: [
+        { who: 'Zeynep', role: 'member', what: 'Tries to book without the credential', chain: 'refused, payment refunded', tx: txOf(d, 11, /no credential/) },
+        { who: 'Ayşe', role: 'trainer', what: 'Proposes Zeynep’s laser training', tx: txOf(d, 12, /proposes/) },
+        { who: 'Mehmet', role: 'verifier', what: 'Approves the training', chain: 'laser_safety credential issued · +1 usage right to Ayşe', tx: txOf(d, 12, /approves training/) },
+        { who: 'Zeynep', role: 'member', what: 'Books; the plug powers on for her session', tx: txOf(d, 13, /session_started/) },
+      ],
+      outcome: { k: 'Credential', v: 'laser_safety → Zeynep', sub: 'Non-transferable · NEP-171' },
+      note: 'Simulated',
+    },
+    {
+      kind: 'community_fridge', place: 'Neighbourhood · community fridge', title: 'Cleaning comes due on schedule.', poster: 'scene-4',
+      line: 'The weekly clean cannot open early. Once the interval passes, the agent opens it.',
+      beats: [
+        { who: 'Agent', role: 'operations agent', what: 'Tries to open the clean too early', chain: 'refused: not due yet', tx: step(d, 20).txs.find((t) => t.error_code === 'E_RULE_NOT_DUE')!.hash },
+        { who: 'Schedule', role: 'profile rule', what: 'The interval passes', chain: fridge.demo ? `${fridge.demo.replace(/^every /, '')} · demo threshold` : undefined },
+        { who: 'Agent', role: 'operations agent', what: 'Opens the cleaning task', chain: `reward ${fridgeRule.reward_rights} usage rights`, tx: txOf(d, 20, /^agent open_upkeep_task\("weekly_clean"\)$/) },
+      ],
+      outcome: { k: 'Cleaning task', v: 'Open', sub: `Reward ${fridgeRule.reward_rights} usage rights` },
+      note: fridge.demo ? `Simulated · demo threshold ${fridge.demo.replace(/^every /, '')}, normally ${trim(fridge.prod)}` : 'Simulated',
+    },
+    {
+      kind: 'emergency_generator', place: 'Co-op · emergency generator', title: 'Fuel paid back, within a cap.', poster: 'scene-5',
+      line: `Test run under load ${triggerText(test.trigger)}, then a receipt-backed refill, capped at ${cap} NEAR.`,
+      beats: [
+        { who: 'Generator', role: 'telemetry', what: 'Runs its test under load', chain: triggerText(test.trigger) },
+        { who: 'Agent', role: 'operations agent', what: 'Opens a fuel restock task', chain: triggerText(fuel.trigger) },
+        { who: 'Member', role: 'any member', what: 'Refuels and attaches the receipt' },
+        { who: 'Verifier', role: 'another member', what: 'Approves; the machine reimburses', chain: `at most ${cap} NEAR` },
+      ],
+      outcome: { k: 'Restock', v: `Reimbursed ≤ ${cap} NEAR`, sub: 'Example' },
+      note: 'Example · profile rules, not deployed on testnet',
+    },
   ];
+}
+
+const ICON_CHECK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.2 5 8.6 9.6 3.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_LINK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function outcomeCard(o: SceneCopy['outcome'], cls: string, attrs = ''): string {
+  return `<div class="outcome ${cls}"${attrs}><p class="o-k">${esc(o.k)}</p><p class="o-v ck-num">${esc(o.v)}</p><p class="o-sub">${esc(o.sub)}</p></div>`;
 }
 
 export function scenes(d: LandingData): { list: string; progress: string; posters: string } {
   const c = sceneCopy(d);
+  const n = String(c.length).padStart(2, '0');
   const list = c.map((s, i) => `<li class="scene" data-i="${i}">
       <img class="scene-poster" src="/posters/${s.poster}-800.webp" width="800" height="800" alt="${esc(s.place)}, rendered model" loading="lazy" decoding="async">
       <div class="scene-copy">
-        <p class="scene-place">${esc(s.place)}</p>
+        <p class="scene-meta"><span class="ck-num">${String(i + 1).padStart(2, '0')} / ${n}</span><span>${esc(s.place)}</span></p>
         <h3 class="scene-title">${esc(s.title)}</h3>
         <p class="scene-line">${esc(s.line)}</p>
-        <ol class="beats">${s.beats.map((b) => `<li>${esc(b)}</li>`).join('')}</ol>
-        <p class="ck-sim scene-note">${esc(s.note)}</p>
+        <ol class="timeline">${s.beats.map((b) => `<li class="tl-step">
+          <span class="tl-dot">${ICON_CHECK}</span>
+          <p class="tl-who"><span class="av" aria-hidden="true">${esc(b.who.charAt(0))}</span><b>${esc(b.who)}</b><span class="role">· ${esc(b.role)}</span></p>
+          <p class="tl-what">${esc(b.what)}</p>${b.chain || b.tx ? `
+          <p class="tl-chain">${b.chain ? `<span class="ck-num">${esc(b.chain)}</span>` : 'On NEAR testnet'}${b.tx ? ` <a class="tl-link" href="${tx(b.tx)}" rel="noopener" aria-label="View on NEAR explorer">${ICON_LINK}</a>` : ''}</p>` : ''}
+        </li>`).join('')}</ol>
+        <p class="sim-mark">${esc(s.note)}</p>
+        ${outcomeCard(s.outcome, 'outcome-inline')}
       </div>
     </li>`).join('');
   const progress = c.map((s, i) => `<li${i === 0 ? ' class="on"' : ''}><span class="visually-hidden">${esc(s.place)}</span></li>`).join('');
-  const posters = c.map((s, i) => `<img class="stage-poster${i === 0 ? ' on' : ''}" data-i="${i}" src="/posters/${s.poster}-1000.webp" width="1000" height="1000" alt="" loading="lazy" decoding="async">`).join('');
+  const posters = c.map((s, i) => `<img class="stage-poster${i === 0 ? ' on' : ''}" data-i="${i}" src="/posters/${s.poster}-1000.webp" width="1000" height="1000" alt="" loading="lazy" decoding="async">`).join('')
+    + c.map((s, i) => outcomeCard(s.outcome, 'outcome-stage', ` data-i="${i}"`)).join('');
   return { list, progress, posters };
 }
 
@@ -303,11 +371,18 @@ export function proof(d: LandingData): string {
 export function nearSection(d: LandingData): string {
   const { a } = printer(d);
   const tiles = [
-    ['Named accounts', 'Each machine is an account you can read aloud and look up.', `<span class="ck-mono"><b>${esc(firstLabel(a.account))}</b>.${esc(a.account.split('.').slice(1, 2).join('.'))}…</span>`],
+    ['Named accounts', 'Each machine is an account you can read aloud and look up.', `<span class="acct"><b>${esc(firstLabel(a.account))}</b>.${esc(a.account.split('.').slice(1, 2).join('.'))}…</span>`],
     ['Function-call keys', 'The bridge and the agent hold keys that can call only their own methods, on one machine.', ''],
     ['Standard DAO and NFTs', 'Community money sits in an unmodified Sputnik DAO; usage rights are NEP-171 cards.', ''],
   ];
   return `<ul class="near-tiles">${tiles.map(([t, b, x]) => `<li><h3>${t}</h3><p>${b}</p>${x ? `<div class="near-x">${x}</div>` : ''}</li>`).join('')}</ul>`;
+}
+
+/** Footer status line, from the snapshot: every asset keyless and on one code_hash, or the build fails. */
+function footStatus(d: LandingData): string {
+  const as = d.snapshot.assets;
+  if (!as.every((a) => a.full_access_keys === 0) || new Set(as.map((a) => a.code_hash)).size !== 1) throw new Error('snapshot: assets not keyless or not on one code_hash');
+  return `${as.length} machines · keyless · 1 contract · NEAR testnet`;
 }
 
 // ---------- everything ----------
@@ -333,5 +408,6 @@ export function renderSlots(d: LandingData): Record<string, string> {
     'scenes-posters': sc.posters,
     near: nearSection(d),
     'repo-url': REPO_URL,
+    'foot-status': footStatus(d),
   };
 }

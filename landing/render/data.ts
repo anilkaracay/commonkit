@@ -249,6 +249,8 @@ export interface StepTx {
   hash: string;
   ok: boolean;
   error_code: string | null;
+  /** signer account */
+  by: string;
 }
 
 export interface JudgeStep {
@@ -264,8 +266,8 @@ export interface JudgeStep {
 function readSteps(): JudgeStep[] {
   const path = resolve(REPO, 'evidence/steps.json');
   if (!existsSync(path)) return [];
-  const raw = json<{ step: number; title: string; status: string; simulated?: boolean; txHashes?: string[]; outputs?: Record<string, unknown>; transactions?: StepTx[] }[]>('evidence/steps.json');
-  return raw.map((s) => ({ step: s.step, txs: (s.transactions ?? []).map((t) => ({ label: t.label, hash: t.hash, ok: t.ok, error_code: t.error_code ?? null })), outputs: s.outputs ?? {}, title: s.title, status: s.status, simulated: s.simulated === true, tx: s.txHashes?.at(-1) ?? null }));
+  const raw = json<{ step: number; title: string; status: string; simulated?: boolean; txHashes?: string[]; outputs?: Record<string, unknown>; transactions?: (Omit<StepTx, 'by'> & { by?: string })[] }[]>('evidence/steps.json');
+  return raw.map((s) => ({ step: s.step, txs: (s.transactions ?? []).map((t) => ({ label: t.label, hash: t.hash, ok: t.ok, error_code: t.error_code ?? null, by: t.by ?? '' })), outputs: s.outputs ?? {}, title: s.title, status: s.status, simulated: s.simulated === true, tx: s.txHashes?.at(-1) ?? null }));
 }
 
 export interface LandingData {

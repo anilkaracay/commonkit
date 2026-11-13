@@ -38,10 +38,24 @@ addEventListener('resize', () => drawLeaders(anchors), { passive: true });
 const io = new IntersectionObserver((es) => {
   for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
 }, { rootMargin: '0px 0px -8% 0px' });
-for (const el of document.querySelectorAll('.sheet, .how-step, .care-tile, .tile, .stat, .pass-wrap, .facts li, .near-tiles li'))
+for (const el of document.querySelectorAll('.how-step, .care-tile, .tile, .stat, .pass-wrap, .facts li, .near-tiles li'))
   if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('reveal'); io.observe(el); }
 
 initScenes(reduced);
+
+// The spreadsheet plays once when it scrolls into view (reduced motion: final state, no animation).
+const sheet = document.getElementById('sheet');
+if (sheet && !reduced && sheet.getBoundingClientRect().top > innerHeight * 0.6) {
+  sheet.classList.add('pre-cursor', 'pre-edit', 'pre-comment');
+  const so = new IntersectionObserver((es) => {
+    if (!es[0]?.isIntersecting) return;
+    so.disconnect();
+    setTimeout(() => sheet.classList.remove('pre-cursor'), 150);
+    setTimeout(() => sheet.classList.remove('pre-edit'), 1000);
+    setTimeout(() => sheet.classList.remove('pre-comment'), 1900);
+  }, { threshold: 0.6 });
+  so.observe(sheet);
+}
 
 const idle = (cb: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(cb, { timeout: 2500 }) : setTimeout(cb, 1200));
 

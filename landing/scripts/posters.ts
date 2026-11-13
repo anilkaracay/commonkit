@@ -39,8 +39,8 @@ if (!only || only.includes('hero')) {
   writeFileSync(resolve(import.meta.dirname, '../src/data/hero-anchors.json'), JSON.stringify(anchors, null, 2) + '\n');
   await hero.close();
   webp(png, resolve(out, 'hero-1200.webp'), 84);
-  webp(png, resolve(out, 'hero-800.webp'), 78, 800);
-  webp(png, resolve(out, 'hero-600.webp'), 78, 600);
+  webp(png, resolve(out, 'hero-800.webp'), 68, 800);
+  webp(png, resolve(out, 'hero-600.webp'), 68, 600);
   console.log('hero');
 }
 // Optical correction so airy silhouettes (printer frame, bike) and bulky boxes (fridge, charger) read alike.
