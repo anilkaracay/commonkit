@@ -24,6 +24,14 @@ describe('landing render (honest and quiet)', () => {
   it('keeps judge plumbing off the landing: no step numbers, decision ids, evidence file names or raw hashes', () => {
     expect(all).not.toMatch(/\bstep \d|D-\d{3}|evidence\/|verify-step|\.json\b|E_[A-Z_]{4,}|[1-9A-HJ-NP-Za-km-z]{6}…/);
   });
+  it('derives the money, proof and right numbers from the snapshot, evidence and profile at build time', () => {
+    const fees = d.snapshot.assets.reduce((t, a) => t + BigInt(a.ledger.total_fees_in), 0n);
+    const fixed = (y: bigint) => { const r = (y + 5n * 10n ** 21n) / 10n ** 22n; return `${r / 100n}.${(r % 100n).toString().padStart(2, '0')}`; };
+    expect(s['money-stats']).toContain(`${fixed(fees)} NEAR`);
+    expect(s.proof).toContain(`<b class="ck-num">${d.evidence_txs}</b> transactions`);
+    const printer = d.profiles.find((p) => p.asset_type === 'printer_3d')!;
+    expect(s['rights-pass']).toContain(`${printer.right_validity_days} days`);
+  });
   it('links each refusal to its testnet transaction', () => {
     expect(s['rights-refused']!.match(/nearblocks\.io\/txns\//g)).toHaveLength(3);
   });

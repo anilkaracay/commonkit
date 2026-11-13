@@ -89,6 +89,7 @@ section { scroll-margin-top: 24px; }
 .care-tile img { width: 100%; height: auto; aspect-ratio: 1; }
 .care-name { margin: 8px 0 0; font-weight: 600; }
 .care-kinds { margin: 2px 0 0; font-size: 14px; color: var(--ck-text-2); }
+.center-note { text-align: center; margin-top: 48px; }
 .care-status { margin: 6px 0 0; font-size: 13px; color: var(--ck-text-3); }
 
 /* Money */

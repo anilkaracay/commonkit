@@ -154,6 +154,8 @@ export function money(d: LandingData): { lineup: string; stats: string } {
       <p class="tile-num"><b class="ck-num">${nearFixed(a.ledger.float_free)}</b> / ${nearFixed(a.ledger.float_cap)} NEAR</p>
     </li>`;
   }).join('');
+  // Sources: total_fees_in / total_swept from each asset's get_ledger view (testnet snapshot, refreshed with
+  // `pnpm --filter @commonkit/landing snapshot`); the refund amount is the printer profile deposit refunded in step 5.
   const sum = (k: 'total_fees_in' | 'total_swept') => assets.reduce((s, a) => s + BigInt(a.ledger[k]), 0n);
   const daos = new Set(assets.filter((a) => BigInt(a.ledger.total_swept) > 0n).map((a) => a.dao)).size;
   stepTx(d, 6, /books more/);
@@ -182,6 +184,7 @@ export function rights(d: LandingData): { refused: string; pass: string } {
     const why = t.error_code === 'PROTOCOL:MethodNotFound' ? 'No such method' : 'Refused';
     return `<li><span class="x" aria-hidden="true"></span><span class="what">${what}</span><a class="why" href="${tx(t.hash)}" rel="noopener">${esc(why)}</a></li>`;
   }).join('');
+  // Valid: right_validity_days from profiles/printer_3d.json (the profile set on testnet by DAO proposal).
   const pass = `<article class="pass" aria-label="Usage right card">
     <header class="pass-top"><span class="pass-brand">COMMONKIT</span><span>${esc(d.dep.communities[a.community]?.name ?? a.community)}</span></header>
     <p class="pass-count"><span class="n ck-num">${t0.reward_rights}</span><span class="u">usage rights</span></p>
@@ -215,6 +218,7 @@ export function proof(d: LandingData): string {
   const facts = [
     ['0', 'keys', `on the ${keyless} machine, community and DAO accounts. No one can sign for them.`],
     ['1', 'contract', `All ${d.snapshot.assets.length} machines run identical code, with the same code hash.`],
+    // evidence_txs: unique successful testnet tx hashes across evidence/*.json (data.ts readTicker).
     [String(d.evidence_txs), 'transactions', 'Every reservation, payment and upkeep in this demo is public on the explorer.'],
   ];
   return facts.map(([n, u, t]) => `<li><p class="fact-n"><b class="ck-num">${n}</b> ${u}</p><p>${esc(t!)}</p></li>`).join('');

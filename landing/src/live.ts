@@ -1,6 +1,7 @@
 /** Live testnet read of printer-01 (lazy chunk): plain view calls through @commonkit/sdk NearRpc, no keys, no
  * wallet. Updates the hero callouts, the read time and the 3D state. Once on load, then at most once a minute
- * while the tab is visible, one request at a time, backing off on failure; the labelled snapshot stays otherwise. */
+ * while the tab is visible, one request at a time, backing off on failure; the labelled snapshot stays otherwise.
+ * Replaces the build-time snapshot values in the hero callouts ([data-live=float], [data-live=nozzle]) and the 3D state. */
 import { NearRpc } from '@commonkit/sdk';
 import { politeFetch, readLive, RPC_URLS } from './lib/chain.ts';
 import { int, near, utcStamp } from './lib/format.ts';
