@@ -7,3 +7,6 @@ packages:
   - scripts
 allowBuilds:
   esbuild: true
+permissions:
+  '@hot-labs/near-connect':
+    skills: false
