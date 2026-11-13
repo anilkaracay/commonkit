@@ -1,5 +1,8 @@
 import type { LedgerView } from '../data/types';
-import { displayRatio, formatNear, toYocto } from '../lib/near';
+import { displayRatio, formatNear as fmt, toYocto, type YoctoLike } from '../lib/near';
+
+/** Every amount on the money views: at least two decimals, at most four, tabular figures. */
+const formatNear = (v: YoctoLike) => fmt(v, { minDecimals: 2, maxDecimals: 4 });
 
 /** Float against its cap as one 4 px meter. Used on the board card. */
 export function FloatMeter({ ledger, floatCap }: { ledger: LedgerView; floatCap: string }) {
@@ -136,7 +139,9 @@ export function KasaBar({ ledger, floatCap }: { ledger: LedgerView; floatCap: st
         ).map(([k, v]) => (
           <div key={k}>
             <dt className="text-xs text-text-3">{k}</dt>
-            <dd className="num mt-0.5 text-lg font-medium">{formatNear(v)}</dd>
+            <dd className="num mt-0.5 text-lg font-medium">
+              {formatNear(v)} <span className="text-sm font-normal text-text-3">NEAR</span>
+            </dd>
           </div>
         ))}
       </dl>

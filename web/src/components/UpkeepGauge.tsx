@@ -38,7 +38,7 @@ export function UpkeepGauge({ rules, ruleDefs, size = 168 }: { rules: RuleStatus
   const due = p.fraction >= 1;
   // Never a percentage over 100: a due rule says so in words, with the real figure.
   const pct = Math.min(99, Math.floor(p.fraction * 100));
-  const label = due ? `${p.long(p.used)} · ${p.ruleText}` : `${p.format(p.remaining)} left`;
+  const label = due ? `${p.long(p.used)} · ${p.ruleText}` : `${p.format(p.remaining)} until ${p.rule.kind.toLowerCase()}`;
   return (
     <figure
       className="relative m-0 shrink-0"

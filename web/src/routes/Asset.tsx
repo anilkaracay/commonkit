@@ -179,9 +179,19 @@ export function AssetPage() {
         </Section>
       </div>
 
-      <Section title="Telemetry" note={`${s.telemetry.reports} reports from the bridge · updated ${formatAgo(s.telemetry.updated_at, now)} · counters only go up`}>
+      <Section
+        title="Telemetry"
+        note={
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span>
+              {s.telemetry.reports} reports from the bridge · updated {formatAgo(s.telemetry.updated_at, now)}
+            </span>
+            {sim && <SimulatedBadge assetId={assetId} />}
+          </span>
+        }
+      >
         <dl className="panel grid overflow-hidden" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
-          {s.telemetry.metrics.map(([m, v]) => (
+          {s.telemetry.metrics.filter(([m]) => m !== 'simulated').map(([m, v]) => (
             <div key={m} className="min-w-0 p-5 shadow-[inset_-1px_-1px_0_var(--ck-line)]">
               <dt className="truncate text-sm text-text-3">{metricLabel(m)}</dt>
               <dd className="num mt-1 text-2xl font-medium tracking-tight">{formatMetric(m, v)}</dd>

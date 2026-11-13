@@ -33,7 +33,9 @@ describe('upkeep rule progress per trigger', () => {
     const a: RuleStatus = { ...base, rule_id: 'a', kind: 'Cleaning', trigger: { Metric: { metric: 'cycles', threshold: 30 } }, current: '41', baseline: '31', due_value: '10', ...rw };
     const b: RuleStatus = { ...base, rule_id: 'b', kind: 'Maintenance', trigger: { Metric: { metric: 'cycles', threshold: 120 } }, current: '41', baseline: '0', due_value: '41', ...rw };
     expect(mostDueRule([a, b])?.rule.rule_id).toBe('b');
-    expect(formatMetric('filament_mm', '341500')).toBe('341,500');
+    expect(formatMetric('filament_used_mm', '341500')).toBe('341.5 m');
+    expect(formatMetric('filament_used_mm', '800')).toBe('800 mm');
+    expect(formatMetric('energy_wh', '25703')).toBe('25.7 kWh');
     expect(formatMetric('run_seconds', 7380)).toBe('2 h');
   });
 });
@@ -45,7 +47,7 @@ describe('unit words agree with the count', () => {
     expect(unitWord('jobs_total', 13n)).toBe('jobs');
     expect(unitWord('cycles', 1)).toBe('cycle');
     expect(unitWord('cycles', 0)).toBe('cycles');
-    expect(unitWord('filament_used_mm', 1)).toBe('filament used mm');
+    expect(unitWord('sessions', 1)).toBe('session');
   });
 
   it('reads "rule every 1 job" for a lowered demo threshold', () => {
@@ -54,5 +56,15 @@ describe('unit words agree with the count', () => {
     expect(`${p.long(p.used)} · ${p.ruleText}`).toBe('13 jobs · rule every 1 job');
     const c: RuleStatus = { ...r, trigger: { Metric: { metric: 'cycles', threshold: 1 } } };
     expect(ruleProgress(c).ruleText).toBe('rule every 1 cycle');
+  });
+});
+
+describe('physical units', () => {
+  it('reads a filament rule in metres with its label', () => {
+    const r: RuleStatus = { ...base, rule_id: 'spool', kind: 'Restock', trigger: { Metric: { metric: 'filament_used_mm', threshold: 5000 } }, current: '0', baseline: '0', due_value: '4000', ...rw };
+    const p = ruleProgress(r);
+    expect(p.format(p.remaining)).toBe('1 m');
+    expect(p.format(p.threshold)).toBe('5 m');
+    expect(describeTrigger(r.trigger)).toBe('filament used ≥ 5 m');
   });
 });
