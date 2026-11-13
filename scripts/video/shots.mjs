@@ -5,7 +5,7 @@
 export const XFADE = 0.4; // crossfade between shots
 
 export const TX = {
-  reserve: '3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz', // step 2: Ali reserves printer-01
+  reserve: '3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz', // step 2: Alex (ali) reserves printer-01
   sweep: 'DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S', // step 6: float over cap, swept to the DAO
   transfer: '35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov', // step 17: council nft_transfer refused, E_NON_TRANSFERABLE
 };
@@ -17,9 +17,9 @@ export const SHOTS = [
     id: 's01-refusal',
     kind: 'terminal',
     dur: 9,
-    what: 'Step 4 replay: Can (no booking) asks printer-01 to unlock → can_access not_holder → bridge 403, emulated printer idle (SIMULATED)',
+    what: 'Step 4 replay: Casey (no booking) asks printer-01 to unlock → can_access not_holder → bridge 403, emulated printer idle (SIMULATED)',
     captions: [
-      [0.2, 4.4, 'Can has no booking. He asks the shared printer to unlock. (simulated printer)'],
+      [0.2, 4.4, 'Casey has no booking, but asks the shared printer to unlock. (simulated printer)'],
       [4.4, 8.9, 'Refused: the printer checks its own NEAR account first. No booking, no print.'],
     ],
   },
@@ -37,7 +37,7 @@ export const SHOTS = [
     what: 'printer-01 page (SIMULATED badge) → Reserve page → step 2 reservation tx on NEAR Rocks',
     captions: [
       [0.2, 6.4, 'Booking is a NEAR transaction: a fee plus a refundable deposit. (simulated printer)'],
-      [6.4, 9.9, "Ali's booking on testnet: reservation_confirmed."],
+      [6.4, 9.9, "Alex's booking on testnet: reservation_confirmed."],
     ],
   },
   {
@@ -57,7 +57,7 @@ export const SHOTS = [
     what: 'Task #0 on printer-01 (testnet): rationale → independent approval → 2 usage-right cards',
     captions: [
       [0.2, 4.6, "The agent's task on testnet, with its reason. Demo threshold 0.5 h (production 200 h)."],
-      [4.6, 8.9, 'Ayşe does the upkeep. Mehmet, another member, approves it.'],
+      [4.6, 8.9, 'Ava does the upkeep. Mark, another member, approves it.'],
       [8.9, 12.9, 'She earns usage rights for this machine: non-transferable cards.'],
     ],
   },
@@ -75,8 +75,8 @@ export const SHOTS = [
     id: 's07-norevoke',
     kind: 'explorer',
     dur: 8,
-    what: "Step 17: council member's nft_transfer of Ayşe's right, refused with E_NON_TRANSFERABLE",
-    captions: [[0.2, 7.9, "A council member tries to take Ayşe's right. Refused on chain: E_NON_TRANSFERABLE."]],
+    what: "Step 17: council member's nft_transfer of Ava's right, refused with E_NON_TRANSFERABLE",
+    captions: [[0.2, 7.9, "A council member tries to take Ava's right. Refused on chain: E_NON_TRANSFERABLE."]],
   },
   {
     id: 's08-verify',

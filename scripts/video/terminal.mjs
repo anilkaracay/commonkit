@@ -170,11 +170,11 @@ function shotPanes(id, secs) {
     const device = JSON.parse(a(/emulated printer/).detail);
     const chain = JSON.parse(a(/no on-chain change/).detail);
     const lines = [
-      { who: 'bridge', text: `POST /access  printer-01 · can.commonkit-sxflo.testnet · NEP-413 signed · reservation #0 (Ali's)` },
+      { who: 'bridge', text: `POST /access  printer-01 · can.commonkit-sxflo.testnet · NEP-413 signed · reservation #0 (Alex's)` },
       { who: 'bridge', text: `can_access(can, #0) on NEAR testnet → ok=${access.ok}, reason "${access.reason}"` },
       { who: 'bridge', text: `→ ${bridge.status} ${bridge.reason}  (no valid reservation)` },
       { who: 'moonraker', text: `print_state "${device.print_state}" · no job started` },
-      { who: 'bridge', text: `on chain: no transaction, no change (Can's reservations: ${chain.can_reservations})` },
+      { who: 'bridge', text: `on chain: no transaction, no change (Casey's reservations: ${chain.can_reservations})` },
     ];
     return {
       layout: 'single',

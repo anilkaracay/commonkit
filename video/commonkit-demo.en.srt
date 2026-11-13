@@ -1,6 +1,6 @@
 1
 00:00:00,200 --> 00:00:04,400
-Can has no booking. He asks the shared printer to unlock. (simulated printer)
+Casey has no booking, but asks the shared printer to unlock. (simulated printer)
 
 2
 00:00:04,400 --> 00:00:08,900
@@ -16,7 +16,7 @@ Booking is a NEAR transaction: a fee plus a refundable deposit. (simulated print
 
 5
 00:00:20,600 --> 00:00:24,100
-Ali's booking on testnet: reservation_confirmed.
+Alex's booking on testnet: reservation_confirmed.
 
 6
 00:00:24,000 --> 00:00:30,400
@@ -32,7 +32,7 @@ The agent's task on testnet, with its reason. Demo threshold 0.5 h (production 2
 
 9
 00:00:41,000 --> 00:00:45,300
-Ayşe does the upkeep. Mehmet, another member, approves it.
+Ava does the upkeep. Mark, another member, approves it.
 
 10
 00:00:45,300 --> 00:00:49,300
@@ -48,7 +48,7 @@ Everything above the cap is swept to the community's DAO treasury.
 
 13
 00:00:58,833 --> 00:01:06,533
-A council member tries to take Ayşe's right. Refused on chain: E_NON_TRANSFERABLE.
+A council member tries to take Ava's right. Refused on chain: E_NON_TRANSFERABLE.
 
 14
 00:01:06,433 --> 00:01:16,133
