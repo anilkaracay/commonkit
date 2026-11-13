@@ -1,37 +1,30 @@
 import type { RouteObject } from 'react-router';
 import { Shell } from './components/Shell';
 import { BoardPage } from './routes/Board';
-import { CommunityPage } from './routes/Community';
-import { AssetPage } from './routes/Asset';
-import { ReservePage } from './routes/Reserve';
-import { AccessPage } from './routes/Access';
-import { TaskPage } from './routes/Task';
-import { MePage } from './routes/Me';
-import { TrainPage } from './routes/Train';
-import { ApprovalsPage } from './routes/Approvals';
-import { ProofPage } from './routes/Proof';
-import { AgentPage } from './routes/Agent';
-import { PilotPage } from './routes/Pilot';
-import { NotFoundPage } from './routes/NotFound';
 
-/** FRONTEND_SPEC §2 */
+/**
+ * FRONTEND_SPEC §2. The board ships in the main chunk (it is the landing route of the app); every
+ * other route is a separate chunk loaded on navigation, so a first visit downloads only what it shows.
+ */
+const page = (load: () => Promise<{ Component: RouteObject['Component'] }>): Pick<RouteObject, 'lazy'> => ({ lazy: load });
+
 export const routes: RouteObject[] = [
   {
     element: <Shell />,
     children: [
       { path: '/', element: <BoardPage /> },
-      { path: '/c/:community', element: <CommunityPage /> },
-      { path: '/a/:assetId', element: <AssetPage /> },
-      { path: '/a/:assetId/reserve', element: <ReservePage /> },
-      { path: '/a/:assetId/access/:reservationId', element: <AccessPage /> },
-      { path: '/t/:assetId/:taskId', element: <TaskPage /> },
-      { path: '/me', element: <MePage /> },
-      { path: '/train', element: <TrainPage /> },
-      { path: '/approvals', element: <ApprovalsPage /> },
-      { path: '/proof', element: <ProofPage /> },
-      { path: '/agent', element: <AgentPage /> },
-      { path: '/pilot', element: <PilotPage /> },
-      { path: '*', element: <NotFoundPage /> },
+      { path: '/c/:community', ...page(async () => ({ Component: (await import('./routes/Community')).CommunityPage })) },
+      { path: '/a/:assetId', ...page(async () => ({ Component: (await import('./routes/Asset')).AssetPage })) },
+      { path: '/a/:assetId/reserve', ...page(async () => ({ Component: (await import('./routes/Reserve')).ReservePage })) },
+      { path: '/a/:assetId/access/:reservationId', ...page(async () => ({ Component: (await import('./routes/Access')).AccessPage })) },
+      { path: '/t/:assetId/:taskId', ...page(async () => ({ Component: (await import('./routes/Task')).TaskPage })) },
+      { path: '/me', ...page(async () => ({ Component: (await import('./routes/Me')).MePage })) },
+      { path: '/train', ...page(async () => ({ Component: (await import('./routes/Train')).TrainPage })) },
+      { path: '/approvals', ...page(async () => ({ Component: (await import('./routes/Approvals')).ApprovalsPage })) },
+      { path: '/proof', ...page(async () => ({ Component: (await import('./routes/Proof')).ProofPage })) },
+      { path: '/agent', ...page(async () => ({ Component: (await import('./routes/Agent')).AgentPage })) },
+      { path: '/pilot', ...page(async () => ({ Component: (await import('./routes/Pilot')).PilotPage })) },
+      { path: '*', ...page(async () => ({ Component: (await import('./routes/NotFound')).NotFoundPage })) },
     ],
   },
 ];

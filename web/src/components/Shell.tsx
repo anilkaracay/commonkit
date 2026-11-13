@@ -76,12 +76,12 @@ function Frame() {
               </NavLink>
             ))}
           </nav>
-          <div className="ml-auto">
+          <div className="ml-auto flex min-h-9 min-w-[9.5rem] justify-end">
             <WalletButton />
           </div>
         </div>
       </header>
-      <main className="wrap flex-1 py-8 sm:py-12">
+      <main className="wrap min-h-[100dvh] flex-1 py-8 sm:py-12">
         <Outlet />
       </main>
       <footer className="mt-12 border-t border-line">

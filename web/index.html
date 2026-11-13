@@ -9,7 +9,18 @@
     <title>COMMONKIT</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><!-- Static first paint: the same header React renders, replaced on mount. -->
+      <div class="flex min-h-dvh flex-col bg-bg">
+        <header class="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur-md">
+          <div class="wrap flex flex-wrap items-center gap-x-8 gap-y-1 pt-3 sm:h-16 sm:py-0">
+            <a href="/app/" class="flex items-baseline gap-2.5 no-underline" aria-label="COMMONKIT board"><span class="text-[15px] font-semibold tracking-[0.09em] [font-stretch:112%]">COMMONKIT</span><span class="text-xs text-text-3">testnet</span></a>
+            <nav aria-label="Main" class="order-3 -mx-2 flex w-full sm:order-none sm:mx-0 sm:w-auto sm:gap-1"><a href="/app/" class="relative px-2 py-2.5 text-[15px] text-text no-underline sm:px-3">Board</a><a href="/app/proof" class="relative px-2 py-2.5 text-[15px] text-text-2 no-underline sm:px-3">Proof</a><a href="/app/agent" class="relative px-2 py-2.5 text-[15px] text-text-2 no-underline sm:px-3">Agent</a><a href="/app/me" class="relative px-2 py-2.5 text-[15px] text-text-2 no-underline sm:px-3">Me</a></nav>
+            <div class="ml-auto flex min-h-9 min-w-[9.5rem] justify-end"></div>
+          </div>
+        </header>
+        <main class="wrap min-h-[100dvh] flex-1 py-8 sm:py-12"><p class="text-sm text-text-3">Reading NEAR testnet…</p></main>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

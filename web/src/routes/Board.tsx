@@ -4,7 +4,7 @@ import { ScenarioMatrix } from '../components/ScenarioMatrix';
 import { KIND_LABEL, KindIcon } from '../components/UpkeepKind';
 import { UPKEEP_KINDS } from '../data/types';
 import { useDataSource } from '../data/source';
-import { AssetCard } from '../components/AssetCard';
+import { AssetCard, AssetCardPending } from '../components/AssetCard';
 import { SimulatedBadge } from '../components/Badges';
 import { SameContractStrip } from '../components/SameContractStrip';
 import { Empty, LoadError, Loading, Section } from '../components/Section';
@@ -26,7 +26,41 @@ export function BoardPage() {
   const rowTx = (key: string) => ds.rowTx(key);
 
   if (dep.error || all.error) return <LoadError error={dep.error ?? all.error} />;
-  if (!dep.data || !all.data) return <Loading what="the board" />;
+  if (!dep.data) return <Loading what="the board" />;
+  if (!all.data) {
+    // Paint the machines from the bundled deployment and profiles while their accounts are read.
+    const entry = (file: string) => catalog.data?.find((e) => e.file === file);
+    return (
+      <div className="space-y-16 sm:space-y-20">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+          <h1 className="display text-[30px] sm:text-[36px]">Machines</h1>
+          <p className="text-sm text-text-3" role="status">
+            Reading NEAR testnet…
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-x-8 gap-y-14 xl:grid-cols-2">
+          {dep.data.communities.map((c, ci) => (
+            <section key={c.slug} aria-labelledby={`community-${c.slug}`} className="min-w-0 space-y-5">
+              <CommunityHead slug={c.slug} name={c.name} daoId={c.dao_id} simulated={c.simulated} />
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                {dep.data.assets
+                  .filter((a) => a.community === c.slug)
+                  .map((a, i) => (
+                    <AssetCardPending
+                      key={a.asset_id}
+                      deployed={a}
+                      type={entry(a.profile_file)?.profile.asset_type ?? ''}
+                      name={entry(a.profile_file)?.meta.display_name ?? a.alias}
+                      priority={ci === 0 && i === 0}
+                    />
+                  ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const openTasks = all.data.flatMap(({ deployed, snap }) =>
     snap.tasks.filter((t) => ['Open', 'Claimed', 'Submitted', 'Approved'].includes(t.status)).map((task) => ({ deployed, snap, task })),
@@ -43,7 +77,7 @@ export function BoardPage() {
 
   return (
     <div className="space-y-16 sm:space-y-20">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
         <h1 className="display text-[30px] sm:text-[36px]">Machines</h1>
         <p className="text-sm text-text-3">
           {count} {keyless ? 'keyless ' : ''}accounts · live from NEAR testnet
@@ -56,25 +90,10 @@ export function BoardPage() {
           const assets = all.data.filter((a) => a.deployed.community === c.slug);
           return (
             <section key={c.slug} aria-labelledby={`community-${c.slug}`} className="min-w-0 space-y-5">
-              <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-                <div className="min-w-0">
-                  <h2 id={`community-${c.slug}`} className="text-xl">
-                    <Link to={link(`/c/${c.slug}`)} className="no-underline hover:text-accent">
-                      {c.name}
-                    </Link>
-                  </h2>
-                  <p className="mono-id mt-1">{c.dao_id}</p>
-                </div>
-                <span className="flex items-center gap-4">
-                  {c.simulated && <SimulatedBadge />}
-                  <Link to={link(`/c/${c.slug}`)} className="text-link text-sm">
-                    Community →
-                  </Link>
-                </span>
-              </div>
+              <CommunityHead slug={c.slug} name={c.name} daoId={c.dao_id} simulated={c.simulated} />
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                {assets.map(({ deployed, snap }) => (
-                  <AssetCard key={deployed.asset_id} deployed={deployed} snap={snap} />
+                {assets.map(({ deployed, snap }, i) => (
+                  <AssetCard key={deployed.asset_id} deployed={deployed} snap={snap} priority={i === 0} />
                 ))}
               </div>
             </section>
@@ -179,6 +198,28 @@ export function BoardPage() {
         )}
         {comms.isLoading && <Loading what="proposals" />}
       </Section>
+    </div>
+  );
+}
+
+function CommunityHead({ slug, name, daoId, simulated }: { slug: string; name: string; daoId: string; simulated: boolean }) {
+  const link = useDemoLink();
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+      <div className="min-w-0">
+        <h2 id={`community-${slug}`} className="text-xl">
+          <Link to={link(`/c/${slug}`)} className="no-underline hover:text-accent">
+            {name}
+          </Link>
+        </h2>
+        <p className="mono-id mt-1">{daoId}</p>
+      </div>
+      <span className="flex items-center gap-4">
+        {simulated && <SimulatedBadge />}
+        <Link to={link(`/c/${slug}`)} className="text-link text-sm">
+          Community →
+        </Link>
+      </span>
     </div>
   );
 }
