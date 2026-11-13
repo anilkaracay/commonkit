@@ -8,9 +8,26 @@ CK Sans (Mona Sans) + Geist Mono, procedural 3D machines, honesty labels designe
 ```css
 /* CSS entry of a Vite + Tailwind v4 app (web/src/styles/index.css) */
 @import 'tailwindcss';
-@import '@commonkit/design/all.css';      /* tokens, @font-face, base, ck-* components */
-@import '@commonkit/design/tailwind.css'; /* maps the tokens to Tailwind utilities */
+@import '@commonkit/design/tokens.css';
+@import '@commonkit/design/fonts.css';
+@import '@commonkit/design/base.css' layer(base);             /* layered: utilities can refine them */
+@import '@commonkit/design/components.css' layer(components); /* ck-* classes under Tailwind utilities */
+@import '@commonkit/design/tailwind.css';                     /* maps the tokens to Tailwind utilities */
 ```
+
+With Tailwind, import base and components into its layers as above: unlayered CSS beats every utility,
+so `a { color: inherit }` would override `text-accent` and `.ck-rows { margin: 0 }` would override `space-y-*`.
+
+Machine posters (640 px square, transparent, one per profile `asset_type`) live in `posters/` and are the
+single source for landing and app:
+
+```ts
+import { machinePosters } from '@commonkit/design';
+// <img src={machinePosters.printer_3d}>
+```
+
+The landing serves the same files at `/posters/m-<asset_type>-640.webp` (vite plugin `designPosters`);
+`pnpm --filter @commonkit/landing posters` regenerates them into this folder.
 
 Without Tailwind (landing): import `all.css` only and write CSS against the `--ck-*` variables.
 

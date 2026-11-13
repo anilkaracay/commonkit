@@ -15,6 +15,8 @@ const opt = (k: string) => { const i = args.indexOf(`--${k}`); return i >= 0 ? a
 const base = opt('url') ?? 'http://127.0.0.1:5180/';
 const only = opt('only')?.split(',');
 const out = resolve(import.meta.dirname, '../public/posters');
+// Machine posters live in @commonkit/design (one source for landing and app); hero and close-ups stay here.
+const machinesOut = resolve(import.meta.dirname, '../../packages/design/posters');
 const tmp = resolve(out, '.tmp');
 mkdirSync(tmp, { recursive: true });
 const webp = (src: string, dst: string, q: number, w?: number) =>
@@ -49,7 +51,7 @@ for (const kind of CARE_ORDER) {
   const png = resolve(tmp, `${kind}.png`);
   await p.screenshot({ path: png, omitBackground: true });
   await p.close();
-  webp(png, resolve(out, `m-${kind}-640.webp`), 82);
+  webp(png, resolve(machinesOut, `m-${kind}-640.webp`), 82);
   console.log(kind);
 }
 // Close-ups for "how it works": the status lens and screen (unlock), the print head and nozzle (upkeep).

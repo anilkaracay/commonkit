@@ -67,3 +67,22 @@ export function contrast(a: string, b: string): number {
   const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x) as [number, number];
   return (hi + 0.05) / (lo + 0.05);
 }
+
+/**
+ * Poster stills of the procedural 3D machines, one per profile asset_type (640 px square, transparent,
+ * equal visual mass). One source for landing and app; regenerate with `pnpm --filter @commonkit/landing posters`.
+ */
+export const machinePosters: Readonly<Record<string, string>> = {
+  printer_3d: new URL('../posters/m-printer_3d-640.webp', import.meta.url).href,
+  laser_cutter: new URL('../posters/m-laser_cutter-640.webp', import.meta.url).href,
+  washer: new URL('../posters/m-washer-640.webp', import.meta.url).href,
+  community_fridge: new URL('../posters/m-community_fridge-640.webp', import.meta.url).href,
+  ev_charger: new URL('../posters/m-ev_charger-640.webp', import.meta.url).href,
+  cargo_bike: new URL('../posters/m-cargo_bike-640.webp', import.meta.url).href,
+  gpu_server: new URL('../posters/m-gpu_server-640.webp', import.meta.url).href,
+  tractor: new URL('../posters/m-tractor-640.webp', import.meta.url).href,
+  microscope: new URL('../posters/m-microscope-640.webp', import.meta.url).href,
+  tool_library_ladder: new URL('../posters/m-tool_library_ladder-640.webp', import.meta.url).href,
+  rehearsal_room: new URL('../posters/m-rehearsal_room-640.webp', import.meta.url).href,
+  emergency_generator: new URL('../posters/m-emergency_generator-640.webp', import.meta.url).href,
+};

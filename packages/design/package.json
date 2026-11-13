@@ -14,11 +14,13 @@
     "./components.css": "./components.css",
     "./tailwind.css": "./tailwind.css",
     "./all.css": "./all.css",
-    "./fonts/*": "./fonts/*"
+    "./fonts/*": "./fonts/*",
+    "./posters/*": "./posters/*"
   },
   "files": [
     "*.css",
     "fonts",
+    "posters",
     "src",
     "README.md"
   ],

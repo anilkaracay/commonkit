@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import { loadData } from './render/data.ts';
 import { renderSlots } from './render/render.ts';
@@ -33,9 +35,32 @@ function commonkitPage(): Plugin {
   };
 }
 
+/**
+ * Machine posters live in @commonkit/design/posters (one source for landing and app). They are served
+ * and emitted at /posters/m-*.webp, next to the landing's own hero and close-up stills in public/posters.
+ */
+function designPosters(): Plugin {
+  const dir = resolve(import.meta.dirname, '../packages/design/posters');
+  const files = () => readdirSync(dir).filter((f) => f.endsWith('.webp'));
+  return {
+    name: 'commonkit-design-posters',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const name = req.url?.match(/^\/posters\/(m-[\w-]+\.webp)(?:\?|$)/)?.[1];
+        if (!name || !files().includes(name)) return next();
+        res.setHeader('Content-Type', 'image/webp');
+        res.end(readFileSync(resolve(dir, name)));
+      });
+    },
+    generateBundle() {
+      for (const f of files()) this.emitFile({ type: 'asset', fileName: `posters/${f}`, source: readFileSync(resolve(dir, f)) });
+    },
+  };
+}
+
 export default defineConfig({
   base: '/',
-  plugins: [commonkitPage()],
+  plugins: [commonkitPage(), designPosters()],
   build: {
     target: 'es2022',
     outDir: 'dist',
