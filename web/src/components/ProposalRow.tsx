@@ -2,6 +2,7 @@ import type { Proposal } from '../data/offchain';
 import { formatNear } from '../lib/near';
 import { formatAgo } from '../lib/time';
 import { variantOf } from '../lib/enums';
+import { proposalTitle } from '../lib/proposalTitle';
 import { Mark, type Tone } from './Badges';
 import { Account, TxLink } from './TxLink';
 import { useDataSource } from '../data/source';
@@ -17,7 +18,7 @@ export function ProposalRow({ proposal: p, daoId, assetIds, nowMs }: { proposal:
     <li className="flex items-start gap-4 px-5 py-4">
       <span className="num w-7 shrink-0 pt-px text-sm text-text-3">#{p.id}</span>
       <div className="min-w-0 flex-1">
-        <p className="break-words">{p.description}</p>
+        <p className="break-words">{proposalTitle(p.description)}</p>
         <p className="mt-1 flex flex-wrap items-center gap-x-2 text-sm text-text-3">
           <span>{kind}</span>
           {transfer && (
@@ -32,6 +33,12 @@ export function ProposalRow({ proposal: p, daoId, assetIds, nowMs }: { proposal:
           <span>· {formatAgo(p.submission_time, nowMs)}</span>
           <span className="sr-only">in {daoId}</span>
         </p>
+        <details className="group mt-1.5">
+          <summary className="cursor-pointer list-none text-xs text-text-3 hover:text-accent [&::-webkit-details-marker]:hidden">
+            On-chain description <span aria-hidden className="inline-block transition-transform group-open:rotate-90">›</span>
+          </summary>
+          <p className="mt-1.5 rounded-sm bg-bg-alt px-3 py-2 font-mono text-xs break-words text-text-2">{p.description}</p>
+        </details>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5">
         <Mark tone={tone[p.status] ?? 'quiet'}>{p.status}</Mark>
