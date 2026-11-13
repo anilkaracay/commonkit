@@ -51,25 +51,25 @@ The task: It says why: 4.3 h of nozzle time, over the rule.
 Ava did the work, the bridge ran a test print, and Mark, another member, approved it.
 
 14
-00:00:57,600 --> 00:01:02,033
-Earn: Ava earned two usage rights for this printer. They cannot be sold or moved.
+00:00:57,600 --> 00:01:02,733
+Earn: Ava earned two usage-right NFTs (NEP-171) for this printer. They cannot be sold or moved.
 
 15
-00:01:02,033 --> 00:01:05,600
+00:01:02,733 --> 00:01:06,300
 A council member tried to move one. Refused on chain: E_NON_TRANSFERABLE.
 
 16
-00:01:05,600 --> 00:01:09,267
+00:01:06,300 --> 00:01:09,967
 Money: Fees stay in the printer's own account, up to a 3 NEAR cap.
 
 17
-00:01:09,267 --> 00:01:13,300
-Everything above the cap goes to the community's DAO treasury.
+00:01:09,967 --> 00:01:14,467
+Everything above the cap goes to the community's Sputnik DAO treasury.
 
 18
-00:01:13,300 --> 00:01:18,533
+00:01:14,467 --> 00:01:19,700
 Check it: Every claim can be checked: the Proof page re-reads them from testnet.
 
 19
-00:01:18,533 --> 00:01:21,367
+00:01:19,700 --> 00:01:22,533
 Or run ./scripts/verify.sh. No wallet, no keys.
