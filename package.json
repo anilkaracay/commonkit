@@ -29,7 +29,8 @@
     "dev:bridge": "pnpm --filter @commonkit/bridge dev",
     "device:add": "pnpm --filter @commonkit/bridge device:add",
     "dev:agent": "pnpm --filter @commonkit/agent dev",
-    "simulate": "bash scripts/simulate.sh"
+    "simulate": "bash scripts/simulate.sh",
+    "test:simulate": "SIMULATE_SANDBOX=1 pnpm --filter @commonkit/scripts test -- simulate"
   },
   "devDependencies": {
     "prettier": "^3.4.2",

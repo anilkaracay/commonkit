@@ -205,17 +205,23 @@ COMMONKIT uses the same Sputnik DAO contract that Trezu builds on, without modif
 
 ## Run locally
 
-Node ≥ 22, pnpm, Rust 1.98.1 with `wasm32-unknown-unknown`, cargo-near 0.23.0.
+**Quick look (Node ≥ 22 and pnpm only, no keys, no wallet):**
 
 ```bash
 pnpm install --frozen-lockfile
+pnpm test                           # all TypeScript packages, ~1 min
+./scripts/verify.sh                 # read-only checks against NEAR testnet (keyless accounts, code_hash, ledgers, 21 judge steps)
+pnpm build:site && pnpm serve:site  # → http://localhost:4320/ (landing) and http://localhost:4320/app/proof (app)
+./scripts/simulate.sh washer --fake # loop on in-memory fake chains, seconds (says which checks it skips)
+```
+
+**Full run (adds Rust 1.98.1 with `wasm32-unknown-unknown` and cargo-near 0.23.0; the sandbox binary is downloaded on first use):**
+
+```bash
 pnpm build:contracts                # non-reproducible-wasm by default (D-218)
-pnpm test:contracts                 # unit + sandbox (downloads near-sandbox via near-workspaces)
-pnpm test                           # TypeScript packages
-./scripts/simulate.sh <profile>     # whole loop on a local sandbox; `all` for 12 profiles
-./scripts/simulate.sh <profile> --fake
-./scripts/verify.sh                 # read-only against testnet
-pnpm dev:web                        # app on localhost (reads testnet)
+pnpm test:contracts                 # 402 unit + 36 sandbox tests, ~10 min
+./scripts/simulate.sh <profile>     # whole loop on a local NEAR sandbox with the real contracts; `all` for 12 profiles
+pnpm test:simulate                  # the same washer loop as a test (opt-in, SIMULATE_SANDBOX=1)
 ```
 
 ## Built with
