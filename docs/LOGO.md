@@ -1,6 +1,6 @@
 # COMMONKIT logo
 
-Status: concept for the owner's review (2026-11-13). Nothing is integrated: the landing, app, video and favicons still use the text wordmark.
+Status: approved 2026-11-13 and integrated (D-040) in the landing nav and footer, the app header, the favicons, og.png and the video end card.
 
 ## What makes the best marks work (short research)
 

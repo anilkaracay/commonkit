@@ -1,4 +1,5 @@
 export * from './near';
+export * from './logo';
 /** JS side of the design system: token values for canvas/WebGL code (which cannot read CSS variables cheaply)
  * and font URLs for <link rel="preload"> (Vite resolves new URL(..., import.meta.url) to the hashed asset). */
 

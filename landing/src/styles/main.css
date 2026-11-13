@@ -17,7 +17,8 @@ section { scroll-margin-top: 24px; }
 
 /* Nav */
 .nav { display: flex; align-items: center; justify-content: space-between; height: 72px; }
-.mark { font-stretch: 112%; font-weight: 640; font-size: 15px; letter-spacing: 0.09em; text-decoration: none; }
+.mark { display: inline-flex; color: var(--ck-text); text-decoration: none; }
+.mark svg { display: block; }
 .nav nav { display: flex; align-items: center; gap: 28px; font-size: 15px; }
 .nav nav a:not(.ck-btn) { text-decoration: none; color: var(--ck-text-2); transition: color var(--ck-dur-2); }
 .nav nav a:not(.ck-btn):hover { color: var(--ck-text); }

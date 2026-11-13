@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="8" fill="#2453e0"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="2.25" fill="#fff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- 16 px master: the 48 grid divided by 3, so every edge sits on a whole pixel. Cobalt on light tabs, sky on dark tabs. -->
+  <style>path{fill:#2453e0}@media (prefers-color-scheme:dark){path{fill:#9cc3ff}}</style>
+  <path d="M0 0h12v3H0zM13 0h3v12h-3zM4 13h12v3H4zM0 4h3v12H0zM4 4h8v8H4z"/>
+</svg>

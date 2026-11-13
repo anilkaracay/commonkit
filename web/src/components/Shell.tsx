@@ -6,6 +6,10 @@ import { DemoOverlay, DemoProvider, useDemo, useDemoLink } from '../demo/demo';
 import { useWallet } from '../wallet/wallet';
 import { MockBanner } from './Badges';
 import { useToast } from './Toast';
+import { lockupSvg } from '@commonkit/design/logo';
+
+// 16 px tall on phones so the wallet button stays on the first row at 390 px; 18 px from sm up.
+const LOGO = { __html: lockupSvg(18, { className: 'h-4 w-auto sm:h-[18px]' }) };
 
 const NAV = [
   ['/', 'Board'],
@@ -57,9 +61,10 @@ function Frame() {
     <div className="flex min-h-dvh flex-col bg-bg">
       {ds.kind === 'mock' && <MockBanner />}
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur-md">
-        <div className="wrap flex flex-wrap items-center gap-x-8 gap-y-1 pt-3 sm:h-16 sm:py-0">
+        <div className="wrap flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 sm:h-16 sm:gap-x-8 sm:py-0">
           <NavLink to={link('/')} className="flex items-baseline gap-2.5 no-underline" aria-label="COMMONKIT board">
-            <span className="text-[15px] font-semibold tracking-[0.09em] [font-stretch:112%]">COMMONKIT</span>
+            {/* Approved lockup (D-040). The flex baseline is the SVG bottom, 16.7 % of its height below the caps: shift it down by that so "testnet" sits on the cap baseline. */}
+            <span className="flex" style={{ transform: 'translateY(16.7%)' }} dangerouslySetInnerHTML={LOGO} />
             <span className="text-xs text-text-3">testnet</span>
           </NavLink>
           <nav aria-label="Main" className="order-3 -mx-2 flex w-full sm:order-none sm:mx-0 sm:w-auto sm:gap-1">

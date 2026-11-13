@@ -18,12 +18,15 @@
     "./posters/*": "./posters/*",
     "./react": "./src/react.ts",
     "./assets/*": "./assets/*",
-    "./near": "./src/near.ts"
+    "./near": "./src/near.ts",
+    "./logo": "./src/logo.ts",
+    "./logo/*": "./logo/*"
   },
   "files": [
     "*.css",
     "README.md",
     "assets",
+    "logo",
     "fonts",
     "posters",
     "src"

@@ -6,6 +6,7 @@ import type { AssetSnap } from '../src/lib/chain.ts';
 import { esc, firstLabel, int, near, triggerText, type Trigger } from '../src/lib/format.ts';
 // The /near entry has no internal imports, so Node can load it as-is when vite.config renders the page.
 import { nearAmountHtml, nearMarkSvg } from '@commonkit/design/near';
+import { lockupSvg } from '@commonkit/design/logo';
 import { displayName } from '@commonkit/sdk/cast';
 import { REPO, type DemoOverride, type JudgeStep, type LandingData, type Profile } from './data.ts';
 
@@ -418,6 +419,9 @@ export function renderSlots(d: LandingData): Record<string, string> {
     'scenes-progress': sc.progress,
     'scenes-posters': sc.posters,
     near: nearSection(d),
+    // Approved lockup (D-040), inline so the nav costs no request; width and height are fixed (no layout shift).
+    logo: lockupSvg(18),
+    'logo-foot': lockupSvg(20),
     'repo-url': REPO_URL,
     'foot-status': footStatus(d),
     // Spreadsheet cast (illustrative "Example"): the same display names as the rest of the page.
