@@ -58,26 +58,26 @@ Fill the personal values only in `submission/payload.local.json` (gitignored). S
 | leadName | `<H6: lead name>` | human |
 | email | `<H6: contact email>` | human; ≤ 160 chars; ≤ 2 submissions per email |
 | size | `<H6: one of 1, 2 - 4, 4 - 6, 6 - 8, 8+>` | human, exact string |
-| tracks | `["social"]` | see decision below |
+| tracks | `["social", "nfts"]` | see decision below (D-032) |
 | nearAddress | `<H6: mainnet payout account>` | human; lowercase, regex in HACKATHON.md; never invented |
 | projectUrl | `https://github.com/anilkaracay/commonkit` (only once public) | unique per submission |
 | demoUrl | `<H8: URL of the published X post>` | human posts first |
 | idea | text in (d) | 20–2000 chars |
 | consent | `true` only after the human agrees to: "I agree that the organizers may use these details to review our submission and contact us about this hackathon." | human |
 
-**Tracks decision:** `social` only.
-- `social` (Social Money): shared budgets (capped float + Sputnik treasury), programmable rewards (upkeep tasks), collective ownership (keyless asset accounts governed by unmodified Sputnik DAOs) and reputation-based access (credential cards, clean-return deposits). Evidence: README "Social Money compliance".
-- `nfts`: not now. The cards are NEP-171 and work on chain (steps 8, 12, 17), but their display in a wallet has not been verified (research B14). Add it only if a wallet shows a card before submission, with a screenshot in evidence.
+**Tracks decision (D-032):** `social` and `nfts`.
+- `social` (Social Money): shared budgets (capped float + Sputnik treasury), programmable rewards (upkeep tasks), collective ownership (keyless asset accounts governed by unmodified Sputnik DAOs) and reputation-based access (credential cards, clean-return deposits). The one partial point (a track record does not raise the payout limit) is stated in the README table "The track prompt, requirement by requirement".
+- `nfts` (NFTs That Do Something): usage rights and credentials are NEP-171/177/181 non-transferable tokens that carry access rights and credentials, the track's own words; each machine is an account that holds money. Verified on testnet 2026-11-13: `nft_metadata` spec `nft-1.0.0`, `nft_total_supply` 7 on `commons.makerlab.commonkit-sxflo.testnet` (README "NFTs" section has the command). Wallet display is **not** tested and not claimed. This supersedes the earlier wallet-display precondition (D-001).
 - `agents`: not claimed. Our agent opens tasks and escalates purchases within contract limits; it does not earn, spend, negotiate or hire on a market (research A8).
 
 Order of human actions: H7 repo public → H8 X post → H9 submit with `demoUrl` = the post. A submission cannot be edited; mistakes go through https://nearhackathon.com/request-changes (never a second submission).
 
-## (d) `idea` text (1508 / 2000 characters)
+## (d) `idea` text (1501 / 2000 characters)
 
 Verified facts only (README links each one).
 
 ```
-Shared things in communities (makerspace printers, dorm washers, co-op tractors, neighbourhood fridges) get used by everyone and looked after by no one, and their money and rules sit in one admin's spreadsheet. COMMONKIT gives each shared thing its own keyless NEAR account running the same asset contract. Members reserve on-chain; a bridge next to the device unlocks it only for a valid reservation (NEP-413 signed request plus an on-chain check, written before the unlock). Fees fill a capped float; the excess is swept to the community's unmodified Sputnik DAO, and larger purchases become Sputnik proposals opened by the asset contract itself. When a profile rule comes due (telemetry threshold, schedule or member fault reports), an operations agent with a function-call key opens an upkeep task: maintenance, restock, cleaning, inspection, repair. A member does it, another member approves, and the worker receives non-transferable NEP-171 usage-right cards that no method can revoke. Restock and repair can claim a capped, receipt-backed expense; risky machines need credential cards, and trainers earn rights. On testnet: 2 DAOs, 2 commons and 4 asset accounts, all keyless, one code_hash; all 21 judge steps passed with tx evidence, and verify.sh checks every claim read-only. simulate.sh runs the full loop for all 12 asset profiles on a local NEAR sandbox. Devices are emulated or simulated and labelled so; no physical device has been tested yet, and a real-users pilot is pending. Testnet only.
+Shared things in communities (makerspace printers, dorm washers, co-op tractors, neighbourhood fridges) get used by everyone and looked after by no one, and their money and rules sit in one admin's spreadsheet. COMMONKIT gives each shared thing its own keyless NEAR account running the same asset contract. Members reserve on-chain; a bridge next to the device unlocks it only for a valid reservation (NEP-413 signed request plus an on-chain check, written before the unlock). Fees fill a capped float; the excess is swept to the community's unmodified Sputnik DAO, and larger purchases become Sputnik proposals opened by the asset contract itself. When a profile rule comes due (telemetry threshold, schedule or member fault reports), an operations agent with a function-call key opens an upkeep task: maintenance, restock, cleaning, inspection, repair. A member does it, another member approves, and the worker receives non-transferable NEP-171 usage-right cards that no method can revoke. Restock and repair can claim a capped, receipt-backed expense; risky machines need credential cards, and trainers earn rights. On testnet: 2 DAOs, 2 commons and 4 asset accounts, all keyless, one code_hash; all 21 judge steps passed with tx evidence, and verify.sh checks every claim read-only. simulate.sh runs the full loop for all 12 asset profiles on a local NEAR sandbox. Devices are emulated or simulated and labelled so; no physical device has been tested and there are no real users yet. Testnet only.
 ```
 
 ## Filled copy

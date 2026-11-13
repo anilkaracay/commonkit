@@ -4,20 +4,24 @@
 
 Fix it, refill it, clean it, check it, teach it — every kind of care that keeps a shared thing alive earns access to it.
 
-> Today a shared machine's money and rules live in one admin's spreadsheet. On COMMONKIT they live in the machine's own keyless NEAR account: no one can drain it, and no one can take back what you earned.
->
-> *Precisely:* no method deletes, downgrades or transfers a usage-right card once granted. The DAO can still make a card unusable in practice — by deactivating the asset, moving it to another group, or adding a credential requirement — and that limit is listed under "Security model and honest limits".
+> Today a shared machine's money and rules live in one admin's spreadsheet. On COMMONKIT they live in the machine's own keyless NEAR account: no one can drain it, and no one can take back what you earned. ([exact scope of "take back"](#security-model-and-honest-limits))
 
-Built at NEAR HACKATHON 2026 · Track: **Social Money** · NEAR **testnet** only. Every claim below links to a testnet tx, a test or a file. Devices are emulated or simulated and labelled SIMULATED; no physical device has been tested yet.
+Built at NEAR HACKATHON 2026 · Tracks: **Social Money** (`social`), **NFTs That Do Something** (`nfts`) · NEAR **testnet** only. Every claim below links to a testnet tx, a test or a file. Devices are emulated or simulated and labelled SIMULATED; no physical device has been tested.
 
-## Try it in 2 minutes
+**Live app:** <HOSTED_URL>/app · **90 s video:** <VIDEO_URL> · **Verify:** `./scripts/verify.sh` (read-only, no keys) · **Evidence:** [`evidence/EVIDENCE.md`](evidence/EVIDENCE.md)
 
-*The hosted app is not deployed yet (HUMAN TODO H11 in [`docs/STATUS.md`](docs/STATUS.md)); `<domain>` is a placeholder until it is.*
+![The COMMONKIT board at /app: four machines on NEAR testnet, each with its own keyless account, float vs cap, open upkeep tasks, rights earned and the latest Sputnik proposals. Devices are SIMULATED.](docs/img/board-1440.png)
 
-- Do **open `https://<domain>/app`** (no wallet) → see the board with the four testnet assets, each with the SIMULATED badge, their floats vs caps and upkeep tasks.
-- Do **open `https://<domain>/app/proof`** → see the account keys, the shared `code_hash`, the ledger invariants and the DAO proposals, with explorer links.
-- Do **run `./scripts/simulate.sh washer`** in a clean clone → see the whole loop on a private local NEAR sandbox with the real contracts, bridge and agent, every step line prefixed `[SIMULATED]` and the summary headed SIMULATED (all 12 profiles: [`evidence/simulate-all-2026-11-10.txt`](evidence/simulate-all-2026-11-10.txt)).
-- Do **open any tx link below** → see it on the NearBlocks testnet explorer.
+*The board (`/app`), reading NEAR testnet views. Screenshot from [`web/screenshots/board-1440.png`](web/screenshots/board-1440.png), 2026-11-13.*
+
+## Judge in 5 minutes
+
+Needs Node ≥ 22 and pnpm; no keys, no wallet. Run `pnpm install --frozen-lockfile` once.
+
+1. Do **open <HOSTED_URL>/app** → see four machines (printer, laser, washer, fridge), each a keyless testnet account with its float vs cap, open upkeep tasks, rights earned and the latest Sputnik proposals, every device marked SIMULATED. Then **<HOSTED_URL>/app/proof** → see account keys (0), the shared `code_hash`, the ledger invariants and explorer links.
+2. Do **run `./scripts/verify.sh`** → see about 90 ✅ lines and exit 0: no access keys on the contract and DAO accounts, one asset `code_hash`, ledger invariants, sweeps, rights ↔ tasks, escalations, reimbursement caps, the out-of-service log and all 21 judge steps on chain (84 s on 2026-11-13, [`docs/WIN_PLAN.md`](docs/WIN_PLAN.md); saved output [`evidence/verify-step21.txt`](evidence/verify-step21.txt)).
+3. Do **run `./scripts/simulate.sh washer --fake`** → see in about 1 s the loop on in-memory fake chains: NEP-413 signed access → bridge 200, simulated telemetry makes `filter_clean` due, the agent opens the Cleaning task with a template rationale, the bridge verification passes; the lines it cannot model say "skipped" (rights, sweep, invariants need the sandbox run without `--fake`, see "Run locally").
+4. Do **read the five core steps** below → see each one as a testnet tx.
 
 ## The five core steps (testnet)
 
@@ -28,6 +32,53 @@ From [`evidence/steps.json`](evidence/steps.json) (`core: true`); the full table
 3. **Upkeep task → independent approval → rights.** Do: telemetry crosses the `nozzle_clean` threshold; the agent opens the task; Ayşe claims and submits; the bridge runs a calibration print; Mehmet approves → See: `task_opened` by the agent [`AbQSVeSa…`](https://testnet.nearblocks.io/txns/AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem); claim [`GZfCTLk4…`](https://testnet.nearblocks.io/txns/GZfCTLk4VvcijK7BfSMwmFYYCpRfmwXZ3LdsNvEjXMJ1), submit [`ChE95bYQ…`](https://testnet.nearblocks.io/txns/ChE95bYQJJWomAfU4PxxbtMADQ6VajRhwxtwkTyTXzqp), verification [`5RAh6R1w…`](https://testnet.nearblocks.io/txns/5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr); approval with `nft_mint` of right-3 and right-4 to Ayşe [`Gr7bwqmC…`](https://testnet.nearblocks.io/txns/Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx). Steps 7–8.
 4. **Excess float is swept to the DAO.** Do: Ali books more printer time, so the fee pushes the float over its 3 NEAR cap → See: `swept` 0.0499 NEAR in the same tx; float back at the cap; DAO treasury 5.6511 → 5.701 NEAR [`DBTLyXkr…`](https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S). Step 6.
 5. **Verify everything yourself.** Do: `./scripts/verify.sh` (read-only, no keys) → See: exit 0 and no ❌ across keys, code hashes, ledger invariants, sweeps, rights ↔ tasks, escalations, reimbursement caps, the out-of-service log and all evidence steps ([`evidence/verify-step21.txt`](evidence/verify-step21.txt)). Step 21.
+
+## The track prompt, requirement by requirement
+
+Social Money prompt: [`tracks/12-social.md`](https://github.com/nearai/near-hackathon-prompt-examples/blob/main/tracks/12-social.md). Its example is a bounty board; COMMONKIT's "bounties" are upkeep tasks on shared things.
+
+| The prompt asks | COMMONKIT | | Proof |
+| :--- | :--- | :--- | :--- |
+| "Use the existing DAO or Trezu treasury for custody and approvals. Don't write a new multisig." | Two unmodified Sputnik DAO v2 DAOs from the testnet factory hold the community money; each machine keeps only a capped float and sweeps the rest to its DAO; purchases above the cap are Sputnik proposals the machine's contract opens itself. | ✅ | DAOs [`FjQhBmLT…`](https://testnet.nearblocks.io/txns/FjQhBmLT7oJa7nbNjuoxtQ6rff1jmV7RfVahBUvPmBhb), [`7FEEhTWm…`](https://testnet.nearblocks.io/txns/7FEEhTWmfQrhpicfGCz4TiPEKwNNeXDUWegUXxb9HK2D); sweep step 6; proposal step 10; [`contracts/tests/res/SOURCE.md`](contracts/tests/res/SOURCE.md) |
+| "Reputation is tied to named accounts and every point is traceable to a finished bounty." | Every reputation record names the account and carries the task or session id in a `reputation_recorded` event; usage-right cards record their source task (`get_card`). | ✅ | steps 5, 8, 9, 13; `verify.sh` check 7 (every card ↔ its Rewarded task) |
+| "Tiers: small payouts auto-approve for trusted contributors, mid-size ones need one council member, large ones become a normal DAO proposal." | Tiers by amount: one independent verifier approves up to `council_threshold_cash`; above it a council member must also approve; above `auto_reward_cash_cap` the payout is only possible through a DAO proposal. | ✅ by amount | step 18 [`42VT5eby…`](https://testnet.nearblocks.io/txns/42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG); step 10; `inv_restock_expense_capped_and_not_from_deposits` |
+| "…a good track record raises how much they can be paid without a full council vote." | Not implemented. A track record lowers the member's **deposit** (`deposit_trusted` after `trusted_after` clean returns) and earns usage rights; it does not raise the payout limit. Payouts above the cap still go to the council or the DAO. | partial | `reserve_uses_trusted_deposit_after_clean_returns` ([`contracts/asset/src/tests/reservations.rs`](contracts/asset/src/tests/reservations.rs)); [`docs/CONTRACT_SPEC.md`](docs/CONTRACT_SPEC.md) §7 |
+| "A public board showing open bounties, claims, payouts and each contributor's record." | Wallet-free board at `/app`: open tasks by upkeep kind, claims, rights earned and the latest DAO proposals; each machine's page shows its float, deposits held and the total swept to the DAO; each member's cards and record at `/app/me?as=ayse.commonkit-sxflo.testnet` (any account id). | ✅ built; hosting: <HOSTED_URL>/app | screenshot above; [`web/screenshots/`](web/screenshots) |
+| Shared budgets, programmable rewards, collective ownership, reputation-based access (track description) | Capped float + DAO treasury; upkeep tasks opened from on-chain rule status and rewarded exactly once; keyless machine accounts governed by the DAO; credential cards required for risky machines. | ✅ | steps 6–8, 11–13; `inv_custody_float_cap_sweeps_excess`, `inv_exactly_once_reward_retry`, `inv_credential_required`; key deletions under "What we built" |
+| Named accounts (track hint) | `printer-01.makerlab.commonkit-sxflo.testnet`, `commons.dorm-b…`, `bridge…`, `agent…` | ✅ | [`deployments/testnet.json`](deployments/testnet.json) |
+
+### Checkpoint: which approval flows already exist, which we add
+
+The prompt ends: "tell me which approval flows already exist and which ones we need to add."
+
+**Sputnik DAO v2 already provides** (source: [near-daos/sputnik-dao-contract](https://github.com/near-daos/sputnik-dao-contract), `sputnikdao2` v2.3.1 is what the testnet factory deploys, [`contracts/tests/res/SOURCE.md`](contracts/tests/res/SOURCE.md)):
+- **Roles** in a policy: `Everyone`, a token-weighted `Member` role, or a `Group` of named accounts, each with permissions per proposal kind and action (`AddProposal`, `VoteApprove`, `VoteReject`, `VoteRemove`, `Finalize`, …).
+- **Votes** with a threshold per role; the factory default gives the council 2 of 3 votes (`[1,2]`, D-103), a 1 NEAR proposal bond and a 7-day period ([`docs/RESEARCH_RESULTS.md`](docs/RESEARCH_RESULTS.md) C3–C4).
+- **Proposal kinds** including `Transfer`, `FunctionCall`, `ChangePolicy`, `AddMemberToRole`/`RemoveMemberFromRole`, `AddBounty`/`BountyDone` (with `bounty_claim`), and policy parameter changes.
+
+**COMMONKIT adds**, without changing Sputnik:
+- **Machine-opened proposals:** the asset contract calls `add_proposal` with its own bond for purchases and large reimbursements (step 10; research C8, D-101).
+- **A capped float and automatic sweep:** each machine keeps at most `float_cap`; the excess goes to the DAO in the same transaction (step 6, `inv_custody_float_cap_sweeps_excess`); deposits are liabilities, never revenue (`inv_custody_deposits_never_swept`).
+- **A bounded agent:** a function-call key that can only open tasks the contract says are due, within quotas, and can be removed by the DAO (step 16, [`evidence/agent-limits.json`](evidence/agent-limits.json)).
+- **An independent verifier** and a council second approval by amount; the worker, the agent and the bridge can never approve (`inv_no_self_verification_task`, step 17).
+- **Exactly-once rewards** with retry-safe minting (`inv_exactly_once_reward_retry`, step 17 `E_ALREADY_REWARDED`).
+- **Non-revocable rights:** no method deletes, downgrades or transfers a granted card (`inv_no_retroactive_revocation`, `inv_non_transferable`, step 17).
+- **Physical access gated by a booking:** the bridge opens a device only after `can_access` and a chain write (steps 3–4).
+
+We use Sputnik's roles, votes, `Transfer` and `FunctionCall`; we do not use its native bounties, because upkeep tasks pay usage rights (not treasury cash per claim) and are opened from on-chain rule status.
+
+## NFTs: cards that carry access rights and credentials
+
+Usage rights and credentials are NEP-171 tokens with NEP-177 metadata and NEP-181 enumeration on each `commons` contract, **non-transferable**: `nft_transfer`, `nft_transfer_call` and `nft_approve` always fail (`inv_non_transferable`; step 17 [`35LAjegU…`](https://testnet.nearblocks.io/txns/35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov) `E_NON_TRANSFERABLE`). A usage right is earned by upkeep or training and spent on a booking (Locked → Consumed, step 9); a credential such as `laser_safety` gates a risky machine (steps 11–13). Each machine is itself an account that holds money (its float).
+
+Standard views on testnet (checked 2026-11-13): `nft_metadata` returns `spec: "nft-1.0.0"`, name "COMMONKIT Makerlab cards"; `nft_total_supply` on `commons.makerlab.commonkit-sxflo.testnet` returns 7. Check it with near-cli-rs (0.31.1 used here):
+
+```bash
+near contract call-function as-read-only commons.makerlab.commonkit-sxflo.testnet nft_total_supply json-args '{}' network-config testnet now
+near contract call-function as-read-only commons.makerlab.commonkit-sxflo.testnet nft_tokens json-args '{"from_index":"0","limit":7}' network-config testnet now
+```
+
+Not tested: how wallets display these cards.
 
 ## What we built during the hackathon
 
@@ -63,7 +114,7 @@ Full diagrams: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) §4.
 
 ## Scenarios
 
-12 asset profiles, one contract ([`docs/PROFILES.md`](docs/PROFILES.md), `profiles/*.json`), grouped by upkeep kind; a profile appears under every kind it uses. **Status** is `meta.status` from each profile file. Every profile also passes `./scripts/simulate.sh <asset_type>` on a local sandbox ([`evidence/simulate-all-2026-11-10.txt`](evidence/simulate-all-2026-11-10.txt)).
+12 asset profiles, one contract ([`docs/PROFILES.md`](docs/PROFILES.md), `profiles/*.json`), grouped by upkeep kind; a profile appears under every kind it uses. **Status** is `meta.status` from each profile file. Every profile also passes `./scripts/simulate.sh` (with its `asset_type`, or `all`) on a local sandbox ([`evidence/simulate-all-2026-11-10.txt`](evidence/simulate-all-2026-11-10.txt)).
 
 | Upkeep kind | Profile: rule (trigger) | Device path | Status | Testnet evidence |
 | :--- | :--- | :--- | :--- | :--- |
@@ -115,7 +166,7 @@ One off-chain override: in step 10 the agent's purchase hint uses `after_n = 1` 
 
 ## Pilot
 
-**Pending (D-024).** A real-users pilot on a real shared item with the `manual_qr` adapter (targets: ≥ 5 people with their own testnet accounts, ≥ 10 reservations, ≥ 1 upkeep task approved by another member, ≥ 1 steward-confirmed return) and one real smart plug powering a desk-lamp stand-in are planned and wait on the human (H1, H2). Plan and runbook: [`docs/PILOT.md`](docs/PILOT.md), [`pilot/RUNBOOK.md`](pilot/RUNBOOK.md). No pilot numbers exist yet. If the pilot does not happen, this section will say so; if it does, it will give the real numbers with tx links.
+**Not done (as of 2026-11-13).** A real-users pilot (`manual_qr` adapter on one real shared item, ≥ 5 people with their own testnet accounts) and one real smart plug powering a desk-lamp stand-in were planned (D-024). Neither has happened: the item, people and place, and the plug, were not confirmed. The cut-off is 2026-11-14 06:00 UTC (D-031); if nothing happens by then, this stays "not done". There are no real users and no pilot numbers; every account in the evidence is a team-controlled demo account. Plan and runbook, kept for later: [`docs/PILOT.md`](docs/PILOT.md), [`pilot/RUNBOOK.md`](pilot/RUNBOOK.md).
 
 ## Judge flow (21 steps, all passed on testnet)
 
@@ -151,26 +202,11 @@ Run any step with `pnpm demo:step N`; device steps use the emulators or the simu
 pnpm install --frozen-lockfile
 ./scripts/verify.sh                 # read-only checks against testnet, no keys needed
 pnpm test:contracts                 # contract unit tests + near-workspaces sandbox tests (real Sputnik WASM)
-./scripts/simulate.sh <profile>     # e.g. washer; or `all` for the 12 profiles (local sandbox)
+./scripts/simulate.sh washer        # any of the 12 asset types, or `all` (local NEAR sandbox)
 ./scripts/simulate.sh washer --fake # no sandbox binary: in-memory fake chains, contracts not exercised
 ```
 
 Invariant tests ([`contracts/tests/tests/invariants.rs`](contracts/tests/tests/invariants.rs)): `inv_custody_float_cap_sweeps_excess`, `inv_custody_deposits_never_swept`, `inv_no_retroactive_revocation`, `inv_no_self_verification_task`, `inv_no_self_verification_training`, `inv_exactly_once_reward_retry`, `inv_failed_refund_keeps_claim`, `inv_no_double_booking_concurrent`, `inv_slots_released_on_rejection`, `inv_agent_bounded_rule_not_due`, `inv_agent_bounded_quota`, `inv_agent_revoked`, `inv_ledger_balance_covers_obligations`, `inv_rights_group_scope`, `inv_non_transferable`, `inv_credential_required`, `inv_restock_expense_capped_and_not_from_deposits`, `inv_out_of_service_blocks_access_and_refunds`, `inv_fault_report_requires_recent_session`, `inv_schedule_rule_due_only_after_interval`.
-
-## Social Money compliance
-
-| Requirement | How COMMONKIT meets it | Verified by |
-| :--- | :--- | :--- |
-| Shared budgets | DAO treasury + a capped operating float per asset | step 6 [`DBTLyXkr…`](https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S); `inv_custody_float_cap_sweeps_excess` |
-| Programmable rewards | Upkeep tasks opened from on-chain rule status, rewarded once after independent approval | steps 7–8, 16–18; `inv_exactly_once_reward_retry` |
-| Shared ownership | Asset and commons accounts without keys, governed by the DAO | key deletions above; [`evidence/verify-2026-11-10.txt`](evidence/verify-2026-11-10.txt) |
-| Reputation-based access | Credential cards; lower deposit after clean returns | steps 11–13; `inv_credential_required` |
-| Existing DAO for custody and approval | Community money and large payments stay in Sputnik; the float above its cap goes back | steps 6, 10; `inv_custody_deposits_never_swept` |
-| No new multisig | Unmodified Sputnik DAO v2 from the testnet factory | [`FjQhBmLT…`](https://testnet.nearblocks.io/txns/FjQhBmLT7oJa7nbNjuoxtQ6rff1jmV7RfVahBUvPmBhb), [`7FEEhTWm…`](https://testnet.nearblocks.io/txns/7FEEhTWmfQrhpicfGCz4TiPEKwNNeXDUWegUXxb9HK2D); [`contracts/tests/res/SOURCE.md`](contracts/tests/res/SOURCE.md) |
-| Named accounts | Every asset, commons, operator and member is a named account | [`deployments/testnet.json`](deployments/testnet.json) |
-| Every reputation point traceable | Each record carries its task or session id and a `reputation_recorded` event | steps 5, 9, 13 |
-| Tiered approval | Verifier; council above `council_threshold_cash`; DAO proposal above `auto_reward_cash_cap` | step 18 [`42VT5eby…`](https://testnet.nearblocks.io/txns/42VT5ebyCVy5953yu3RDDCuUMTz2YwYEMYQVTq7zEodG); step 10; `inv_restock_expense_capped_and_not_from_deposits` |
-| Public board | Wallet-free board of tasks, workers, rights and payments | `/app` (hosting pending, H11) |
 
 ## Architecture
 
@@ -185,7 +221,7 @@ Full list: [`deployments/testnet.json`](deployments/testnet.json). Specs: [`docs
 
 ## Security model and honest limits
 
-- **No physical device tested yet.** Adapters ran against device emulators that follow the documented APIs (D-022). The real smart plug (with a desk-lamp stand-in, not a machine) and the real-users pilot are pending (D-024).
+- **No physical device tested.** Adapters ran against device emulators that follow the documented APIs (D-022). The real smart plug (desk-lamp stand-in) and the real-users pilot were not done (see "Pilot", D-031).
 - **The bridge is trusted** (D-009). Telemetry alone never pays anyone; an independent member approves every task; the DAO can remove the bridge operator (step 16 shows the same for the agent).
 - **Build:** the deployed code is a host `non-reproducible-wasm` build; a local rebuild with the same toolchain gives the same hashes. A Docker reproducible build of the same source gives different hashes, so we do not claim the deployed code is a reproducible build (D-218).
 - **Testnet only.** Testnet NEAR has no value. Keyless contracts cannot be upgraded; a fix means a new account (D-008).
@@ -197,11 +233,11 @@ Full list: [`deployments/testnet.json`](deployments/testnet.json). Specs: [`docs
 - **One account is not one person.** Roles are managed by the DAO.
 - **Privacy:** photos and notes never go on chain, only their sha256.
 - **Demo values:** thresholds and limits were lowered by labelled DAO proposals (table above). The DAO treasuries were topped up from the team's root account by plain transfers before steps 1 and 10 (listed in those steps' txs); the accounts Ali, Can, Ayşe, Mehmet, Zeynep and the council members are team-controlled demo accounts ([`deployments/testnet.json`](deployments/testnet.json)), not real users.
-- **No Trezu integration, no security audit, business model not validated.**
+- **The hosted Trezu app is mainnet-only** and was not used (see "Trezu" for what was done on testnet). **No security audit. Business model not validated.**
 
 ## Trezu
 
-COMMONKIT uses the same Sputnik DAO contract that Trezu builds on, without modification. Proposals opened by asset contracts are standard Sputnik proposals, so Sputnik-based treasury interfaces such as Trezu should list them. Because the hosted Trezu app could not be used on testnet during the hackathon (its production backend is mainnet-only, [`docs/RESEARCH_RESULTS.md`](docs/RESEARCH_RESULTS.md) D1), we do not claim an end-to-end Trezu integration.
+<!-- TREZU: filled from integrations/trezu/README.md -->
 
 ## Run locally
 
@@ -220,7 +256,7 @@ pnpm build:site && pnpm serve:site  # → http://localhost:4320/ (landing) and h
 ```bash
 pnpm build:contracts                # non-reproducible-wasm by default (D-218)
 pnpm test:contracts                 # 402 unit + 36 sandbox tests, ~10 min
-./scripts/simulate.sh <profile>     # whole loop on a local NEAR sandbox with the real contracts; `all` for 12 profiles
+./scripts/simulate.sh printer_3d    # whole loop on a local NEAR sandbox with the real contracts; `all` for the 12 profiles
 pnpm test:simulate                  # the same washer loop as a test (opt-in, SIMULATE_SANDBOX=1)
 ```
 
@@ -257,10 +293,6 @@ Reference only, not used: GSAP, Lenis, Motion ([`docs/LANDING_RESEARCH.md`](docs
 ## Hackathon window
 
 All code in this repository was written during the hackathon, after its announcement (2026-10-19). First commit: [`30df77b`](https://github.com/anilkaracay/commonkit/commit/30df77b6e3af06457650e287b228bcea75217083) (2026-11-09).
-
-## Other projects
-
-<!-- If any team member submits another project, name it here (HACKATHON.md Q-015). -->
 
 ## License
 
