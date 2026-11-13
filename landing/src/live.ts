@@ -15,7 +15,7 @@ const fixed = (y: string) => { const n = near(y); return n.includes('.') ? n.pad
 async function refresh(cfg: LiveConfig, onState: (s: MachineState) => void): Promise<void> {
   const a = await readLive(rpc, cfg.account, cfg.community, cfg.dao);
   const set = (k: string, v: string) => document.querySelectorAll(`[data-live="${k}"]`).forEach((el) => { el.textContent = v; });
-  set('float', `${fixed(a.ledger.float_free)} / ${fixed(a.ledger.float_cap)} NEAR`);
+  set('float', `${fixed(a.ledger.float_free)} / ${fixed(a.ledger.float_cap)}`);
   const nz = a.rules.find((r) => r.rule_id === 'nozzle_clean');
   if (nz && 'Metric' in nz.trigger) set('nozzle', `${int(nz.due_value)} / ${int((nz.trigger as { Metric: { threshold: number } }).Metric.threshold)} s`);
   set('read', `Live from NEAR testnet, read ${utcStamp(new Date().toISOString())}`);

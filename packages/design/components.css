@@ -138,3 +138,19 @@
   font-weight: var(--ck-weight-medium);
   text-align: right;
 }
+
+/* Amounts in NEAR: the official mark (≈ 0.82em, on the baseline) + tabular figures; "NEAR" for screen readers.
+   Running prose keeps the word instead. Never recolour the mark (it ships in NEAR's #11181C). */
+.ck-near {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.24em;
+  white-space: nowrap;
+}
+.ck-near-mark {
+  flex: none;
+  width: 0.86em;
+  height: 0.82em;
+  align-self: baseline;
+  transform: translateY(0.06em);
+}

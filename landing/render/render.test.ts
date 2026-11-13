@@ -27,7 +27,7 @@ describe('landing render (honest and quiet)', () => {
   it('derives the money, proof and right numbers from the snapshot, evidence and profile at build time', () => {
     const fees = d.snapshot.assets.reduce((t, a) => t + BigInt(a.ledger.total_fees_in), 0n);
     const fixed = (y: bigint) => { const r = (y + 5n * 10n ** 21n) / 10n ** 22n; return `${r / 100n}.${(r % 100n).toString().padStart(2, '0')}`; };
-    expect(s['money-stats']).toContain(`${fixed(fees)} NEAR`);
+    expect(s['money-stats']).toContain(`<span class="ck-num">${fixed(fees)}</span><span class="ck-sr"> NEAR</span>`);
     expect(s.proof).toContain(`<b class="ck-num">${d.evidence_txs}</b> transactions`);
     const printer = d.profiles.find((p) => p.asset_type === 'printer_3d')!;
     expect(s['rights-pass']).toContain(`${printer.right_validity_days} days`);
@@ -50,6 +50,13 @@ describe('landing render (honest and quiet)', () => {
     const links = [...s['scenes-list']!.matchAll(/txns\/([1-9A-HJ-NP-Za-km-z]{43,44})/g)].map((m) => m[1]);
     const known = new Set(d.steps.flatMap((x) => x.txs.map((t) => t.hash)));
     for (const h of links) expect(known.has(h!)).toBe(true);
+  });
+  it('marks every NEAR amount with the official mark and keeps the word for screen readers', () => {
+    for (const k of ['hero-callouts', 'money-lineup', 'money-stats', 'how']) {
+      expect(s[k]).toContain('class="ck-near-mark"');
+      expect(s[k]!.replace(/aria-label="[^"]*"/g, '')).not.toMatch(/\d NEAR\b/);
+    }
+    expect(s['scenes-list']).toContain('class="ck-near-mark"');
   });
   it('links each refusal to its testnet transaction', () => {
     expect(s['rights-refused']!.match(/nearblocks\.io\/txns\//g)).toHaveLength(3);

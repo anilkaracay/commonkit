@@ -86,3 +86,13 @@ Don't (D-029)
 | :--- | :--- | :--- |
 | `fonts/ck-sans.woff2`, `fonts/ck-sans-tr.woff2` | Mona Sans 2 via `@fontsource-variable/mona-sans` 5.3.0 (github.com/github/mona-sans), instanced wdth 100–112 / wght 400–640, subset Latin + Turkish with fontTools 4.60.2 | SIL OFL 1.1; Reserved Font Name "Mona", so the modified file is named **CK Sans** (`fonts/OFL-mona-sans.txt`) |
 | `fonts/geist-mono.woff2` | Geist Mono via `@fontsource-variable/geist-mono` 5.3.0 (github.com/vercel/geist-font), Latin subset | SIL OFL 1.1 (`fonts/OFL-geist-mono.txt`) |
+
+## NEAR amounts
+
+The official NEAR mark (`assets/near/near-mark.svg`, unmodified; source and terms in `assets/near/SOURCE.md`)
+marks amounts denominated in NEAR, like a currency symbol: `.ck-near` = mark (≈ 0.82em, on the baseline) +
+`.ck-num` figures + a visually hidden " NEAR" (`.ck-sr`). Keep the word "NEAR" in running prose.
+
+- HTML/TS: `import { nearAmountHtml, nearMarkSvg } from '@commonkit/design'` → `nearAmountHtml('2.60')`.
+- React: `import { NearMark, NearAmount } from '@commonkit/design/react'` → `<NearAmount value="2.60" />`.
+- Never recolour, outline, animate or enlarge it into a logo; never use it as an avatar or our own mark.

@@ -207,7 +207,7 @@ section { scroll-margin-top: 24px; }
 .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 3vw, 48px); margin-top: clamp(64px, 8vw, 104px); border-top: 1px solid var(--ck-line); padding-top: 40px; }
 .stat { display: flex; flex-direction: column; gap: 8px; }
 .stat b { font-stretch: 112%; font-weight: 540; font-size: clamp(36px, 3.6vw, 52px); letter-spacing: -0.04em; line-height: 1; }
-.stat span { color: var(--ck-text-2); font-size: 15px; max-width: 22em; }
+.stat > span { color: var(--ck-text-2); font-size: 15px; max-width: 22em; }
 
 /* Rights */
 .rights { background: var(--ck-bg-alt); padding-block: clamp(112px, 13vw, 184px); }
@@ -321,3 +321,6 @@ section { scroll-margin-top: 24px; }
   .js .reveal { opacity: 1; transform: none; }
   .pass, .sheet { transform: none; }
 }
+/* Display-size amounts: a slightly smaller mark so the figures lead. */
+.stat .ck-near { gap: 0.16em; }
+.stat .ck-near-mark { width: 0.74em; height: 0.7em; }

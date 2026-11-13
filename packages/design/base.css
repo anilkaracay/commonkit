@@ -35,6 +35,14 @@ a {
   outline-offset: var(--ck-focus-offset);
   border-radius: var(--ck-radius-xs);
 }
+.ck-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
 .ck-num {
   font-variant-numeric: tabular-nums;
 }

@@ -4,12 +4,15 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { AssetSnap } from '../src/lib/chain.ts';
 import { esc, firstLabel, int, near, triggerText, type Trigger } from '../src/lib/format.ts';
+import { nearAmountHtml, nearMarkSvg } from '@commonkit/design';
 import { REPO, type DemoOverride, type JudgeStep, type LandingData, type Profile } from './data.ts';
 
 export const REPO_URL = 'https://github.com/anilkaracay/commonkit';
 const tx = (h: string) => `https://testnet.nearblocks.io/txns/${h}`;
 const pct = (x: number) => `${Math.round(Math.max(0, Math.min(1, x)) * 1000) / 10}%`;
 const ratio = (a: string, b: string) => (BigInt(b) === 0n ? 0 : Number((BigInt(a) * 10000n) / BigInt(b)) / 10000);
+/** Escapes text and turns every "<amount> NEAR" into the NEAR mark + figures (prose keeps the word elsewhere). */
+const withNear = (text: string) => esc(text).replace(/(\d+(?:\.\d+)?) NEAR\b/g, (_, n: string) => nearAmountHtml(n));
 const gauge = (v: number, label: string, due = false) => `<div class="ck-gauge${due ? ' is-due' : ''}" role="img" aria-label="${esc(label)}"><span style="--v:${pct(v)}"></span></div>`;
 const nearFixed = (y: string | bigint, dp = 2) => {
   const s = 10n ** BigInt(24 - dp), r = (BigInt(y) + s / 2n) / s, p = 10n ** BigInt(dp);
@@ -67,11 +70,11 @@ export function heroCallouts(d: LandingData): string {
   step(d, 8);
   const items: [string, string, string, string][] = [
     ['nozzle', `${int(nozzle.due_value)} / ${int(thr)} s`, ov ? 'Nozzle time · demo threshold' : 'Nozzle time since the last clean', 'nozzle'],
-    ['screen', `${nearFixed(a.ledger.float_free)} / ${nearFixed(a.ledger.float_cap)} NEAR`, 'Float, capped', 'float'],
+    ['screen', `<span class="ck-near">${nearMarkSvg()}<span class="ck-num" data-live="float">${nearFixed(a.ledger.float_free)} / ${nearFixed(a.ledger.float_cap)}</span><span class="ck-sr"> NEAR</span></span>`, 'Float, capped', ''],
   ];
   if (done)
     items.push(['upkeep', `${done.rule_id === 'nozzle_clean' ? 'Nozzle cleaned' : `${esc(RULE_NAME[done.rule_id] ?? done.rule_id)} done`}`, `Done by ${esc(who(done.claimer))}, verified by ${esc(who(done.verifier))}`, 'upkeep']);
-  return items.map(([k, v, c, live]) => `<li class="callout" data-anchor="${k}"><span class="v ck-num" data-live="${live}">${v}</span><span class="c">${esc(c)}</span></li>`).join('');
+  return items.map(([k, v, c, live]) => `<li class="callout" data-anchor="${k}"><span class="v ck-num"${live ? ` data-live="${live}"` : ''}>${v}</span><span class="c">${esc(c)}</span></li>`).join('');
 }
 
 // ---------- how it works ----------
@@ -92,8 +95,8 @@ export function how(d: LandingData): string {
         <dl class="ck-rows">
           <div><dt>Member</dt><dd>Ali</dd></div>
           <div><dt>Slots</dt><dd class="ck-num">2</dd></div>
-          <div><dt>Fee</dt><dd class="ck-num">${nearFixed(fee)} NEAR</dd></div>
-          <div><dt>Deposit, refundable</dt><dd class="ck-num">${nearFixed(p.deposit)} NEAR</dd></div>
+          <div><dt>Fee</dt><dd>${nearAmountHtml(nearFixed(fee))}</dd></div>
+          <div><dt>Deposit, refundable</dt><dd>${nearAmountHtml(nearFixed(p.deposit))}</dd></div>
         </dl>
         <p class="mini-ok"><span class="ck-dot" aria-hidden="true"></span>Confirmed on testnet</p>
       </div>`, 'how-reserve'),
@@ -116,7 +119,7 @@ export function how(d: LandingData): string {
         <p class="mini-k">Reservation · with a usage right</p>
         <dl class="ck-rows">
           <div><dt>Member</dt><dd>${esc(who(t0.claimer))}</dd></div>
-          <div><dt>Fee</dt><dd class="ck-num">0.00 NEAR</dd></div>
+          <div><dt>Fee</dt><dd>${nearAmountHtml('0.00')}</dd></div>
           <div><dt>Right</dt><dd>Consumed after the print</dd></div>
         </dl>
       </div>`, 'how-earn'),
@@ -237,7 +240,7 @@ const ICON_CHECK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.
 const ICON_LINK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5h5v5M9.5 2.5 3 9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 function outcomeCard(o: SceneCopy['outcome'], cls: string, attrs = ''): string {
-  return `<div class="outcome ${cls}"${attrs}><p class="o-k">${esc(o.k)}</p><p class="o-v ck-num">${esc(o.v)}</p><p class="o-sub">${esc(o.sub)}</p></div>`;
+  return `<div class="outcome ${cls}"${attrs}><p class="o-k">${esc(o.k)}</p><p class="o-v ck-num">${withNear(o.v)}</p><p class="o-sub">${esc(o.sub)}</p></div>`;
 }
 
 export function scenes(d: LandingData): { list: string; progress: string; posters: string } {
@@ -253,7 +256,7 @@ export function scenes(d: LandingData): { list: string; progress: string; poster
           <span class="tl-dot">${ICON_CHECK}</span>
           <p class="tl-who"><span class="av" aria-hidden="true">${esc(b.who.charAt(0))}</span><b>${esc(b.who)}</b><span class="role">· ${esc(b.role)}</span></p>
           <p class="tl-what">${esc(b.what)}</p>${b.chain || b.tx ? `
-          <p class="tl-chain">${b.chain ? `<span class="ck-num">${esc(b.chain)}</span>` : 'On NEAR testnet'}${b.tx ? ` <a class="tl-link" href="${tx(b.tx)}" rel="noopener" aria-label="View on NEAR explorer">${ICON_LINK}</a>` : ''}</p>` : ''}
+          <p class="tl-chain">${b.chain ? `<span class="ck-num">${withNear(b.chain)}</span>` : 'On NEAR testnet'}${b.tx ? ` <a class="tl-link" href="${tx(b.tx)}" rel="noopener" aria-label="View on NEAR explorer">${ICON_LINK}</a>` : ''}</p>` : ''}
         </li>`).join('')}</ol>
         <p class="sim-mark">${esc(s.note)}</p>
         ${outcomeCard(s.outcome, 'outcome-inline')}
@@ -293,7 +296,7 @@ export function money(d: LandingData): { lineup: string; stats: string } {
       <img src="/posters/m-${a.asset_type}-640.webp" width="640" height="640" alt="${esc(SHORT[a.asset_type] ?? a.asset_type)}, rendered model" loading="lazy" decoding="async">
       <div class="tile-meta"><span class="tile-name">${esc(SHORT[a.asset_type] ?? a.asset_type)}</span><span class="tile-com">${esc(com)}</span></div>
       ${gauge(f, `Float ${nearFixed(a.ledger.float_free)} of ${nearFixed(a.ledger.float_cap)} NEAR`)}
-      <p class="tile-num"><b class="ck-num">${nearFixed(a.ledger.float_free)}</b> / ${nearFixed(a.ledger.float_cap)} NEAR</p>
+      <p class="tile-num"><span class="ck-near">${nearMarkSvg()}<b class="ck-num">${nearFixed(a.ledger.float_free)}</b><span class="ck-num">/ ${nearFixed(a.ledger.float_cap)}</span><span class="ck-sr"> NEAR</span></span></p>
     </li>`;
   }).join('');
   // Sources: total_fees_in / total_swept from each asset's get_ledger view (testnet snapshot, refreshed with
@@ -304,13 +307,13 @@ export function money(d: LandingData): { lineup: string; stats: string } {
   stepTx(d, 5, /clean return/);
   const refundAmount = printer(d).p.deposit;
   const stats = [
-    [`${nearFixed(sum('total_fees_in'))} NEAR`, 'in fees paid to the machines', ''],
-    [`${nearFixed(sum('total_swept'))} NEAR`, `above the caps, swept to ${daos} community DAOs`, ''],
-    [`${nearFixed(refundAmount)} NEAR`, 'deposit refunded in full. Deposits are never spent.', ''],
+    [nearAmountHtml(nearFixed(sum('total_fees_in'))), 'in fees paid to the machines', ''],
+    [nearAmountHtml(nearFixed(sum('total_swept'))), `above the caps, swept to ${daos} community DAOs`, ''],
+    [nearAmountHtml(nearFixed(refundAmount)), 'deposit refunded in full. Deposits are never spent.', ''],
   ];
   return {
     lineup,
-    stats: stats.map(([n, t, l]) => `<div class="stat"><b class="ck-num">${n}</b><span>${esc(t!)}</span>${l ? `<span class="stat-l">${l}</span>` : ''}</div>`).join(''),
+    stats: stats.map(([n, t, l]) => `<div class="stat"><b>${n}</b><span>${esc(t!)}</span>${l ? `<span class="stat-l">${l}</span>` : ''}</div>`).join(''),
   };
 }
 
