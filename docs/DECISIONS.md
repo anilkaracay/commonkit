@@ -632,3 +632,7 @@ Decision: `pnpm video:build` (scripts/video/) renders the ≤ 90 s screen-only c
 ## D-034 — Trezu testnet integration approved; official NEAR mark next to amounts
 2026-11-13 · accepted (human)
 Decision: (1) The human approved the full Trezu testnet integration of D-032: templates validated with Trezu's own engine, one real testnet proposal from a template (1 testnet NEAR bond, refunded on approval), Trezu's open-source UI run locally against its testnet mock backend; claims limited to exactly that. (2) NEAR amounts show the official NEAR mark (downloaded unmodified from NEAR's own brand source, terms recorded in packages/design/assets/near/SOURCE.md), never a redrawn logo; the word "NEAR" stays for screen readers.
+
+## D-035 — Q-015: no other project
+2026-11-13 · accepted (human)
+Decision: The human confirmed no team member submits another NEAR HACKATHON project; the README carries no "other project" disclosure.
