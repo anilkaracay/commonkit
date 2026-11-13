@@ -59,3 +59,12 @@ describe('NearRpc', () => {
     await expect(bad.view('a.testnet', 'get')).rejects.toThrow(/E_NOT_DAO/);
   });
 });
+
+import { displayName } from './cast.js';
+describe('cast', () => {
+  it('maps demo accounts to English display names and leaves others alone', () => {
+    expect(displayName('ayse.commonkit-sxflo.testnet')).toBe('Ava');
+    expect(displayName('mehmet')).toBe('Mark');
+    expect(displayName('stranger.testnet')).toBe('stranger');
+  });
+});

@@ -636,3 +636,7 @@ Decision: (1) The human approved the full Trezu testnet integration of D-032: te
 ## D-035 — Q-015: no other project
 2026-11-13 · accepted (human)
 Decision: The human confirmed no team member submits another NEAR HACKATHON project; the README carries no "other project" disclosure.
+
+## D-036 — English display names for the demo cast
+2026-11-13 · accepted (human)
+Decision: All user-facing names use English display names from `packages/sdk/src/cast.ts` (ali→Alex, can→Casey, ayse→Ava, mehmet→Mark, zeynep→Zoe; councils elif→Ellie, burak→Ben, selin→Sam, nil→Nina, ozan→Oscar, ece→Emma). On-chain account ids, evidence files and tx data are unchanged; UIs show the real account id in details, and the README states the mapping once.
