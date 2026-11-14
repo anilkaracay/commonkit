@@ -43,6 +43,8 @@ Six core steps of the 21-step judge flow ([`docs/JUDGE_FLOW.md`](docs/JUDGE_FLOW
 
 **Real wallet round trip (14 November).** A dedicated testnet QA account connected through Meteor Web, signed a **2.25 testnet NEAR** printer reservation, saw it confirmed and its slot unavailable, then cancelled through the app and approved the cancellation in Meteor. The browser showed `Cancelled` and the slot free again. Independent RPC checks verified the full **2.25 NEAR** refund, zero pending liabilities and a balanced ledger; the account spent only **0.0014037603052111 NEAR** in network fees. [Reservation](https://testnet.nearblocks.io/txns/4LGTBU45x51JQtGxQEnBuGEeY4tKHf3oUtChjs4SguKW) · [cancellation](https://testnet.nearblocks.io/txns/99i21ohjM9aQawh7Vh5hcjN2PXxVEjr2pkF9SJuwGwiX) · [receipt and test scope](evidence/meteor-wallet-qa-2026-11-14.json). This is controlled browser QA with a fresh wallet, separate from customer or physical-device trials.
 
+**Repeated on the updated interface.** A second Meteor run confirmed reservation #5, displayed the exact cancellation deadline and refund, then cancelled through the wallet. The full refund, released slot, exact gas-only balance difference and zero pending liabilities were checked again. The UI showed the exact reservation status, avoided the false conflict after its own booking, and kept the cancellation transaction link after live query refresh. [Post-fix browser and receipt evidence](evidence/meteor-wallet-qa-after-ui-fixes-2026-11-14.json).
+
 Additional bridge checks accepted a valid NEP-413 signature and rejected a changed message; an earlier [local-signer browser run](evidence/browser-wallet-qa.json) documents that separate boundary.
 
 **Public browser navigation (14 November).** A separate read-only check followed 11 public routes with direct RPC and normal HTTPS: all pages finished loading, Proof passed 11/11 checks, and all 161 RPC queries returned HTTP 200. No wallet or signing was involved. [Run and timing evidence](evidence/public-navigation-qa-after-rpc-fix-2026-11-14.json).
@@ -244,7 +246,7 @@ The first deployment plan is one staffed makerspace, one shared printer and an e
 
 ## Built with
 
-AI tools: **Claude Code** (Anthropic) and **Codex** (OpenAI) were used for implementation, tests, documentation and review under the team's direction ([HACKATHON.md](docs/HACKATHON.md) Q-005). The video narration is a synthetic voice (Kokoro-82M, below). The alternative [device campaign cover](packages/design/social/README.md#device-campaign-cover) uses OpenAI image generation; it is brand illustration, not a photograph of deployed equipment.
+AI tools: **Claude Code** (Anthropic) and **Codex** (OpenAI) were used for implementation, tests, documentation and review under the team's direction ([HACKATHON.md](docs/HACKATHON.md) Q-005). The video narration is a synthetic voice (Kokoro-82M, below). The [device campaign cover](packages/design/social/README.md#final-covers-with-original-vector-lettering-and-logos) and [five-image story](packages/design/social/thread/README.md) use OpenAI image generation for device illustrations; final lettering and logos are composed from the project’s vector sources.
 
 | Area | Library or asset | Version | License |
 | :--- | :--- | :--- | :--- |
