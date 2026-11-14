@@ -25,9 +25,11 @@ No keys and no wallet needed. The hosted site is https://commonkit.cayvox.com (l
 | Open `/app/t/printer-01.makerlab.commonkit-sxflo.testnet/0` | The nozzle-cleaning task: why the machine asked (telemetry vs threshold), who claimed it, the independent approval, and the two cards it minted. |
 | Open `/app/me?as=ayse.commonkit-sxflo.testnet` | Ava's cards (usage rights, one already used on a booking, and a `laser_safety` credential) and her record per machine. Any account id works. |
 | Open `/app/proof` | Access keys per contract account (0), the shared `code_hash`, the ledger invariants and explorer links. |
-| Run `./scripts/verify.sh` | 91 lines, no ❌, exit 0, in about 84 s: no keys on the eight contract and DAO accounts, one asset `code_hash`, operator key scopes, ledgers, sweeps, rights ↔ tasks, escalations, reimbursement caps, service log and all 21 judge steps re-read from chain ([`evidence/verify-step21.txt`](evidence/verify-step21.txt)). |
+| Run `./scripts/verify.sh` | about 90 lines, no ❌, exit 0, in 1–2 minutes: no keys on the eight contract and DAO accounts, one asset `code_hash`, operator key scopes, ledgers, sweeps, rights ↔ tasks, escalations, reimbursement caps, service log and all 21 judge steps re-read from chain ([`evidence/verify-step21.txt`](evidence/verify-step21.txt)). |
 | Run `./scripts/simulate.sh washer --fake` | In about a second, the loop on in-memory fake chains: NEP-413 signed access → bridge 200, simulated telemetry makes `filter_clean` due, the agent opens the cleaning task, the bridge verification passes. Lines it cannot model say "skipped"; drop `--fake` for the real contracts on a local sandbox ([Run locally](#run-locally)). |
 | Watch the video: <VIDEO_URL> | One walkthrough of the site reading testnet live: board → printer → booking → upkeep task with independent approval and cards → refused card transfer → float swept to the DAO → proof. Synthetic narration voice. |
+
+Transaction links open on NearBlocks. To read a hash over RPC, use an archival endpoint such as `https://archival-rpc.testnet.fastnear.com`: regular testnet RPC nodes drop transactions older than a few days and answer `UNKNOWN_TRANSACTION`.
 
 ## Why it has to be on NEAR
 
@@ -117,7 +119,7 @@ Nothing approves itself, even for trusted members: the worker, the agent and the
 
 ![Trezu UI (local, testnet mock backend) showing makerlab-ck proposal #10, opened by printer-01's own contract](integrations/trezu/screenshots/trezu-local-makerlab-10-transfer-to-supplier-1440.png)
 
-The hosted Trezu app is mainnet-only, so it was not used; #13 was filed by our script with the engine's exact output rather than through Trezu's form ([`integrations/trezu/README.md`](integrations/trezu/README.md), D-037).
+The hosted Trezu app is mainnet-only, so it was not used; #13 was filed by our script with the engine's exact output rather than through Trezu's form ([`integrations/trezu/README.md`](integrations/trezu/README.md), [D-037](docs/DECISIONS.md)).
 
 **What Sputnik already does, and what COMMONKIT adds.** Sputnik provides roles, votes with thresholds, proposal bonds, `Transfer`, `FunctionCall`, policy changes and native bounties. COMMONKIT adds, without changing Sputnik: machine-opened proposals, a capped float with automatic sweep, a bounded agent, an independent verifier with a council second approval by amount, exactly-once rewards, non-revocable rights and physical access gated by a booking. Upkeep tasks are not Sputnik bounties because they pay in access and are opened from on-chain rule status. Full answer with sources: [`docs/APPROVAL_FLOWS.md`](docs/APPROVAL_FLOWS.md).
 
@@ -150,10 +152,10 @@ near contract call-function as-read-only commons.makerlab.commonkit-sxflo.testne
 
 - **Two Rust contracts**: `asset` (one per shared thing, same WASM everywhere) and `commons` (roles, credentials, NEP-171 cards), per [`docs/CONTRACT_SPEC.md`](docs/CONTRACT_SPEC.md). `pnpm test:contracts`: 402 unit tests and 36 near-workspaces sandbox tests against the real Sputnik DAO v2 WASM, including 20 invariant tests ([`contracts/tests/tests/invariants.rs`](contracts/tests/tests/invariants.rs); output [`evidence/ci-local/test-contracts-2026-11-10.txt`](evidence/ci-local/test-contracts-2026-11-10.txt)).
 - **On testnet**: DAOs `makerlab-ck.sputnikv2.testnet` [`FjQhBmLT…`](https://testnet.nearblocks.io/txns/FjQhBmLT7oJa7nbNjuoxtQ6rff1jmV7RfVahBUvPmBhb) and `dorm-b-ck.sputnikv2.testnet` [`7FEEhTWm…`](https://testnet.nearblocks.io/txns/7FEEhTWmfQrhpicfGCz4TiPEKwNNeXDUWegUXxb9HK2D); commons deploys [`GSpazbSo…`](https://testnet.nearblocks.io/txns/GSpazbSoUiN5UtbStM5cbRc89VdjjXpvH4P2xDk2vuk8), [`8BqTEpT2…`](https://testnet.nearblocks.io/txns/8BqTEpT2NmisQwGUXmmCAF2UCboiiADGqUmKG8Qw7ggw); machines `printer-01` [`315qJKEZ…`](https://testnet.nearblocks.io/txns/315qJKEZC1TcrG8q9BAMcdDEew3ZfWXNzcxXDkPmEJwU), `laser-01` [`CjEyTuGY…`](https://testnet.nearblocks.io/txns/CjEyTuGYMUgZBR6wWzZVHFhtejKvAk3c8c4esjy6uKYF), `washer-01` [`8bDy3oxZ…`](https://testnet.nearblocks.io/txns/8bDy3oxZhrTvac1dW3PNB8GJGShkfaJpLCeri4xWbiBS), `fridge-01` [`Djix1a22…`](https://testnet.nearblocks.io/txns/Djix1a22wMz1ZD3xJs6W3L1yyDFi9Uu6T79AB8MvULPm); full-access keys deleted [`7rxMTZ3k…`](https://testnet.nearblocks.io/txns/7rxMTZ3k9BpHVeVKHTmK9Nr2s6JtWvEK4nJoGQLyog7X) [`3qmAWFX7…`](https://testnet.nearblocks.io/txns/3qmAWFX7C9GoV2Jk2mRZjLYo2dhKoP31g6Jo1qQQmbMg) [`Bf6gbxyT…`](https://testnet.nearblocks.io/txns/Bf6gbxyTuguCeP4qm6ZDj4Mekmuhhbyi4nRzTb517EK3) [`BXJTZ5Rc…`](https://testnet.nearblocks.io/txns/BXJTZ5RczfieprUA1s4GSM5E694Qzc5RNxL3EWgiW2Jd) [`HEfVWQF8…`](https://testnet.nearblocks.io/txns/HEfVWQF8uNvtKoNNHHcn3kdkU1zNqCWxU4nHHxf9pT5D) [`CMExFncD…`](https://testnet.nearblocks.io/txns/CMExFncD6yjKEzZPf4tXPTSFUEWQHuSoEAqXnVC9GKyd). All accounts: [`deployments/testnet.json`](deployments/testnet.json).
-- **Bridge** ([`bridge/`](bridge), TypeScript, Fastify): NEP-413 access checks against full-access keys only (D-019), the chain write before the unlock (D-404), `moonraker` and `smart_plug` adapters run against device emulators of the documented APIs (steps 3, 8, 13), and a simulator (steps 15, 19, 20).
-- **Operations agent** ([`agent/`](agent), TypeScript): opens upkeep tasks only when `get_rule_status` says due and escalates purchases through the machine's own Sputnik proposals. The contract refused every out-of-bounds attempt on testnet: not due, duplicate, over quota, after removal ([`evidence/agent-limits.json`](evidence/agent-limits.json), step 16). Rationales come from templates; no LLM is used (D-107).
+- **Bridge** ([`bridge/`](bridge), TypeScript, Fastify): NEP-413 access checks against full-access keys only ([D-019](docs/DECISIONS.md)), the chain write before the unlock ([D-404](docs/DECISIONS.md)), `moonraker` and `smart_plug` adapters run against device emulators of the documented APIs (steps 3, 8, 13), and a simulator (steps 15, 19, 20).
+- **Operations agent** ([`agent/`](agent), TypeScript): opens upkeep tasks only when `get_rule_status` says due and escalates purchases through the machine's own Sputnik proposals. The contract refused every out-of-bounds attempt on testnet: not due, duplicate, over quota, after removal ([`evidence/agent-limits.json`](evidence/agent-limits.json), step 16). Rationales come from templates; no LLM is used ([D-107](docs/DECISIONS.md)).
 - **Web app** under `/app` and a landing page at `/` ([`web/`](web), [`landing/`](landing)), reading testnet without a wallet; wallet actions through `@hot-labs/near-connect`.
-- **`simulate.sh`**: the whole loop for all 12 profiles on a private local NEAR sandbox with the real contracts, the real Sputnik WASM, the bridge and the agent (D-420).
+- **`simulate.sh`**: the whole loop for all 12 profiles on a private local NEAR sandbox with the real contracts, the real Sputnik WASM, the bridge and the agent ([D-420](docs/DECISIONS.md)).
 
 Accounts at a glance:
 
@@ -170,17 +172,17 @@ Invariant tests: `inv_custody_float_cap_sweeps_excess`, `inv_custody_deposits_ne
 
 ## Security model and limits
 
-- **Devices.** The adapters run against emulators that follow the Moonraker and Shelly APIs, and the washer and fridge run on a simulator whose readings carry `simulated = 1` on chain ([`docs/SCENARIOS.md`](docs/SCENARIOS.md#simulation-and-emulators), D-022). Connecting a physical device is the next step; the planned real-users pilot and smart-plug test were not run before the 2026-11-14 06:00 UTC cut-off (D-031), so there are no real users or pilot numbers yet ([`docs/PILOT.md`](docs/PILOT.md), [`pilot/RUNBOOK.md`](pilot/RUNBOOK.md)).
-- **Demo accounts and values.** Members and council members are team-controlled demo accounts. Thresholds were lowered by labelled DAO proposals so the demo fits in minutes ([`docs/JUDGE_FLOW.md`](docs/JUDGE_FLOW.md#demo-overrides-on-testnet)), and the DAO treasuries were topped up from the team's root account by plain transfers before steps 1 and 10.
-- **Network.** Deployed on NEAR testnet; testnet NEAR has no value. Mainnet is a deployment step: keyless contracts cannot be upgraded, so a fix means a new account (D-008).
-- **The bridge is trusted** (D-009). Telemetry alone never pays anyone: it only opens tasks, an independent member approves every task, and the DAO can remove an operator (step 16).
+- **Devices.** The adapters run against emulators that follow the Moonraker and Shelly APIs, and the washer and fridge run on a simulator whose readings carry `simulated = 1` on chain ([`docs/SCENARIOS.md`](docs/SCENARIOS.md#simulation-and-emulators), [D-022](docs/DECISIONS.md)). Connecting a physical device is the next step; the planned real-users pilot and smart-plug test were not run before the 2026-11-14 06:00 UTC cut-off ([D-031](docs/DECISIONS.md)), so there are no real users or pilot numbers yet ([`docs/PILOT.md`](docs/PILOT.md), [`pilot/RUNBOOK.md`](pilot/RUNBOOK.md)).
+- **Demo accounts and values.** Members and council members are team-controlled demo accounts. Thresholds were lowered by labelled DAO proposals so the demo fits in minutes ([`docs/JUDGE_FLOW.md`](docs/JUDGE_FLOW.md#demo-overrides-on-testnet)), and the DAO treasuries were topped up from the team's root account by plain transfers before steps 1 and 10. Task #1 on printer-01 (`bed_level`) was opened while that rule's demo override was active (step 16, makerlab proposal #12); the threshold was restored in #15, so its rule now reads not due while the task stays open for any member to claim.
+- **Network.** Deployed on NEAR testnet; testnet NEAR has no value. Mainnet is a deployment step: keyless contracts cannot be upgraded, so a fix means a new account ([D-008](docs/DECISIONS.md)).
+- **The bridge is trusted** ([D-009](docs/DECISIONS.md)). Telemetry alone never pays anyone: it only opens tasks, an independent member approves every task, and the DAO can remove an operator (step 16).
 - **"No one can take back what you earned", precisely:** no method deletes, downgrades or transfers a granted card (step 17). The DAO can still make a card unusable in practice by deactivating the machine, moving it to another group or adding a credential requirement.
 - **Reputation and cash limits.** A good record lowers deposits; it does not raise the cash a member can be paid without the council (see [How a community runs it](#how-a-community-runs-it)).
 - **Physical bypass** (unplugging, the device's own buttons) needs social control. Smart-plug telemetry is inferred from power.
 - **Judgement stays human.** Upkeep and training quality need a person to check; verification tests are supporting evidence. A credential card is a community rule, not a legal certificate. One account is not one person; roles are managed by the DAO.
 - **Privacy.** Photos and notes never go on chain, only their sha256.
-- **Build.** The deployed code is a host `non-reproducible-wasm` build; a local rebuild with the same toolchain gives the same hashes. A Docker reproducible build of the same source gives different hashes, so we do not claim a reproducible build (D-218).
-- **Not done.** No security audit; how wallets display the cards was not tested; the business model (a hardware bridge kit and a protocol fee the DAO can switch on, 0 in every profile) is not validated.
+- **Build.** The deployed code is a host `non-reproducible-wasm` build; a local rebuild with the same toolchain gives the same hashes. A Docker reproducible build of the same source gives different hashes, so we do not claim a reproducible build ([D-218](docs/DECISIONS.md)).
+- **Not done.** No security audit; how wallets display the cards was not tested; `nft_transfer`, `nft_transfer_call` and `nft_approve` ignore their arguments and always fail, so their signatures are simpler than NEP-171's (a new deployment would keep the standard shape); the business model (a hardware bridge kit and a protocol fee the DAO can switch on, 0 in every profile) is not validated.
 
 ## Run locally
 
@@ -198,7 +200,7 @@ Full run (adds Rust 1.98.1 with `wasm32-unknown-unknown` and cargo-near 0.23.0; 
 
 ```bash
 pnpm build:contracts                # non-reproducible-wasm by default (D-218)
-pnpm test:contracts                 # 402 unit + 36 sandbox tests, about 10 min
+pnpm test:contracts                 # 402 unit + 36 sandbox tests, about 20 min
 ./scripts/simulate.sh printer_3d    # whole loop on a local NEAR sandbox with the real contracts; `all` for the 12 profiles
 pnpm test:simulate                  # the washer loop as a test (opt-in, SIMULATE_SANDBOX=1)
 ```
@@ -222,24 +224,24 @@ pnpm test:simulate                  # the washer loop as a test (opt-in, SIMULAT
 
 ## Built with
 
-AI tools: **Claude Code** (Anthropic) wrote most of the code, tests and docs under the team's direction (HACKATHON.md Q-005). The video narration is a synthetic voice (Kokoro-82M, below).
+AI tools: **Claude Code** (Anthropic) wrote most of the code, tests and docs under the team's direction ([HACKATHON.md](docs/HACKATHON.md) Q-005). The video narration is a synthetic voice (Kokoro-82M, below).
 
 | Area | Library or asset | Version | License |
 | :--- | :--- | :--- | :--- |
 | Contracts | near-sdk | 5.30.1 | MIT OR Apache-2.0 |
 | Contract tests | near-workspaces | 0.24.0 | MIT OR Apache-2.0 |
-| Contract tests | near-sandbox crate / nearcore `near-sandbox` binary (downloaded at run time, not redistributed; also used by `simulate.sh`, D-420) | 0.4.0 / 2.14.0 | MIT OR Apache-2.0 |
+| Contract tests | near-sandbox crate / nearcore `near-sandbox` binary (downloaded at run time, not redistributed; also used by `simulate.sh`, [D-420](docs/DECISIONS.md)) | 0.4.0 / 2.14.0 | MIT OR Apache-2.0 |
 | Contract tests | tokio; serde_json, anyhow, futures | 1; 1, 1, 0.3 | MIT; MIT OR Apache-2.0 |
 | Contract tests | Sputnik DAO v2 WASM, fetched from testnet ([`contracts/tests/res/SOURCE.md`](contracts/tests/res/SOURCE.md)); source near-daos/sputnik-dao-contract | 2.3.1 | MIT |
 | Build | cargo-near | 0.23.0 | MIT OR Apache-2.0 |
-| Build (check only) | Docker image `sourcescan/cargo-near` for the reproducibility comparison (D-218); not shipped | 0.22.0-rust-1.99.1 | image of cargo-near (above) |
+| Build (check only) | Docker image `sourcescan/cargo-near` for the reproducibility comparison ([D-218](docs/DECISIONS.md)); not shipped | 0.22.0-rust-1.99.1 | image of cargo-near (above) |
 | SDK, scripts | near-api-js | 7.4.0 | MIT AND Apache-2.0 |
 | SDK, bridge, agent, scripts | zod | 3.25 / 4.6.7 | MIT |
 | Bridge | fastify, @fastify/cors, @fastify/multipart, pino, @scure/base | 5.12.8, 11.4.1, 10.1.8, 10.4.0, 2.4.0 | MIT |
 | Bridge, agent, scripts | yaml | 2.9.1 | ISC |
 | Bridge tests | borsh; @noble/curves | 2.0.0; 2.4.0 | Apache-2.0; MIT |
 | Scripts | ajv | 8.20.0 | MIT |
-| Trezu template tests | Trezu template engine, fetched at NEAR-DevHub/trezu@62cf0e4 into a temp dir, not vendored ([`integrations/trezu/engine.lock.json`](integrations/trezu/engine.lock.json), D-037) | 62cf0e4 | no license file upstream; not redistributed |
+| Trezu template tests | Trezu template engine, fetched at NEAR-DevHub/trezu@62cf0e4 into a temp dir, not vendored ([`integrations/trezu/engine.lock.json`](integrations/trezu/engine.lock.json), [D-037](docs/DECISIONS.md)) | 62cf0e4 | no license file upstream; not redistributed |
 | Pilot QR sheets | qrcode; pdf-lib; @pdf-lib/fontkit | 1.5.4; 1.17.1; 1.1.1 | MIT |
 | Pilot QR sheets | DejaVu Sans fonts (`dejavu-fonts-ttf`) | 2.37.3 | Bitstream Vera-derived free license (package LICENSE) |
 | Web | react, react-dom, react-router, @tanstack/react-query | 19.3.1, 19.3.1, 7.18.5, 5.107.1 | MIT |
@@ -258,7 +260,7 @@ Reference only, not used: GSAP, Lenis, Motion ([`docs/LANDING_RESEARCH.md`](docs
 
 ## Hackathon window and disclosure
 
-All code in this repository was written during the hackathon, after its announcement (2026-10-19). First commit: [`30df77b`](https://github.com/anilkaracay/commonkit/commit/30df77b6e3af06457650e287b228bcea75217083) (2026-11-09). Other projects: none; no team member submits another NEAR HACKATHON project (Q-015, D-035).
+All code in this repository was written during the hackathon, after its announcement (2026-10-19). First commit: [`30df77b`](https://github.com/anilkaracay/commonkit/commit/30df77b6e3af06457650e287b228bcea75217083) (2026-11-09). Other projects: none; no team member submits another NEAR HACKATHON project (Q-015, [D-035](docs/DECISIONS.md)).
 
 ## License
 

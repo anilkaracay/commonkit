@@ -27,7 +27,9 @@ const dayFmt = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short'
 /** "14 Nov 09:30 UTC". UTC keeps screenshots and tests deterministic. */
 export function formatDateTime(ns: U64 | bigint): string {
   const d = nsToDate(ns);
-  return `${dayFmt.format(d)} ${timeFmt.format(d)} UTC`;
+  // A date in another year shows its year ("10 Nov 2027"), so a card valid for a year never reads as expired.
+  const year = d.getUTCFullYear() === new Date().getUTCFullYear() ? '' : ` ${d.getUTCFullYear()}`;
+  return `${dayFmt.format(d)}${year} ${timeFmt.format(d)} UTC`;
 }
 
 export function formatTime(ns: U64 | bigint): string {
