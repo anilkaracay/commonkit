@@ -73,7 +73,7 @@ export interface ProfileMeta {
   display_name: string;
   community: string;
   icon: string;
-  /** "real hardware …" | "simulation" | "profile example only" */
+  /** "real hardware …" | "simulation" | "simulator profile" */
   status: string;
   scenario_story_en: string;
 }

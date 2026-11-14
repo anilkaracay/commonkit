@@ -350,7 +350,7 @@
         },
         "status": {
           "type": "string",
-          "pattern": "^(real hardware|simulation|profile example only)"
+          "pattern": "^(real hardware|simulation|simulator profile)"
         },
         "scenario_story_en": {
           "type": "string"

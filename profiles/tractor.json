@@ -64,7 +64,7 @@
     "community": "coop-field",
     "icon": "tractor",
     "photo": null,
-    "status": "profile example only",
+    "status": "simulator profile",
     "scenario_story_en": "A tractor and irrigation pump owned by a farming co-op.",
     "scenario_story_tr": "Tarım kooperatifinin traktörü ve sulama pompası.",
     "pilot_overrides": {},

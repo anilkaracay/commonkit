@@ -1,4 +1,4 @@
-# SIMULATION. Shared cargo bike (profiles/cargo_bike.json, profile example only; the real adapter
+# SIMULATION. Shared cargo bike (profiles/cargo_bike.json, simulator profile; the real adapter
 # would be a smart lock: the simulator stands in). 291 km; one 12 km ride crosses brake_check
 # (km >= 300, the profile's own threshold). tire_check (500 km) stays quiet.
 scenario: cargo_bike

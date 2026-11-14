@@ -1,4 +1,4 @@
-# SIMULATION. Cooperative tractor (profiles/tractor.json, profile example only). Based on
+# SIMULATION. Cooperative tractor (profiles/tractor.json, simulator profile). Based on
 # bridge/test/fixtures/scenarios/tractor.yaml: 98 engine hours; one 4-hour job crosses oil_change
 # (engine_seconds >= 360 000, the profile's own threshold). fuel_level is a GAUGE: the bridge
 # derives fuel_used_dl and refills from it (D-410). Needs the tractor_operator credential.

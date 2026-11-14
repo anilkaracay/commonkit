@@ -1,4 +1,4 @@
-# SIMULATION. Rehearsal room (profiles/rehearsal_room.json, profile example only; the real adapter
+# SIMULATION. Rehearsal room (profiles/rehearsal_room.json, simulator profile; the real adapter
 # would be a smart lock: the simulator stands in). 9 sessions; the 10th crosses room_clean
 # (sessions >= 10, the profile's own threshold). room_clean needs no verification test: the
 # independent verifier inspects.

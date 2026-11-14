@@ -1,4 +1,4 @@
-# SIMULATION. Lab microscope (profiles/microscope.json, profile example only). Its real adapter is
+# SIMULATION. Lab microscope (profiles/microscope.json, simulator profile). Its real adapter is
 # manual_qr (steward-confirmed handover); here the simulator stands in for the loan. 19 uses; the
 # 20th crosses clean_inventory (uses >= 20, the profile's own threshold).
 scenario: microscope

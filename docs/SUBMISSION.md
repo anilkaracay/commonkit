@@ -11,7 +11,7 @@ Deadline: **2026-11-14 23:59 UTC** (Türkiye: 15 Nov 02:59). Target: submit by *
 3. **Try it in 2 minutes** — hosted demo URL (no wallet) + three "do X → see Y" bullets.
 4. **What we built during the hackathon** — bullets, each with a link (tx, test name or file).
 5. **The loop** — mermaid diagram from ARCHITECTURE §4.4 (short).
-6. **Scenarios table** — the 12 profiles (`docs/PROFILES.md`), grouped by upkeep kind (Maintenance, Restock, Cleaning, Inspection, Repair, Rebalance, Supervision; a profile appears under each kind it uses), with a **Status** column: the four testnet assets (printer-01, laser-01, washer-01, fridge-01) are `simulation (testnet asset)`, the other eight `profile example only (simulator scenario)`. No row says real hardware (D-022).
+6. **Scenarios table** — the 12 profiles (`docs/PROFILES.md`), grouped by upkeep kind (Maintenance, Restock, Cleaning, Inspection, Repair, Rebalance, Supervision; a profile appears under each kind it uses), with a **Status** column: the four testnet assets (printer-01, laser-01, washer-01, fridge-01) are `simulation (testnet asset)`, the other eight `simulator profile`. No row says real hardware (D-022).
 7. **Simulation and emulators** — what is simulated and how: real bridge adapters against device emulators, simulator scenarios, demo-lowered thresholds with their `set_profile` tx links. No physical device and no pilot; no pilot numbers (D-022).
 8. **Judge flow** — 21 steps (`docs/DEMO_SCRIPT.md` §2; step 21 is `verify.sh`), each "Do X → See Y" + `pnpm demo:step N` + evidence link.
 9. **Verify it yourself** — `./scripts/verify.sh` output sample; `./scripts/simulate.sh washer` (or any of the 12 `asset_type`s; labelled simulation).

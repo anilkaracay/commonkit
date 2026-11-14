@@ -12,7 +12,7 @@ function statusTone(status: string): Tone {
 
 /**
  * Same WASM, different profile: every profile in profiles/, grouped by the kinds of upkeep it
- * asks for, with an honest Status column (real hardware / simulation / profile example only).
+ * asks for, with an honest Status column (real hardware / simulation / simulator profile).
  */
 export function ScenarioMatrix({ catalog }: { catalog: CatalogEntry[] }) {
   const byKind = new Map<UpkeepKind, { entry: CatalogEntry; rules: CatalogEntry['profile']['rules'] }[]>();

@@ -49,7 +49,7 @@
     "community": "tool-library",
     "icon": "ladder",
     "photo": null,
-    "status": "profile example only",
+    "status": "simulator profile",
     "scenario_story_en": "A ladder in a neighbourhood tool library, inspected after every 25 loans.",
     "scenario_story_tr": "Mahalle alet kütüphanesindeki merdiven; her 25 ödünçte bir güvenlik kontrolü.",
     "pilot_overrides": {},

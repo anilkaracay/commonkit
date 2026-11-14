@@ -49,7 +49,7 @@
     "community": "school-lab",
     "icon": "microscope",
     "photo": null,
-    "status": "profile example only",
+    "status": "simulator profile",
     "scenario_story_en": "A school microscope lent to students.",
     "scenario_story_tr": "Öğrencilere ödünç verilen okul mikroskobu.",
     "pilot_overrides": {},

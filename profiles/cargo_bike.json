@@ -80,7 +80,7 @@
     "community": "street-bikes",
     "icon": "bike",
     "photo": null,
-    "status": "profile example only",
+    "status": "simulator profile",
     "scenario_story_en": "A cargo bike shared by a street.",
     "scenario_story_tr": "Bir sokağın ortak kargo bisikleti.",
     "pilot_overrides": {},

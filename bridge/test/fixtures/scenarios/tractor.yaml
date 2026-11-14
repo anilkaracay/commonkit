@@ -1,4 +1,4 @@
-# SIMULATION. Cooperative tractor (profile example only). fuel_level is a gauge (litres); the bridge
+# SIMULATION. Cooperative tractor (simulator profile). fuel_level is a gauge (litres); the bridge
 # derives fuel_used_l (sum of drops) and refills (rises >= 5 l). A passed check after a Restock
 # task finds the tank full again.
 scenario: tractor

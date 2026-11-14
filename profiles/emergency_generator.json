@@ -64,7 +64,7 @@
     "community": "block-resilience",
     "icon": "generator",
     "photo": null,
-    "status": "profile example only",
+    "status": "simulator profile",
     "scenario_story_en": "A shared emergency generator: test-run monthly, refuelled with reimbursed receipts, operators need a credential.",
     "scenario_story_tr": "Ortak acil durum jeneratörü: aylık test çalıştırması, fişle geri ödenen yakıt, operatör yeterliliği.",
     "pilot_overrides": {},

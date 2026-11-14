@@ -64,7 +64,7 @@
     "community": "lab-compute",
     "icon": "gpu",
     "photo": null,
-    "status": "profile example only",
+    "status": "simulator profile",
     "scenario_story_en": "A shared GPU server in a research lab.",
     "scenario_story_tr": "Araştırma laboratuvarında ortak GPU sunucusu.",
     "pilot_overrides": {},

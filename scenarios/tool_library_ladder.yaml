@@ -1,4 +1,4 @@
-# SIMULATION. Tool-library ladder (profiles/tool_library_ladder.json, profile example only). Its
+# SIMULATION. Tool-library ladder (profiles/tool_library_ladder.json, simulator profile). Its
 # real adapter is manual_qr; here the simulator stands in for the loan. 24 uses; the 25th crosses
 # safety_inspection (uses >= 25, the profile's own threshold).
 scenario: tool_library_ladder

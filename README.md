@@ -84,17 +84,17 @@ One contract, twelve profiles ([`profiles/*.json`](profiles)). Care is broader t
 | Need | Shared thing | A member… | …and the result | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | Keep it running | Makerlab 3D printer | cleans the nozzle every 200 print hours; repairs a reported fault | 2 rights; 3 rights plus a receipt-backed expense up to 0.5 NEAR. Fees (0.25 NEAR per slot) fill a 3 NEAR float, the rest goes to the DAO treasury | simulation (testnet asset) |
-| | Co-op tractor | changes the oil every 100 engine hours | 4 rights; booking needs a `tractor_operator` credential; 10 NEAR float cap | profile example only (simulator scenario) |
-| | Lab GPU server | updates drivers every 30 days and passes the test suite | 2 rights; booking needs `gpu_basics` | profile example only (simulator scenario) |
+| | Co-op tractor | changes the oil every 100 engine hours | 4 rights; booking needs a `tractor_operator` credential; 10 NEAR float cap | simulator profile |
+| | Lab GPU server | updates drivers every 30 days and passes the test suite | 2 rights; booking needs `gpu_basics` | simulator profile |
 | Keep it stocked and clean | Dorm B washer | cleans the lint filter every 30 cycles; refills detergent every 40; descales every 120 | 3 rights; 1 right plus up to 0.3 NEAR for the receipt; 5 rights. 0.2 NEAR per 60-minute slot, 1 NEAR float cap | simulation (testnet asset) |
 | | Neighbourhood fridge | empties and cleans it weekly; checks the seal after 6 high-temperature readings | 2 rights; 1 right. Free to use, 0.1 NEAR refundable deposit | simulation (testnet asset) |
-| | School microscope | cleans the optics and checks the inventory every 20 loans | 1 right; free loan against a 1 NEAR deposit | profile example only (simulator scenario) |
+| | School microscope | cleans the optics and checks the inventory every 20 loans | 1 right; free loan against a 1 NEAR deposit | simulator profile |
 | Keep it safe and trained | Makerlab laser cutter | trains another member; runs the monthly safety check; cleans the lens every 40 h | Trainee gets a `laser_safety` credential, the trainer a usage right; 1 right; 2 rights. No credential, no booking | simulation (testnet asset) |
-| | Emergency generator | test-runs it monthly; refuels it after 20 L | 2 rights; 1 right plus up to 1 NEAR for the fuel receipt; operators need `generator_operator` | profile example only (simulator scenario) |
-| | Site EV charger | inspects cable and connector every 100 sessions | 2 rights; 0.5 NEAR per slot into a 5 NEAR float | profile example only (simulator scenario) |
-| | Tool library ladder | inspects rungs, feet and locks every 25 loans | 1 right; the 1 NEAR deposit drops to 0.5 after 3 clean returns | profile example only (simulator scenario) |
-| Keep it fair and shared | Street cargo bike | brings it back to its home spot when 2 members report it away; checks brakes every 300 km | 1 right; 2 rights; the 3 NEAR deposit drops to 1 after 5 clean returns | profile example only (simulator scenario) |
-| | Rehearsal room | hosts the weekly open-room evening; repairs a fault 2 members reported | 2 rights; 3 rights plus up to 0.5 NEAR | profile example only (simulator scenario) |
+| | Emergency generator | test-runs it monthly; refuels it after 20 L | 2 rights; 1 right plus up to 1 NEAR for the fuel receipt; operators need `generator_operator` | simulator profile |
+| | Site EV charger | inspects cable and connector every 100 sessions | 2 rights; 0.5 NEAR per slot into a 5 NEAR float | simulator profile |
+| | Tool library ladder | inspects rungs, feet and locks every 25 loans | 1 right; the 1 NEAR deposit drops to 0.5 after 3 clean returns | simulator profile |
+| Keep it fair and shared | Street cargo bike | brings it back to its home spot when 2 members report it away; checks brakes every 300 km | 1 right; 2 rights; the 3 NEAR deposit drops to 1 after 5 clean returns | simulator profile |
+| | Rehearsal room | hosts the weekly open-room evening; repairs a fault 2 members reported | 2 rights; 3 rights plus up to 0.5 NEAR | simulator profile |
 
 All twelve run the full loop on a local NEAR sandbox with the real contracts: `./scripts/simulate.sh all` → 12/12 PASS ([`evidence/simulate-all-2026-11-10.txt`](evidence/simulate-all-2026-11-10.txt)). The rule-by-rule matrix by upkeep kind (maintenance, restock, cleaning, inspection, repair, rebalance, supervision) is in [`docs/SCENARIOS.md`](docs/SCENARIOS.md).
 

@@ -660,3 +660,7 @@ Decision: The COMMONKIT logo is concept A "Kept": four identical bars around one
 ## D-041 — Hosted demo on GitHub Pages at commonkit.cayvox.com
 2026-11-14 · accepted (lead; the human chose their own domain over Vercel)
 Decision: The public repo publishes site/ (landing at /, app at /app/) with GitHub Pages from `.github/workflows/pages.yml` on every push to main. Custom domain `commonkit.cayvox.com` is set in the Pages settings; the human adds the DNS record (CNAME `commonkit` → `anilkaracay.github.io`). Pages has no rewrites, so `scripts/pages-routes.mjs` gives each known app route (fixed pages, both communities, every asset, its reserve page and tasks 0–3) its own copy of the app shell so deep links answer 200, and `404.html` is the app shell for any other path. vercel.json stays for anyone who prefers Vercel.
+
+## D-042 — Status label "simulator profile" replaces "profile example only"
+2026-11-14 · accepted (lead, owner's direction: no self-diminishing wording)
+Decision: The eight profiles that are not testnet assets carry `meta.status` "simulator profile" (schema pattern, profiles, scenarios, README, docs, app matrix, landing cards). Meaning unchanged: they run in the simulator and are not deployed on testnet; the four testnet assets stay "simulation (testnet asset)". DECISIONS history keeps the old wording.

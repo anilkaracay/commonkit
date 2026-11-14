@@ -79,7 +79,7 @@
     "community": "music-collective",
     "icon": "music",
     "photo": null,
-    "status": "profile example only",
+    "status": "simulator profile",
     "scenario_story_en": "A music collective's rehearsal room: cleaned every 10 sessions, repaired when two members report a fault.",
     "scenario_story_tr": "Müzik kolektifinin prova odası: her 10 seansta temizlik, iki üye arıza bildirince onarım.",
     "pilot_overrides": {},
