@@ -2,17 +2,17 @@
 
 [![CI](https://github.com/anilkaracay/commonkit/actions/workflows/ci.yml/badge.svg)](https://github.com/anilkaracay/commonkit/actions/workflows/ci.yml)
 
-**Shared things that pay for their own upkeep, and open up to the people who keep them alive.**
+**Share and manage community machines, with earned access for the people who care for them.**
 
-Shared machines get used; their upkeep falls to a few people. COMMONKIT turns that care into earned access. Members book a machine, complete upkeep, and receive usage-right cards after an independent member approves the work. Booking fees fund a capped operating budget; surplus returns to the community's Sputnik DAO. Each machine has its own named, keyless NEAR account: funds move through contract rules, and no method revokes a granted usage right ([scope](#security-model-and-limits)).
+COMMONKIT helps communities share and manage machines: members book access, booking fees fund upkeep, and the community's Sputnik DAO controls budgets and rules. Contributors earn usage-right cards for upkeep after an independent member approves the work. Trainers can earn rights for teaching another member after independent approval; the learner receives a credential. Earned rights can be spent on later bookings. Each machine has its own named, keyless NEAR account with a capped operating budget, and surplus returns to the DAO treasury. Funds move through contract rules, and no method revokes a granted usage right ([scope](#security-model-and-limits)).
 
-**[Open the app](https://commonkit.cayvox.com/app/) · [Watch the 73-second demo](https://commonkit.cayvox.com/demo/) · [Verify the chain state](https://commonkit.cayvox.com/app/proof/)**
+**[Open the app](https://commonkit.cayvox.com/app/) · [Watch the demo](https://commonkit.cayvox.com/demo/) · [Verify the chain state](https://commonkit.cayvox.com/app/proof/)**
 
 Built at **NEAR HACKATHON 2026** for **Social Money** and **NFTs That Do Something**. On testnet: **2 Sputnik DAOs, 2 community contracts, 4 machine accounts, all keyless; 21 recorded judge steps**. Devices use API-faithful Moonraker/Shelly emulators and a labelled simulator.
 
 ![COMMONKIT's public board: four machines, community budgets, upkeep tasks and DAO proposals, read live from NEAR testnet.](docs/img/board-1440.png)
 
-**First use case:** one staffed makerspace, one shared printer and an existing community treasury. The proposed deployment tests whether earned access gets upkeep completed sooner without increasing disputes or the steward's workload.
+**First use case:** one staffed makerspace, one shared printer and an existing community treasury. The proposed deployment would test bookings, shared budgets and whether earned access gets upkeep completed sooner without increasing disputes or the steward's workload.
 
 ## Start here
 
@@ -37,7 +37,9 @@ Six core steps of the 21-step judge flow ([`docs/JUDGE_FLOW.md`](docs/JUDGE_FLOW
 
 **Fresh browser-to-chain check (14 November).** A new team-controlled testnet account booked the printer through the real React reservation page; the transaction confirmed and availability refreshed. The booking was cancelled and its full **2.25 testnet NEAR** returned; the asset ledger remained balanced. A NEP-413 signature passed the production bridge verifier, and a changed message was rejected. [Reservation](https://testnet.nearblocks.io/txns/AkSeyqkgRS2CuvNcpdMDK1v4X6bkY2niNo2cSt9vPZ9X) · [cancellation/refund](https://testnet.nearblocks.io/txns/azzR7G1A52N8sBQA62DAo5h3q3n2qd2aspdMgEfCtnT) · [full evidence and test scope](evidence/browser-wallet-qa.json). This test uses a temporary local signer; third-party wallet popups/redirects are a separate integration boundary.
 
-The other 16 steps cover the credential gate, training, earned rights spent on bookings, the machine-opened DAO proposal, capped reimbursements, a fault taking a machine out of service, a scheduled cleaning, and every refusal the contracts promise (agent out of bounds, self-approval, double reward, card transfer).
+**Public browser navigation (14 November).** A separate read-only check followed 11 public routes with direct RPC and normal HTTPS: all pages finished loading, Proof passed 11/11 checks, and all 161 RPC queries returned HTTP 200. No wallet or signing was involved. [Run and timing evidence](evidence/public-navigation-qa-after-rpc-fix-2026-11-14.json).
+
+The full flow also covers the credential gate, training, machine-opened DAO proposals, capped reimbursements, faults taking machines out of service, scheduled cleaning, and refusals for agent actions outside its limits, self-approval, double rewards and card transfers.
 
 ## Track fit at a glance
 
@@ -168,7 +170,7 @@ No keys and no wallet needed to explore. The hosted site is https://commonkit.ca
 | Open `/app/proof` | Access keys per contract account (0), the shared `code_hash`, the ledger invariants and explorer links. |
 | Run `./scripts/verify.sh` | about 90 lines, no ❌, exit 0, in 1–2 minutes: no keys on the eight contract and DAO accounts, one asset `code_hash`, operator key scopes, ledgers, sweeps, rights ↔ tasks, escalations, reimbursement caps, service log and representative transactions from the 21-step flow ([`evidence/verify-step21.txt`](evidence/verify-step21.txt)). |
 | Run `./scripts/simulate.sh washer --fake` | In about a second, the loop on in-memory fake chains: NEP-413 signed access → bridge 200, simulated telemetry makes `filter_clean` due, the agent opens the cleaning task, the bridge verification passes. Lines it cannot model say "skipped"; drop `--fake` for the real contracts on a local sandbox ([Run locally](#run-locally)). |
-| [Watch the video](https://commonkit.cayvox.com/demo/) | A 73.2-second walkthrough reading testnet live and showing recorded transactions: booking → agent-opened upkeep task → independent approval → earned usage-right NFTs → zero-fee redemption → capped budget and DAO sweep → purchase proposal opened by the printer → proof. Devices are emulated/simulated; synthetic narration; no wallet signing in the recording. |
+| [Watch the video](https://commonkit.cayvox.com/demo/) | An 81.84-second walkthrough introduces shared machines and community rules, then reads testnet live and shows recorded transactions: booking → agent-opened upkeep task → independent approval → earned usage-right NFTs → zero-fee redemption → capped budget and DAO sweep → purchase proposal opened by the printer → proof. Devices are emulated/simulated; synthetic narration; no wallet signing in the recording. |
 
 Transaction links open on NearBlocks. To read a hash over RPC, use an archival endpoint such as `https://archival-rpc.testnet.fastnear.com`: regular testnet RPC nodes drop transactions older than a few days and answer `UNKNOWN_TRANSACTION`.
 
@@ -217,7 +219,7 @@ Invariant tests: `inv_custody_float_cap_sweeps_excess`, `inv_custody_deposits_ne
 
 ## First deployment and sustainability
 
-The proposed first deployment is one makerspace with a staffed steward, one shared printer and an existing community treasury. The useful outcome to measure is whether earned access gets upkeep completed sooner, without increasing disputes or the steward's workload. Booking revenue belongs to the community; a bridge kit, setup/support and an optional DAO-configured protocol fee are possible ways to fund the service. The protocol fee is **0 in every demo profile**; pricing and demand remain assumptions to validate.
+The first deployment plan is one staffed makerspace, one shared printer and an existing Sputnik DAO. The makerspace buys setup and support; its council governs budgets and rules, its steward runs local operations, and contributors earn access after independent approval. The [operating plan and outcome measures](docs/IMPACT_AND_OPERATIONS.md) define a supervised trial, responsibility and recovery procedures, and transparent unit economics: utilization, upkeep completion time, steward effort, disputes and earned-right redemption. Setup/support revenue is independent of the protocol fee, which is **0 in every demo profile**; the model separates community funds, refundable deposits and service margins. The current baseline is testnet with emulated/simulated devices; future trial targets and prices are labelled assumptions.
 
 ## Security model and limits
 

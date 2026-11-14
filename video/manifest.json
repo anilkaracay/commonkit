@@ -1,19 +1,23 @@
 {
-  "generated_at": "2026-11-14T11:56:23.163326+00:00",
+  "generated_at": "2026-11-14T12:38:03.943886+00:00",
   "source_url": "https://commonkit.cayvox.com/",
   "walkthrough_reads": "live NEAR testnet views and historical transaction pages",
   "wallet_signing_in_video": false,
   "devices": "emulated or simulated",
   "narration": "locally generated Kokoro-82M synthetic English voice",
-  "duration_seconds": 73.2,
-  "bytes": 8030092,
-  "sha256": "494c74224d496464b8047901f92b7c782f31cd51e573d863b4c2894db15c0e0f",
+  "duration_seconds": 81.837667,
+  "bytes": 8661471,
+  "sha256": "ac4c7de2773421473a5b8e7205a3c239e88536c01a9bc545eb0244b0ae67ad0a",
   "captions": "commonkit-demo.en.srt",
   "x_upload": "video/out/commonkit-demo-x-1280x720.mp4",
-  "caption_count": 14,
+  "caption_count": 15,
   "judge_cut": "video/out/commonkit-demo-judge-cut.mp4",
   "scope_overlay": "NEAR testnet · devices emulated/simulated",
   "claims": [
+    {
+      "claim": "Purpose introduction: communities share and manage machines; members book access, fees fund upkeep, and contributors earn usage rights",
+      "evidence": "HTTPS landing hero recorded after 46fb0cb deployment (contained callouts and compact reading row); README; evidence/steps.json steps 2, 6, 8–9"
+    },
     {
       "claim": "Recorded two-slot printer booking confirmed on testnet; no new wallet signature in the recording",
       "evidence": "evidence/steps.json step 2; transaction 3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz"
@@ -38,5 +42,6 @@
       "claim": "Proof page rechecks eight keyless accounts, matching machine code hashes and balanced ledgers",
       "evidence": "live /app/proof; scripts/verify.sh"
     }
-  ]
+  ],
+  "intro_source_revision": "46fb0cb54bc77704b79c3b57230622fa179d2641"
 }

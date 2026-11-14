@@ -1,0 +1,318 @@
+{
+  "schema": "commonkit-public-readonly-navigation-qa-v1",
+  "started_at": "2026-11-14T12:31:48.427Z",
+  "finished_at": "2026-11-14T12:32:54.510Z",
+  "status": "passed_with_recovered_public_rpc_errors",
+  "scope": "Published HTTPS app, real browser requests to public NEAR testnet RPC, no response interception, mocks, QA proxy, wallet connection, credentials or signing. Headless isolated Chromium via existing Playwright 1.64.1 dependency. Normal DNS and TLS validation.",
+  "elapsed_ms": 66083,
+  "route_readiness": "Each route required its named content and then no remaining Reading \u2026 markers before the final snapshot. Interactive timing and complete-loading timing are separate.",
+  "routes": [
+    {
+      "label": "nina-cold",
+      "url": "https://commonkit.cayvox.com/app/me/?as=nil.dorm-b.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 7486,
+      "elapsed_ms": 7488,
+      "headings": [
+        "Nina\u00b7 demo account",
+        "Cards",
+        "Reservations and reputation"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "ava-cold",
+      "url": "https://commonkit.cayvox.com/app/me/?as=ayse.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 7238,
+      "elapsed_ms": 7241,
+      "headings": [
+        "Ava\u00b7 demo account",
+        "Cards",
+        "Reservations and reputation"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "board",
+      "url": "https://commonkit.cayvox.com/app/",
+      "status": "passed",
+      "interactive_ms": 21658,
+      "elapsed_ms": 24686,
+      "headings": [
+        "Machines",
+        "Makerlab",
+        "Makerlab 3D printer",
+        "Makerlab laser cutter",
+        "Dorm B",
+        "Dorm B washer",
+        "Neighbourhood community fridge",
+        "Open tasks",
+        "Maintenance",
+        "Cleaning",
+        "Rights earned",
+        "Same contract, different commons",
+        "Inspection",
+        "Rebalance",
+        "Cleaning",
+        "Restock",
+        "Maintenance",
+        "Repair",
+        "Supervision",
+        "Latest proposals"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "printer-detail",
+      "url": "https://commonkit.cayvox.com/app/a/printer-01.makerlab.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 2318,
+      "elapsed_ms": 3076,
+      "headings": [
+        "Makerlab 3D printer",
+        "Upkeep",
+        "Who keeps me alive",
+        "Money",
+        "Telemetry",
+        "Tasks",
+        "Next slots",
+        "Reservations",
+        "Escalations",
+        "Reputation",
+        "Profile"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "reserve-read-only",
+      "url": "https://commonkit.cayvox.com/app/a/printer-01.makerlab.commonkit-sxflo.testnet/reserve",
+      "status": "passed",
+      "interactive_ms": 800,
+      "elapsed_ms": 802,
+      "headings": [
+        "Reserve"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "back-to-printer",
+      "url": "https://commonkit.cayvox.com/app/a/printer-01.makerlab.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 13,
+      "elapsed_ms": 14,
+      "headings": [
+        "Makerlab 3D printer",
+        "Upkeep",
+        "Who keeps me alive",
+        "Money",
+        "Telemetry",
+        "Tasks",
+        "Next slots",
+        "Reservations",
+        "Escalations",
+        "Reputation",
+        "Profile"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "task-0",
+      "url": "https://commonkit.cayvox.com/app/t/printer-01.makerlab.commonkit-sxflo.testnet/0",
+      "status": "passed",
+      "interactive_ms": 315,
+      "elapsed_ms": 334,
+      "headings": [
+        "Clean the nozzle and run a calibration print",
+        "Rule facts",
+        "Progress",
+        "Cards earned"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "ava-read-only",
+      "url": "https://commonkit.cayvox.com/app/me/?as=ayse.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 2889,
+      "elapsed_ms": 2891,
+      "headings": [
+        "Ava\u00b7 demo account",
+        "Cards",
+        "Reservations and reputation"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "community",
+      "url": "https://commonkit.cayvox.com/app/c/makerlab/",
+      "status": "passed",
+      "interactive_ms": 4152,
+      "elapsed_ms": 4166,
+      "headings": [
+        "Makerlab",
+        "Groups",
+        "Credential kinds",
+        "Roles",
+        "Governance"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "proof",
+      "url": "https://commonkit.cayvox.com/app/proof",
+      "status": "passed",
+      "interactive_ms": 13901,
+      "elapsed_ms": 13903,
+      "headings": [
+        "Proof"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "back-to-community",
+      "url": "https://commonkit.cayvox.com/app/c/makerlab/",
+      "status": "passed",
+      "interactive_ms": 8,
+      "elapsed_ms": 9,
+      "headings": [
+        "Makerlab",
+        "Groups",
+        "Credential kinds",
+        "Roles",
+        "Governance"
+      ],
+      "loading_markers": []
+    }
+  ],
+  "observed_results": {
+    "nina": "Cold public page resolved to No cards yet and No reservations or upkeep yet; independent final RPC reads returned empty cards in both communities and empty holder reservations on all four machines.",
+    "ava": "Cold public page displayed five cards, including consumed right-3 and laser_safety credential, and reservations/reputation sections for printer, laser and washer.",
+    "reserve": "Displayed real availability and fee/deposit form; no wallet connected and no reservation submitted.",
+    "task_0": "Displayed rewarded task and earned cards after its loading marker cleared.",
+    "proof": "11/11 checks pass; 11 pass, 0 fail.",
+    "back_navigation": "Returned from reserve to printer and from proof to community, fully loaded."
+  },
+  "rpc": {
+    "requests": 200,
+    "methods": {
+      "query": 200
+    },
+    "write_requests": 0,
+    "responses": [
+      {
+        "endpoint": "https://test.rpc.fastnear.com/",
+        "http_status": 200,
+        "count": 93
+      },
+      {
+        "endpoint": "https://rpc.testnet.fastnear.com/",
+        "http_status": 200,
+        "count": 54
+      },
+      {
+        "endpoint": "https://rpc.testnet.near.org/",
+        "http_status": 200,
+        "count": 18
+      }
+    ],
+    "json_rpc_errors": 0,
+    "http_429_observed": 0,
+    "http_errors_observed": [],
+    "recovered_browser_request_failures": [
+      {
+        "endpoint": "https://rpc.testnet.near.org/",
+        "error": "net::ERR_FAILED",
+        "count": 35
+      }
+    ],
+    "failure_classification": "All 35 failed requests were rpc.testnet.near.org CORS/preflight failures. Routes eventually resolved through successful public RPC requests. No HTTP 429 was visible, so rate limiting is not asserted as the cause."
+  },
+  "browser": {
+    "page_exceptions": [],
+    "console_error_messages": 70,
+    "console_error_classification": "35 paired CORS policy and Failed to load resource messages; no JavaScript page exception."
+  },
+  "independent_nina_chain_read": {
+    "account": "nil.dorm-b.commonkit-sxflo.testnet",
+    "mode": "direct independent read-only RPC; no browser proxy",
+    "results": [
+      {
+        "contract": "commons.makerlab.commonkit-sxflo.testnet",
+        "method": "get_cards_for_owner",
+        "args": {
+          "account": "nil.dorm-b.commonkit-sxflo.testnet"
+        },
+        "block_height": 277657183,
+        "value": []
+      },
+      {
+        "contract": "commons.dorm-b.commonkit-sxflo.testnet",
+        "method": "get_cards_for_owner",
+        "args": {
+          "account": "nil.dorm-b.commonkit-sxflo.testnet"
+        },
+        "block_height": 277657183,
+        "value": []
+      },
+      {
+        "contract": "printer-01.makerlab.commonkit-sxflo.testnet",
+        "method": "get_reservations_by_holder",
+        "args": {
+          "account": "nil.dorm-b.commonkit-sxflo.testnet",
+          "from_index": "0",
+          "limit": 50
+        },
+        "block_height": 277657183,
+        "value": []
+      },
+      {
+        "contract": "laser-01.makerlab.commonkit-sxflo.testnet",
+        "method": "get_reservations_by_holder",
+        "args": {
+          "account": "nil.dorm-b.commonkit-sxflo.testnet",
+          "from_index": "0",
+          "limit": 50
+        },
+        "block_height": 277657184,
+        "value": []
+      },
+      {
+        "contract": "washer-01.dorm-b.commonkit-sxflo.testnet",
+        "method": "get_reservations_by_holder",
+        "args": {
+          "account": "nil.dorm-b.commonkit-sxflo.testnet",
+          "from_index": "0",
+          "limit": 50
+        },
+        "block_height": 277657184,
+        "value": []
+      },
+      {
+        "contract": "fridge-01.dorm-b.commonkit-sxflo.testnet",
+        "method": "get_reservations_by_holder",
+        "args": {
+          "account": "nil.dorm-b.commonkit-sxflo.testnet",
+          "from_index": "0",
+          "limit": 50
+        },
+        "block_height": 277657184,
+        "value": []
+      }
+    ]
+  },
+  "previous_observation": {
+    "started_at": "2026-11-14T12:29:55.781Z",
+    "finished_at": "2026-11-14T12:31:09.092Z",
+    "all_11_route_content_markers_passed": true,
+    "proof": "11/11",
+    "elapsed_ms": 73309,
+    "note": "The first run captured some secondary loading markers before they completed; the repeated run above explicitly waits for all of them. It also observed recoverable CORS failures."
+  },
+  "limitations": [
+    "One short public-network snapshot cannot establish long-term availability or disprove an intermittent user-reported stall.",
+    "This is read-only navigation and RPC coverage, not third-party wallet, UI cancellation or refund signing coverage.",
+    "Screenshots, raw network records and the local harness are retained only in ignored submission/ for inspection; this file contains sanitized aggregate evidence.",
+    "No claim that the initial 7-second cold Me load is a persistent failure; no cards for Nina is independently supported by current chain state."
+  ]
+}

@@ -1,10 +1,13 @@
-// Evidence-first demo story: booking → upkeep → earned right → zero-fee redemption → DAO purchase.
+// Purpose, then evidence: booking → upkeep → earned right → zero-fee redemption → DAO purchase.
 export const PRINTER = 'printer-01.makerlab.commonkit-sxflo.testnet';
 export const TX = {
   reserve: '3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz',
   redeem: '5HGbP8ji8pyb53vJdCqhWWJzoVGpVDynx1v11HKouyD6',
 };
 export const CHAPTERS = {
+  intro: { title: 'COMMONKIT', lines: [
+    { text: 'Share and manage community machines. Book access. Fund upkeep. Earn usage rights.', say: 'CommonKit helps communities share and manage machines. Members book access; fees fund upkeep, and contributors earn usage rights.' },
+  ] },
   book: { title: 'Book', lines: [
     { text: 'Book a shared printer: a usage fee for upkeep, plus a refundable deposit.' },
     { text: "Recorded testnet booking: Alex's two-slot reservation.", say: "This recorded NEAR testnet transaction confirms Alex's booking." },

@@ -1,55 +1,59 @@
 1
-00:00:00,200 --> 00:00:05,200
-Book: Book a shared printer: a usage fee for upkeep, plus a refundable deposit.
+00:00:00,200 --> 00:00:08,667
+COMMONKIT: Share and manage community machines. Book access. Fund upkeep. Earn usage rights.
 
 2
-00:00:05,500 --> 00:00:09,733
-Book: Recorded testnet booking: Alex's two-slot reservation.
+00:00:08,867 --> 00:00:13,867
+Book: Book a shared printer: a usage fee for upkeep, plus a refundable deposit.
 
 3
-00:00:10,800 --> 00:00:15,600
-Care: A bridge checks the booking and reports usage. These devices are emulated.
+00:00:14,167 --> 00:00:18,400
+Book: Recorded testnet booking: Alex's two-slot reservation.
 
 4
-00:00:15,600 --> 00:00:20,000
-Care: A due rule lets the printer's agent open an upkeep task. Demo: 30 min; production: 200 h.
+00:00:19,467 --> 00:00:24,267
+Care: A bridge checks the booking and reports usage. These devices are emulated.
 
 5
-00:00:20,000 --> 00:00:25,267
-Independent approval: Ava cleaned the nozzle. A test print passed, and Mark independently approved her work.
+00:00:24,267 --> 00:00:28,667
+Care: A due rule lets the printer's agent open an upkeep task. Demo: 30 min; production: 200 h.
 
 6
-00:00:25,267 --> 00:00:28,100
-Earn access: She earned two non-transferable usage-right NFTs.
+00:00:28,667 --> 00:00:33,933
+Independent approval: Ava cleaned the nozzle. A test print passed, and Mark independently approved her work.
 
 7
-00:00:28,400 --> 00:00:34,567
-Use the reward: Ava used right-3 for this booking: zero usage fee. The refundable deposit still applies.
+00:00:33,933 --> 00:00:36,767
+Earn access: She earned two non-transferable usage-right NFTs.
 
 8
-00:00:34,567 --> 00:00:38,700
-Use the reward: After the session, the right was consumed. Her care earned access.
+00:00:37,067 --> 00:00:43,233
+Use the reward: Ava used right-3 for this booking: zero usage fee. The refundable deposit still applies.
 
 9
-00:00:39,767 --> 00:00:44,600
-A machine with a budget: Each machine runs its own keyless NEAR account, with a capped operating budget.
+00:00:43,233 --> 00:00:47,367
+Use the reward: After the session, the right was consumed. Her care earned access.
 
 10
-00:00:44,600 --> 00:00:47,967
-A machine with a budget: Excess fees go back to the community's Sputnik DAO.
+00:00:48,433 --> 00:00:53,267
+A machine with a budget: Each machine runs its own keyless NEAR account, with a capped operating budget.
 
 11
-00:00:47,967 --> 00:00:52,000
-The machine opens a proposal: For a larger purchase, the printer itself opened proposal #10.
+00:00:53,267 --> 00:00:56,633
+A machine with a budget: Excess fees go back to the community's Sputnik DAO.
 
 12
-00:00:52,000 --> 00:00:56,767
-The machine opens a proposal: The council approved it. The DAO paid the demo supplier 4 testnet NEAR.
+00:00:56,633 --> 00:01:00,667
+The machine opens a proposal: For a larger purchase, the printer itself opened proposal #10.
 
 13
-00:00:58,433 --> 00:01:04,033
-Verify it: Inspect the live checks: eight keyless accounts, matching machine code hashes, balanced ledgers.
+00:01:00,667 --> 00:01:05,433
+The machine opens a proposal: The council approved it. The DAO paid the demo supplier 4 testnet NEAR.
 
 14
-00:01:04,033 --> 00:01:09,167
+00:01:07,100 --> 00:01:12,700
+Verify it: Inspect the live checks: eight keyless accounts, matching machine code hashes, balanced ledgers.
+
+15
+00:01:12,700 --> 00:01:17,833
 Verify it: Or run the verifier. No wallet, no keys. COMMONKIT: care earns access.

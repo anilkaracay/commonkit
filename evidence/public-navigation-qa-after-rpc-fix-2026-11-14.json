@@ -1,0 +1,325 @@
+{
+  "schema": "commonkit-public-readonly-navigation-qa-v1",
+  "source_commit_under_test": "46fb0cb54bc77704b79c3b57230622fa179d2641",
+  "publication_check": "GitHub Pages workflow was completed successfully for the source SHA before this run began; observed JavaScript asset URLs are recorded below.",
+  "started_at": "2026-11-14T12:37:14.813Z",
+  "finished_at": "2026-11-14T12:37:47.008Z",
+  "status": "passed",
+  "scope": "Published HTTPS app, isolated headless Chromium via existing Playwright 1.64.1; normal DNS and TLS validation; actual browser requests to public NEAR testnet RPC. No response interception, mocks, QA proxy, wallet connection, credentials or signing.",
+  "elapsed_ms": 32193,
+  "route_readiness": "Named content must be visible, then all Reading \u2026 markers must clear before the final snapshot. Interactive and complete-loading timings are separate.",
+  "routes": [
+    {
+      "label": "nina-cold",
+      "url": "https://commonkit.cayvox.com/app/me/?as=nil.dorm-b.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 2475,
+      "elapsed_ms": 2477,
+      "headings": [
+        "Nina\u00b7 demo account",
+        "Cards",
+        "Reservations and reputation"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "ava-cold",
+      "url": "https://commonkit.cayvox.com/app/me/?as=ayse.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 1841,
+      "elapsed_ms": 1844,
+      "headings": [
+        "Ava\u00b7 demo account",
+        "Cards",
+        "Reservations and reputation"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "board",
+      "url": "https://commonkit.cayvox.com/app/",
+      "status": "passed",
+      "interactive_ms": 6649,
+      "elapsed_ms": 9005,
+      "headings": [
+        "Machines",
+        "Makerlab",
+        "Makerlab 3D printer",
+        "Makerlab laser cutter",
+        "Dorm B",
+        "Dorm B washer",
+        "Neighbourhood community fridge",
+        "Open tasks",
+        "Maintenance",
+        "Cleaning",
+        "Rights earned",
+        "Same contract, different commons",
+        "Inspection",
+        "Rebalance",
+        "Cleaning",
+        "Restock",
+        "Maintenance",
+        "Repair",
+        "Supervision",
+        "Latest proposals"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "printer-detail",
+      "url": "https://commonkit.cayvox.com/app/a/printer-01.makerlab.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 1325,
+      "elapsed_ms": 1328,
+      "headings": [
+        "Makerlab 3D printer",
+        "Upkeep",
+        "Who keeps me alive",
+        "Money",
+        "Telemetry",
+        "Tasks",
+        "Next slots",
+        "Reservations",
+        "Escalations",
+        "Reputation",
+        "Profile"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "reserve-read-only",
+      "url": "https://commonkit.cayvox.com/app/a/printer-01.makerlab.commonkit-sxflo.testnet/reserve",
+      "status": "passed",
+      "interactive_ms": 826,
+      "elapsed_ms": 826,
+      "headings": [
+        "Reserve"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "back-to-printer",
+      "url": "https://commonkit.cayvox.com/app/a/printer-01.makerlab.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 12,
+      "elapsed_ms": 14,
+      "headings": [
+        "Makerlab 3D printer",
+        "Upkeep",
+        "Who keeps me alive",
+        "Money",
+        "Telemetry",
+        "Tasks",
+        "Next slots",
+        "Reservations",
+        "Escalations",
+        "Reputation",
+        "Profile"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "task-0",
+      "url": "https://commonkit.cayvox.com/app/t/printer-01.makerlab.commonkit-sxflo.testnet/0",
+      "status": "passed",
+      "interactive_ms": 216,
+      "elapsed_ms": 287,
+      "headings": [
+        "Clean the nozzle and run a calibration print",
+        "Rule facts",
+        "Progress",
+        "Cards earned"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "ava-read-only",
+      "url": "https://commonkit.cayvox.com/app/me/?as=ayse.commonkit-sxflo.testnet",
+      "status": "passed",
+      "interactive_ms": 1695,
+      "elapsed_ms": 1696,
+      "headings": [
+        "Ava\u00b7 demo account",
+        "Cards",
+        "Reservations and reputation"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "community",
+      "url": "https://commonkit.cayvox.com/app/c/makerlab/",
+      "status": "passed",
+      "interactive_ms": 3629,
+      "elapsed_ms": 3639,
+      "headings": [
+        "Makerlab",
+        "Groups",
+        "Credential kinds",
+        "Roles",
+        "Governance"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "proof",
+      "url": "https://commonkit.cayvox.com/app/proof",
+      "status": "passed",
+      "interactive_ms": 9848,
+      "elapsed_ms": 9851,
+      "headings": [
+        "Proof"
+      ],
+      "loading_markers": []
+    },
+    {
+      "label": "back-to-community",
+      "url": "https://commonkit.cayvox.com/app/c/makerlab/",
+      "status": "passed",
+      "interactive_ms": 11,
+      "elapsed_ms": 15,
+      "headings": [
+        "Makerlab",
+        "Groups",
+        "Credential kinds",
+        "Roles",
+        "Governance"
+      ],
+      "loading_markers": []
+    }
+  ],
+  "observed_results": {
+    "nina": "Cold public page resolved to No cards yet and No reservations or upkeep yet, with no retained loading markers.",
+    "ava": "Cold public page displayed five cards including consumed right-3 and laser_safety credential, plus reservation/reputation sections.",
+    "reserve": "Real availability and fee/deposit form displayed; no wallet connected and no reservation submitted.",
+    "task_0": "Rewarded task and earned cards displayed after all loading markers cleared.",
+    "proof": "11/11 checks pass; 11 pass, 0 fail.",
+    "back_navigation": "Reserve to printer and Proof to community both returned fully loaded."
+  },
+  "rpc": {
+    "requests": 161,
+    "methods": {
+      "query": 161
+    },
+    "write_requests": 0,
+    "responses": [
+      {
+        "endpoint": "https://test.rpc.fastnear.com/",
+        "http_status": 200,
+        "count": 161
+      }
+    ],
+    "json_rpc_errors": 0,
+    "http_errors_observed": [],
+    "failed_requests": [],
+    "fallback_requests": 0
+  },
+  "browser": {
+    "console_errors": [],
+    "page_exceptions": []
+  },
+  "published_script_assets": [
+    "https://commonkit.cayvox.com/app/assets/rolldown-runtime-WkwZ5CU-.js",
+    "https://commonkit.cayvox.com/app/assets/Badges-ptCMZ_3y.js",
+    "https://commonkit.cayvox.com/app/assets/MachineVisual-DA_l8cq_.js",
+    "https://commonkit.cayvox.com/app/assets/demo--H6QafSp.js",
+    "https://commonkit.cayvox.com/app/assets/TaskRow-k0-v8Pe3.js",
+    "https://commonkit.cayvox.com/app/assets/jsx-runtime-CkXRJ162.js",
+    "https://commonkit.cayvox.com/app/assets/TxLink-B_3TUj_s.js",
+    "https://commonkit.cayvox.com/app/assets/chunk-6KYCQHYJ-C23X7Kzh.js",
+    "https://commonkit.cayvox.com/app/assets/Near-Dz2u8woo.js",
+    "https://commonkit.cayvox.com/app/assets/cast-DbF2Ec1E.js",
+    "https://commonkit.cayvox.com/app/assets/time-DkwppsIW.js",
+    "https://commonkit.cayvox.com/app/assets/Section-DhjADYhg.js",
+    "https://commonkit.cayvox.com/app/assets/index-B93C8Bqj.js",
+    "https://commonkit.cayvox.com/app/assets/Me-Cph2F2oD.js",
+    "https://commonkit.cayvox.com/app/assets/WalletGate-DvQoMVVo.js",
+    "https://commonkit.cayvox.com/app/assets/build-DB31hh0L.js",
+    "https://commonkit.cayvox.com/app/assets/CardTile-BWW9551O.js",
+    "https://commonkit.cayvox.com/app/assets/NotFound-DHRS7Oao.js",
+    "https://commonkit.cayvox.com/app/assets/client-CuZ57s-5.js",
+    "https://commonkit.cayvox.com/app/assets/Asset-De-mwZJN.js",
+    "https://commonkit.cayvox.com/app/assets/useContractAction-B5GpWzGN.js",
+    "https://commonkit.cayvox.com/app/assets/lang-B74B3J_H.js",
+    "https://commonkit.cayvox.com/app/assets/Reserve-J_BtyKbS.js",
+    "https://commonkit.cayvox.com/app/assets/Task-2Znm09mk.js",
+    "https://commonkit.cayvox.com/app/assets/Community-CD2iQ9Ax.js",
+    "https://commonkit.cayvox.com/app/assets/Proof-Ma3Ud7w0.js"
+  ],
+  "comparison": {
+    "before_evidence": "evidence/public-navigation-qa-2026-11-14.json",
+    "before_source_commit": "b0d66e7ada22f1e8649d012d5e59e5e2d4eb1eaf",
+    "after_source_commit": "46fb0cb54bc77704b79c3b57230622fa179d2641",
+    "before_elapsed_ms": 66083,
+    "after_elapsed_ms": 32193,
+    "before_recovered_cors_failures": 35,
+    "after_cors_failures": 0,
+    "before_remaining_loading_markers": 0,
+    "after_remaining_loading_markers": 0,
+    "route_times": [
+      {
+        "label": "nina-cold",
+        "before_settled_ms": 7488,
+        "after_settled_ms": 2477
+      },
+      {
+        "label": "ava-cold",
+        "before_settled_ms": 7241,
+        "after_settled_ms": 1844
+      },
+      {
+        "label": "board",
+        "before_settled_ms": 24686,
+        "after_settled_ms": 9005
+      },
+      {
+        "label": "printer-detail",
+        "before_settled_ms": 3076,
+        "after_settled_ms": 1328
+      },
+      {
+        "label": "reserve-read-only",
+        "before_settled_ms": 802,
+        "after_settled_ms": 826
+      },
+      {
+        "label": "back-to-printer",
+        "before_settled_ms": 14,
+        "after_settled_ms": 14
+      },
+      {
+        "label": "task-0",
+        "before_settled_ms": 334,
+        "after_settled_ms": 287
+      },
+      {
+        "label": "ava-read-only",
+        "before_settled_ms": 2891,
+        "after_settled_ms": 1696
+      },
+      {
+        "label": "community",
+        "before_settled_ms": 4166,
+        "after_settled_ms": 3639
+      },
+      {
+        "label": "proof",
+        "before_settled_ms": 13903,
+        "after_settled_ms": 9851
+      },
+      {
+        "label": "back-to-community",
+        "before_settled_ms": 9,
+        "after_settled_ms": 15
+      }
+    ],
+    "interpretation": "Both snapshots completed all requested routes and Proof 11/11. The post-fix snapshot used only the healthy primary provider and observed no browser network or console errors. Timings are individual observations, not a controlled benchmark or uptime guarantee."
+  },
+  "independent_nina_chain_state": "The before-evidence includes independent final RPC reads with empty cards in both communities and empty holder reservations on all four machines. This run independently renders the same final empty state through the public browser RPC.",
+  "limitations": [
+    "This short live-network run does not prove long-term availability or the behavior of a failing provider.",
+    "The new Me error/retry interface was not forced with synthetic failures in this production test.",
+    "This is read-only navigation; third-party wallet connection, UI cancellation signing and refund signing remain outside this coverage.",
+    "No mainnet or testnet mutation was requested or observed.",
+    "Screenshots and detailed raw traces remain in ignored submission/ for inspection."
+  ]
+}

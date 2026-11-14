@@ -1,56 +1,49 @@
 # SUBMISSION_PACKAGE — G6 handover (drafts only)
 
-Everything here is a draft for the human. The human makes the repository public, publishes the X post and submits the form (D-026); agents never do. This file holds **no personal data**: personal fields are placeholders, and the filled version lives only in the gitignored `submission/` folder (`.gitignore` line `submission/`).
+The post and form copy here are drafts for the owner, who publishes the X post and submits the form (D-026). The repository is already public. This file holds **no personal data**: personal fields are placeholders. The owner can enter them directly in the official form; no agent collection is needed. Any optional local filled copy belongs only in the gitignored `submission/` folder.
 
 Rules source: [`docs/HACKATHON.md`](HACKATHON.md) (live rules rechecked 2026-11-14). Deadline: **2026-11-14 23:59 UTC = 15 November 02:59 Europe/Istanbul**. Submit one project once, with the public repository and the published X demo post. Leave the form's **Website field empty**: the API identifies it as a spam trap.
 
-## (a) Repo-public checklist
+## (a) Current readiness
 
-Do these in order; tick each one.
+[SUBMISSION.md](SUBMISSION.md) is the canonical operations checklist, including evidence, pending owner actions and future obligations. This package supplies copy; do not treat old release checks as verification of later edits.
 
-1. [ ] **Secrets scan of the whole history** (from the repo root):
-   - `gitleaks git --no-banner --redact -v .` — run on 2026-11-10 over 135 commits: 12 findings, all **public** keys (`ed25519:` + 44 base58 characters) of the six deploy keys we deleted, in `evidence/setup.json` and `evidence/EVIDENCE.md`. Public keys are not secrets; they are expected evidence of the key deletions. Rerun before going public and check that every new finding is a public key or a tx hash.
-   - Optional second tool: `trufflehog git file://. --only-verified`.
-   - Manual patterns: `git log --all -p | grep -E 'ed25519:[1-9A-HJ-NP-Za-km-z]{80,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|VERCEL_TOKEN=.+|NEARAI_API_KEY=.+|sk-[A-Za-z0-9]{20,}'` must print only code that names a field (e.g. `key.secret_key` in sandbox helpers), never a value. A NEAR private key is `ed25519:` + ~88 base58 characters.
-   - Files that must never be in history: `git log --all --name-only --format= | grep -E '(^|/)\.env($|\.)|\.pem$|\.key$|credentials'` → only `.env.example` and source files named `credentials.rs` (checked 2026-11-10).
-2. [ ] **`.gitignore`** still covers `.env`, `.env.*` (except `.env.example`), `*.key`, `*.pem`, `**/credentials/`, `.near-credentials/`, `evidence/private/`, `submission/`, `pilot/*.local.json` (via `pilot/.gitignore`), `bridge/state/`, `agent/state/`.
-3. [ ] **No AI-tool files** in the tree: `git ls-files | grep -E '^(CLAUDE\.md|\.claude/)'` prints nothing.
-4. [ ] **LICENSE** (MIT) at the root: `git ls-files LICENSE`.
-5. [ ] **README renders on GitHub**: mermaid diagram, tables, every relative link (the README link check passed on d28b6e7: all relative links exist).
-6. [ ] **Tag** the submitted state: `git tag hackathon-submission && git push origin hackathon-submission` (HACKATHON.md Q-003; no pre-hackathon tag is needed because the first commit [`30df77b`](https://github.com/anilkaracay/commonkit/commit/30df77b6e3af06457650e287b228bcea75217083) is from 2026-11-09).
-7. [x] **Repository public:** verified through GitHub's repository API on 2026-11-14.
-8. [ ] **After it is public:**
-   - CI starts (`.github/workflows/ci.yml`; public repos run Actions without the billing block, H3). Wait for green.
-   - Open five tx links and three evidence links from the README while logged out.
-   - GitHub Pages hosts the landing at `/` and the app at `/app/` on `commonkit.cayvox.com`.
-   - The repo must stay public through judging (Q-014).
+- [x] **Public repository:** verified through GitHub's API on 14 November.
+- [x] **Existing tags:** `hackathon-submission` records `29a46d8`; `hackathon-submission-v2` records `cd7934b`. Do not recreate or silently move either tag. The final handoff uses a new `hackathon-submission-v3` tag; the earlier tags stay unchanged.
+- [x] **CI and Pages:** passed for the published releases linked in SUBMISSION.md. New edits need their own workflow results after publication.
+- [x] **Hosted app and video:** currently served by GitHub Pages over HTTPS. The final 81.84-second purpose-first render is described by `video/manifest.json`; publication is verified against its hash.
+- [x] **License and disclosures:** root MIT LICENSE, README dependencies/AI disclosures and development-window/other-project declaration exist. Local README link paths were checked; this does not claim a browser rendering check of unpublished edits.
+- [x] **Sensitive local paths ignored:** `.env` variants, key/credential paths and `submission/` are excluded. No personal fields were collected for this package.
+- [x] **History secrets scan:** Gitleaks 8.30.1 scanned 203 commits through `29a46d8` on 14 November; all 12 detections were historical public Ed25519 keys. [Sanitized result](../evidence/history-scan-2026-11-14.json). This is a scoped check, not a guarantee about later edits.
+- [ ] **Owner X post and saved form submission:** still pending; one submission per project.
+- [ ] **Retention:** keep repository public through judging and hosting through 18 November, ideally 25 November.
 
 ## (b) X demo post (≤ 280 characters, D-023)
 
-Requirements (HACKATHON.md §2, re-read live 2026-11-13): says it was built at NEAR HACKATHON, tags @NEARProtocol and #NEARHackathon, video attached, problem first, NEAR's concrete role, demo and repo links, and "ask a genuine question or invite specific feedback" (the question line, added 2026-11-13). Optional tags @NearLegion and @NearBuilders do not fit in 280 characters; they can go in a reply.
+Requirements (HACKATHON.md §2, re-read live 2026-11-14): says it was built at NEAR HACKATHON, tags @NEARProtocol and #NEARHackathon, video attached, problem first, NEAR's concrete role, demo and repo links, and "ask a genuine question or invite specific feedback" (the question line, added 2026-11-13). Optional tags @NearLegion and @NearBuilders do not fit in 280 characters; they can go in a reply.
 
-<!-- character count: 280 / 280 (each <url> counted as 23, as X does); first <url> = hosted demo, second = public repo -->
-```
-Shared machines get used, not fixed.
+<!-- character count: 277 / 280 (URLs count as 23) -->
+```text
+Shared machines need shared rules.
 
-Built at NEAR HACKATHON: each one is a keyless NEAR account that opens only for bookings and pays fixers in irrevocable access.
+Built at NEAR HACKATHON: COMMONKIT uses keyless NEAR accounts for bookings & budgets. Approved contributions earn access NFTs.
 
+Testnet: https://commonkit.cayvox.com/app/
+Code: https://github.com/anilkaracay/commonkit
 What would you share?
-Simulated demo <url>
-<url>
 @NEARProtocol #NEARHackathon
 ```
 
-- `<url>` 1: `https://commonkit.cayvox.com/app/`. `<url>` 2: `https://github.com/anilkaracay/commonkit`.
-- NEAR's role in the post: the keyless per-machine NEAR account that only opens for on-chain bookings and pays in non-revocable access.
+- The post contains the live testnet app and public repository URLs directly.
+- NEAR's role in the post: machine accounts coordinate bookings and shared funds; independently approved upkeep earns usage rights.
 - The draft includes a question: "What would you share?"
 - @NearLegion and @NearBuilders are optional; adding both (24 characters with spaces) would exceed 280 with this text.
 - Attach `video/out/commonkit-demo-x-1280x720.mp4` natively to the X post; the repository copy is `video/commonkit-demo.mp4`. Captions: `video/commonkit-demo.en.srt`.
-- Recount after replacing the placeholders: `node -e 'const t=require("fs").readFileSync(0,"utf8").trim();console.log(t.replace(/https?:\/\/\S+/g,"x".repeat(23)).length)' < post.txt`.
+- Recount after any edit: `node -e 'const t=require("fs").readFileSync(0,"utf8").trim();console.log(t.replace(/https?:\/\/\S+/g,"x".repeat(23)).length)' < post.txt`.
 
 ## (c) Form checklist (field → value)
 
-Fill the personal values only in `submission/payload.local.json` (gitignored). Send exactly these 11 fields; never `website`. Print the payload for the human and wait for an explicit yes.
+The owner fills personal values directly in the official form. For an API submission, send exactly these 11 fields, omit `website`, keep any completed payload gitignored, and obtain explicit confirmation of the exact payload before sending.
 
 | Field | Value | Source / rule |
 | :--- | :--- | :--- |
@@ -67,20 +60,26 @@ Fill the personal values only in `submission/payload.local.json` (gitignored). S
 | consent | `true` only after the human agrees to: "I agree that the organizers may use these details to review our submission and contact us about this hackathon." | human |
 
 **Tracks decision (D-032):** `social` and `nfts`.
-- `social` (Social Money): shared budgets (capped float + Sputnik treasury), programmable rewards (upkeep tasks), collective ownership (keyless asset accounts governed by unmodified Sputnik DAOs) and reputation-based access (credential cards, clean-return deposits). The one partial point (a track record does not raise the payout limit) is stated in the README table "The track prompt, requirement by requirement".
-- `nfts` (NFTs That Do Something): usage rights and credentials are NEP-171/177/181 non-transferable tokens that carry access rights and credentials, the track's own words; each machine is an account that holds money. Verified on testnet 2026-11-13: `nft_metadata` spec `nft-1.0.0`, `nft_total_supply` 7 on `commons.makerlab.commonkit-sxflo.testnet` (README "NFTs" section has the command). Wallet display is **not** tested and not claimed. This supersedes the earlier wallet-display precondition (D-001).
+- `social` (Social Money): shared budgets (capped float + Sputnik treasury), programmable rewards (upkeep tasks), collective ownership (keyless asset accounts governed by unmodified Sputnik DAOs) and reputation-based access (credential cards, clean-return deposits). The README explains that reputation can lower deposits while cash approval thresholds remain fixed per profile and governed by DAO proposals.
+- `nfts` (NFTs That Do Something): usage rights and credentials are NEP-171/177/181 non-transferable tokens that carry access rights and credentials, the track's own words; each machine is an account that holds money. Verified on testnet 2026-11-13: `nft_metadata` spec `nft-1.0.0`, `nft_total_supply` 7 on `commons.makerlab.commonkit-sxflo.testnet` (README "Cards that do something" section has the command). Wallet display is **not** tested and not claimed. This supersedes the earlier wallet-display precondition (D-001).
 - `agents`: not claimed. Our agent opens tasks and escalates purchases within contract limits; it does not earn, spend, negotiate or hire on a market (research A8).
 
 Order of human actions: H7 repo public → H8 X post → H9 submit with `demoUrl` = the post. A submission cannot be edited; mistakes go through https://nearhackathon.com/request-changes (never a second submission).
 
-## (d) `idea` text (1501 / 2000 characters)
+## (d) `idea` text (1374 / 2000 characters)
 
 Verified facts only (README links each one).
 
 ```
-Shared things in communities (makerspace printers, dorm washers, co-op tractors, neighbourhood fridges) get used by everyone and looked after by no one, and their money and rules sit in one admin's spreadsheet. COMMONKIT gives each shared thing its own keyless NEAR account running the same asset contract. Members reserve on-chain; a bridge next to the device unlocks it only for a valid reservation (NEP-413 signed request plus an on-chain check, written before the unlock). Fees fill a capped float; the excess is swept to the community's unmodified Sputnik DAO, and larger purchases become Sputnik proposals opened by the asset contract itself. When a profile rule comes due (telemetry threshold, schedule or member fault reports), an operations agent with a function-call key opens an upkeep task: maintenance, restock, cleaning, inspection, repair. A member does it, another member approves, and the worker receives non-transferable NEP-171 usage-right cards that no method can revoke. Restock and repair can claim a capped, receipt-backed expense; risky machines need credential cards, and trainers earn rights. On testnet: 2 DAOs, 2 commons and 4 asset accounts, all keyless, one code_hash; all 21 judge steps passed with tx evidence, and verify.sh checks every claim read-only. simulate.sh runs the full loop for all 12 asset profiles on a local NEAR sandbox. Devices are emulated or simulated and labelled so; no physical device has been tested and there are no real users yet. Testnet only.
+COMMONKIT helps communities share and govern machines, from makerspace printers to dorm washers. Shared equipment needs more than a booking calendar: access rules, an operating budget and a fair way to reward the people who keep it useful.
+
+Members reserve equipment and pay a usage fee plus a refundable deposit. The community's existing Sputnik DAO controls budgets and rules. Each machine has its own keyless NEAR account: fees fund a capped operating budget, surplus returns to the DAO, and larger purchases go to a vote through proposals opened by the machine's contract.
+
+Contributions earn future use. A rule-bound operations agent opens due upkeep tasks; a different member approves completed work. Contributors receive non-transferable NEP-171 usage-right NFTs, which cover the usage fee for later bookings, lock while reserved and become consumed after use. Training credentials control access to equipment that requires them. A device bridge checks signed requests against on-chain reservations before allowing access.
+
+The live NEAR testnet demo includes four machines in two communities and eight keyless accounts overall, with a recorded 21-step workflow. Read-only proof checks account keys, matching code hashes and balanced ledgers; 12 profiles run with real contracts in a local NEAR sandbox. The demo uses clearly labelled device emulators and simulation.
 ```
 
 ## Filled copy
 
-`submission/` is gitignored. It holds `submission/FILL_ME.md` (template and steps) and, once the human answers H6, `submission/payload.local.json` with the real values. Never commit, paste into an issue or send it anywhere except the official form/API.
+`submission/` is gitignored. Its `FILL_ME.md` is an optional local template; the owner need not provide personal fields to an agent. Never commit a filled payload, paste it into an issue or send it anywhere except the official form/API.

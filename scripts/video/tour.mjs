@@ -1,5 +1,5 @@
-// Records the demo video as one continuous browser walkthrough (D-038): the landing page, a click on "Open the app",
-// then the real app pages read live from NEAR testnet, plus two real testnet transactions on testnet.near.rocks.
+// Records a short product-purpose introduction on the landing hero, then the app's evidence flow (D-038):
+// live NEAR testnet views plus two recorded testnet transactions on testnet.near.rocks.
 // A visible cursor moves to everything that is clicked, and every click is a real click. The browser bar (URL) and the
 // captions are overlaid by assemble.mjs from the timeline this script writes.
 //   node scripts/video/tour.mjs
@@ -18,7 +18,8 @@ const BAND = 150; // caption band under the page
 const VIEW = { width: 1280, height: 583 }; // Larger readable UI: 1.5× → 1920px wide; page fitted to 874px
 const PAGE_H = 1080 - BAR - BAND;
 const BUILD = dir();
-const OUT = join(BUILD, 'tour.mp4');
+const INTRO_ONLY = process.env.VIDEO_INTRO_ONLY === '1';
+const OUT = join(BUILD, INTRO_ONLY ? 'intro.mp4' : 'tour.mp4');
 const GAP = 0.35; // breath between narration lines
 const VOICE = JSON.parse(readFileSync(join(BUILD, 'voice/durations.json'), 'utf8')); // scripts/video/voice.py
 
@@ -273,7 +274,26 @@ async function main() {
   const line = (ch, i, titleOf = null) => rec.say(`${ch}-${i}`, C[ch].lines[i], titleOf ? C[titleOf].title : null);
 
   try {
-    // Show the product action immediately. No wallet signature is staged.
+    // Explain the purpose briefly on the real landing hero before showing the evidence flow.
+    await page.goto(`${site.base}/?3d=1&live=0`, { waitUntil: 'networkidle' });
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForFunction(() => !!window.__hero, null, { timeout: 60_000 });
+    await page.waitForTimeout(800);
+    await rec.overlays();
+    rec.tick = (f) => page.evaluate((t) => window.__hero.renderAt(t), f / FPS);
+    await rec.hold(0.2);
+    await line('intro', 0, 'intro');
+    await rec.quiet();
+    rec.tick = null;
+    // Refresh only the opening after a landing-page update, retaining the evidence footage and its timing.
+    if (INTRO_ONLY) {
+      const timeline = await rec.finish();
+      writeFileSync(join(BUILD, 'intro.json'), `${JSON.stringify(timeline, null, 2)}\n`);
+      console.log(`[video] intro recorded: ${timeline.duration.toFixed(3)} s`);
+      return;
+    }
+
+    // Show the booking action next. No wallet signature is staged.
     await page.goto(`${site.base}/app/a/${PRINTER}/reserve/`, { waitUntil: 'networkidle' });
     await appReady(page, 'fieldset button');
     await rec.overlays();

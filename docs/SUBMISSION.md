@@ -9,10 +9,10 @@ Checked on 14 November against the full [live rules](https://nearhackathon.com/H
 ## Publication and owner handoff
 
 - [x] **DONE — Public repository:** [anilkaracay/commonkit](https://github.com/anilkaracay/commonkit), checked without authentication.
-- [x] **DONE — Video release checked:** `cee1ae64ed4d9e4d2e47c108d17c45a2e6befe61`; [CI passed](https://github.com/anilkaracay/commonkit/actions/runs/43592560225) and [Pages passed](https://github.com/anilkaracay/commonkit/actions/runs/43592560269). Subsequent documentation and campaign-art edits run the same workflows. The original `hackathon-submission` tag preserves `29a46d8`; `hackathon-submission-v2` records the final handoff.
+- [x] **DONE — Video release checked:** `cee1ae64ed4d9e4d2e47c108d17c45a2e6befe61`; [CI passed](https://github.com/anilkaracay/commonkit/actions/runs/43592560225) and [Pages passed](https://github.com/anilkaracay/commonkit/actions/runs/43592560269). Subsequent documentation and campaign-art edits run the same workflows. The original `hackathon-submission` tag preserves `29a46d8`; v2 preserves `cd7934b`; `hackathon-submission-v3` records the final handoff. Source fixes `46fb0cb` passed [CI](https://github.com/anilkaracay/commonkit/actions/runs/43595589680) and [Pages](https://github.com/anilkaracay/commonkit/actions/runs/43595589754).
 - [x] **DONE — Hosting now:** [landing](https://commonkit.cayvox.com/), [app](https://commonkit.cayvox.com/app/) and [player](https://commonkit.cayvox.com/demo/) returned HTTPS 200. Checks used the Pages address with normal TLS verification; resolver propagation can differ.
-- [x] **DONE — Final video published:** 73.2 seconds, captions and disclosed synthetic narration; downloaded hosted MP4 matches `video/manifest.json` SHA-256 `494c74224d496464b8047901f92b7c782f31cd51e573d863b4c2894db15c0e0f`. Range requests return 206; the player and WebVTT return 200. The sequence includes recorded booking confirmation, earned-right zero-fee redemption and the machine-opened DAO proposal. No fresh wallet signature is recorded.
-- [x] **DONE — X draft:** event wording, `@NEARProtocol`, `#NEARHackathon`, concrete NEAR role, app/repo links and a feedback question; 280 weighted characters. Community amplification tags are optional.
+- [x] **DONE — Final video published:** 81.84 seconds, captions and disclosed synthetic narration; downloaded hosted MP4 matches `video/manifest.json` SHA-256 `ac4c7de2773421473a5b8e7205a3c239e88536c01a9bc545eb0244b0ae67ad0a`. Range requests return 206; the player and WebVTT return 200. The sequence starts with the product purpose, then includes recorded booking confirmation, earned-right zero-fee redemption and the machine-opened DAO proposal. No fresh wallet signature is recorded.
+- [x] **DONE — X draft:** event wording, `@NEARProtocol`, `#NEARHackathon`, concrete NEAR role, app/repo links and a feedback question; 277 weighted characters. Community amplification tags are optional.
 - [ ] **PENDING — Owner publishes X:** attach final `video/out/commonkit-demo-x-1280x720.mp4` natively. Recheck the export after any replacement render.
 - [ ] **PENDING — Owner submits once:** `demoUrl` is the public X post URL, not the app/player. Finish before the deadline; retain the official success receipt.
 - [ ] **UNVERIFIED — Previous submission:** no saved-submission receipt was inspected. If already saved, do not submit again; use [request changes](https://nearhackathon.com/request-changes).
@@ -50,7 +50,7 @@ Checked on 14 November against the full [live rules](https://nearhackathon.com/H
 
 ## Form / exact 11-field API contract
 
-Owner fills personal details directly in the form. Never invent values or commit a completed payload. Copy from the canonical package; its current description draft is 1,501 characters.
+Owner fills personal details directly in the form. Never invent values or commit a completed payload. Copy from the canonical package; its current description draft is 1,374 characters.
 
 | Check | Field | Value / action |
 | :--- | :--- | :--- |

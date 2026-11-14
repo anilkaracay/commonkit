@@ -1,13 +1,15 @@
 {
-  "checked_at": "2026-11-14T12:04:38.648409+00:00",
-  "release_commit": "cee1ae64ed4d9e4d2e47c108d17c45a2e6befe61",
-  "ci_run": 43592560225,
-  "pages_run": 43592560269,
-  "downloaded_mp4_sha256": "494c74224d496464b8047901f92b7c782f31cd51e573d863b4c2894db15c0e0f",
-  "duration_seconds": 73.2,
-  "range_status": 206,
-  "captions_match_committed_srt": true,
-  "origin_address": "185.199.108.153",
+  "prepared_at": "2026-11-14T12:40:12.304538+00:00",
+  "release_tag": "hackathon-submission-v3",
+  "source_fix_commit": "46fb0cb54bc77704b79c3b57230622fa179d2641",
+  "source_ci_run": 43595589680,
+  "source_pages_run": 43595589754,
+  "expected_mp4_sha256": "ac4c7de2773421473a5b8e7205a3c239e88536c01a9bc545eb0244b0ae67ad0a",
+  "duration_seconds": 81.837667,
+  "bytes": 8661471,
+  "captions": 15,
+  "publication_verification": "Final handoff compares the hosted download and WebVTT to committed artifacts after Pages succeeds.",
   "normal_tls_verification": true,
-  "audio_decode": "Complete H.264/AAC decode succeeded; integrated loudness -13.31 LUFS, true peak -1.41 dBTP. This is a technical check, not a listening review."
+  "scope": "Live testnet reads and recorded transaction evidence; no wallet signature in the video.",
+  "audio_decode": "AAC decoded without errors; this is a technical check, not a listening review."
 }

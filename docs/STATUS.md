@@ -6,11 +6,11 @@ Updated after every milestone. Newest entry on top. Only verified facts.
 
 - Repository is public. GitHub CI and Pages passed on `869cdd8`; the task-opening-rule follow-up is `a71dac1`.
 - Cloudflare CNAME `commonkit` → `anilkaracay.github.io` was added with DNS only, as requested by the owner. Public resolvers 1.1.1.1 and 8.8.8.8 return GitHub Pages addresses. GitHub's domain check succeeded, its TLS certificate was approved, and `https_enforced` is true. HTTPS returns 200 with normal certificate validation.
-- `verify.sh`: exit 0, all 91 lines passed. TypeScript suite: 556 passed, 9 intentionally skipped; web 133 tests (117 before these fixes). Lint and typecheck passed. Site build and fake washer simulation passed; the fake simulation explicitly skips ledger/keyless/code-hash checks.
+- `verify.sh`: exit 0, all 91 lines passed. TypeScript suite: 560 passed, 9 intentionally skipped; web 133 tests (117 before these fixes). Lint and typecheck passed. Site build and fake washer simulation passed; the fake simulation explicitly skips ledger/keyless/code-hash checks.
 - Fixed earned-right reservations, trusted-member deposits, task claim/submit/verification/council actions, training actions, and post-transaction cache invalidation (D-043). Task details now show the rule snapshot from task creation even after a DAO profile change.
 - Scope is the testnet loop with emulated/simulated devices. The owner chose to keep that scope for submission. README describes the verified scope concisely and adds an explicitly proposed first deployment and unvalidated funding model.
 - The owner will fill and submit the form themselves. Do not request H6 personal data. X publication and final form submission remain with the owner.
-- Final video: 73.2 seconds, 1080p master plus 720p X export, 14 English captions and synthetic narration; recorded from the HTTPS-hosted app with persistent NEAR testnet/device-simulation disclosure. Booking confirmation appears at 5.5 seconds; the sequence shows independent upkeep approval, earned usage-right NFTs, right-3 redeemed for a zero-usage-fee booking, its consumed state, the capped budget and DAO sweep, and proposal #10 opened by printer-01 and approved by the council. The recorder signs no wallet transactions; explorer pages show recorded testnet transactions. Repository copy: `video/commonkit-demo.mp4`; browser player: `/demo/`; file metadata: `video/manifest.json`.
+- Final video: 81.84 seconds (file duration 81.837667), 1080p master plus 720p X export, 15 English captions and synthetic narration; recorded from the HTTPS-hosted app with persistent NEAR testnet/device-simulation disclosure. The first eight seconds explain shared access, upkeep funding and contributor usage rights on the live “Shared machines. Community rules.” hero, refreshed after the `46fb0cb` Pages deployment with contained callouts and a compact reading row. Booking starts at 8.9 seconds and its recorded confirmation appears at 14.2 seconds. The sequence then shows independent upkeep approval, earned usage-right NFTs, right-3 redeemed for a zero-usage-fee booking, its consumed state, the capped budget and DAO sweep, and proposal #10 opened by printer-01 and approved by the council. The recorder signs no wallet transactions; explorer pages show recorded testnet transactions. The AAC track decoded successfully; no listening-based audio-quality assessment is claimed. Repository copy: `video/commonkit-demo.mp4`; browser player: `/demo/`; file metadata: `video/manifest.json`.
 - Fresh browser/chain QA: `ck-browser-qa-261114.testnet`, a newly created team-controlled account. Real React UI reservation `AkSeyqkgRS2CuvNcpdMDK1v4X6bkY2niNo2cSt9vPZ9X` confirmed and refreshed availability. Cleanup cancellation `azzR7G1A52N8sBQA62DAo5h3q3n2qd2aspdMgEfCtnT` refunded the full 2.25 testnet NEAR; the browser then showed Cancelled. NEP-413 valid signature accepted, modified message rejected, public-key ownership checked on chain. The temporary local signer was stopped; no third-party wallet popup/redirect or UI cancel-click is claimed. Details: `evidence/browser-wallet-qa.json`.
 - Locked host rebuild matched both deployed WASM hashes (`evidence/build-check-2026-11-14.json`); cargo-near CI installer pinned to 0.23.0. Independent-review fixes also clarify operator-key location, public annotations, actual track descriptions, and verification breadth.
 
@@ -38,7 +38,7 @@ Updated after every milestone. Newest entry on top. Only verified facts.
 | G2 Proof complete | ✅ 21-step evidence, live verification, simulated profiles, fresh signed browser/chain QA | evidence/ |
 | G3 Real world | submission scope: emulated/simulated devices, team-controlled accounts | field validation follows submission |
 | G4 Feature freeze | ✅ contracts unchanged; submission-day UI fixes verified | D-043, D-044 |
-| G5 Ship-ready | ✅ local checks, README, 73.2 s video and player; final CI runs on push | video/manifest.json |
+| G5 Ship-ready | ✅ local checks, README, 81.84 s video and player; final CI runs on push | video/manifest.json |
 | G6 Handover | ✅ docs/SUBMISSION_PACKAGE.md, docs/PITCH.md, X video and draft; tracks ["social", "nfts"] | owner publishes X and fills/submits form |
 | G7 After "repo public" | CI green; tag `hackathon-submission` | ☐ |
 | G8 After "submitted" | record time; code freeze; keep demo up to 2026-11-25; PITCH.md | ☐ |
@@ -58,7 +58,7 @@ Updated after every milestone. Newest entry on top. Only verified facts.
 | M6 e2e + evidence | ✅ 21/21 on testnet | evidence/steps.json, evidence/verify-step21.txt, evidence/agent-limits.json |
 | M7 web on testnet + hosting | ✅ app under /app on testnet RPC + evidence (133 tests); site build passes; GitHub Pages with HTTPS | commonkit.cayvox.com |
 | M8 emulators + simulated e2e + real-world layer (D-022/D-024) | ◐ emulators ✅, simulate.sh 12/12 ✅ (D-420); real plug waits on H2, pilot on H1 | evidence/simulate-all-2026-11-10.txt |
-| M9 README + submission prep | ✅ README, 73.2 s video, browser player, X draft and final testnet QA | owner publishes X and submits form |
+| M9 README + submission prep | ✅ README, 81.84 s video, browser player, X draft and final testnet QA | owner publishes X and submits form |
 
 ## Blockers / questions for the human
 
