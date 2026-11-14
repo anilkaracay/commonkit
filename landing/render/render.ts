@@ -8,7 +8,7 @@ import { esc, firstLabel, int, near, triggerText, type Trigger } from '../src/li
 import { nearAmountHtml, nearMarkSvg } from '@commonkit/design/near';
 import { lockupSvg } from '@commonkit/design/logo';
 import { displayName } from '@commonkit/sdk/cast';
-import { REPO, type DemoOverride, type JudgeStep, type LandingData, type Profile } from './data.ts';
+import { REPO, type DemoOverride, type JudgeStep, type LandingData, type Profile, type ProfileRule } from './data.ts';
 
 export const REPO_URL = 'https://github.com/anilkaracay/commonkit';
 const tx = (h: string) => `https://testnet.nearblocks.io/txns/${h}`;
@@ -276,20 +276,50 @@ export function scenes(d: LandingData): { list: string; progress: string; poster
   return { list, progress, posters };
 }
 
-// ---------- care: the twelve commons ----------
+// ---------- care: the seven commons beyond the scenes ----------
+
+/** The seven profiles the scenes above do not tell, in reading order, each with the rule its line is about. */
+export const MORE: { type: string; rule: string; line: (p: Profile, r: ProfileRule, n: string, near: (y: string) => string) => string }[] = [
+  { type: 'tractor', rule: 'oil_change', line: (p, r) => `A farming co-op owns it together. Driving it needs the ${p.required_credential} credential, and an oil change earns ${r.reward_rights} usage rights.` },
+  { type: 'gpu_server', rule: 'driver_update', line: (p, r) => `A research lab shares one GPU server. Booking needs the ${p.required_credential} credential; a driver update that passes the test suite earns ${r.reward_rights} usage rights.` },
+  { type: 'ev_charger', rule: 'cable_check', line: (p, _r, _n, near) => `An apartment site shares one charger. Fees fill a float capped at ${near(p.float_cap)} NEAR; everything above it goes to the DAO treasury.` },
+  { type: 'cargo_bike', rule: 'return_home', line: (_p, r, n) => `A street shares one bike. When ${n} members report it missing, whoever brings it home does the Rebalance and earns ${r.reward_rights === 1 ? 'a usage right' : `${r.reward_rights} usage rights`}.` },
+  { type: 'rehearsal_room', rule: 'evening_supervision', line: (_p, r) => `A music collective shares one room. Hosting the weekly open evening is Supervision, and it earns ${r.reward_rights} usage rights.` },
+  { type: 'microscope', rule: 'clean_inventory', line: (p, _r, n, near) => `A school lends it free against a ${near(p.deposit)} NEAR refundable deposit. Cleaning the optics every ${n} loans earns a usage right.` },
+  { type: 'tool_library_ladder', rule: 'safety_inspection', line: (_p, _r, n) => `A tool library lends it by the day. Every ${n} loans a member inspects it before it goes out again, and earns a usage right.` },
+];
+const slotText = (m: number) => (m % 1440 === 0 ? (m === 1440 ? 'day' : `${m / 1440} days`) : m % 60 === 0 ? (m === 60 ? 'hour' : `${m / 60} hours`) : `${m} min`);
+const firstNumber = (t: string) => t.match(/\d[\d,]*/)?.[0] ?? '';
 
 export function care(d: LandingData): string {
-  return CARE_ORDER.map((t) => {
-    const p = d.profiles.find((x) => x.asset_type === t);
-    if (!p) throw new Error(`profile ${t} missing`);
-    const kinds = [...new Set(p.rules.map((r) => r.kind))].join(', ');
-    return `<li class="care-tile">
-      <img src="/posters/m-${t}-640.webp" width="640" height="640" alt="${esc(SHORT[t]!)}, rendered model" loading="lazy" decoding="async">
-      <p class="care-name">${esc(SHORT[t]!)}</p>
-      <p class="care-kinds">${esc(kinds)}</p>
-      <p class="care-status">Status: ${esc(p.status)}</p>
+  const cards = MORE.map(({ type, rule, line }) => {
+    const p = d.profiles.find((x) => x.asset_type === type);
+    const r = p?.rules.find((x) => x.rule_id === rule);
+    if (!p || !r) throw new Error(`profile ${type}.${rule} missing`);
+    const when = triggerText(r.trigger);
+    const fee = BigInt(p.price_per_slot) === 0n ? 'Free' : `${nearAmountHtml(nearOf(p.price_per_slot))} per ${slotText(p.slot_minutes)}`;
+    return `<li class="more">
+      <img src="/posters/m-${type}-640.webp" width="640" height="640" alt="${esc(SHORT[type]!)}, rendered model" loading="lazy" decoding="async">
+      <div class="more-body">
+        <h3>${esc(p.display_name)}</h3>
+        <p class="more-line">${withNear(line(p, r, firstNumber(when), nearOf))}</p>
+        <dl class="more-rows">
+          <div><dt>Booking</dt><dd>${fee}</dd></div>
+          <div><dt>${esc(r.kind)}</dt><dd>${esc(when.charAt(0).toUpperCase() + when.slice(1))}</dd></div>
+          <div><dt>Access</dt><dd>${p.required_credential ? `${esc(p.required_credential)} credential` : 'Any member'}</dd></div>
+        </dl>
+        <p class="more-status">Status: ${esc(p.status)}</p>
+      </div>
     </li>`;
-  }).join('');
+  });
+  cards.push(`<li class="more more-own">
+      <div class="more-body">
+        <h3>Your commons</h3>
+        <p class="more-line">Write a profile and pick a device adapter. The contract stays the same.</p>
+        <a class="ck-link" href="${REPO_URL}/tree/main/profiles" rel="noopener">Read the twelve profiles <span aria-hidden="true">→</span></a>
+      </div>
+    </li>`);
+  return cards.join('');
 }
 
 // ---------- money ----------

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { loadData } from './data.ts';
-import { renderSlots } from './render.ts';
+import { MORE, renderSlots, sceneCopy } from './render.ts';
 
 const d = loadData();
 const s = renderSlots(d);
@@ -14,9 +14,18 @@ describe('landing render (honest and quiet)', () => {
     expect(s['hero-callouts']).toContain('Nozzle cleaned');
     expect(s['hero-callouts']).toContain('Done by Ava, verified by Mark');
   });
-  it('shows all twelve commons with their README status verbatim', () => {
-    expect(s.care!.match(/class="care-tile"/g)).toHaveLength(12);
-    for (const p of d.profiles) expect(s.care).toContain(`Status: ${p.status}`);
+  it('tells the seven commons beyond the scenes from their profiles, with the README status verbatim', () => {
+    expect(s.care!.match(/<li class="more">/g)).toHaveLength(7);
+    for (const { type, rule } of MORE) {
+      const p = d.profiles.find((x) => x.asset_type === type)!;
+      const r = p.rules.find((x) => x.rule_id === rule)!;
+      const card = s.care!.split('<li class="more">').find((c) => c.includes(`m-${type}-640`))!;
+      expect(card).toContain(`Status: ${p.status}`);
+      expect(card).toContain(`<dt>${r.kind}</dt>`);
+      if (p.required_credential) expect(card).toContain(`${p.required_credential} credential`);
+    }
+    // every scene above plus these seven covers all twelve profiles
+    expect(new Set([...MORE.map((m) => m.type), ...sceneCopy(d).map((c) => c.kind)]).size).toBe(12);
   });
   it('states exactly three proof facts from a passing verify run', () => {
     expect(s.proof!.match(/<li class="fact">/g)).toHaveLength(3);

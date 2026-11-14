@@ -42,6 +42,7 @@ export interface Profile {
   story: string;
   required_credential: string | null;
   price_per_slot: string;
+  slot_minutes: number;
   deposit: string;
   float_cap: string;
   right_max_slots: number;
@@ -51,30 +52,42 @@ export interface Profile {
   status: string;
 }
 
-/** README scenario table: status per asset_type. Testnet aliases (printer-01 …) map through the snapshot. */
-function readmeStatuses(aliasToType: Record<string, string>, types: string[]): Record<string, string> {
+/**
+ * README scenario table ("## Real-world commons"; older READMEs: "## Scenarios"): status per asset_type, verbatim.
+ * Columns are found by header name; a row's subject matches a profile by testnet alias (printer-01 …), by
+ * asset_type, or when every word of the subject appears in the profile's display name ("Neighbourhood fridge").
+ */
+function readmeStatuses(aliasToType: Record<string, string>, names: Record<string, string>): Record<string, string> {
   const readme = read('README.md');
-  const start = readme.indexOf('## Scenarios');
+  const start = ['## Real-world commons', '## Scenarios'].map((h) => readme.indexOf(h)).find((i) => i >= 0) ?? -1;
+  if (start < 0) throw new Error('README has no "## Real-world commons" (or "## Scenarios") section');
   const end = readme.indexOf('\n## ', start + 5);
-  if (start < 0) throw new Error('README has no "## Scenarios" section');
-  const rows = readme
-    .slice(start, end < 0 ? undefined : end)
-    .split('\n')
-    .filter((l) => l.startsWith('|') && !l.startsWith('| :') && !l.startsWith('| Upkeep kind'));
+  const lines = readme.slice(start, end < 0 ? undefined : end).split('\n').filter((l) => l.startsWith('|'));
+  const cellsOf = (l: string) => l.split('|').map((c) => c.trim());
+  const header = cellsOf(lines[0] ?? '');
+  const statusAt = header.findIndex((c) => /^status$/i.test(c));
+  const subjectAt = header.findIndex((c) => /^(shared thing|asset|subject)$/i.test(c));
+  if (statusAt < 0 || subjectAt < 0) throw new Error('README scenario table: no Status or Shared thing column');
+  const words = (x: string) => x.toLowerCase().split(/[^a-z0-9-]+/).filter(Boolean);
+  const types = Object.keys(names);
   const found: Record<string, Set<string>> = {};
-  for (const row of rows) {
-    const cells = row.split('|').map((c) => c.trim());
-    const subject = cells[2] ?? '';
-    const status = cells[4] ?? '';
+  for (const row of lines.slice(1).filter((l) => !l.startsWith('| :'))) {
+    const cells = cellsOf(row);
+    const subject = cells[subjectAt] ?? '';
+    const status = cells[statusAt] ?? '';
+    if (!subject || !status) continue;
     const add = (t: string) => (found[t] ??= new Set()).add(status);
     for (const [alias, t] of Object.entries(aliasToType)) if (new RegExp(`\\b${alias}\\b`).test(subject)) add(t);
-    for (const t of types) if (new RegExp(`(^|[\\s(·])${t}\\b`).test(subject)) add(t);
+    for (const t of types) {
+      const dn = new Set(words(names[t]!));
+      if (new RegExp(`(^|[\\s(])${t}\\b`).test(subject) || words(subject).every((w) => dn.has(w))) add(t);
+    }
   }
   const out: Record<string, string> = {};
   for (const t of types) {
-    const s = [...(found[t] ?? [])];
-    if (s.length !== 1) throw new Error(`README scenario table: ${t} has ${s.length} statuses (${s.join(' / ')})`);
-    out[t] = s[0]!;
+    const st = [...(found[t] ?? [])];
+    if (st.length !== 1) throw new Error(`README scenario table: ${t} has ${st.length} statuses (${st.join(' / ')})`);
+    out[t] = st[0]!;
   }
   return out;
 }
@@ -291,7 +304,7 @@ export function loadData(): LandingData {
   const aliasToType = Object.fromEntries(snapshot.assets.map((a) => [a.account.split('.')[0]!, a.asset_type]));
   const files = readdirSync(resolve(REPO, 'profiles')).filter((f) => f.endsWith('.json') && f !== 'profile.schema.json');
   const raw = files.map((f) => ({ f, d: json<{ profile: Omit<Profile, 'file' | 'status' | 'icon' | 'story'>; meta: { icon: string; scenario_story_en: string } }>(`profiles/${f}`) }));
-  const statuses = readmeStatuses(aliasToType, raw.map((r) => r.d.profile.asset_type));
+  const statuses = readmeStatuses(aliasToType, Object.fromEntries(raw.map((r) => [r.d.profile.asset_type, r.d.profile.display_name])));
   const profiles: Profile[] = raw.map(({ f, d }) => ({
     file: `profiles/${f}`,
     asset_type: d.profile.asset_type,
@@ -300,6 +313,7 @@ export function loadData(): LandingData {
     story: d.meta.scenario_story_en,
     required_credential: d.profile.required_credential,
     price_per_slot: d.profile.price_per_slot,
+    slot_minutes: d.profile.slot_minutes,
     deposit: d.profile.deposit,
     float_cap: d.profile.float_cap,
     right_max_slots: d.profile.right_max_slots,
