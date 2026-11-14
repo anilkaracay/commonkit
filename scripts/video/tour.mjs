@@ -401,7 +401,7 @@ async function main() {
 
     // End card (full frame, no browser bar).
     const end = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
-    const q = new URLSearchParams({ site: process.env.VIDEO_SITE_URL ?? 'https://<demo-domain>/app', repo: process.env.VIDEO_REPO_URL ?? 'github.com/<owner>/commonkit' });
+    const q = new URLSearchParams({ site: process.env.VIDEO_SITE_URL ?? 'commonkit.cayvox.com', repo: process.env.VIDEO_REPO_URL ?? 'github.com/anilkaracay/commonkit' });
     await end.goto(`file://${join(HERE, 'endcard.html')}?${q}`);
     await end.evaluate(() => document.fonts.ready);
     await end.screenshot({ path: join(BUILD, 'end.png') });
