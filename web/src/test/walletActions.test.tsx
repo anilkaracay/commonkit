@@ -130,6 +130,11 @@ function taskSource(patch: Partial<Task> = {}, roles: string[] = []): DataSource
 }
 
 describe('upkeep wallet transactions', () => {
+  it('keeps the task opening threshold visible after the DAO restores the live rule', async () => {
+    setup(`/t/${A.printer}/2`, A.ayse, taskSource({ trigger: { Metric: { metric: 'jobs_total', threshold: 5 } } }));
+    expect(await screen.findByText(/The DAO has since changed this rule/)).toBeInTheDocument();
+    expect(screen.getByText(/Rule recorded when this task opened/)).toBeInTheDocument();
+  });
   it('claims an open task and links the confirmed transaction', async () => {
     const { sign, clear, user } = setup(`/t/${A.printer}/2`, A.ayse, taskSource({ status: 'Open', claimer: null }));
     await user.click(await screen.findByRole('button', { name: 'Claim' }));

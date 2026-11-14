@@ -54,7 +54,7 @@ export function TaskPage() {
     queryFn: () => ds.asset(assetId).get_roles(wallet.accountId!),
   });
   const task = q.data?.tasks.find((t) => t.id === taskId);
-  const demo = useDemoThresholds(assetId, q.data?.rules ?? []);
+  const demo = useDemoThresholds(assetId, (q.data?.rules ?? []).map((r) => task && r.rule_id === task.rule_id ? { ...r, trigger: task.trigger } : r));
   const cards = useQuery({
     queryKey: ['task-cards', ds.kind, assetId, taskId],
     enabled: !!task?.claimer && !!q.data,
@@ -72,7 +72,7 @@ export function TaskPage() {
   const status = s.rules.find((r) => r.rule_id === task.rule_id);
   // D-022: every testnet asset is simulated (emulated device or simulator).
   const sim = s.profile.adapter === 'simulator' || !!dep.data?.assets.find((a) => a.asset_id === assetId)?.simulated;
-  const progress = status ? ruleProgress(status) : null;
+  const progress = status ? ruleProgress({ ...status, trigger: task.trigger }) : null;
   const alias = dep.data?.assets.find((a) => a.asset_id === assetId)?.alias ?? assetId;
   const isOperator = wallet.accountId === s.wiring.agent_id || wallet.accountId === s.wiring.bridge_id;
   const independent = !!wallet.accountId && wallet.accountId !== task.claimer && !isOperator;
@@ -97,7 +97,7 @@ export function TaskPage() {
     ['Claimed', !!task.claimer, task.claimer ? <><Account id={task.claimer} />{task.claimed_at && ` · ${formatDateTime(task.claimed_at)}`}</> : 'waiting for a member'],
     ['Evidence submitted', !!task.evidence_hash, task.evidence_hash ? <span className="font-mono text-xs break-all">sha256 {task.evidence_hash}</span> : 'photo hash, computed in the browser'],
     ...(task.receipt_hash ? [['Receipt attached', true, <span key="r" className="font-mono text-xs break-all">sha256 {task.receipt_hash}</span>] as [string, boolean, ReactNode]] : []),
-    ['Verification test', !!task.verification, rule?.requires_verification_test ? (task.verification ? `${task.verification.passed ? 'passed' : 'failed'} · bridge report` : 'bridge runs it after submission') : 'not required by this rule'],
+    ['Verification test', !!task.verification, task.requires_verification_test ? (task.verification ? `${task.verification.passed ? 'passed' : 'failed'} · bridge report` : 'bridge runs it after submission') : 'not required by this rule'],
     ['Approved by an independent verifier', !!task.verifier, task.verifier ? <Account id={task.verifier} /> : 'verifier ≠ claimer, agent or bridge'],
     ...(task.needs_council || task.council_approver ? [['Council second approval', !!task.council_approver, task.council_approver ? <Account id={task.council_approver} /> : 'needed'] as [string, boolean, ReactNode]] : []),
     ['Rewarded', task.status === 'Rewarded', rewardStateLabel(task.reward_state)],
@@ -135,7 +135,7 @@ export function TaskPage() {
       </figure>
 
       <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-10">
-        <Section title="Rule facts" note="Why it was due">
+        <Section title="Rule facts" note="Rule recorded when this task opened">
           <dl className="ck-rows text-sm">
             <div>
               <dt>Trigger</dt>
@@ -157,6 +157,7 @@ export function TaskPage() {
               </dd>
             </div>
           </dl>
+          {rule && JSON.stringify(rule.trigger) !== JSON.stringify(task.trigger) && <p className="text-sm text-text-3">The DAO has since changed this rule. This task keeps the threshold recorded when it opened.</p>}
           {toYocto(task.expense) > 0n && (
             <div className="rounded-md bg-bg-alt p-4 text-sm">
               <p className="text-text-3">Expense claimed</p>
