@@ -4,6 +4,16 @@ import { LIST_TTL_MS, VIEW_TTL_MS, ViewCache, ttlFor } from '../data/rpc/cache';
 import { throttledFetch } from '../data/rpc/throttle';
 
 describe('view cache', () => {
+  it('does not restore stale in-flight data after a confirmed transaction clears the cache', async () => {
+    const cache = new ViewCache(() => 0);
+    let finish!: (value: number) => void;
+    const old = cache.get('task', 'get_tasks', () => new Promise<number>((resolve) => { finish = resolve; }));
+    cache.clear();
+    expect(await cache.get('task', 'get_tasks', async () => 2)).toBe(2);
+    finish(1);
+    expect(await old).toBe(1);
+    expect(await cache.get('task', 'get_tasks', async () => 3)).toBe(2);
+  });
   it('coalesces identical calls in flight and reuses results within the TTL', async () => {
     let now = 0;
     const cache = new ViewCache(() => now);

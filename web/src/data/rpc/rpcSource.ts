@@ -90,6 +90,7 @@ export function createRpcSource(opts: RpcSourceOptions = {}): DataSource {
 
   return {
     kind: 'rpc',
+    invalidateViews: () => cache.clear(),
     now: () => Date.now(),
     asset,
     commons,

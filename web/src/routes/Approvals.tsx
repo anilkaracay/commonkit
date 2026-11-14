@@ -17,8 +17,8 @@ export function ApprovalsPage() {
   if (!all.data) return <Loading what="pending approvals" />;
 
   const returns = all.data.flatMap(({ deployed, snap }) => snap.reservations.filter((r) => r.status === 'Finished').map((r) => ({ deployed, r })));
-  const toVerify = all.data.flatMap(({ deployed, snap }) => snap.tasks.filter((t) => t.status === 'Submitted').map((t) => ({ deployed, snap, t })));
-  const toCouncil = all.data.flatMap(({ deployed, snap }) => snap.tasks.filter((t) => t.status === 'Approved' && !t.council_approver).map((t) => ({ deployed, snap, t })));
+  const toVerify = all.data.flatMap(({ deployed, snap }) => snap.tasks.filter((t) => t.status === 'Submitted' && !t.verifier).map((t) => ({ deployed, snap, t })));
+  const toCouncil = all.data.flatMap(({ deployed, snap }) => snap.tasks.filter((t) => t.status === 'Submitted' && !!t.verifier && t.needs_council && !t.council_approver).map((t) => ({ deployed, snap, t })));
   const trainings = (comms.data ?? []).flatMap((c) => c.trainings.filter((t) => t.status === 'Proposed').map((t) => ({ c, t })));
 
   const groups = [
@@ -30,6 +30,7 @@ export function ApprovalsPage() {
         <li key={`${deployed.alias}-${r.id}`} className="flex flex-wrap items-center gap-x-2 gap-y-1 px-5 py-3.5 text-sm">
           <Link to={link(`/a/${deployed.asset_id}`)} className="font-medium no-underline hover:text-accent">{deployed.alias}</Link> <span className="num text-text-3">#{r.id}</span> · <Account id={r.holder} />
           {deployed.simulated && <SimulatedBadge />}
+          <Link to={link(`/a/${deployed.asset_id}?action=return&lang=en`)} className="text-link ml-auto">Check return</Link>
         </li>
       )),
     },
@@ -61,6 +62,7 @@ export function ApprovalsPage() {
       rows: trainings.map(({ c, t }) => (
         <li key={`${c.community.slug}-${t.id}`} className="px-5 py-3.5 text-sm">
           <Account id={t.trainer} /> → <Account id={t.trainee} /> · <span className="font-mono text-xs">{t.kind}</span>
+          {' '}<Link to={link(`/train#training-${c.community.slug}-${t.id}`)} className="text-link">Review credential</Link>
         </li>
       )),
     },

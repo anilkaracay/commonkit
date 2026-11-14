@@ -14,13 +14,16 @@ import { useDemoLink } from '../demo/demo';
 import { rewardStateLabel } from '../lib/enums';
 import { ruleProgress } from '../lib/metrics';
 import { RuleThreshold } from '../components/DemoThreshold';
-import { formatNear, toYocto } from '../lib/near';
+import { formatNear, parseNear, toYocto } from '../lib/near';
 import { KindChip } from '../components/UpkeepKind';
 import type { ExpenseState } from '../data/types';
 import { formatDateTime } from '../lib/time';
 import { NotFoundPage } from './NotFound';
 import { Near } from '../components/Near';
 import { displayRationale } from '../lib/cast';
+import { useWallet } from '../wallet/wallet';
+import { useContractAction } from '../wallet/useContractAction';
+import { useToast } from '../components/Toast';
 
 function expenseLabel(e: ExpenseState): string {
   if (typeof e !== 'string') return `escalated to the DAO (#${e.Escalated.escalation_id})`;
@@ -39,7 +42,17 @@ export function TaskPage() {
   const dep = useDeployment();
   const q = useAssetSnapshot(assetId);
   const link = useDemoLink();
+  const wallet = useWallet();
+  const action = useContractAction();
+  const toast = useToast();
   const [hash, setHash] = useState<string | null>(null);
+  const [receiptHash, setReceiptHash] = useState<string | null>(null);
+  const [expense, setExpense] = useState('0');
+  const roles = useQuery({
+    queryKey: ['task-roles', ds.kind, assetId, wallet.accountId],
+    enabled: !!wallet.accountId,
+    queryFn: () => ds.asset(assetId).get_roles(wallet.accountId!),
+  });
   const task = q.data?.tasks.find((t) => t.id === taskId);
   const demo = useDemoThresholds(assetId, q.data?.rules ?? []);
   const cards = useQuery({
@@ -61,6 +74,23 @@ export function TaskPage() {
   const sim = s.profile.adapter === 'simulator' || !!dep.data?.assets.find((a) => a.asset_id === assetId)?.simulated;
   const progress = status ? ruleProgress(status) : null;
   const alias = dep.data?.assets.find((a) => a.asset_id === assetId)?.alias ?? assetId;
+  const isOperator = wallet.accountId === s.wiring.agent_id || wallet.accountId === s.wiring.bridge_id;
+  const independent = !!wallet.accountId && wallet.accountId !== task.claimer && !isOperator;
+  const canVerify = independent && roles.data?.includes('verifier') && task.status === 'Submitted' && !task.verifier;
+  const canCouncil = independent && roles.data?.includes('council') && task.status === 'Submitted'
+    && !!task.verifier && task.verifier !== wallet.accountId && task.needs_council;
+  const testPassed = !task.requires_verification_test || !!task.verification?.passed;
+  let expenseYocto = 0n;
+  let expenseProblem: string | null = null;
+  try {
+    expenseYocto = parseNear(expense);
+    if (expenseYocto < 0n || expenseYocto > toYocto(task.reimbursable_max)) expenseProblem = 'Expense must be within the task reimbursement cap.';
+    else if (expenseYocto > 0n && !receiptHash) expenseProblem = 'Attach a receipt for this expense.';
+  } catch { expenseProblem = 'Enter an expense in NEAR, for example 0.25.'; }
+  const send = (methodName: string, args: Record<string, unknown> = { task_id: task.id }) => {
+    if (!action.isPending) action.mutate({ receiverId: assetId, methodName, args, deposit: 0n });
+  };
+  const reimbursable = (task.kind === 'Restock' || task.kind === 'Repair') && toYocto(task.reimbursable_max) > 0n;
 
   const timeline: [string, boolean, ReactNode][] = [
     ['Opened by the agent', true, <><Account id={task.opened_by} /> · {formatDateTime(task.created_at)}</>],
@@ -109,7 +139,7 @@ export function TaskPage() {
           <dl className="ck-rows text-sm">
             <div>
               <dt>Trigger</dt>
-              <dd>{rule ? <RuleThreshold trigger={rule.trigger} demo={demo.get(rule.rule_id)} /> : task.rule_id}</dd>
+              <dd><RuleThreshold trigger={task.trigger} demo={demo.get(task.rule_id)} /></dd>
             </div>
             <div>
               <dt>Due value at open</dt>
@@ -165,9 +195,21 @@ export function TaskPage() {
         </Section>
       )}
 
+      {action.data && <p role="status" className="text-sm">Transaction confirmed. <TxLink hash={action.data.txHash} label="View task transaction" /></p>}
+
+      {(canVerify || canCouncil) && (
+        <Section title="Approve this work" note="Independent approval is enforced on chain">
+          {!testPassed && <p className="text-sm text-text-3">Waiting for a passed bridge verification test.</p>}
+          <button type="button" className="ck-btn" disabled={action.isPending || !testPassed} onClick={() => send(canCouncil ? 'council_approve_task' : 'approve_task')}>
+            {action.isPending ? 'Confirming approval…' : canCouncil ? 'Give council approval' : 'Approve task'}
+          </button>
+        </Section>
+      )}
+
       {['Open', 'Claimed'].includes(task.status) && (
         <Section title="Do this task" note="Claim, attach evidence, submit">
           <div className="ck-card space-y-5 p-5 text-sm sm:p-6">
+            {task.status === 'Claimed' && task.claimer === wallet.accountId && <>
             <label className="block">
               <span className="font-medium">Evidence photo</span>
               <span className="mt-0.5 block text-text-3">Only its SHA-256 goes on-chain. The photo never leaves this device.</span>
@@ -177,15 +219,39 @@ export function TaskPage() {
                 className="mt-3 block w-full text-sm text-text-2 file:mr-3 file:rounded-full file:border-0 file:bg-bg-alt file:px-4 file:py-2 file:text-sm file:font-medium file:text-text"
                 onChange={(e) => {
                   const f = e.target.files?.[0];
-                  if (f) void sha256Hex(f).then(setHash);
+                  setHash(null);
+                  if (f) void sha256Hex(f).then(setHash).catch(toast.showError);
                 }}
               />
             </label>
             {hash && <p className="mono-id break-all">sha256 {hash}</p>}
+            {reimbursable && <>
+              <label className="block">Expense in NEAR (up to {formatNear(task.reimbursable_max)})
+                <input className="field mt-2 block w-full" inputMode="decimal" value={expense} onChange={(e) => setExpense(e.target.value)} />
+              </label>
+              <label className="block">Receipt (photo or PDF; only its hash goes on chain)
+                <input type="file" accept="image/*,application/pdf" className="mt-2 block w-full" onChange={(e) => {
+                  setReceiptHash(null);
+                  const f = e.target.files?.[0];
+                  if (f) void sha256Hex(f).then(setReceiptHash).catch(toast.showError);
+                }} />
+              </label>
+              {expenseProblem && <p role="alert">{expenseProblem}</p>}
+            </>}
+            </>}
             <WalletGate action="Claiming and submitting a task">
-              <button type="button" className="ck-btn">
-                {task.status === 'Open' ? 'Claim' : 'Submit evidence'}
-              </button>
+              {task.status === 'Open' ? (
+                <button type="button" className="ck-btn" disabled={action.isPending || isOperator} onClick={() => send('claim_task')}>
+                  {action.isPending ? 'Confirming claim…' : 'Claim'}
+                </button>
+              ) : task.claimer === wallet.accountId ? (
+                <button type="button" className="ck-btn" disabled={action.isPending || !hash || !!expenseProblem} onClick={() => {
+                  if (!hash || expenseProblem) return;
+                  send('submit_task', { task_id: task.id, evidence_hash: hash, evidence_uri: null, expense: expenseYocto.toString(), receipt_hash: expenseYocto > 0n ? receiptHash : null });
+                }}>
+                  {action.isPending ? 'Confirming submission…' : 'Submit evidence'}
+                </button>
+              ) : <p>This task has been claimed by another member.</p>}
             </WalletGate>
           </div>
         </Section>

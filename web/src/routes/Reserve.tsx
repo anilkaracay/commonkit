@@ -5,7 +5,6 @@ import { useAssetSnapshot, useDeployment } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { SimulatedBadge } from '../components/Badges';
 import { LoadError, Loading } from '../components/Section';
-import { useToast } from '../components/Toast';
 import { WalletGate } from '../components/WalletGate';
 import { useDemoLink } from '../demo/demo';
 import { ERROR_MESSAGES } from '../lib/errors';
@@ -13,6 +12,8 @@ import { formatNear, toYocto } from '../lib/near';
 import { formatTime, slotOf, slotStartNs } from '../lib/time';
 import { useWallet } from '../wallet/wallet';
 import { Near } from '../components/Near';
+import { TxLink } from '../components/TxLink';
+import { useContractAction } from '../wallet/useContractAction';
 
 const SHOWN = 16;
 
@@ -23,44 +24,66 @@ export function ReservePage() {
   const q = useAssetSnapshot(assetId);
   const dep = useDeployment();
   const wallet = useWallet();
-  const toast = useToast();
+  const action = useContractAction();
   const link = useDemoLink();
   const [start, setStart] = useState<number | null>(null);
   const [count, setCount] = useState(1);
   const [useRight, setUseRight] = useState(false);
+  const [rightId, setRightId] = useState('');
+  const member = useQuery({
+    queryKey: ['reservation-member', ds.kind, assetId, wallet.accountId, q.data?.wiring.commons_id],
+    enabled: !!wallet.accountId && !!q.data,
+    queryFn: async () => {
+      const account = wallet.accountId!;
+      const [reputation, cards] = await Promise.all([
+        ds.asset(assetId).get_reputation(account),
+        ds.commons(q.data!.wiring.commons_id).get_cards_for_owner(account),
+      ]);
+      return { reputation, cards };
+    },
+  });
 
   const slotMinutes = q.data?.profile.slot_minutes ?? 60;
-  const firstSlot = slotOf(BigInt(ds.now()) * 1_000_000n, slotMinutes) + 1n;
+  const [bookingTime] = useState(() => ds.now());
+  const firstSlot = slotOf(BigInt(bookingTime) * 1_000_000n, slotMinutes) + 1n;
   const avail = useQuery({
     queryKey: ['availability', ds.kind, assetId, firstSlot.toString(), SHOWN],
     enabled: !!q.data,
     queryFn: () => ds.asset(assetId).get_availability(firstSlot.toString(), SHOWN),
   });
 
-  if (q.error) return <LoadError error={q.error} />;
+  if (q.error || avail.error || member.error) return <LoadError error={q.error ?? avail.error ?? member.error} />;
   if (!q.data || !avail.data) return <Loading what="availability" />;
   const p = q.data.profile;
+  const rights = (member.data?.cards ?? []).filter((c) =>
+    c.owner_id === wallet.accountId && !c.expired && (!c.expires_at || BigInt(c.expires_at) > BigInt(ds.now()) * 1_000_000n)
+    && c.kind.type === 'UsageRight' && c.kind.group_id === p.group_id && c.kind.status.state === 'Active');
+  const selectedRight = rights.find((c) => c.token_id === rightId) ?? rights[0];
+  const rightMax = selectedRight?.kind.type === 'UsageRight' ? Math.min(p.right_max_slots, selectedRight.kind.max_slots) : p.right_max_slots;
+  const memberReady = !wallet.accountId || !!member.data;
+  const trusted = (member.data?.reputation.clean_returns ?? 0) >= p.trusted_after;
   const sim = p.adapter === 'simulator' || !!dep.data?.assets.find((a) => a.asset_id === assetId)?.simulated;
   // Holding reservation id per slot (null = free), from get_availability's SlotInfo list.
   const slots = avail.data.map((x) => x.reservation_id);
 
   const chosen = start === null ? [] : slots.slice(start, start + count);
   const taken = chosen.some((h) => h !== null) || (start !== null && start + count > slots.length);
-  const tooMany = count > (useRight ? p.right_max_slots : p.max_slots_per_reservation);
+  const tooMany = count > (useRight ? Math.min(p.max_slots_per_reservation, rightMax) : p.max_slots_per_reservation);
   const fee = useRight ? 0n : toYocto(p.price_per_slot) * BigInt(count);
-  const deposit = toYocto(p.deposit);
+  const baseDeposit = toYocto(trusted ? p.deposit_trusted : p.deposit);
+  const deposit = useRight && baseDeposit < 10_000_000_000_000_000_000_000n ? 10_000_000_000_000_000_000_000n : baseDeposit;
   const attached = fee + deposit;
   const problem = start === null ? null : taken ? ERROR_MESSAGES.E_SLOT_TAKEN : tooMany ? ERROR_MESSAGES.E_TOO_MANY_SLOTS : null;
 
-  const submit = () =>
-    wallet
-      .signAndSendTransaction({
+  const submit = () => {
+    if (start === null || problem || !memberReady || action.isPending || (useRight && !selectedRight) || !q.data.service.in_service) return;
+    action.mutate({
         receiverId: assetId,
         methodName: 'reserve',
-        args: { start_slot: (firstSlot + BigInt(start ?? 0)).toString(), slots: count, right_id: null },
+        args: { start_slot: (firstSlot + BigInt(start)).toString(), slots: count, right_id: useRight ? selectedRight!.token_id : null },
         deposit: attached,
-      })
-      .catch((e: unknown) => toast.showError(e));
+      });
+  };
 
   return (
     <div className="mx-auto max-w-2xl space-y-10">
@@ -76,6 +99,16 @@ export function ReservePage() {
           {p.slot_minutes} min slots · up to {p.max_slots_per_reservation} · UTC
         </p>
       </div>
+
+      {useRight && (
+        <label className="block text-sm">
+          Usage right
+          <select className="field mt-2 block w-full" value={selectedRight?.token_id ?? ''} onChange={(e) => setRightId(e.target.value)} disabled={!rights.length || action.isPending}>
+            {!rights.length && <option value="">No active usage rights for this machine</option>}
+            {rights.map((c) => <option key={c.token_id} value={c.token_id}>{c.token_id} · {c.kind.type === 'UsageRight' ? c.kind.max_slots : 0} slots</option>)}
+          </select>
+        </label>
+      )}
 
       {p.required_credential && (
         <p className="rounded-md bg-bg-alt p-4 text-sm text-text-2">
@@ -116,9 +149,9 @@ export function ReservePage() {
           <input
             type="number"
             min={1}
-            max={8}
+            max={useRight ? Math.min(p.max_slots_per_reservation, rightMax) : p.max_slots_per_reservation}
             value={count}
-            onChange={(e) => setCount(Math.max(1, Number(e.target.value) || 1))}
+            onChange={(e) => setCount(Math.max(1, Math.trunc(Number(e.target.value) || 1)))}
             className="field num w-20"
           />
         </label>
@@ -148,7 +181,7 @@ export function ReservePage() {
             <dt className="text-text-2">
               Deposit
               <span className="block text-xs text-text-3">
-                Refunded after a clean return · {formatNear(p.deposit_trusted)} after {p.trusted_after} clean returns
+                {trusted ? 'Trusted member deposit · ' : ''}Refunded after a clean return · {formatNear(p.deposit_trusted)} after {p.trusted_after} clean returns
               </span>
             </dt>
             <dd className="whitespace-nowrap">
@@ -164,10 +197,12 @@ export function ReservePage() {
         </dl>
         <div className="mt-6">
           <WalletGate action="Signing a reservation">
-            <button type="button" disabled={start === null || !!problem} onClick={() => void submit()} className="ck-btn ck-btn--lg w-full sm:w-auto">
-              Sign reserve
+            <button type="button" disabled={start === null || !!problem || !memberReady || action.isPending || (useRight && !selectedRight) || !q.data.service.in_service} onClick={submit} className="ck-btn ck-btn--lg w-full sm:w-auto">
+              {action.isPending ? 'Confirming reservation…' : 'Sign reserve'}
             </button>
           </WalletGate>
+          {!q.data.service.in_service && <p role="alert" className="mt-3 text-sm">This machine is out of service.</p>}
+          {action.data && <p role="status" className="mt-3 text-sm">Transaction confirmed. <TxLink hash={action.data.txHash} label="View reservation transaction" /></p>}
         </div>
       </div>
     </div>

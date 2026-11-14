@@ -102,6 +102,8 @@ export interface DaoViews {
 }
 
 export interface DataSource {
+  /** Discard cached views after a confirmed wallet transaction. */
+  invalidateViews?(): void;
   readonly kind: 'mock' | 'rpc';
   /** Wall clock in ms used for windows and ages (fixed in the mock so screenshots are stable). */
   now(): number;

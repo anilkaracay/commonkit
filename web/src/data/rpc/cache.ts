@@ -35,24 +35,34 @@ export function ttlFor(method: string): number {
 }
 
 export class ViewCache {
+  private generation = 0;
   private readonly done = new Map<string, { at: number; value: unknown }>();
   private readonly inflight = new Map<string, Promise<unknown>>();
 
   constructor(private readonly now: () => number = () => Date.now()) {}
+
+  clear(): void {
+    this.generation += 1;
+    this.done.clear();
+    this.inflight.clear();
+  }
 
   get<T>(key: string, method: string, load: () => Promise<T>): Promise<T> {
     const hit = this.done.get(key);
     if (hit && this.now() - hit.at < ttlFor(method)) return Promise.resolve(hit.value as T);
     const pending = this.inflight.get(key);
     if (pending) return pending as Promise<T>;
+    const generation = this.generation;
     const p = load().then(
       (value) => {
-        this.done.set(key, { at: this.now(), value });
-        this.inflight.delete(key);
+        if (generation === this.generation) {
+          this.done.set(key, { at: this.now(), value });
+          this.inflight.delete(key);
+        }
         return value;
       },
       (err: unknown) => {
-        this.inflight.delete(key);
+        if (generation === this.generation) this.inflight.delete(key);
         throw err;
       },
     );
