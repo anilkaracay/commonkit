@@ -4,7 +4,7 @@
  */
 import type { DataSource } from '../data/source';
 import type { EvidenceStep } from '../data/offchain';
-import type { Card, Task } from '../data/types';
+import type { Task } from '../data/types';
 import { formatNearUnit, toYocto } from '../lib/near';
 import { formatDateTime } from '../lib/time';
 import { JUDGE_FLOW_STEPS as EXPECTED_STEPS } from '../demo/flow';
@@ -37,10 +37,10 @@ const statusOf = (items: ProofItem[], warnIfEmpty = false): CheckStatus =>
 
 export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
   const dep = await ds.getDeployment();
-  const checks: ProofCheck[] = [];
 
-  // 1. keyless
-  const keyItems = await Promise.all(
+  // Every read that does not depend on another read starts at once; the RPC source's throttle
+  // keeps the page under the public rate limit. Check order and rules are unchanged.
+  const keyItemsP = Promise.all(
     dep.keyless_accounts.map(async ({ account_id: id, keyless }): Promise<ProofItem> => {
       const keys = await ds.viewAccessKeyList(id);
       const value =
@@ -48,7 +48,6 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
       return { label: id, value, ok: keys.length === 0, account: id };
     }),
   );
-  checks.push({ id: 1, title: 'Asset and commons accounts are keyless', status: statusOf(keyItems), summary: `${keyItems.filter((i) => i.ok).length}/${keyItems.length} accounts have an empty access key list`, items: keyItems });
 
   // 2 & 3. same code hash
   const hashCheck = async (id: number, title: string, accounts: string[], rec: { code_hash: string; build: string }): Promise<ProofCheck> => {
@@ -83,12 +82,87 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
     }
     return { id, title, status, summary, items };
   };
-  checks.push(await hashCheck(2, 'All assets run the same code', dep.assets.map((a) => a.asset_id), dep.code.asset));
-  checks.push(await hashCheck(3, 'All commons run the same code', dep.communities.map((c) => c.commons_id), dep.code.commons));
+
+  const assetDataP = Promise.all(
+    dep.assets.map(async (a) => {
+      const v = ds.asset(a.asset_id);
+      const [wiring, ledger, profile, ops, tasks, escalations, serviceLog, service] = await Promise.all([
+        v.get_wiring(),
+        v.get_ledger(),
+        v.get_profile(),
+        v.get_ops(0, 1000),
+        v.get_tasks(0, 1000),
+        v.get_escalations(0, 1000),
+        v.get_service_log(0, 1000),
+        v.get_service_status(),
+      ]);
+      return { a, wiring, ledger, profile, ops, tasks, escalations, serviceLog, service };
+    }),
+  );
+
+  // 7's commons reads: tokens, then each owner's cards, alongside the trainings.
+  const commonsDataP = Promise.all(
+    dep.communities.map(async (c) => {
+      const cv = ds.commons(c.commons_id);
+      const [cards, trainings] = await Promise.all([
+        cv.nft_tokens(0, 100).then(async (tokens) => {
+          const owners = [...new Set(tokens.map((t) => t.owner_id))];
+          return (await Promise.all(owners.map((o) => cv.get_cards_for_owner(o)))).flat();
+        }),
+        cv.get_trainings(0, 1000),
+      ]);
+      return { c, cards, trainings };
+    }),
+  );
+
+  const [keyItems, check2, check3, daoListArr, assetData, commonsData, steps] = await Promise.all([
+    keyItemsP,
+    hashCheck(2, 'All assets run the same code', dep.assets.map((a) => a.asset_id), dep.code.asset),
+    hashCheck(3, 'All commons run the same code', dep.communities.map((c) => c.commons_id), dep.code.commons),
+    ds.getDaoList(dep.sputnik_factory),
+    assetDataP,
+    commonsDataP,
+    ds.getEvidenceSteps(),
+  ]);
+  const wirings = assetData.map((d) => d.wiring);
+
+  // 8 and 10 depend on the reads above; their own reads also run concurrently.
+  const escalationReads = assetData.flatMap(({ a, escalations }, i) => {
+    const dao = wirings[i]?.dao_id ?? '';
+    return escalations
+      .filter((x) => x.proposal_id !== null)
+      .map(async (e): Promise<ProofItem> => {
+        const p = await ds.dao(dao).get_proposal(Number(e.proposal_id));
+        return { label: `${a.alias} escalation #${e.id}`, value: p ? `proposal #${p.id} ${p.status}` : `proposal #${e.proposal_id} not found`, ok: !!p, account: dao };
+      });
+  });
+  const oosReads = assetData.flatMap(({ a, tasks, serviceLog, service }) =>
+    serviceLog.map(async (p): Promise<ProofItem> => {
+      if (!p.ended_by) {
+        // An open period is not a failure, but it must match the live service status.
+        return { label: `${a.alias} period #${p.seq}`, value: `open since ${formatDateTime(p.started_at)}`, ok: !service.in_service, account: a.asset_id };
+      }
+      if ('RepairRewarded' in p.ended_by) {
+        const tid = p.ended_by.RepairRewarded.task_id;
+        const t = tasks.find((x) => x.id === tid);
+        return { label: `${a.alias} period #${p.seq}`, value: `ended by repair task #${tid} ${t ? `${t.kind} ${t.status}` : 'missing'}`, ok: !!t && t.kind === 'Repair' && t.status === 'Rewarded', account: a.asset_id };
+      }
+      const who = p.ended_by.Council.account;
+      const roles = await ds.asset(a.asset_id).get_roles(who);
+      const isDao = who === wirings.find((_, i) => dep.assets[i]?.asset_id === a.asset_id)?.dao_id;
+      return { label: `${a.alias} period #${p.seq}`, value: `ended by ${isDao ? 'the DAO' : `council member ${who}`}`, ok: isDao || roles.includes('council'), account: a.asset_id };
+    }),
+  );
+  const [escItems, oosItems] = await Promise.all([Promise.all(escalationReads), Promise.all(oosReads)]);
+
+  const checks: ProofCheck[] = [];
+
+  // 1. keyless
+  checks.push({ id: 1, title: 'Asset and commons accounts are keyless', status: statusOf(keyItems), summary: `${keyItems.filter((i) => i.ok).length}/${keyItems.length} accounts have an empty access key list`, items: keyItems });
+  checks.push(check2, check3);
 
   // 4. DAO created by the factory
-  const daoList = new Set(await ds.getDaoList(dep.sputnik_factory));
-  const wirings = await Promise.all(dep.assets.map((a) => ds.asset(a.asset_id).get_wiring()));
+  const daoList = new Set(daoListArr);
   const daoItems: ProofItem[] = dep.assets.map((a, i) => {
     const dao = wirings[i]?.dao_id ?? '';
     return { label: a.asset_id, value: `dao ${dao}`, ok: daoList.has(dao), account: dao };
@@ -96,20 +170,6 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
   checks.push({ id: 4, title: `Each asset is governed by a ${dep.sputnik_factory} DAO`, status: statusOf(daoItems), summary: `${daoItems.filter((i) => i.ok).length}/${daoItems.length} DAO ids found in get_dao_list`, items: daoItems });
 
   // 5. ledgers
-  const assetData = await Promise.all(
-    dep.assets.map(async (a) => {
-      const v = ds.asset(a.asset_id);
-      const [ledger, profile, ops, tasks, escalations, serviceLog] = await Promise.all([
-        v.get_ledger(),
-        v.get_profile(),
-        v.get_ops(0, 1000),
-        v.get_tasks(0, 1000),
-        v.get_escalations(0, 1000),
-        v.get_service_log(0, 1000),
-      ]);
-      return { a, ledger, profile, ops, tasks, escalations, serviceLog };
-    }),
-  );
   const ledgerItems: ProofItem[] = assetData.flatMap(({ a, ledger, profile }) => {
     const storageCost = toYocto(ledger.storage_usage) * toYocto(ledger.storage_byte_cost);
     const storageOk = storageCost * 10n <= toYocto(ledger.storage_reserve) * 8n;
@@ -140,14 +200,9 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
 
   // 7. rights ↔ tasks
   const rightsItems: ProofItem[] = [];
-  for (const c of dep.communities) {
-    const cv = ds.commons(c.commons_id);
-    const tokens = await cv.nft_tokens(0, 100);
-    const owners = [...new Set(tokens.map((t) => t.owner_id))];
-    const cards: Card[] = (await Promise.all(owners.map((o) => cv.get_cards_for_owner(o)))).flat();
+  for (const { c, cards, trainings } of commonsData) {
     const byId = new Map(cards.map((card) => [card.token_id, card]));
     const tasksByAsset = new Map<string, Task[]>(assetData.filter((d) => d.a.community === c.slug).map((d) => [d.a.asset_id, d.tasks]));
-    const trainings = await cv.get_trainings(0, 1000);
     const seen = new Set<string>();
     for (const card of cards) {
       if (card.kind.type !== 'UsageRight') continue;
@@ -178,14 +233,6 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
   checks.push({ id: 7, title: 'Every usage right traces to a rewarded task or an approved training', status: statusOf(rightsItems), summary: 'no orphan right, no duplicate; task rights are owned by the claimer', items: rightsItems });
 
   // 8. escalations resolve to DAO proposals
-  const escItems: ProofItem[] = [];
-  for (const [i, { a, escalations }] of assetData.entries()) {
-    const dao = wirings[i]?.dao_id ?? '';
-    for (const e of escalations.filter((x) => x.proposal_id !== null)) {
-      const p = await ds.dao(dao).get_proposal(Number(e.proposal_id));
-      escItems.push({ label: `${a.alias} escalation #${e.id}`, value: p ? `proposal #${p.id} ${p.status}` : `proposal #${e.proposal_id} not found`, ok: !!p, account: dao });
-    }
-  }
   checks.push({ id: 8, title: 'Every escalation is a real DAO proposal', status: statusOf(escItems), summary: `${escItems.filter((i) => i.ok).length}/${escItems.length} proposals resolve via get_proposal`, items: escItems });
 
   // 9. reimbursements (D-017): every Reimbursement op within its rule's cap, on a Restock/Repair task with a receipt
@@ -207,33 +254,11 @@ export async function runProofChecks(ds: DataSource): Promise<ProofCheck[]> {
   checks.push({ id: 9, title: 'Reimbursements stay within their caps', status: statusOf(reimbItems), summary: `${reimbItems.length} Reimbursement op(s), each on a Restock/Repair task with a receipt and ≤ reimbursable_max`, items: reimbItems });
 
   // 10. out-of-service periods (D-017)
-  const oosItems: ProofItem[] = [];
-  for (const { a, tasks, serviceLog } of assetData) {
-    const service = await ds.asset(a.asset_id).get_service_status();
-    for (const p of serviceLog) {
-      if (!p.ended_by) {
-        // An open period is not a failure, but it must match the live service status.
-        oosItems.push({ label: `${a.alias} period #${p.seq}`, value: `open since ${formatDateTime(p.started_at)}`, ok: !service.in_service, account: a.asset_id });
-        continue;
-      }
-      if ('RepairRewarded' in p.ended_by) {
-        const tid = p.ended_by.RepairRewarded.task_id;
-        const t = tasks.find((x) => x.id === tid);
-        oosItems.push({ label: `${a.alias} period #${p.seq}`, value: `ended by repair task #${tid} ${t ? `${t.kind} ${t.status}` : 'missing'}`, ok: !!t && t.kind === 'Repair' && t.status === 'Rewarded', account: a.asset_id });
-      } else {
-        const who = p.ended_by.Council.account;
-        const roles = await ds.asset(a.asset_id).get_roles(who);
-        const isDao = who === wirings.find((_, i) => dep.assets[i]?.asset_id === a.asset_id)?.dao_id;
-        oosItems.push({ label: `${a.alias} period #${p.seq}`, value: `ended by ${isDao ? 'the DAO' : `council member ${who}`}`, ok: isDao || roles.includes('council'), account: a.asset_id });
-      }
-    }
-  }
   checks.push({ id: 10, title: 'Every out-of-service period ended properly', status: statusOf(oosItems), summary: 'closed only by a rewarded Repair task or a council member', items: oosItems });
 
   // 11. evidence completeness, with the rules of scripts/demo/lib/verify-checks.ts: a step passes
   // when it did not fail and has tx hashes or a no_tx_reason. The on-chain re-read of one tx per
   // step runs in verify.sh, not in the browser.
-  const steps = await ds.getEvidenceSteps();
   const stepItems: ProofItem[] = evidenceItems(steps, EXPECTED_STEPS);
   const counted = stepItems.filter((i) => !i.info);
   checks.push({
