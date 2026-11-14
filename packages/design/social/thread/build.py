@@ -23,11 +23,11 @@ def center(value,x,y,size,color=INK,weight=560,tracking=-.03,stretch=112):
  return t(value,x-measure(value,size,weight,tracking,stretch)/2,y,size,color,weight,tracking,stretch)
 
 items=[
- {'slug':'01-shared-machines','topic':'SHARED MACHINES','lines':['Shared','machines.'],'size':78,'tag':'Community rules.','sub':['Book access. Fund upkeep.','Earn usage rights.'],'labels':['Bookings','Community budgets','Earned access']},
- {'slug':'02-book-access','topic':'RESERVE & USE','lines':['Book','shared','access.'],'size':76,'sub':['Choose a time.','Your deposit returns after','a clean, approved return.'],'labels':['Time slot','Usage fee','Refundable deposit']},
- {'slug':'03-community-budget','topic':'COMMUNITY MONEY','lines':['Give','machines','a budget.'],'size':76,'sub':['Capped operating float.','Surplus to Sputnik DAO.','Larger purchases need a vote.'],'labels':['Capped float','DAO surplus','Machine-opened proposals']},
- {'slug':'04-earned-access','topic':'CONTRIBUTE & EARN','lines':['Contribute.','Earn access.'],'size':66,'sub':['Independently approved','upkeep and teaching can','earn usage-right NFTs.'],'labels':['Independent approval','Usage fee: 0*','Deposit still applies']},
- {'slug':'05-inspect-proof','topic':'VERIFY ON NEAR','lines':['Inspect','the proof.'],'size':76,'sub':['Live views.','Recorded transactions.','Read-only verification.'],'labels':['Inspect live accounts','Trace transactions','Run the verifier']},
+ {'slug':'01-shared-machines','topic':'SHARED MACHINES','lines':['Shared','machines'],'size':78,'tag':'Community rules','sub':['Book access and fund upkeep','Earn usage rights'],'labels':['Bookings','Community budgets','Earned access']},
+ {'slug':'02-book-access','topic':'RESERVE & USE','lines':['Book','shared','access'],'size':76,'sub':['Choose a time','Your deposit returns after','a clean, approved return'],'labels':['Time slot','Usage fee','Refundable deposit']},
+ {'slug':'03-community-budget','topic':'COMMUNITY MONEY','lines':['Give','machines','a budget'],'size':76,'sub':['Capped operating float','Surplus to Sputnik DAO','Larger purchases need a vote'],'labels':['Capped float','DAO surplus','Machine-opened proposals']},
+ {'slug':'04-earned-access','topic':'CONTRIBUTE & EARN','lines':['Contribute','Earn access'],'size':66,'sub':['Independently approved','upkeep and teaching can','earn usage-right NFTs'],'labels':['Independent approval','Earned-right fee: 0','Deposit still applies']},
+ {'slug':'05-inspect-proof','topic':'VERIFY ON NEAR','lines':['Inspect','the proof'],'size':76,'sub':['Live views','Recorded transactions','Read-only verification'],'labels':['Inspect live accounts','Trace transactions','Run the verifier']},
 ]
 lock=(DESIGN/'logo/concepts/a/lockup-nav.svg').read_text()
 lock=re.sub(r' width="[^"]+" height="[^"]+"','',lock,count=1)
@@ -49,18 +49,15 @@ for i,item in enumerate(items,1):
  for line in item['sub']:
   assert measure(line,24,520,-.015,100)<465
   body+=t(line,66,y,24,SLATE,520,-.015,100);y+=34
- if i==4:
-  body+=t('*Recorded earned-right booking.',66,y+35,17,SLATE,400,0,100)
  if i==5:
   for value,label,cx in [('8','Keyless accounts',750),('4','Machines',1005),('21','Recorded steps',1260)]:
    body+=center(value,cx,824,66,'#ffffff',600,-.025,100)
    body+=center(label,cx,858,25,'#ffffff',520,0,100)
  body+='<path d="M64 975H1536" stroke="#c6d1e1" stroke-width="1.2"/>'
  for label,x in zip(item['labels'],[64,565,1066]):
-  body+=f'<rect x="{x}" y="1005" width="4" height="26" fill="{BLUE}"/>'
-  body+=t(label,x+18,1026,23,INK,520,-.015,100)
+  body+=t(label,x,1026,23,INK,520,-.015,100)
  body+=t('commonkit.cayvox.com',64,1080,17,SLATE,400,0,100)
- body+=center('NEAR testnet · illustrated devices',800,1080,16,SLATE,400,0,100)
+ body+=center('NEAR testnet',800,1080,16,SLATE,400,0,100)
  body+=t('Built on',1300,1080,17,SLATE,400,0,100)
  body+=f'<image href="data:image/svg+xml;base64,{near}" x="1381" y="1060" width="23.1" height="22"/>'
  body+=t('NEAR',1420,1080,24,'#11181c',600,.01,100)

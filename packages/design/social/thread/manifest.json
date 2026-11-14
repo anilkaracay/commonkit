@@ -2,7 +2,7 @@
   {
     "image": "01-shared-machines.png",
     "scene": "scene-01.png",
-    "headline": "Shared machines.",
+    "headline": "Shared machines",
     "labels": [
       "Bookings",
       "Community budgets",
@@ -11,13 +11,13 @@
     "scope": "Illustrated device scene; real testnet workflow described in paired post.",
     "width": 2400,
     "height": 1650,
-    "bytes": 1959348,
-    "sha256": "f29c2baa61b4b2655d6e12a188f98d1f030c2a7b6fb1c30326be870281f841bc"
+    "bytes": 1956176,
+    "sha256": "53a4b5d87caa4db2cd1e9621681365bce7f87860b9b1603907ec1c176b90f977"
   },
   {
     "image": "02-book-access.png",
     "scene": "scene-02.png",
-    "headline": "Book shared access.",
+    "headline": "Book shared access",
     "labels": [
       "Time slot",
       "Usage fee",
@@ -26,13 +26,13 @@
     "scope": "Illustrated device scene; real testnet workflow described in paired post.",
     "width": 2400,
     "height": 1650,
-    "bytes": 1854866,
-    "sha256": "eab97a478634a8ea91c8a3e9a841417f756e0afed12a2644682880d390b2f6b3"
+    "bytes": 1850770,
+    "sha256": "d0c3ca8bfd0d4d6836ad6b15387122f03248439ab19c6904bf7affea93cfcb85"
   },
   {
     "image": "03-community-budget.png",
     "scene": "scene-03.png",
-    "headline": "Give machines a budget.",
+    "headline": "Give machines a budget",
     "labels": [
       "Capped float",
       "DAO surplus",
@@ -41,28 +41,28 @@
     "scope": "Illustrated device scene; real testnet workflow described in paired post.",
     "width": 2400,
     "height": 1650,
-    "bytes": 2008240,
-    "sha256": "392ab436829bfc2708afeb1f61f4a52fab7c646141632dbcb62133b2d48cd6c4"
+    "bytes": 2004151,
+    "sha256": "36cb25d9ded2e026716601d196bc762bf98099bd513cd1ee60273096a99c5aae"
   },
   {
     "image": "04-earned-access.png",
     "scene": "scene-04.png",
-    "headline": "Contribute. Earn access.",
+    "headline": "Contribute Earn access",
     "labels": [
       "Independent approval",
-      "Usage fee: 0*",
+      "Earned-right fee: 0",
       "Deposit still applies"
     ],
     "scope": "Illustrated device scene; real testnet workflow described in paired post.",
     "width": 2400,
     "height": 1650,
-    "bytes": 1725050,
-    "sha256": "99be4478cefec8130378697ed35f90398d691f7ecaa688f9f8c4daa08fd0ac7b"
+    "bytes": 1713464,
+    "sha256": "b63fdd911e710aea6b5078230c157aa3032b54a3cb2702fcfbd39c1122499581"
   },
   {
     "image": "05-inspect-proof.png",
     "scene": "scene-05.png",
-    "headline": "Inspect the proof.",
+    "headline": "Inspect the proof",
     "labels": [
       "Inspect live accounts",
       "Trace transactions",
@@ -71,7 +71,7 @@
     "scope": "Illustrated device scene; real testnet workflow described in paired post.",
     "width": 2400,
     "height": 1650,
-    "bytes": 2084841,
-    "sha256": "335fce5d573b55513fa8891992d1553ad988d8353570fb8c4da5a9e0f4d2375a"
+    "bytes": 2080318,
+    "sha256": "c65216bb2a5bad5e4f1e86faecb37741ca278c72fc52561f51a1bfe0a38d6269"
   }
 ]
