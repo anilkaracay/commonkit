@@ -286,14 +286,17 @@ export async function runProofChecks(ds: DataSource, onCheck?: (check: ProofChec
       };
     },
   ];
-  const results = await Promise.allSettled(jobs.map(async (job) => {
+  // Start the two-commons code-hash check first: its two reads can finish while the
+  // eight key-list reads queue. This changes scheduling, never rules or displayed order.
+  const scheduled = [jobs[2]!, ...jobs.slice(0, 2), ...jobs.slice(3)];
+  const results = await Promise.allSettled(scheduled.map(async (job) => {
     const check = await job();
     onCheck?.(check);
     return check;
   }));
   const failure = results.find((r) => r.status === 'rejected');
   if (failure?.status === 'rejected') throw failure.reason;
-  return results.flatMap((r) => r.status === 'fulfilled' ? [r.value] : []);
+  return results.flatMap((r) => r.status === 'fulfilled' ? [r.value] : []).sort((a, b) => a.id - b.id);
 }
 /** Check 11 lines, one per judge step, mirroring verify-checks.ts (evidence-only mode). */
 export function evidenceItems(steps: EvidenceStep[], total: number): ProofItem[] {

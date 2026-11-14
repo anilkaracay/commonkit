@@ -1,0 +1,742 @@
+{
+  "schema": "commonkit-web-performance-v1",
+  "measured_at": "2026-11-14T16:46:32.880168+00:00",
+  "method": "Playwright Chromium, new 1440x1000 browser context per page, normal HTTPS/TLS, no RPC interception or response substitution. Single observations, not latency percentiles. elapsedMs also includes final network idle.",
+  "production_origin": "https://commonkit.cayvox.com",
+  "before_commit": "eaad8575a2a1dd3490312850ff397eda09c5e176",
+  "after_commit": "724ade700933164eba9dafce69252ba47c67d546",
+  "before_hosted": [
+    {
+      "path": "/app/",
+      "elapsedMs": 12198,
+      "rpcRequests": 52,
+      "firstMachine": 2542.7000000029802,
+      "firstBoardData": 8711,
+      "machineCount": 4,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.60",
+        "3.00",
+        "1.15",
+        "3.00",
+        "0.85",
+        "1.00",
+        "0.55",
+        "1.00"
+      ],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/proof/",
+      "elapsedMs": 13227,
+      "rpcRequests": 56,
+      "firstProofResult": 12726.39999999851,
+      "firstLiveProofResult": 12726.39999999851,
+      "proofComplete": 12726.39999999851,
+      "proofHeights": [
+        875.84375
+      ],
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.6",
+        "3",
+        "4.7694",
+        "7",
+        "1.1543",
+        "3",
+        "4.7181",
+        "7",
+        "0.85",
+        "1",
+        "4.7375",
+        "7",
+        "0.5544",
+        "1",
+        "4.7046",
+        "7",
+        "0.0499",
+        "0.0499",
+        "0",
+        "0",
+        "0.6544",
+        "0.6544",
+        "0",
+        "0",
+        "0.4",
+        "0.5"
+      ],
+      "proof": [
+        {
+          "status": "pass",
+          "text": "1Asset and commons accounts are keyless\n\n8/8 accounts have an empty access key list\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "2All assets run the same code\n\n4 accounts share code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h = hash recorded at deployment\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "3All commons run the same code\n\n2 accounts share code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn = hash recorded at deployment\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "4Each asset is governed by a sputnikv2.testnet DAO\n\n4/4 DAO ids found in get_dao_list\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "5Ledgers cover every obligation\n\nbalance \u2265 storage reserve + float + deposits + reserved rewards + pending; float never above cap\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "6Swept totals match sweep transfers\n\neach asset's total_swept equals the sum of its succeeded Sweep transfers (get_ops)\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "7Every usage right traces to a rewarded task or an approved training\n\nno orphan right, no duplicate; task rights are owned by the claimer\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "8Every escalation is a real DAO proposal\n\n1/1 proposals resolve via get_proposal\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "9Reimbursements stay within their caps\n\n1 Reimbursement op(s), each on a Restock/Repair task with a receipt and \u2264 reimbursable_max\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "10Every out-of-service period ended properly\n\nclosed only by a rewarded Repair task or a council member\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "11Every judge step is in the evidence\n\n21/21 steps complete \u00b7 evidence completeness; the on-chain re-check of each step runs in verify.sh\n\n\u203a"
+        }
+      ],
+      "errors": [],
+      "failedRequests": []
+    }
+  ],
+  "after_hosted": [
+    {
+      "path": "/app/",
+      "elapsedMs": 10375,
+      "rpcRequests": 52,
+      "firstMachine": 1039.1999999955297,
+      "firstBoardData": 1039.1999999955297,
+      "firstSnapshot": 1039.1999999955297,
+      "machineCount": 4,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.60",
+        "3.00",
+        "1.15",
+        "3.00",
+        "0.85",
+        "1.00",
+        "0.55",
+        "1.00"
+      ],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/proof/",
+      "elapsedMs": 10862,
+      "rpcRequests": 56,
+      "proofScaffold": 1042.2999999970198,
+      "firstProofResult": 1054.2999999970198,
+      "firstLiveProofResult": 2337.39999999851,
+      "proofComplete": 10364.60000000149,
+      "proofHeights": [
+        1420
+      ],
+      "proofProgress": [
+        {
+          "at": 1042.2999999970198,
+          "statuses": "pending,pending,pending,pending,pending,pending,pending,pending,pending,pending,pending"
+        },
+        {
+          "at": 1054.2999999970198,
+          "statuses": "pending,pending,pending,pending,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 2337.39999999851,
+          "statuses": "pass,pending,pending,pending,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 3000.1999999955297,
+          "statuses": "pass,pass,pending,pending,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 3364.2999999970198,
+          "statuses": "pass,pass,pass,pending,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 4154.60000000149,
+          "statuses": "pass,pass,pass,pass,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 5515.29999999702,
+          "statuses": "pass,pass,pass,pass,pass,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 6195.89999999851,
+          "statuses": "pass,pass,pass,pass,pass,pass,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 6852.89999999851,
+          "statuses": "pass,pass,pass,pass,pass,pass,pending,pending,pass,pending,pass"
+        },
+        {
+          "at": 8879.29999999702,
+          "statuses": "pass,pass,pass,pass,pass,pass,pending,pending,pass,pass,pass"
+        },
+        {
+          "at": 10165,
+          "statuses": "pass,pass,pass,pass,pass,pass,pass,pending,pass,pass,pass"
+        },
+        {
+          "at": 10364.60000000149,
+          "statuses": "pass,pass,pass,pass,pass,pass,pass,pass,pass,pass,pass"
+        }
+      ],
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.6",
+        "3",
+        "4.7694",
+        "7",
+        "1.1543",
+        "3",
+        "4.7181",
+        "7",
+        "0.85",
+        "1",
+        "4.7375",
+        "7",
+        "0.5544",
+        "1",
+        "4.7046",
+        "7",
+        "0.0499",
+        "0.0499",
+        "0",
+        "0",
+        "0.6544",
+        "0.6544",
+        "0",
+        "0",
+        "0.4",
+        "0.5"
+      ],
+      "proof": [
+        {
+          "status": "pass",
+          "text": "1Asset and commons accounts are keyless\n\n8/8 accounts have an empty access key list\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "2All assets run the same code\n\n4 accounts share code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h = hash recorded at deployment\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "3All commons run the same code\n\n2 accounts share code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn = hash recorded at deployment\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "4Each asset is governed by a sputnikv2.testnet DAO\n\n4/4 DAO ids found in get_dao_list\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "5Ledgers cover every obligation\n\nbalance \u2265 storage reserve + float + deposits + reserved rewards + pending; float never above cap\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "6Swept totals match sweep transfers\n\neach asset's total_swept equals the sum of its succeeded Sweep transfers (get_ops)\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "7Every usage right traces to a rewarded task or an approved training\n\nno orphan right, no duplicate; task rights are owned by the claimer\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "8Every escalation is a real DAO proposal\n\n1/1 proposals resolve via get_proposal\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "9Reimbursements stay within their caps\n\n1 Reimbursement op(s), each on a Restock/Repair task with a receipt and \u2264 reimbursable_max\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "10Every out-of-service period ended properly\n\nclosed only by a rewarded Repair task or a council member\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "11Every judge step is in the evidence\n\n21/21 steps complete \u00b7 evidence completeness; the on-chain re-check of each step runs in verify.sh\n\n\u203a"
+        }
+      ],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/a/printer-01.makerlab.commonkit-sxflo.testnet/",
+      "elapsedMs": 7524,
+      "rpcRequests": 32,
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.60",
+        "3.00",
+        "0.00",
+        "0.25",
+        "2",
+        "2.60",
+        "3.00",
+        "0.40",
+        "0.00",
+        "1.75",
+        "0.0499",
+        "12.75",
+        "1.00",
+        "9.6",
+        "7",
+        "0.4",
+        "4",
+        "1"
+      ],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/t/printer-01.makerlab.commonkit-sxflo.testnet/0/",
+      "elapsedMs": 5301,
+      "rpcRequests": 16,
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/me/?as=ayse.commonkit-sxflo.testnet",
+      "elapsedMs": 5855,
+      "rpcRequests": 10,
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    }
+  ],
+  "local_before": [
+    {
+      "path": "/app/",
+      "elapsedMs": 13806,
+      "rpcRequests": 52,
+      "firstMachine": 99.09999999403954,
+      "firstBoardData": 9397.19999999553,
+      "machineCount": 4,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.60",
+        "3.00",
+        "1.15",
+        "3.00",
+        "0.85",
+        "1.00",
+        "0.55",
+        "1.00"
+      ],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/proof/",
+      "elapsedMs": 23277,
+      "rpcRequests": 56,
+      "firstProofResult": 22779.39999999851,
+      "firstLiveProofResult": 22779.39999999851,
+      "proofComplete": 22779.39999999851,
+      "proofHeights": [
+        875.84375
+      ],
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.6",
+        "3",
+        "4.7694",
+        "7",
+        "1.1543",
+        "3",
+        "4.7181",
+        "7",
+        "0.85",
+        "1",
+        "4.7375",
+        "7",
+        "0.5544",
+        "1",
+        "4.7046",
+        "7",
+        "0.0499",
+        "0.0499",
+        "0",
+        "0",
+        "0.6544",
+        "0.6544",
+        "0",
+        "0",
+        "0.4",
+        "0.5"
+      ],
+      "proof": [
+        {
+          "status": "pass",
+          "text": "1Asset and commons accounts are keyless\n\n8/8 accounts have an empty access key list\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "2All assets run the same code\n\n4 accounts share code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h = hash recorded at deployment\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "3All commons run the same code\n\n2 accounts share code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn = hash recorded at deployment\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "4Each asset is governed by a sputnikv2.testnet DAO\n\n4/4 DAO ids found in get_dao_list\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "5Ledgers cover every obligation\n\nbalance \u2265 storage reserve + float + deposits + reserved rewards + pending; float never above cap\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "6Swept totals match sweep transfers\n\neach asset's total_swept equals the sum of its succeeded Sweep transfers (get_ops)\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "7Every usage right traces to a rewarded task or an approved training\n\nno orphan right, no duplicate; task rights are owned by the claimer\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "8Every escalation is a real DAO proposal\n\n1/1 proposals resolve via get_proposal\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "9Reimbursements stay within their caps\n\n1 Reimbursement op(s), each on a Restock/Repair task with a receipt and \u2264 reimbursable_max\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "10Every out-of-service period ended properly\n\nclosed only by a rewarded Repair task or a council member\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "11Every judge step is in the evidence\n\n21/21 steps complete \u00b7 evidence completeness; the on-chain re-check of each step runs in verify.sh\n\n\u203a"
+        }
+      ],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/a/printer-01.makerlab.commonkit-sxflo.testnet/",
+      "elapsedMs": 7671,
+      "rpcRequests": 32,
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.60",
+        "3.00",
+        "0.00",
+        "0.25",
+        "2",
+        "2.60",
+        "3.00",
+        "0.40",
+        "0.00",
+        "1.75",
+        "0.0499",
+        "12.75",
+        "1.00",
+        "9.6",
+        "7",
+        "0.4",
+        "4",
+        "1"
+      ],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/t/printer-01.makerlab.commonkit-sxflo.testnet/0/",
+      "elapsedMs": 3396,
+      "rpcRequests": 16,
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/me/?as=ayse.commonkit-sxflo.testnet",
+      "elapsedMs": 2685,
+      "rpcRequests": 10,
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    }
+  ],
+  "local_after": [
+    {
+      "path": "/app/",
+      "elapsedMs": 9572,
+      "rpcRequests": 52,
+      "firstMachine": 121.69999999552965,
+      "firstBoardData": 121.69999999552965,
+      "firstSnapshot": 121.69999999552965,
+      "machineCount": 4,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.60",
+        "3.00",
+        "1.15",
+        "3.00",
+        "0.85",
+        "1.00",
+        "0.55",
+        "1.00"
+      ],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/proof/",
+      "elapsedMs": 10176,
+      "rpcRequests": 56,
+      "proofScaffold": 77.60000000149012,
+      "firstProofResult": 93.40000000596046,
+      "firstLiveProofResult": 1704.8000000044703,
+      "proofComplete": 9673.20000000298,
+      "proofHeights": [
+        1420
+      ],
+      "proofProgress": [
+        {
+          "at": 77.60000000149012,
+          "statuses": "pending,pending,pending,pending,pending,pending,pending,pending,pending,pending,pending"
+        },
+        {
+          "at": 93.40000000596046,
+          "statuses": "pending,pending,pending,pending,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 1704.8000000044703,
+          "statuses": "pass,pending,pending,pending,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 2347.5,
+          "statuses": "pass,pass,pending,pending,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 2730.9000000059605,
+          "statuses": "pass,pass,pass,pending,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 3573.3000000044703,
+          "statuses": "pass,pass,pass,pass,pending,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 4897.60000000149,
+          "statuses": "pass,pass,pass,pass,pass,pending,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 5613,
+          "statuses": "pass,pass,pass,pass,pass,pass,pending,pending,pending,pending,pass"
+        },
+        {
+          "at": 6189.5,
+          "statuses": "pass,pass,pass,pass,pass,pass,pending,pending,pass,pending,pass"
+        },
+        {
+          "at": 8194.5,
+          "statuses": "pass,pass,pass,pass,pass,pass,pending,pending,pass,pass,pass"
+        },
+        {
+          "at": 9509,
+          "statuses": "pass,pass,pass,pass,pass,pass,pass,pending,pass,pass,pass"
+        },
+        {
+          "at": 9673.20000000298,
+          "statuses": "pass,pass,pass,pass,pass,pass,pass,pass,pass,pass,pass"
+        }
+      ],
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.6",
+        "3",
+        "4.7694",
+        "7",
+        "1.1543",
+        "3",
+        "4.7181",
+        "7",
+        "0.85",
+        "1",
+        "4.7375",
+        "7",
+        "0.5544",
+        "1",
+        "4.7046",
+        "7",
+        "0.0499",
+        "0.0499",
+        "0",
+        "0",
+        "0.6544",
+        "0.6544",
+        "0",
+        "0",
+        "0.4",
+        "0.5"
+      ],
+      "proof": [
+        {
+          "status": "pass",
+          "text": "1Asset and commons accounts are keyless\n\n8/8 accounts have an empty access key list\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "2All assets run the same code\n\n4 accounts share code_hash 3RpdWfB6MRHyL5wb5ZVFGoKWFLo3uXyDpp592Xdp9g2h = hash recorded at deployment\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "3All commons run the same code\n\n2 accounts share code_hash J7Ve4BDdn1tsxvwwXM5cRhuf6iMbaeMqFSNzdgcxgQvn = hash recorded at deployment\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "4Each asset is governed by a sputnikv2.testnet DAO\n\n4/4 DAO ids found in get_dao_list\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "5Ledgers cover every obligation\n\nbalance \u2265 storage reserve + float + deposits + reserved rewards + pending; float never above cap\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "6Swept totals match sweep transfers\n\neach asset's total_swept equals the sum of its succeeded Sweep transfers (get_ops)\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "7Every usage right traces to a rewarded task or an approved training\n\nno orphan right, no duplicate; task rights are owned by the claimer\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "8Every escalation is a real DAO proposal\n\n1/1 proposals resolve via get_proposal\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "9Reimbursements stay within their caps\n\n1 Reimbursement op(s), each on a Restock/Repair task with a receipt and \u2264 reimbursable_max\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "10Every out-of-service period ended properly\n\nclosed only by a rewarded Repair task or a council member\n\n\u203a"
+        },
+        {
+          "status": "pass",
+          "text": "11Every judge step is in the evidence\n\n21/21 steps complete \u00b7 evidence completeness; the on-chain re-check of each step runs in verify.sh\n\n\u203a"
+        }
+      ],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/a/printer-01.makerlab.commonkit-sxflo.testnet/",
+      "elapsedMs": 6018,
+      "rpcRequests": 32,
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [
+        "2.60",
+        "3.00",
+        "0.00",
+        "0.25",
+        "2",
+        "2.60",
+        "3.00",
+        "0.40",
+        "0.00",
+        "1.75",
+        "0.0499",
+        "12.75",
+        "1.00",
+        "9.6",
+        "7",
+        "0.4",
+        "4",
+        "1"
+      ],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/t/printer-01.makerlab.commonkit-sxflo.testnet/0/",
+      "elapsedMs": 6224,
+      "rpcRequests": 16,
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    },
+    {
+      "path": "/app/me/?as=ayse.commonkit-sxflo.testnet",
+      "elapsedMs": 5110,
+      "rpcRequests": 10,
+      "machineCount": 0,
+      "snapshotLabel": null,
+      "amounts": [],
+      "proof": [],
+      "errors": [],
+      "failedRequests": []
+    }
+  ],
+  "mobile": {
+    "errors": [],
+    "heights": [
+      1420
+    ],
+    "viewport": 390,
+    "scrollWidth": 390
+  },
+  "gates": {
+    "web_tests": 170,
+    "web_typecheck": "passed",
+    "workspace_lint": "passed",
+    "site_build": "passed",
+    "offline_snapshot": "RPC rejection removed generated JSON and exited 0; web build also passed without snapshot"
+  },
+  "notes": [
+    "Board firstBoardData includes explicitly timestamped snapshot data; the snapshot label is gone only after both live Board queries complete. No snapshot seeds the RPC/query cache or Proof.",
+    "Proof firstProofResult is the bundled evidence-completeness check; firstLiveProofResult excludes that check. All eleven live/evidence results must complete successfully for 11/11.",
+    "Two in-flight requests, six starts per second and the existing bounded retry/timeout policy were unchanged.",
+    "An exploratory pre-change local Board run and the first post-deploy asset-page run encountered transient public RPC/CORS errors. The asset rendered identical amounts, then its isolated same-commit recheck completed with 32 RPC requests and zero browser errors. Failed observations are not presented as clean runs.",
+    "No chain transactions, contract changes, physical-device trial or customer usage are part of this measurement."
+  ]
+}
