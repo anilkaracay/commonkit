@@ -1,85 +1,77 @@
-# SUBMISSION
+# Submission checklist
 
-Deadline: **2026-11-14 23:59 UTC** (Türkiye: 15 Nov 02:59). Target: submit by **2026-11-14 18:00 UTC**. Re-read https://nearhackathon.com/HACKATHON.md before submitting.
+Deadline: **14 November 2026, 23:59 UTC = 15 November, 02:59 Europe/Istanbul**. The owner publishes the X post and submits the [official form](https://nearhackathon.com/#apply). No personal fields need to be shared with an agent.
 
-**Hard stops (human only):** making the repo public, force-pushing, posting on X, sending the submission, anything on mainnet. Claude prepares everything and prints it. HACKATHON.md also lists plain pushes as needing confirmation: the human gave that confirmation on 2026-11-09 for regular (non-force) pushes to the private repo `anilkaracay/commonkit` (D-014).
+Checked on 14 November against the full [live rules](https://nearhackathon.com/HACKATHON.md); [the saved copy](HACKATHON.md) matched byte for byte. Recheck the live rules immediately before submission. [SUBMISSION_PACKAGE.md](SUBMISSION_PACKAGE.md) is the canonical copy source for the post and description. The ready-to-copy post is also in `submission/x-post.txt` (gitignored).
 
-## 1. README structure (English, judge- and machine-readable)
+`[x] DONE` means verified at the stated snapshot; `[x] N/A` means no action applies. `[ ] PENDING` needs action; `[ ] UNVERIFIED` has not been independently established. Future obligations stay pending.
 
-1. **Title + one line:** "COMMONKIT — shared things that pay for their own upkeep." Second line (D-017): "Fix it, refill it, clean it, check it, teach it — every kind of care that keeps a shared thing alive earns access to it."
-2. **Why on-chain** (the one sentence).
-3. **Try it in 2 minutes** — hosted demo URL (no wallet) + three "do X → see Y" bullets.
-4. **What we built during the hackathon** — bullets, each with a link (tx, test name or file).
-5. **The loop** — mermaid diagram from ARCHITECTURE §4.4 (short).
-6. **Scenarios table** — the 12 profiles (`docs/PROFILES.md`), grouped by upkeep kind (Maintenance, Restock, Cleaning, Inspection, Repair, Rebalance, Supervision; a profile appears under each kind it uses), with a **Status** column: the four testnet assets (printer-01, laser-01, washer-01, fridge-01) are `simulation (testnet asset)`, the other eight `simulator profile`. No row says real hardware (D-022).
-7. **Simulation and emulators** — what is simulated and how: real bridge adapters against device emulators, simulator scenarios, demo-lowered thresholds with their `set_profile` tx links. No physical device and no pilot; no pilot numbers (D-022).
-8. **Judge flow** — 21 steps (`docs/DEMO_SCRIPT.md` §2; step 21 is `verify.sh`), each "Do X → See Y" + `pnpm demo:step N` + evidence link.
-9. **Verify it yourself** — `./scripts/verify.sh` output sample; `./scripts/simulate.sh washer` (or any of the 12 `asset_type`s; labelled simulation).
-10. **Social Money compliance table** (PRODUCT_TR §17, translated).
-11. **Architecture** — accounts table, contracts, bridge, agent; link to docs/.
-12. **Security model & honest limits** (PRODUCT_TR §20, translated).
-13. **Trezu** paragraph (DAO_INTEGRATION §7).
-14. **Run locally** — clean-clone commands.
-15. **Built with** — libraries, templates, AI tools used (Claude Code), per HACKATHON.md Q-005.
-16. **Hackathon window** — all code written after 2026-10-19; link to first commit.
-17. **Other project disclosure** — if any team member submits another project, name it here (Q-015).
-18. **License** — MIT.
+## Publication and owner handoff
 
-No marketing adjectives. Every claim has a link or a test name.
+- [x] **DONE — Public repository:** [anilkaracay/commonkit](https://github.com/anilkaracay/commonkit), checked without authentication.
+- [x] **DONE — Published snapshot:** `29a46d80259aeab0fffb3fcfa90026443c98f87a`; [CI passed](https://github.com/anilkaracay/commonkit/actions/runs/43590957375) and [Pages passed](https://github.com/anilkaracay/commonkit/actions/runs/43590957416). The remote `hackathon-submission` tag points to this snapshot, excluding subsequent edits.
+- [x] **DONE — Hosting now:** [landing](https://commonkit.cayvox.com/), [app](https://commonkit.cayvox.com/app/) and [player](https://commonkit.cayvox.com/demo/) returned HTTPS 200. Checks used the Pages address with normal TLS verification; resolver propagation can differ.
+- [x] **DONE — Existing published video:** 86.6 seconds, captions and disclosed synthetic narration; hosted MP4 matches `video/manifest.json` at that snapshot.
+- [ ] **PENDING — Replacement publication:** a 73.2-second replacement has been assembled locally. Verify its exports, publish it and check the hosted copy before treating it as public.
+- [x] **DONE — X draft:** event wording, `@NEARProtocol`, `#NEARHackathon`, concrete NEAR role, app/repo links and a feedback question; 280 weighted characters. Community amplification tags are optional.
+- [ ] **PENDING — Owner publishes X:** attach final `video/out/commonkit-demo-x-1280x720.mp4` natively. Recheck the export after any replacement render.
+- [ ] **PENDING — Owner submits once:** `demoUrl` is the public X post URL, not the app/player. Finish before the deadline; retain the official success receipt.
+- [ ] **UNVERIFIED — Previous submission:** no saved-submission receipt was inspected. If already saved, do not submit again; use [request changes](https://nearhackathon.com/request-changes).
+- [ ] **PENDING — Retention:** repository stays public through judging; demo stays available through 18 November, ideally 25 November. Project target: 25 November.
 
-## 2. X demo post (draft — the human posts it)
+## Rules Q-000–Q-017
 
-Limit (D-023): ≤ 280 characters, each URL counts as 23. Both `<url>` placeholders are counted as 23.
+| Check | Rule | Evidence / action |
+| :--- | :--- | :--- |
+| [x] N/A | Q-000: AI credits | Optional; operations agent uses templates, not an LLM. |
+| [x] DONE | Q-001: window | [README disclosure](../README.md#hackathon-window-and-disclosure); first commit `30df77b` is 9 November. |
+| [x] N/A | Q-002: other-chain baseline | No such baseline declared; README states all project code is in-window. |
+| [x] DONE / N/A | Q-003: boundary | Published tag verified above. Pre-hackathon baseline tag/diff is N/A for this new project; later edits are outside the tag. |
+| [x] N/A | Q-004: old project as-is | Declared as a new project, not an unchanged old submission. |
+| [x] DONE | Q-005: reused work / AI | [Built with](../README.md#built-with): dependencies, assets, licenses, Claude Code, Codex, synthetic narration. |
+| [x] N/A | Q-006: 1Click JWT | No Intents integration. |
+| [x] N/A | Q-007: Intents network | No Intents integration or claimed Intents testnet. |
+| [x] DONE | Q-008: test funds | Testnet scope disclosed; no mainnet reimbursement claim. |
+| [x] DONE | Q-009: RPC / hosting | Hosted app reads testnet; hosting checked above. |
+| [x] DONE | Q-010: eligibility | Testnet-only projects eligible; network limitations explicit. |
+| [x] DONE | Q-011: integrations | Sputnik, Trezu and NEP-171 use documented; hints and prompts optional. |
+| [x] DONE / [ ] PENDING | Q-012: demo | [Do/See and local steps](../README.md#explore-the-app), hosted video available; X post and future hosting pending. |
+| [x] N/A | Q-013: rights | Informational terms; no extra deliverable. |
+| [x] DONE / [ ] PENDING | Q-014: license / publicity | [MIT LICENSE](../LICENSE) exists; continued public access through judging pending. |
+| [x] DONE | Q-015: other projects | README declares none by any team member (D-035); this records the declaration. |
+| [x] N/A | Q-016: payout timing | Informational; owner supplies mainnet payout account in form. |
+| [x] DONE | Q-017: screening | Repeatable README steps, evidence, limitations and public CI; no score or acceptance implied. |
 
-<!-- character count: 276 / 280 (240 raw + 2 URLs × (23 − 5)); recount after replacing the placeholders -->
-```
-Shared machines: used by all, fixed by none.
+## Tracks
 
-COMMONKIT gives each a keyless NEAR account: it opens only for on-chain bookings and pays maintainers in access nobody can revoke.
+- [x] **DONE — Prepared selection:** `social`, `nfts` ([D-032](DECISIONS.md), [README](../README.md#track-fit-at-a-glance)). Social: shared budgets, rewards, Sputnik governance, credential/reputation access. NFTs: NEP-171 access and credential cards with stateful behavior. Wallet display is untested and is not an eligibility condition.
+- [x] **N/A — Other claims:** `defi`, `thesis`, `privacy`, `business`, `swarms`, `security`, `agents`, `realworld`, `games`, `memecoins`, `open`. No additional track claim prepared; the bounded helper is not claimed as an earn/spend/hire agent economy.
+- [x] **N/A — Example prompts:** references, not mandatory feature lists. Choose tracks against live track descriptions.
+- [ ] **PENDING — Owner confirms tracks** in the single submission.
 
-Simulated demo: <url>
-Code: <url>
-@NEARProtocol #NEARHackathon
-```
+## Form / exact 11-field API contract
 
-Problem first; NEAR's role is the keyless per-machine account. A closing question ("What should pay for its own upkeep?") does not fit within 280; it can go in a reply if the human wants one. Extra detail goes into the README, not a thread (D-023). Attach the 90-second screen-only video (DEMO_SCRIPT §1).
+Owner fills personal details directly in the form. Never invent values or commit a completed payload. Copy from the canonical package; its current description draft is 1,501 characters.
 
-## 3. Submission payload (draft — print, wait for explicit yes)
+| Check | Field | Value / action |
+| :--- | :--- | :--- |
+| [x] N/A to manual entry | `requestId` | Official form handles its request; API use needs one UUID reused on retries. |
+| [x] DONE | `projectName` | `COMMONKIT`, within 2–80 characters. |
+| [ ] PENDING | `leadName` | Owner enters 2–80 characters. |
+| [ ] PENDING | `email` | Owner's valid address, ≤160 characters; at most two independent projects per email. |
+| [ ] PENDING | `size` | Exactly `1`, `2 - 4`, `4 - 6`, `6 - 8` or `8+`. |
+| [ ] PENDING | `tracks` | Owner confirms `social`, `nfts`, each once. |
+| [ ] PENDING | `nearAddress` | Owner's mainnet prize account, not project testnet account; lowercase, 2–64 characters, live-contract syntax. Never invented. |
+| [x] DONE | `projectUrl` | `https://github.com/anilkaracay/commonkit`; prior submission uniqueness unverified. |
+| [ ] PENDING | `demoUrl` | Public X post URL, ≤300 characters. |
+| [x] DONE / [ ] PENDING | `idea` | Draft within 20–2,000 characters; owner reviews/pastes. |
+| [ ] PENDING | `consent` | Owner reads/agrees to exact notice before selecting consent. |
 
-| Field | Value |
-| :--- | :--- |
-| projectName | COMMONKIT |
-| leadName | (human) |
-| email | (human) |
-| size | (human: `1`, `2 - 4`, ...) |
-| tracks | `["social"]` + `"nfts"` if NEP-171 cards verified in wallets + `"agents"` only if the agent's earn/spend loop is verified end to end |
-| nearAddress | (human, **mainnet** account for payout) |
-| projectUrl | public GitHub repo URL |
-| demoUrl | X post URL |
-| idea | ≤ 2000 chars; draft below |
-| consent | true only after the human agrees to the notice verbatim |
+- [ ] **PENDING — Website honeypot:** leave Website empty. API: omit `website`, send exactly the 11 fields, body ≤12,000 bytes; repository/post URLs ≤300 characters.
+- [x] **N/A — Agent submission:** owner uses the form; no agent submission or personal-data collection needed. Agent API submission would require the exact full payload and explicit human confirmation first.
+- [x] **N/A — API retries so far:** none by this audit. Later API use: `201` saved; `400` fix fields with same UUID; `403` stop; `409` never bypass with another email/repo; `413` shorten; `503` wait one minute and reuse UUID. Network-error retries also reuse it.
+- [x] **DONE — History secrets scan:** Gitleaks 8.30.1 scanned 203 commits through `29a46d8`. Its 12 detections were inspected: previously recorded public Ed25519 keys, not private keys. [Sanitized result](../evidence/history-scan-2026-11-14.json). Sensitive paths remain ignored; never commit a completed personal-data payload.
 
-`requestId`: generate once (`node -e 'console.log(crypto.randomUUID())'`), store locally (not committed), reuse on retry.
+Contact notice: “I agree that the organizers may use these details to review our submission and contact us about this hackathon.”
 
-### 3.1 API rules (from HACKATHON.md "Submission API" — re-check the live file before sending)
-
-- Every field under "What the human decides" comes from the human; never guess or fill placeholders. Never create or invent the mainnet payout account.
-- Send **exactly** the 11 fields above. No other fields; `website` is a spam trap (any non-empty value rejects the submission). Body ≤ 12 000 bytes.
-- `nearAddress` must match `^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$`, 2–64 chars, lowercase. `size` exactly one of `1`, `2 - 4`, `4 - 6`, `6 - 8`, `8+`. Each track id once.
-- Read the consent notice to the human verbatim: "I agree that the organizers may use these details to review our submission and contact us about this hackathon." `consent: true` only after they agree.
-- Send only when the repo is public and the demo post is up. Submissions are accepted 2026-11-01T00:00:00Z – 2026-11-14T23:59:00Z only.
-- The payload contains personal data: keep it in the gitignored `submission/` folder, never commit it.
-- Responses: 201 saved → tell the human, record "submitted" (no personal data) in STATUS.md. 400 → fix the listed `fields`, resend with the same requestId. 403 → tell the human, do not retry. 409 → already submitted or email limit; ask the human, never change the link/email to get around it. 413 → shorten `idea`. 503 → wait a minute, resend with the same requestId.
-- Never submit twice. Mistakes after a 201 go through https://nearhackathon.com/request-changes, sent by the human (they enter the submitted email, NEAR account and repo link, tick fields to change, leave a Discord/Telegram handle).
-
-### `idea` draft (fit to ≤ 2000 chars after final numbers)
-
-> Shared equipment in communities — makerspace printers, dorm washers, co-op tractors — is used by everyone and maintained by no one, and its money and rules live in one admin's spreadsheet. COMMONKIT gives every shared asset its own keyless NEAR account running the same contract. Members reserve on-chain; a small bridge next to the device only unlocks it for a valid reservation (NEP-413 signed request + on-chain check). Fees fill a capped operating float; everything above the cap is swept to the community's unmodified Sputnik DAO, and larger purchases become Sputnik proposals opened by the asset contract itself. The bridge reports telemetry; when a profile rule is due (telemetry threshold, schedule or member fault reports), the asset's operations agent (function-call key, contract-enforced caps and quotas) opens an upkeep task (maintenance, restock, cleaning, inspection, repair) with a rationale; restock and repair work can claim a capped, receipt-backed expense from the float. A member does the work, the bridge runs a verification test, an independent member approves, and the maintainer receives non-transferable NEP-171 usage-right cards that no admin can revoke. Risky machines require credential cards; trainers earn rights. Same WASM, different profile + adapter: four testnet assets (3D printer, laser cutter, dorm washer, dorm fridge) in two DAOs. No physical device was used: the printer and laser run through the real Moonraker and Shelly adapters against local device emulators, the others through a simulator, and every event and screen is labelled simulated. Testnet only. Everything claimed is verifiable with scripts/verify.sh.
-
-## 4. Final checklist
-
-- [ ] Repo public (human) with LICENSE, README, docs, evidence.
-- [ ] Hosted demo up; will stay up through 2026-11-25.
-- [ ] verify.sh green; evidence complete.
-- [ ] Video ≤ 90 s uploaded with the post (human).
-- [ ] Payload printed and confirmed by the human; submitted once; 201 received and recorded (without personal data) in STATUS.md.
+After a saved submission, the owner sends corrections through [request changes](https://nearhackathon.com/request-changes). Keep submitted email, payout account and repo values privately for that process; never create another submission to repair the first.

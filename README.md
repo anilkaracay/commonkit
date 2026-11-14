@@ -6,7 +6,7 @@
 
 Shared machines get used; their upkeep falls to a few people. COMMONKIT turns that care into earned access. Members book a machine, complete upkeep, and receive usage-right cards after an independent member approves the work. Booking fees fund a capped operating budget; surplus returns to the community's Sputnik DAO. Each machine has its own named, keyless NEAR account: funds move through contract rules, and no method revokes a granted usage right ([scope](#security-model-and-limits)).
 
-**[Open the app](https://commonkit.cayvox.com/app/) · [Watch the 90-second demo](https://commonkit.cayvox.com/demo/) · [Verify the chain state](https://commonkit.cayvox.com/app/proof/)**
+**[Open the app](https://commonkit.cayvox.com/app/) · [Watch the 73-second demo](https://commonkit.cayvox.com/demo/) · [Verify the chain state](https://commonkit.cayvox.com/app/proof/)**
 
 Built at **NEAR HACKATHON 2026** for **Social Money** and **NFTs That Do Something**. On testnet: **2 Sputnik DAOs, 2 community contracts, 4 machine accounts, all keyless; 21 recorded judge steps**. Devices use API-faithful Moonraker/Shelly emulators and a labelled simulator.
 
@@ -167,7 +167,7 @@ No keys and no wallet needed to explore. The hosted site is https://commonkit.ca
 | Open `/app/proof` | Access keys per contract account (0), the shared `code_hash`, the ledger invariants and explorer links. |
 | Run `./scripts/verify.sh` | about 90 lines, no ❌, exit 0, in 1–2 minutes: no keys on the eight contract and DAO accounts, one asset `code_hash`, operator key scopes, ledgers, sweeps, rights ↔ tasks, escalations, reimbursement caps, service log and representative transactions from the 21-step flow ([`evidence/verify-step21.txt`](evidence/verify-step21.txt)). |
 | Run `./scripts/simulate.sh washer --fake` | In about a second, the loop on in-memory fake chains: NEP-413 signed access → bridge 200, simulated telemetry makes `filter_clean` due, the agent opens the cleaning task, the bridge verification passes. Lines it cannot model say "skipped"; drop `--fake` for the real contracts on a local sandbox ([Run locally](#run-locally)). |
-| [Watch the video](https://commonkit.cayvox.com/demo/) | One walkthrough of the site reading testnet live: board → printer → booking → upkeep task with independent approval and cards → refused card transfer → float swept to the DAO → proof. Synthetic narration voice. |
+| [Watch the video](https://commonkit.cayvox.com/demo/) | A 73.2-second walkthrough reading testnet live and showing recorded transactions: booking → agent-opened upkeep task → independent approval → earned usage-right NFTs → zero-fee redemption → capped budget and DAO sweep → purchase proposal opened by the printer → proof. Devices are emulated/simulated; synthetic narration; no wallet signing in the recording. |
 
 Transaction links open on NearBlocks. To read a hash over RPC, use an archival endpoint such as `https://archival-rpc.testnet.fastnear.com`: regular testnet RPC nodes drop transactions older than a few days and answer `UNKNOWN_TRANSACTION`.
 

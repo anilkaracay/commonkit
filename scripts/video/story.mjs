@@ -1,86 +1,42 @@
-// The demo video's story: chapters, captions and narration, in the order scripts/video/tour.mjs walks the site (D-038, D-039).
-// Each line is { text, say? }: `text` is the caption, `say` what the narrator speaks (defaults to `text`; differs where a
-// code name reads badly aloud). Rule: every on-chain claim is a real testnet tx from evidence/steps.json or a live view;
-// simulated devices are said so.
-
+// Evidence-first demo story: booking → upkeep → earned right → zero-fee redemption → DAO purchase.
 export const PRINTER = 'printer-01.makerlab.commonkit-sxflo.testnet';
-
 export const TX = {
-  reserve: '3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz', // step 2: Alex (ali) books printer-01
-  transfer: '35LAjegUjbzPtUoDFhoTm1kxRtfNRJw7sS3GsqhDx6ov', // step 17: council nft_transfer refused, E_NON_TRANSFERABLE
+  reserve: '3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz',
+  redeem: '5HGbP8ji8pyb53vJdCqhWWJzoVGpVDynx1v11HKouyD6',
 };
-
 export const CHAPTERS = {
-  intro: {
-    title: null,
-    lines: [
-      { text: 'Shared machines are used by everyone and looked after by no one. COMMONKIT gives each one its own NEAR account.' },
-      { text: 'Open the app. No wallet is needed to look around.' },
-    ],
-  },
-  board: {
-    title: 'The app',
-    lines: [
-      { text: 'Four shared machines in two communities, read live from NEAR testnet.' },
-      { text: 'Open the 3D printer.', say: "Let's open the 3D printer." },
-    ],
-  },
-  printer: {
-    title: 'The machine',
-    lines: [
-      { text: 'Its account has no keys: funds move through contract rules. The printer itself is simulated.' },
-      { text: 'To use it, book it.' },
-    ],
-  },
-  book: {
-    title: 'Book',
-    lines: [
-      { text: 'Pick a time: a small fee, plus a deposit you get back after a clean return.' },
-      { text: 'You sign with a NEAR wallet, and the booking is a testnet transaction.' },
-      { text: "Alex's booking on testnet: reservation_confirmed.", say: "Here is Alex's booking, confirmed on chain." },
-    ],
-  },
-  upkeep: {
-    title: 'Upkeep',
-    lines: [
-      { text: 'At the machine, a bridge unlocks it only for a valid booking and reports usage on chain (simulated).', say: 'At the machine, a bridge unlocks it only for a valid booking, and reports usage on chain.' },
-      { text: "When usage passes a rule, the printer's agent opens an upkeep task. Demo rule: 30 min (real: 200 h).", say: "When usage passes a rule, the printer's agent opens an upkeep task." },
-    ],
-  },
-  task: {
-    title: 'The task',
-    lines: [
-      { text: 'It says why: 4.3 h of nozzle time, over the rule.', say: 'It says why: four point three hours of nozzle time, over the rule.' },
-      { text: 'Ava did the work, the bridge ran a test print, and Mark, another member, approved it.' },
-    ],
-  },
-  earn: {
-    title: 'Earn',
-    lines: [
-      { text: 'Ava earned two usage-right NFTs (NEP-171) for this printer. They cannot be sold or moved.', say: "Ava earned two usage-right NFTs for this printer. They can't be sold, or moved." },
-      { text: 'A council member tried to move one. Refused on chain: E_NON_TRANSFERABLE.', say: 'A council member tried to move one. The chain refused.' },
-    ],
-  },
-  money: {
-    title: 'Money',
-    lines: [
-      { text: "Fees stay in the printer's own account, up to a 3 NEAR cap.", say: "Fees stay in the printer's own account, up to a three NEAR cap." },
-      { text: "Excess goes to the Sputnik DAO. For larger purchases, the machine opens its own proposal.", say: 'Excess goes to the Sputnik DAO. For larger purchases, the machine opens its own proposal.' },
-    ],
-  },
-  proof: {
-    title: 'Check it',
-    lines: [
-      { text: 'Every claim can be checked: the Proof page re-reads them from testnet.', say: 'And every claim can be checked. The proof page re-reads them, live, from testnet.' },
-      { text: 'Or run ./scripts/verify.sh. No wallet, no keys.', say: 'Or run one script. No wallet, no keys.' },
-    ],
-  },
+  book: { title: 'Book', lines: [
+    { text: 'Book a shared printer: a usage fee for upkeep, plus a refundable deposit.' },
+    { text: "Recorded testnet booking: Alex's two-slot reservation.", say: "This recorded NEAR testnet transaction confirms Alex's booking." },
+  ] },
+  upkeep: { title: 'Care', lines: [
+    { text: 'A bridge checks the booking and reports usage. These devices are emulated.' },
+    { text: "A due rule lets the printer's agent open an upkeep task. Demo: 30 min; production: 200 h.", say: "When usage crosses a rule, the printer's agent opens an upkeep task." },
+  ] },
+  task: { title: 'Independent approval', lines: [
+    { text: 'Ava cleaned the nozzle. A test print passed, and Mark independently approved her work.' },
+  ] },
+  earn: { title: 'Earn access', lines: [
+    { text: 'She earned two non-transferable usage-right NFTs.', say: 'She earned two non-transferable usage rights.' },
+  ] },
+  redeem: { title: 'Use the reward', lines: [
+    { text: 'Ava used right-3 for this booking: zero usage fee. The refundable deposit still applies.', say: 'Ava used right three for this booking: zero usage fee. The refundable deposit still applies.' },
+    { text: 'After the session, the right was consumed. Her care earned access.' },
+  ] },
+  money: { title: 'A machine with a budget', lines: [
+    { text: 'Each machine runs its own keyless NEAR account, with a capped operating budget.' },
+    { text: "Excess fees go back to the community's Sputnik DAO." },
+  ] },
+  proposal: { title: 'The machine opens a proposal', lines: [
+    { text: 'For a larger purchase, the printer itself opened proposal #10.', say: 'For a larger purchase, the printer itself opened proposal ten.' },
+    { text: 'The council approved it. The DAO paid the demo supplier 4 testnet NEAR.', say: 'The council approved it. The DAO paid the demo supplier four testnet Near.' },
+  ] },
+  proof: { title: 'Verify it', lines: [
+    { text: 'Inspect the live checks: eight keyless accounts, matching machine code hashes, balanced ledgers.', say: 'Inspect the live checks: eight keyless accounts, one machine contract, balanced ledgers.' },
+    { text: 'Or run the verifier. No wallet, no keys. COMMONKIT: care earns access.' },
+  ] },
 };
-
-/** All-caps names are spelled letter by letter by the voice model; say them as words. */
 const spoken = (s) => s.replace(/\bNEAR\b/g, 'Near').replace(/\bCOMMONKIT\b/g, 'CommonKit');
-
-/** Every spoken line with a stable key (chapter-index), for scripts/video/voice.py. */
 export function voiceLines() {
   return Object.entries(CHAPTERS).flatMap(([id, c]) => c.lines.map((l, i) => ({ key: `${id}-${i}`, say: spoken(l.say ?? l.text) })));
 }

@@ -15,7 +15,7 @@ import { CHAPTERS, PRINTER, TX } from './story.mjs';
 
 const BAR = 56; // browser bar height in the final frame
 const BAND = 150; // caption band under the page
-const VIEW = { width: 1600, height: 728 }; // CSS px; deviceScaleFactor 1.2 → 1920×874 page frames
+const VIEW = { width: 1280, height: 583 }; // Larger readable UI: 1.5× → 1920px wide; page fitted to 874px
 const PAGE_H = 1080 - BAR - BAND;
 const BUILD = dir();
 const OUT = join(BUILD, 'tour.mp4');
@@ -265,147 +265,97 @@ async function main() {
   const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist',
     ...(dnsAddress ? [`--host-resolver-rules=MAP ${new URL(site.base).hostname} ${dnsAddress}`] : []),
   ] });
-  const context = await browser.newContext({ viewport: VIEW, deviceScaleFactor: 1.2, reducedMotion: 'no-preference' });
+  const context = await browser.newContext({ viewport: VIEW, deviceScaleFactor: 1.5, reducedMotion: 'no-preference' });
   await context.addInitScript(OVERLAY_JS);
   const page = await context.newPage();
   const rec = new Recorder(page, site.base);
-  const printerLink = `a[href$="/a/${PRINTER}"]`;
   const C = CHAPTERS;
   const line = (ch, i, titleOf = null) => rec.say(`${ch}-${i}`, C[ch].lines[i], titleOf ? C[titleOf].title : null);
 
   try {
-    // 1 · The landing page: what COMMONKIT is, then "Open the app".
-    await page.goto(`${site.base}/?3d=1&live=0`, { waitUntil: 'networkidle' });
-    await page.evaluate(() => document.fonts.ready);
-    await page.waitForFunction(() => !!window.__hero, null, { timeout: 60_000 });
-    await page.waitForTimeout(800);
+    // Show the product action immediately. No wallet signature is staged.
+    await page.goto(`${site.base}/app/a/${PRINTER}/reserve/`, { waitUntil: 'networkidle' });
+    await appReady(page, 'fieldset button');
     await rec.overlays();
-    rec.tick = (f) => page.evaluate((t) => window.__hero.renderAt(t), f / FPS);
-    await rec.hold(0.3); // a beat before the first word
-    await line('intro', 0, 'intro');
-    await line('intro', 1);
-    await rec.click(page.locator('.hero .ctas a.ck-btn').first(), {
-      sec: 1.4,
-      wait: async () => {
-        rec.tick = null;
-        await page.waitForURL(/\/app\/?$/);
-        await appReady(page, 'article a[href*="/a/"]');
-      },
-    });
-
-    // 2 · The board: every machine, read live, no wallet needed.
-    await line('board', 0, 'board');
-    await rec.hold(0.6);
-    const cards = page.locator('article');
-    for (const i of [1, 2, 3]) {
-      const b = await cards.nth(i).boundingBox();
-      if (b) await rec.move(b.x + b.width * 0.5, b.y + b.height * 0.38, 0.55);
-    }
-    await rec.hold(0.4);
-    await rec.click(page.locator(printerLink).first(), { sec: 1, wait: () => appReady(page, 'a.ck-btn:has-text("Reserve")') });
-
-    // 3 · The printer: its account, its float, and the Reserve button.
-    await line('printer', 0, 'printer');
-    await rec.hold(0.5);
-    const float = page.getByText('Float', { exact: true }).first();
-    const fb = await float.boundingBox();
-    if (fb) await rec.move(fb.x + 120, fb.y + 50, 0.9);
-    await rec.hold(0.3);
-    await rec.click(page.locator('a.ck-btn:has-text("Reserve")').first(), { sec: 0.9, wait: () => appReady(page, 'fieldset button') });
-
-    // 4 · Booking: pick a slot, see fee + deposit, sign in a wallet → the real booking tx.
+    await rec.hold(0.2);
     await line('book', 0, 'book');
-    await rec.hold(0.4);
-    await rec.click(page.locator('fieldset button:not([disabled])').nth(3), { sec: 0.9 });
+    await page.getByRole('spinbutton', { name: 'Slots', exact: true }).fill('2');
+    await rec.click(page.locator('fieldset button:not([disabled])').nth(3), { sec: 0.6 });
     const total = page.getByText('Attached exactly').first();
-    await rec.scrollTo((await boxOf(total)).y - 330, 0.8); // fee, deposit, total and the wallet step in view
-    const tb = await total.boundingBox();
-    if (tb) await rec.move(tb.x + tb.width + 520, tb.y + tb.height / 2, 0.9);
-    await rec.hold(0.3);
-    await line('book', 1);
-    const gate = page.getByText('Signing a reservation needs a wallet.').first();
-    const gb = await gate.boundingBox();
-    if (gb) await rec.move(gb.x + 40, gb.y + gb.height / 2, 0.8);
+    await rec.scrollTo((await boxOf(total)).y - 270, 0.6);
     await rec.quiet();
     const booked = await openTx(rec, TX.reserve, /reservation_confirmed/);
-    await line('book', 2);
-    await rec.hold(0.4);
-    await rec.scrollTo(booked.y - VIEW.height * 0.45, 1.3);
-    await fadeMark(rec, booked);
-    await rec.move(booked.x + booked.w + 30, booked.y - (await page.evaluate(() => window.scrollY)) + booked.h, 0.6);
-    await rec.hold(0.4);
+    await rec.scrollTo(booked.y - 140, 0.3);
+    await line('book', 1, 'book');
+    await fadeMark(rec, booked, 0.25);
+    await rec.quiet();
     rec.mark = null;
 
-    // 5 · Use + upkeep: the bridge reports usage, rules fill up, the agent opens a task.
-    await back(rec, () => page.waitForSelector('fieldset button', { timeout: 180_000 }));
-    await rec.click(page.locator(`main a[href$="/a/${PRINTER}"]`).first(), { sec: 0.8, wait: () => appReady(page, 'a.ck-btn:has-text("Reserve")') });
+    // The rule opens work; another member approves it.
+    await back(rec, () => page.waitForSelector('fieldset button', { timeout: 120_000 }));
+    await rec.click(page.locator(`main a[href$="/a/${PRINTER}"]`).first(), { sec: 0.6, wait: () => appReady(page, 'text=Upkeep') });
     await line('upkeep', 0, 'upkeep');
     const upkeep = await boxOf(heading(page, 'Upkeep'));
-    await rec.scrollTo(upkeep.y - 110, 1.2);
-    await rec.hold(0.3);
-    await line('upkeep', 1);
-    const rule = page.getByText('Clean the nozzle and run a calibration print').first();
-    const rb = await rule.boundingBox();
-    if (rb) await rec.move(rb.x + rb.width + 40, rb.y + rb.height / 2, 0.8);
-    await rec.hold(0.3);
+    await rec.scrollTo(upkeep.y - 90, 0.8);
+    await line('upkeep', 1, 'upkeep');
     const tasks = await boxOf(heading(page, 'Tasks'));
-    await rec.scrollTo(tasks.y - 110, 1.1);
-    await rec.click(page.locator(`a[href$="/t/${PRINTER}/0"]`).first(), { sec: 0.9, wait: () => appReady(page, 'text=Why the machine asked') });
-
-    // 6 · The task: why it was opened, who did it, who approved, what was earned.
+    await rec.scrollTo(tasks.y - 90, 0.7);
+    await rec.click(page.locator(`a[href$="/t/${PRINTER}/0"]`).first(), { sec: 0.6, wait: () => appReady(page, 'text=Why the machine asked') });
     await line('task', 0, 'task');
-    const why = page.getByText('Why the machine asked').first();
-    const wb = await why.boundingBox();
-    if (wb) await rec.move(wb.x + 420, wb.y + 70, 0.8);
-    await rec.hold(0.3);
-    await line('task', 1);
     const progress = await boxOf(heading(page, 'Progress'));
-    await rec.scrollTo(progress.y - 110, 1.1);
+    await rec.scrollTo(progress.y - 90, 0.7);
     const approved = page.getByText('Approved by an independent verifier').first();
-    const ab = await approved.boundingBox();
-    if (ab) await rec.move(ab.x + ab.width + 30, ab.y + ab.height, 0.9);
-    await rec.hold(0.3);
+    const approvalBox = await boxOf(approved);
+    await fadeMark(rec, approvalBox, 0.25);
+    await rec.quiet();
+    rec.mark = null;
     await line('earn', 0, 'earn');
     const earned = await boxOf(heading(page, 'Cards earned'));
-    await rec.scrollTo(earned.y - 100, 1.1);
-    await rec.hold(0.4);
+    await rec.scrollTo(earned.y - 80, 0.7);
     await rec.quiet();
-    const refused = await openTx(rec, TX.transfer, /E_NON_TRANSFERABLE/);
-    await line('earn', 1);
-    await rec.scrollTo(refused.y - VIEW.height * 0.45, 1.3);
-    await fadeMark(rec, refused);
-    await rec.hold(0.6);
+
+    // Close the economic loop: an earned right removes the usage fee, not the deposit.
+    const redeemed = await openTx(rec, TX.redeem, /reservation_confirmed/);
+    await rec.scrollTo(redeemed.y - 100, 0.3);
+    await line('redeem', 0, 'redeem');
+    await fadeMark(rec, redeemed, 0.25);
+    await rec.quiet();
+    rec.mark = null;
+    await back(rec, () => page.waitForSelector('text=Cards earned', { timeout: 120_000 }));
+    const consumed = page.getByRole('figure', { name: 'Usage right right-3, Consumed', exact: true });
+    await consumed.scrollIntoViewIfNeeded();
+    await line('redeem', 1, 'redeem');
+    await fadeMark(rec, await boxOf(consumed), 0.25);
+    await rec.quiet();
     rec.mark = null;
 
-    // 7 · Money: the float cap and the sweep to the DAO.
-    await back(rec, () => page.waitForSelector('text=Why the machine asked', { timeout: 180_000 }));
-    await rec.click(page.locator(`main a[href$="/a/${PRINTER}"]`).first(), { sec: 0.8, wait: () => appReady(page, 'a.ck-btn:has-text("Reserve")') });
+    // Machine-level budget, then a separate unmistakable governance beat.
+    await rec.click(page.locator(`main a[href$="/a/${PRINTER}"]`).first(), { sec: 0.6, wait: () => appReady(page, 'text=Operating float') });
     await line('money', 0, 'money');
     const money = await boxOf(heading(page, 'Money'));
-    await rec.scrollTo(money.y - 110, 1.2);
-    const op = page.getByText('Operating float', { exact: true }).first();
-    const ob = await op.boundingBox();
-    if (ob) await rec.move(ob.x + 380, ob.y + ob.height + 14, 0.8);
-    await rec.hold(0.3);
-    await line('money', 1);
+    await rec.scrollTo(money.y - 90, 0.8);
+    await line('money', 1, 'money');
     const swept = page.getByText('Swept to DAO', { exact: true }).first();
-    const sb = await swept.boundingBox();
-    if (sb) await rec.move(sb.x + sb.width / 2, sb.y + sb.height + 16, 0.8);
-    const escalations = await boxOf(heading(page, 'Escalations'));
-    await rec.scrollTo(escalations.y - 110, 0.8);
-    await rec.hold(0.3);
-    await rec.quiet(); // let the machine-opened proposal remain visible while it is described
+    await fadeMark(rec, await boxOf(swept), 0.25);
+    await rec.quiet();
+    rec.mark = null;
+    await page.goto(`${site.base}/app/c/makerlab/`, { waitUntil: 'networkidle' });
+    await appReady(page, 'text=opened by the machine');
+    await rec.overlays();
+    const proposal = page.locator('li').filter({ has: page.getByText('#10', { exact: true }) }).filter({ hasText: 'opened by the machine' }).first();
+    await proposal.scrollIntoViewIfNeeded();
+    await line('proposal', 0, 'proposal');
+    await fadeMark(rec, await boxOf(proposal), 0.25);
+    await line('proposal', 1, 'proposal');
+    await rec.quiet();
+    rec.mark = null;
 
-    // 8 · Proof: every claim re-read from testnet.
-    await rec.scrollTo(0, 0.8);
-    await rec.click(page.locator('header a', { hasText: /^Proof$/ }).first(), { sec: 0.9, wait: () => appReady(page, 'text=checks pass') });
+    await rec.scrollTo(0, 0.6);
+    await rec.click(page.locator('header a', { hasText: /^Proof$/ }).first(), { sec: 0.6, wait: () => appReady(page, 'text=checks pass') });
     await line('proof', 0, 'proof');
-    const passed = page.getByText('checks pass').first();
-    const pb = await passed.boundingBox();
-    if (pb) await rec.move(pb.x + pb.width + 30, pb.y + pb.height / 2, 0.9);
-    await rec.hold(0.3);
-    await line('proof', 1);
-    await rec.hold(0.8);
+    await rec.hold(0.2);
+    await line('proof', 1, 'proof');
+    await rec.quiet();
 
     const timeline = await rec.finish();
     writeFileSync(join(BUILD, 'tour.json'), `${JSON.stringify(timeline, null, 2)}\n`);

@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-11-14T11:58:48.238897+00:00",
+  "tool": "gitleaks 8.30.1",
+  "scope": "complete Git history through 29a46d80259aeab0fffb3fcfa90026443c98f87a",
+  "commits_scanned": 203,
+  "detections": 12,
+  "review": "All detections are historical public Ed25519 access keys in evidence/setup.json and evidence/EVIDENCE.md; values have public-key length and no private-key marker. No private signing key was identified.",
+  "raw_report": "Kept locally in ignored evidence/private; not published.",
+  "limitation": "Pattern scanning and manual triage are not a guarantee that every possible secret format is detected."
+}

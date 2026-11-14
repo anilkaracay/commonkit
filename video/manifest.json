@@ -1,13 +1,42 @@
 {
-  "generated_at": "2026-11-14T11:33:16.855354+00:00",
+  "generated_at": "2026-11-14T11:56:23.163326+00:00",
   "source_url": "https://commonkit.cayvox.com/",
   "walkthrough_reads": "live NEAR testnet views and historical transaction pages",
   "wallet_signing_in_video": false,
   "devices": "emulated or simulated",
   "narration": "locally generated Kokoro-82M synthetic English voice",
-  "duration_seconds": 86.6,
-  "bytes": 11639512,
-  "sha256": "ef3d3d90a58294eb1f06a4cb4528a94ba830c016113e018f9456aa94e8a45a63",
+  "duration_seconds": 73.2,
+  "bytes": 8030092,
+  "sha256": "494c74224d496464b8047901f92b7c782f31cd51e573d863b4c2894db15c0e0f",
   "captions": "commonkit-demo.en.srt",
-  "x_upload": "video/out/commonkit-demo-x-1280x720.mp4"
+  "x_upload": "video/out/commonkit-demo-x-1280x720.mp4",
+  "caption_count": 14,
+  "judge_cut": "video/out/commonkit-demo-judge-cut.mp4",
+  "scope_overlay": "NEAR testnet · devices emulated/simulated",
+  "claims": [
+    {
+      "claim": "Recorded two-slot printer booking confirmed on testnet; no new wallet signature in the recording",
+      "evidence": "evidence/steps.json step 2; transaction 3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz"
+    },
+    {
+      "claim": "Rule-backed upkeep task independently approved; two non-transferable usage-right NFTs earned",
+      "evidence": "evidence/steps.json steps 7–8; printer task #0; right-3 and right-4"
+    },
+    {
+      "claim": "Ava redeemed right-3 for reservation #2 with zero usage fee; deposit still applies; right consumed after the session",
+      "evidence": "evidence/steps.json step 9; transaction 5HGbP8ji8pyb53vJdCqhWWJzoVGpVDynx1v11HKouyD6"
+    },
+    {
+      "claim": "Keyless machine accounts have capped operating budgets and sweep excess fees to the community Sputnik DAO",
+      "evidence": "evidence/steps.json steps 5–6; live Money and Proof views"
+    },
+    {
+      "claim": "Printer account opened Sputnik proposal #10; council approved; DAO paid demo supplier 4 testnet NEAR",
+      "evidence": "evidence/steps.json step 10; transaction 4vcji9GSXnsZcSwhN74r1raEnRZXVnEVUpPFHeCYh3Df"
+    },
+    {
+      "claim": "Proof page rechecks eight keyless accounts, matching machine code hashes and balanced ledgers",
+      "evidence": "live /app/proof; scripts/verify.sh"
+    }
+  ]
 }

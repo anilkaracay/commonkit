@@ -1,67 +1,55 @@
 1
-00:00:00,300 --> 00:00:07,533
-Shared machines are used by everyone and looked after by no one. COMMONKIT gives each one its own NEAR account.
+00:00:00,200 --> 00:00:05,200
+Book: Book a shared printer: a usage fee for upkeep, plus a refundable deposit.
 
 2
-00:00:07,533 --> 00:00:10,767
-Open the app. No wallet is needed to look around.
+00:00:05,500 --> 00:00:09,733
+Book: Recorded testnet booking: Alex's two-slot reservation.
 
 3
-00:00:10,767 --> 00:00:15,033
-The app: Four shared machines in two communities, read live from NEAR testnet.
+00:00:10,800 --> 00:00:15,600
+Care: A bridge checks the booking and reports usage. These devices are emulated.
 
 4
-00:00:15,033 --> 00:00:21,000
-The machine: Its account has no keys: funds move through contract rules. The printer itself is simulated.
+00:00:15,600 --> 00:00:20,000
+Care: A due rule lets the printer's agent open an upkeep task. Demo: 30 min; production: 200 h.
 
 5
-00:00:21,000 --> 00:00:26,033
-Book: Pick a time: a small fee, plus a deposit you get back after a clean return.
+00:00:20,000 --> 00:00:25,267
+Independent approval: Ava cleaned the nozzle. A test print passed, and Mark independently approved her work.
 
 6
-00:00:26,033 --> 00:00:30,100
-You sign with a NEAR wallet, and the booking is a testnet transaction.
+00:00:25,267 --> 00:00:28,100
+Earn access: She earned two non-transferable usage-right NFTs.
 
 7
-00:00:30,100 --> 00:00:34,467
-Alex's booking on testnet: reservation_confirmed.
+00:00:28,400 --> 00:00:34,567
+Use the reward: Ava used right-3 for this booking: zero usage fee. The refundable deposit still applies.
 
 8
-00:00:34,467 --> 00:00:40,267
-Upkeep: At the machine, a bridge unlocks it only for a valid booking and reports usage on chain (simulated).
+00:00:34,567 --> 00:00:38,700
+Use the reward: After the session, the right was consumed. Her care earned access.
 
 9
-00:00:40,267 --> 00:00:44,633
-When usage passes a rule, the printer's agent opens an upkeep task. Demo rule: 30 min (real: 200 h).
+00:00:39,767 --> 00:00:44,600
+A machine with a budget: Each machine runs its own keyless NEAR account, with a capped operating budget.
 
 10
-00:00:44,633 --> 00:00:48,833
-The task: It says why: 4.3 h of nozzle time, over the rule.
+00:00:44,600 --> 00:00:47,967
+A machine with a budget: Excess fees go back to the community's Sputnik DAO.
 
 11
-00:00:48,833 --> 00:00:53,800
-Ava did the work, the bridge ran a test print, and Mark, another member, approved it.
+00:00:47,967 --> 00:00:52,000
+The machine opens a proposal: For a larger purchase, the printer itself opened proposal #10.
 
 12
-00:00:53,800 --> 00:00:58,933
-Earn: Ava earned two usage-right NFTs (NEP-171) for this printer. They cannot be sold or moved.
+00:00:52,000 --> 00:00:56,767
+The machine opens a proposal: The council approved it. The DAO paid the demo supplier 4 testnet NEAR.
 
 13
-00:00:58,933 --> 00:01:02,500
-A council member tried to move one. Refused on chain: E_NON_TRANSFERABLE.
+00:00:58,433 --> 00:01:04,033
+Verify it: Inspect the live checks: eight keyless accounts, matching machine code hashes, balanced ledgers.
 
 14
-00:01:02,500 --> 00:01:06,167
-Money: Fees stay in the printer's own account, up to a 3 NEAR cap.
-
-15
-00:01:06,167 --> 00:01:12,367
-Excess goes to the Sputnik DAO. For larger purchases, the machine opens its own proposal.
-
-16
-00:01:14,533 --> 00:01:19,767
-Check it: Every claim can be checked: the Proof page re-reads them from testnet.
-
-17
-00:01:19,767 --> 00:01:22,600
-Or run ./scripts/verify.sh. No wallet, no keys.
+00:01:04,033 --> 00:01:09,167
+Verify it: Or run the verifier. No wallet, no keys. COMMONKIT: care earns access.
