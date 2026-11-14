@@ -2,7 +2,7 @@
 
 Everything here is a draft for the human. The human makes the repository public, publishes the X post and submits the form (D-026); agents never do. This file holds **no personal data**: personal fields are placeholders, and the filled version lives only in the gitignored `submission/` folder (`.gitignore` line `submission/`).
 
-Rules source: [`docs/HACKATHON.md`](HACKATHON.md) (synced with the live file in f61e7c0). Deadline: **2026-11-14 23:59 UTC**; the form accepts submissions from 2026-11-01T00:00:00Z.
+Rules source: [`docs/HACKATHON.md`](HACKATHON.md) (live rules rechecked 2026-11-14). Deadline: **2026-11-14 23:59 UTC = 15 November 02:59 Europe/Istanbul**. Submit one project once, with the public repository and the published X demo post. Leave the form's **Website field empty**: the API identifies it as a spam trap.
 
 ## (a) Repo-public checklist
 
@@ -18,11 +18,11 @@ Do these in order; tick each one.
 4. [ ] **LICENSE** (MIT) at the root: `git ls-files LICENSE`.
 5. [ ] **README renders on GitHub**: mermaid diagram, tables, every relative link (the README link check passed on d28b6e7: all relative links exist).
 6. [ ] **Tag** the submitted state: `git tag hackathon-submission && git push origin hackathon-submission` (HACKATHON.md Q-003; no pre-hackathon tag is needed because the first commit [`30df77b`](https://github.com/anilkaracay/commonkit/commit/30df77b6e3af06457650e287b228bcea75217083) is from 2026-11-09).
-7. [ ] **Make public (human):** GitHub → `anilkaracay/commonkit` → Settings → General → Danger Zone → Change repository visibility → Public. (Currently PRIVATE.)
+7. [x] **Repository public:** verified through GitHub's repository API on 2026-11-14.
 8. [ ] **After it is public:**
    - CI starts (`.github/workflows/ci.yml`; public repos run Actions without the billing block, H3). Wait for green.
    - Open five tx links and three evidence links from the README while logged out.
-   - GitHub Pages is not needed (the app is hosted separately, H11).
+   - GitHub Pages hosts the landing at `/` and the app at `/app/` on `commonkit.cayvox.com`.
    - The repo must stay public through judging (Q-014).
 
 ## (b) X demo post (≤ 280 characters, D-023)
@@ -41,11 +41,11 @@ Simulated demo <url>
 @NEARProtocol #NEARHackathon
 ```
 
-- `<url>` 1: the hosted app `https://<domain>/app` (H11). `<url>` 2: `https://github.com/anilkaracay/commonkit`.
+- `<url>` 1: `https://commonkit.cayvox.com/app/`. `<url>` 2: `https://github.com/anilkaracay/commonkit`.
 - NEAR's role in the post: the keyless per-machine NEAR account that only opens for on-chain bookings and pays in non-revocable access.
-- A genuine question did not fit within 280 characters. If the human wants one, post it as the first reply: "What shared thing near you should pay for its own upkeep?" (no thread otherwise, D-023).
+- The draft includes a question: "What would you share?"
 - @NearLegion and @NearBuilders are optional; adding both (24 characters with spaces) would exceed 280 with this text.
-- Attach: `<video: commonkit-90s-1080p.mp4 from docs/VIDEO_SHOTLIST.md>` (720p fallback `commonkit-90s-720p.mp4`); a 10-second hero clip exists at `landing/capture/hero-10s.mp4` (2.4 MB) if a short clip is preferred.
+- Attach `video/out/commonkit-demo-x-1280x720.mp4` natively to the X post; the repository copy is `video/commonkit-demo.mp4`. Captions: `video/commonkit-demo.en.srt`.
 - Recount after replacing the placeholders: `node -e 'const t=require("fs").readFileSync(0,"utf8").trim();console.log(t.replace(/https?:\/\/\S+/g,"x".repeat(23)).length)' < post.txt`.
 
 ## (c) Form checklist (field → value)

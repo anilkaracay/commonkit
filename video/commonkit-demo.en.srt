@@ -1,75 +1,67 @@
 1
-00:00:00,600 --> 00:00:07,833
+00:00:00,300 --> 00:00:07,533
 Shared machines are used by everyone and looked after by no one. COMMONKIT gives each one its own NEAR account.
 
 2
-00:00:07,833 --> 00:00:11,067
+00:00:07,533 --> 00:00:10,767
 Open the app. No wallet is needed to look around.
 
 3
-00:00:11,067 --> 00:00:15,333
+00:00:10,767 --> 00:00:15,033
 The app: Four shared machines in two communities, read live from NEAR testnet.
 
 4
-00:00:15,333 --> 00:00:17,500
-Open the 3D printer.
+00:00:15,033 --> 00:00:21,000
+The machine: Its account has no keys: funds move through contract rules. The printer itself is simulated.
 
 5
-00:00:17,500 --> 00:00:22,867
-The machine: Its account has no keys, so nobody can empty it. The printer itself is simulated.
-
-6
-00:00:22,867 --> 00:00:24,400
-To use it, book it.
-
-7
-00:00:24,400 --> 00:00:29,433
+00:00:21,000 --> 00:00:26,033
 Book: Pick a time: a small fee, plus a deposit you get back after a clean return.
 
-8
-00:00:29,433 --> 00:00:33,500
+6
+00:00:26,033 --> 00:00:30,100
 You sign with a NEAR wallet, and the booking is a testnet transaction.
 
-9
-00:00:33,500 --> 00:00:38,267
+7
+00:00:30,100 --> 00:00:34,467
 Alex's booking on testnet: reservation_confirmed.
 
-10
-00:00:38,267 --> 00:00:44,067
+8
+00:00:34,467 --> 00:00:40,267
 Upkeep: At the machine, a bridge unlocks it only for a valid booking and reports usage on chain (simulated).
 
-11
-00:00:44,067 --> 00:00:48,433
+9
+00:00:40,267 --> 00:00:44,633
 When usage passes a rule, the printer's agent opens an upkeep task. Demo rule: 30 min (real: 200 h).
 
-12
-00:00:48,433 --> 00:00:52,633
+10
+00:00:44,633 --> 00:00:48,833
 The task: It says why: 4.3 h of nozzle time, over the rule.
 
-13
-00:00:52,633 --> 00:00:57,600
+11
+00:00:48,833 --> 00:00:53,800
 Ava did the work, the bridge ran a test print, and Mark, another member, approved it.
 
-14
-00:00:57,600 --> 00:01:02,733
+12
+00:00:53,800 --> 00:00:58,933
 Earn: Ava earned two usage-right NFTs (NEP-171) for this printer. They cannot be sold or moved.
 
-15
-00:01:02,733 --> 00:01:06,300
+13
+00:00:58,933 --> 00:01:02,500
 A council member tried to move one. Refused on chain: E_NON_TRANSFERABLE.
 
-16
-00:01:06,300 --> 00:01:09,967
+14
+00:01:02,500 --> 00:01:06,167
 Money: Fees stay in the printer's own account, up to a 3 NEAR cap.
 
-17
-00:01:09,967 --> 00:01:14,467
-Everything above the cap goes to the community's Sputnik DAO treasury.
+15
+00:01:06,167 --> 00:01:12,367
+Excess goes to the Sputnik DAO. For larger purchases, the machine opens its own proposal.
 
-18
-00:01:14,467 --> 00:01:19,700
+16
+00:01:14,533 --> 00:01:19,767
 Check it: Every claim can be checked: the Proof page re-reads them from testnet.
 
-19
-00:01:19,700 --> 00:01:22,533
+17
+00:01:19,767 --> 00:01:22,600
 Or run ./scripts/verify.sh. No wallet, no keys.

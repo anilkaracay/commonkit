@@ -10,7 +10,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/../contracts"
 MODE="${BUILD_MODE:-non-reproducible-wasm}"
+case "$MODE" in
+  non-reproducible-wasm) LOCK_ARGS=(--locked) ;;
+  reproducible-wasm) LOCK_ARGS=() ;; # cargo-near enables locking by default for Docker builds
+  *) echo "Unsupported BUILD_MODE: $MODE" >&2; exit 2 ;;
+esac
+cargo near --version
 for c in asset commons; do
   echo "==> cargo near build $MODE ($c)"
-  (cd "$c" && cargo near build "$MODE" --locked 2>/dev/null || cargo near build "$MODE")
+  (cd "$c" && cargo near build "$MODE" "${LOCK_ARGS[@]}")
 done

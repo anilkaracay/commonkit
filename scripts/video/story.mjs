@@ -28,7 +28,7 @@ export const CHAPTERS = {
   printer: {
     title: 'The machine',
     lines: [
-      { text: 'Its account has no keys, so nobody can empty it. The printer itself is simulated.' },
+      { text: 'Its account has no keys: funds move through contract rules. The printer itself is simulated.' },
       { text: 'To use it, book it.' },
     ],
   },
@@ -65,7 +65,7 @@ export const CHAPTERS = {
     title: 'Money',
     lines: [
       { text: "Fees stay in the printer's own account, up to a 3 NEAR cap.", say: "Fees stay in the printer's own account, up to a three NEAR cap." },
-      { text: "Everything above the cap goes to the community's Sputnik DAO treasury." },
+      { text: "Excess goes to the Sputnik DAO. For larger purchases, the machine opens its own proposal.", say: 'Excess goes to the Sputnik DAO. For larger purchases, the machine opens its own proposal.' },
     ],
   },
   proof: {

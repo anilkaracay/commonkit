@@ -3,6 +3,7 @@ import { proposalTitle } from '../lib/proposalTitle';
 
 describe('proposal titles derived from on-chain descriptions', () => {
   it.each([
+    ['* Proposal Action: custom <br>* Template: [trezu-tmpl:commonkit-fund-float-washer-01] <br>* Summary: fund_float washer-01 0.05 NEAR (Dorm B treasury -> washer-01 operating float)', 'Trezu · Float · 0.05 NEAR to washer-01'],
     ['COMMONKIT demo step 20 (dorm-b): demo override weekly_clean 1h (production 168h) on fridge-01 — D-018: testnet time cannot be fast-forwarded', 'Demo override · fridge-01 weekly_clean 1 h (production 168 h)'],
     ['COMMONKIT demo step 18 (makerlab): demo override filament_spool 5000 (production 330000) on printer-01 — demo-lowered', 'Demo override · printer-01 filament_spool 5,000 (production 330,000)'],
     ['COMMONKIT demo step 16 (makerlab): DEMO OVERRIDE printer-01: bed_level threshold 1 job so one rule is due (restored below)', 'Demo override · printer-01 bed_level threshold 1 job'],

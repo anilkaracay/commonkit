@@ -37,6 +37,13 @@ copyFileSync(SRT, join(OUT, 'commonkit-demo.en.srt'));
 const pngDir = dir('overlays');
 const { chromium } = playwright();
 const browser = await chromium.launch();
+// Regenerate the end card during assembly so edited links and scope text cannot stay stale.
+const endPage = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
+const endQuery = new URLSearchParams({ site: process.env.VIDEO_SITE_URL ?? 'commonkit.cayvox.com', repo: process.env.VIDEO_REPO_URL ?? 'github.com/anilkaracay/commonkit' });
+await endPage.goto(`file://${join(HERE, 'endcard.html')}?${endQuery}`);
+await endPage.evaluate(() => document.fonts.ready);
+await endPage.screenshot({ path: endPng });
+await endPage.close();
 const barPage = await browser.newPage({ viewport: { width: W, height: 56 }, deviceScaleFactor: 1 });
 const overlays = [];
 for (const [i, b] of bars.entries()) {
@@ -75,6 +82,7 @@ const endClip = join(build, 'end.mp4');
 panelsToClip([{ png: endPng, dur: END, hold: 0 }], endClip);
 const joined = join(build, 'joined.mp4');
 const total = joinClips([{ file: walk, dur: tourDur }, { file: endClip, dur: END }], joined, XFADE);
+if (total > 90) throw new Error(`Demo exceeds the advertised 90 seconds: ${total.toFixed(1)} s`);
 
 // 3. Narration track: every spoken line placed at its caption start, mixed and loudness-normalized (-16 LUFS).
 const voiced = cues.filter((c) => c.voice);

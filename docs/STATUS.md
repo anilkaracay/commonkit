@@ -1,33 +1,45 @@
 # STATUS
 
-Updated by Claude Code after every milestone. Newest entry on top. Only verified facts.
+Updated after every milestone. Newest entry on top. Only verified facts.
+
+## Submission-day check — 2026-11-14 (Codex)
+
+- Repository is public. GitHub CI and Pages passed on `869cdd8`; the task-opening-rule follow-up is `a71dac1`.
+- Cloudflare CNAME `commonkit` → `anilkaracay.github.io` was added with DNS only, as requested by the owner. Public resolvers 1.1.1.1 and 8.8.8.8 return GitHub Pages addresses. GitHub's domain check succeeded, its TLS certificate was approved, and `https_enforced` is true. HTTPS returns 200 with normal certificate validation.
+- `verify.sh`: exit 0, all 91 lines passed. TypeScript suite: 556 passed, 9 intentionally skipped; web 133 tests (117 before these fixes). Lint and typecheck passed. Site build and fake washer simulation passed; the fake simulation explicitly skips ledger/keyless/code-hash checks.
+- Fixed earned-right reservations, trusted-member deposits, task claim/submit/verification/council actions, training actions, and post-transaction cache invalidation (D-043). Task details now show the rule snapshot from task creation even after a DAO profile change.
+- Scope is the testnet loop with emulated/simulated devices. The owner chose to keep that scope for submission. README describes the verified scope concisely and adds an explicitly proposed first deployment and unvalidated funding model.
+- The owner will fill and submit the form themselves. Do not request H6 personal data. X publication and final form submission remain with the owner.
+- Final video: 86.6 seconds, 1080p master plus 720p X export, English captions and synthetic narration; recorded from the HTTPS-hosted app. Repository copy: `video/commonkit-demo.mp4`; browser player: `/demo/`.
+- Fresh browser/chain QA: `ck-browser-qa-261114.testnet`, a newly created team-controlled account. Real React UI reservation `AkSeyqkgRS2CuvNcpdMDK1v4X6bkY2niNo2cSt9vPZ9X` confirmed and refreshed availability. Cleanup cancellation `azzR7G1A52N8sBQA62DAo5h3q3n2qd2aspdMgEfCtnT` refunded the full 2.25 testnet NEAR; the browser then showed Cancelled. NEP-413 valid signature accepted, modified message rejected, public-key ownership checked on chain. The temporary local signer was stopped; no third-party wallet popup/redirect or UI cancel-click is claimed. Details: `evidence/browser-wallet-qa.json`.
+- Locked host rebuild matched both deployed WASM hashes (`evidence/build-check-2026-11-14.json`); cargo-near CI installer pinned to 0.23.0. Independent-review fixes also clarify operator-key location, public annotations, actual track descriptions, and verification breadth.
 
 ## HUMAN TODO (kept current by the lead; open items listed in every update)
 
 | # | Task | When | Unblocks | State |
 | :--- | :--- | :--- | :--- | :--- |
-| H1 | Pick pilot item, 4–5 people, place, time | ASAP | Lane E, pilot | open |
-| H2 | Order smart plug (Shelly Gen2/Gen3 or Tasmota); send model + IP when it arrives | ASAP | plug onboarding, video | open |
-| H3 | Fix GitHub billing / Actions spending limit | ASAP | green CI | open |
-| H4 | Send testnet NEAR to `commonkit-sxflo.testnet` (exact amount below) | ASAP | asset deploys, pilot funding | open — **13 NEAR** (D-028 adds 1): 21-step run ~6.3 + pilot funding 10 + pilot-item asset deploy ~8 (7.05 storage + float) = ~24.3 needed vs 18.2 on root → short ~6.1, plus ~6 buffer for retries |
-| H5 | Test member flow once with the pilot wallet (NEP-413 sign → bridge) | before pilot | pilot | open |
-| H6 | Provide project name confirmation, lead name, email, team size, mainnet payout account | before G6 | form checklist (kept out of git) | open |
-| H7 | Make repo public (checklist provided) | G6 | public CI, submission | later |
+| H1 | Physical deployment | after hackathon | field validation | deferred; submitted scope uses emulated devices |
+| H2 | Physical smart-plug test | after hackathon | field validation | deferred; no physical-device claim |
+| H3 | GitHub Actions | — | green CI | done; public CI green on 2026-11-14 |
+| H4 | Additional testnet funding | only for new chain activity | optional future runs | not needed for the current read-only demo |
+| H5 | Browser and signed testnet QA | — | UX evidence | real UI reserve and signed cancellation/NEP-413 passed with local signer; third-party wallet redirect not claimed |
+| H6 | Fill personal form fields | before submission | form | owner fills directly; no agent data collection |
+| H7 | Make repo public | — | submission | done; API verified 2026-11-14 |
 | H8 | Publish X post with video (text + file provided) | G6 | demoUrl | later |
 | H9 | Submit form on nearhackathon.com (filled checklist provided) | after H7+H8 | done | later |
 | H10 | Pick art direction | — | redesign | ✅ light-led blue concept chosen (D-030) |
-| H11 | Log in to Vercel once (`npx vercel login`) or give a deploy token in .env (VERCEL_TOKEN) | ASAP | hosted preview (Lane C/G) | open |
+| H11 | Custom-domain hosting | — | hosted demo | done; GitHub Pages + DNS only CNAME + HTTPS enforcement |
 
 ## Gates
 
 | Gate | Content | State |
 | :--- | :--- | :--- |
-| G1 Core live | ◐ verifier: pass — contracts, keyless, verify.sh, bridge + agent on testnet proven. **Human-blocked:** hosted app (H11) | evidence/verify-step21.txt |
-| G2 Proof complete | ◐ verifier: pass with fixes (fixes in progress: check [11] on-chain, landing hero override label, minors). Lead-side done: 21/21 steps, simulate 12/12, pilot kit, landing 1–13. **Human-blocked:** plug clips (H2) | evidence/ |
-| G3 Real world | pilot run; plug clips; evidence + consents (or plainly skipped) | ☐ |
-| G4 Feature freeze | after G3 (or G2 if no pilot) | ☐ |
-| G5 Ship-ready | landing 1–13 + quality bar; README final; video; fresh-clone audit | ☐ |
-| G6 Handover | ◐ drafts ready (docs/SUBMISSION_PACKAGE.md, docs/PITCH.md; X post 279/280, idea 1508/2000, tracks ["social"]); personal fields wait on H6; final pass after G5 | cfb1245 |
+| G1 Core live | ✅ contracts, keyless, verify.sh, bridge + agent; HTTPS hosted app | evidence/verify-step21.txt; commonkit.cayvox.com |
+| G2 Proof complete | ✅ 21-step evidence, live verification, simulated profiles, fresh signed browser/chain QA | evidence/ |
+| G3 Real world | submission scope: emulated/simulated devices, team-controlled accounts | field validation follows submission |
+| G4 Feature freeze | ✅ contracts unchanged; submission-day UI fixes verified | D-043, D-044 |
+| G5 Ship-ready | ✅ local checks, README, 86.6 s video and player; final CI runs on push | video/manifest.json |
+| G6 Handover | ✅ docs/SUBMISSION_PACKAGE.md, docs/PITCH.md, X video and draft; tracks ["social", "nfts"] | owner publishes X and fills/submits form |
 | G7 After "repo public" | CI green; tag `hackathon-submission` | ☐ |
 | G8 After "submitted" | record time; code freeze; keep demo up to 2026-11-25; PITCH.md | ☐ |
 
@@ -44,15 +56,14 @@ Updated by Claude Code after every milestone. Newest entry on top. Only verified
 | M4 agent | ✅ on testnet via sdk signer | 76 agent tests; steps 7, 16, 19, 20; evidence/agent-limits.json |
 | M5 web skeleton | ✅ superseded by M7 | |
 | M6 e2e + evidence | ✅ 21/21 on testnet | evidence/steps.json, evidence/verify-step21.txt, evidence/agent-limits.json |
-| M7 web on testnet + hosting | ◐ app under /app on testnet RPC + evidence (71 tests), landing at / (31 tests), `pnpm build:site` ✅; hosting waits on H11 | web/screenshots, landing/screenshots |
+| M7 web on testnet + hosting | ✅ app under /app on testnet RPC + evidence (133 tests); site build passes; GitHub Pages with HTTPS | commonkit.cayvox.com |
 | M8 emulators + simulated e2e + real-world layer (D-022/D-024) | ◐ emulators ✅, simulate.sh 12/12 ✅ (D-420); real plug waits on H2, pilot on H1 | evidence/simulate-all-2026-11-10.txt |
-| M9 README + submission prep | ☐ | |
+| M9 README + submission prep | ✅ README, 86.6 s video, browser player, X draft and final testnet QA | owner publishes X and submits form |
 
 ## Blockers / questions for the human
 
-- All open human items are in the HUMAN TODO table at the top (H1–H11). Hardware for judges stays optional (D-022); a real plug stand-in (H2) and a real-users manual_qr pilot (H1) are planned (D-024).
-- GitHub Actions do not start on the private repo (account billing, H3); CI runs locally at each gate (D-027, evidence/ci-local/).
-- Testnet NEAR: root ~9.9 NEAR after the 21-step run; pilot funding (10) + pilot-item asset (~9, D-028) need H4.
+- Remaining delivery actions: final video, owner publishes X demo, owner submits the form. The project is public, CI runs, and hosting is configured.
+- A real-wallet browser round trip would add UX evidence; mock-wallet tests do not prove that round trip.
 
 ## Log
 

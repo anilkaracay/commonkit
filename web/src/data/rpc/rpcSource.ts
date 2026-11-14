@@ -20,8 +20,9 @@ const MAX_PAGE = 100;
  * Override with VITE_NEAR_RPC (e.g. a keyed endpoint for the hosted demo).
  */
 export const DEFAULT_TESTNET_RPC = 'https://test.rpc.fastnear.com';
-// rpc.testnet.near.org is left out: its 429s carry no CORS header, so browsers cannot even retry cleanly.
-const FALLBACK_TESTNET_RPC = ['https://rpc.testnet.fastnear.com'];
+// Independent provider fallback: throttledFetch retries network errors as well as 429s,
+// including a rate-limited response whose CORS headers are missing.
+const FALLBACK_TESTNET_RPC = ['https://rpc.testnet.fastnear.com', 'https://rpc.testnet.near.org'];
 const lim = (n: number) => Math.min(n, MAX_PAGE);
 
 export interface RpcSourceOptions {
@@ -31,7 +32,7 @@ export interface RpcSourceOptions {
 
 export function createRpcSource(opts: RpcSourceOptions = {}): DataSource {
   const url = opts.rpcUrl ?? DEFAULT_TESTNET_RPC;
-  const rpc = opts.rpc ?? new NearRpc(url, throttledFetch(3, 6, 8, undefined, FALLBACK_TESTNET_RPC));
+  const rpc = opts.rpc ?? new NearRpc(url, throttledFetch(2, 6, 6, undefined, FALLBACK_TESTNET_RPC));
   const cache = new ViewCache();
   const v = <T,>(account: string, method: string, args: object = {}) =>
     cache.get<T>(`${account}|${method}|${JSON.stringify(args)}`, method, () => rpc.view<T>(account, method, args));

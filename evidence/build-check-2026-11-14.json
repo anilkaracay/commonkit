@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-11-14T11:28:10.022651+00:00",
+  "scope": "Local host build; this does not claim Docker reproducibility",
+  "mode": "non-reproducible-wasm",
+  "cargo_near": "cargo-near-near 0.23.0",
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "contracts": {
+    "asset": {
+      "path": "contracts/target/near/commonkit_asset/commonkit_asset.wasm",
+      "sha256": "24132b0a373391debcc4268a4c9f7106691b80105a9c14c048d2f8aba183ec8e",
+      "matches_deployed_artifact": true
+    },
+    "commons": {
+      "path": "contracts/target/near/commonkit_commons/commonkit_commons.wasm",
+      "sha256": "fe408b7045483ba93026ac686ca4544365c8152c85fbff31492dfce6118cf693",
+      "matches_deployed_artifact": true
+    }
+  }
+}

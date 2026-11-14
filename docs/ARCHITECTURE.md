@@ -1,5 +1,12 @@
 # ARCHITECTURE
 
+## Deployment and wallet compatibility
+
+- The deployment is NEAR testnet with emulated/simulated devices. The contracts have not had an external security audit; the bridge is trusted for physical access and telemetry, with independent human approval required for rewards.
+- Cards expose NEP-171/177/181 views. `nft_transfer`, `nft_transfer_call` and `nft_approve` always reject; their argument signatures are simpler than the standard because the implementation ignores those arguments. A future deployment should preserve the standard signatures. Display in third-party wallets has not been verified.
+- A granted usage right cannot be deleted, downgraded or transferred through contract methods. Usage rights retain their expiry, and DAO-controlled machine availability, group membership and credential requirements can affect whether a right can be used. Credentials can be suspended by the DAO; this does not revoke earned usage rights.
+- Evidence/receipt uploads are hashed locally by the web app. Rationale and annotation strings, and optional evidence URIs supplied through the contract API, are public on chain.
+
 ## 1. System overview
 
 ```mermaid

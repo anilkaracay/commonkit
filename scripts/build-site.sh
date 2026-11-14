@@ -19,4 +19,15 @@ fi
 COMMONKIT_WEB_BASE=/app/ pnpm --filter @commonkit/web build
 cp -R web/dist/. site/app/
 
+# One committed video serves both the repository and the no-wallet browser player.
+if [ -f video/commonkit-demo.mp4 ]; then
+  mkdir -p site/demo
+  cp video/commonkit-demo.mp4 site/demo/
+  node --input-type=module <<'JS'
+import { readFileSync, writeFileSync } from 'node:fs';
+const srt = readFileSync('video/commonkit-demo.en.srt', 'utf8');
+writeFileSync('site/demo/commonkit-demo.en.vtt', 'WEBVTT\n\n' + srt.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2'));
+JS
+fi
+
 echo "site/ ready: $(find site -type f | wc -l | tr -d ' ') files"

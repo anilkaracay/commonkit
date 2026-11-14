@@ -39,7 +39,7 @@ jobs:
         with:
           workspaces: contracts
       - name: Install cargo-near
-        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/near/cargo-near/releases/latest/download/cargo-near-installer.sh | sh
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/near/cargo-near/releases/download/cargo-near-v0.23.0/cargo-near-installer.sh | sh
       - run: cargo fmt --manifest-path contracts/Cargo.toml --all -- --check
       # near-sdk's cfg guard rejects a plain host lib build; lint tests on host and the lib on wasm32
       - run: cargo clippy --manifest-path contracts/Cargo.toml --workspace --tests -- -D warnings

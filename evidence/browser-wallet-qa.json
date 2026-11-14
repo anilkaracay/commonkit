@@ -1,0 +1,289 @@
+{
+  "schema": "commonkit-browser-local-signer-qa-v1",
+  "started_at": "2026-11-14T11:28:47.636Z",
+  "network": "testnet",
+  "account": "ck-browser-qa-261114.testnet",
+  "account_kind": "team-controlled dedicated QA account, not a customer",
+  "asset": "printer-01.makerlab.commonkit-sxflo.testnet",
+  "scope": "Existing React reservation and asset UI; live RPC; real testnet reservation and cancellation; server-side keychain signer via temporary loopback harness. Per-step triggers distinguish browser actions from cleanup.",
+  "limitations": [
+    "Does not test @hot-labs/near-connect, an external wallet popup, browser extension, mobile wallet or redirect.",
+    "NEP-413 is signed by the local keychain harness and verified cryptographically plus on-chain FullAccess ownership; no physical device is unlocked."
+  ],
+  "safety": {
+    "bind": "127.0.0.1",
+    "origin_check": "http://127.0.0.1:4397",
+    "secret_keys_in_browser": false,
+    "allowed_receiver": "printer-01.makerlab.commonkit-sxflo.testnet",
+    "allowed_methods": [
+      "reserve",
+      "cancel_reservation"
+    ],
+    "maximum_total_attached_yoctonear": "3000000000000000000000000",
+    "governance_or_demo_account_signing": false
+  },
+  "transactions": [
+    {
+      "method": "reserve",
+      "args": {
+        "start_slot": "997033",
+        "slots": 1,
+        "right_id": null
+      },
+      "deposit": "2250000000000000000000000",
+      "hash": "AkSeyqkgRS2CuvNcpdMDK1v4X6bkY2niNo2cSt9vPZ9X",
+      "ok": true,
+      "receipt_failures": [],
+      "events": [
+        {
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "reservation_pending",
+          "data": [
+            {
+              "reservation_id": "3",
+              "holder": "ck-browser-qa-261114.testnet",
+              "start_slot": "997033",
+              "slots": 1,
+              "fee": "250000000000000000000000",
+              "deposit": "2000000000000000000000000",
+              "right_id": null
+            }
+          ]
+        },
+        {
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "reservation_confirmed",
+          "data": [
+            {
+              "reservation_id": "3",
+              "holder": "ck-browser-qa-261114.testnet",
+              "start_slot": "997033",
+              "slots": 1,
+              "fee": "250000000000000000000000",
+              "deposit": "2000000000000000000000000",
+              "protocol_fee": "0",
+              "right_id": null
+            }
+          ]
+        }
+      ],
+      "gas_burnt": "8505457862783",
+      "return_value": "3",
+      "explorer": "https://testnet.nearblocks.io/txns/AkSeyqkgRS2CuvNcpdMDK1v4X6bkY2niNo2cSt9vPZ9X",
+      "trigger": "Browser click on production ReservePage Sign reserve"
+    },
+    {
+      "method": "cancel_reservation",
+      "args": {
+        "id": "3"
+      },
+      "deposit": "0",
+      "hash": "azzR7G1A52N8sBQA62DAo5h3q3n2qd2aspdMgEfCtnT",
+      "ok": true,
+      "receipt_failures": [],
+      "events": [
+        {
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "op_created",
+          "data": [
+            {
+              "op_id": "7",
+              "kind": "Refund",
+              "to": "ck-browser-qa-261114.testnet",
+              "amount": "2250000000000000000000000",
+              "ref_id": "3"
+            }
+          ]
+        },
+        {
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "reservation_cancelled",
+          "data": [
+            {
+              "reservation_id": "3",
+              "holder": "ck-browser-qa-261114.testnet",
+              "fee_refunded": "250000000000000000000000",
+              "fee_refund_owed": "0",
+              "deposit_refunded": "2000000000000000000000000",
+              "refund_op_id": "7",
+              "right_id": null,
+              "reason": "holder"
+            }
+          ]
+        },
+        {
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "op_result",
+          "data": [
+            {
+              "op_id": "7",
+              "kind": "Refund",
+              "status": "Succeeded",
+              "amount": "2250000000000000000000000",
+              "ref_id": "3"
+            }
+          ]
+        }
+      ],
+      "gas_burnt": "6889109344226",
+      "return_value": null,
+      "explorer": "https://testnet.nearblocks.io/txns/azzR7G1A52N8sBQA62DAo5h3q3n2qd2aspdMgEfCtnT",
+      "trigger": "Server-side cleanup after browser navigation stalled; not a UI cancel click"
+    }
+  ],
+  "balance_before": "10000000000000000000000000",
+  "ledger_before": {
+    "float_free": "2600000000000000000000000",
+    "deposits_held": "0",
+    "rewards_reserved": "0",
+    "pending_in": "0",
+    "protocol_fees_owed": "0",
+    "fee_refunds_owed": "0",
+    "pending_out": "0",
+    "bonds_outstanding": "0",
+    "total_fees_in": "1000000000000000000000000",
+    "total_swept": "49959398775000000000000",
+    "total_refunded": "6000000000000000000000000",
+    "total_rewards_paid": "0",
+    "total_reimbursed": "400000000000000000000000",
+    "total_bonds_paid": "1000000000000000000000000",
+    "total_bonds_returned": "1000000000000000000000000",
+    "total_bonds_lost": "0",
+    "total_protocol_fees": "0",
+    "float_cap": "3000000000000000000000000",
+    "storage_reserve": "7000000000000000000000000",
+    "balance": "9600000000000000000000000",
+    "storage_usage": "475801",
+    "storage_byte_cost": "10000000000000000000",
+    "storage_cost": "4758010000000000000000000",
+    "invariant_ok": true,
+    "storage_ok": true
+  },
+  "ui_slot_index": 2,
+  "ui_reserve_before": "testnet\nBoard\nProof\nAgent\nMe\nck-browser-qa-261114.testnet\n← Makerlab 3D printer\nReserve\nSIMULATED\n\n30 min slots · up to 8 · UTC\n\nPick a start slot\n11:30\n12:00\n12:30\n13:00\n13:30\n14:00\n14:30\n15:00\n15:30\n16:00\n16:30\n17:00\n17:30\n18:00\n18:30\n19:00\nSlots\nUse a usage right (no fee, up to 2 slots, group makerlab-fab)\nFee (1 × 0.25)\n0.25\nNEAR\nDeposit\nRefunded after a clean return · 0.5 after 3 clean returns\n2\nNEAR\nAttached exactly\n2.25\nNEAR\nSign reserve\nTrainings\nApprovals\nPilot\nAbout\nData: NEAR testnet RPC views · profile text from profiles/*.json · tx links from evidence/*.json.",
+  "reservation_id": "3",
+  "reservation_confirmed": {
+    "id": "3",
+    "holder": "ck-browser-qa-261114.testnet",
+    "start_slot": "997033",
+    "slots": 1,
+    "fee_paid": "250000000000000000000000",
+    "protocol_fee": "0",
+    "deposit_paid": "2000000000000000000000000",
+    "right_id": null,
+    "status": "Confirmed",
+    "created_at": "1794655732538337850",
+    "session_started_at": null,
+    "session_finished_at": null,
+    "metrics_delta": null,
+    "return_result": null,
+    "right_op_id": null,
+    "storage_cost": "3380000000000000000000",
+    "fee_refund_owed": "0"
+  },
+  "ui_transaction_confirmation": true,
+  "ui_reserved_slot_disabled": true,
+  "status": "passed_with_limitations",
+  "finished_at": "2026-11-14T11:33:33.664Z",
+  "harness_stopped": true,
+  "previous_attempt": {
+    "status": "failed",
+    "error": "locator.waitFor: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'cancel', exact: true }) to be visible\u001b[22m\n",
+    "finished_at": "2026-11-14T11:30:01.763Z"
+  },
+  "resumed_at": "2026-11-14T11:33:21.790Z",
+  "browser_rpc_transport": "Real browser JSON-RPC requests forwarded serially to https://rpc.testnet.fastnear.com by Playwright to avoid public endpoint burst throttling; no synthetic view responses.",
+  "ui_error_body": "testnet\nBoard\nProof\nAgent\nMe\nck-browser-qa-261114.testnet\n\nReading the machine…\n\nTrainings\nApprovals\nPilot\nAbout\nData: NEAR testnet RPC views · profile text from profiles/*.json · tx links from evidence/*.json.",
+  "previous_attempts": [
+    {
+      "status": "failed",
+      "error": "page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:4397/app/a/printer-01.makerlab.commonkit-sxflo.testnet\", waiting until \"networkidle\"\u001b[22m\n",
+      "finished_at": "2026-11-14T11:32:31.641Z"
+    }
+  ],
+  "cancellation_trigger": "Server-side cleanup after browser navigation stalled on public RPC; UI cancel click was not reached.",
+  "ui_cancel_click_exercised": false,
+  "reservation_after": {
+    "id": "3",
+    "holder": "ck-browser-qa-261114.testnet",
+    "start_slot": "997033",
+    "slots": 1,
+    "fee_paid": "250000000000000000000000",
+    "protocol_fee": "0",
+    "deposit_paid": "2000000000000000000000000",
+    "right_id": null,
+    "status": "Cancelled",
+    "created_at": "1794655732538337850",
+    "session_started_at": null,
+    "session_finished_at": null,
+    "metrics_delta": null,
+    "return_result": null,
+    "right_op_id": null,
+    "storage_cost": "3380000000000000000000",
+    "fee_refund_owed": "0"
+  },
+  "browser_errors": [],
+  "nep413": {
+    "message": "COMMONKIT dedicated testnet QA proof for ck-browser-qa-261114.testnet; no device access requested",
+    "recipient": "commonkit-local-browser-qa",
+    "nonce_base64": "pk/rvpd6sKq6IN1O6PdaKDKMvWPRN6nQztUYZHK0fZ0=",
+    "public_key": "ed25519:4jQ8fek2wSTeqNifuGDPYv5Vu4g6YQJ1LmmWcpzHfBh4",
+    "signature": "EZPUl3NBpsCTK4Z1Z2TKsxHiUYJSxqWSbmwe33Zc5v2ONqNMxroeUgRGxuFBMt7f7PxKWjZYOltPc+I3W82vDQ==",
+    "signature_verified": true,
+    "tampered_message_rejected": true,
+    "on_chain_permission": "FullAccess",
+    "verification": "Production bridge verifyNep413Signature plus live access-key query; no bridge access transaction"
+  },
+  "ledger_after": {
+    "float_free": "2600000000000000000000000",
+    "deposits_held": "0",
+    "rewards_reserved": "0",
+    "pending_in": "0",
+    "protocol_fees_owed": "0",
+    "fee_refunds_owed": "0",
+    "pending_out": "0",
+    "bonds_outstanding": "0",
+    "total_fees_in": "1250000000000000000000000",
+    "total_swept": "49959398775000000000000",
+    "total_refunded": "8250000000000000000000000",
+    "total_rewards_paid": "0",
+    "total_reimbursed": "400000000000000000000000",
+    "total_bonds_paid": "1000000000000000000000000",
+    "total_bonds_returned": "1000000000000000000000000",
+    "total_bonds_lost": "0",
+    "total_protocol_fees": "0",
+    "float_cap": "3000000000000000000000000",
+    "storage_reserve": "7000000000000000000000000",
+    "balance": "9600000000000000000000000",
+    "storage_usage": "476218",
+    "storage_byte_cost": "10000000000000000000",
+    "storage_cost": "4762180000000000000000000",
+    "invariant_ok": true,
+    "storage_ok": true
+  },
+  "balance_after": "9998594452816799100000000",
+  "balance_net_cost_yoctonear": "1405547183200900000000",
+  "ui_cancelled_observed_in_fresh_browser": true,
+  "results": {
+    "ui_reservation": "passed",
+    "ui_availability_refresh": "passed",
+    "contract_cancellation_and_full_refund": "passed",
+    "fresh_ui_cancelled_status": "passed",
+    "nep413_signature_and_live_key_ownership": "passed",
+    "ui_cancel_click": "not exercised",
+    "external_wallet_popup_or_redirect": "not exercised"
+  },
+  "rpc_recovery": {
+    "first_cleanup_attempt": {
+      "hash": "BuSnXVZp6guFiDh7ST848tb3EQue1yoKYjJajBHG9Xsu",
+      "nonce": "277650456000002",
+      "outcome": "HTTP 429; hash not observed on chain and nonce not consumed when checked before retry"
+    },
+    "retry": "Cancellation of the same booking signed with the same next nonce through an alternate testnet RPC; only one transaction for that nonce can execute."
+  }
+}

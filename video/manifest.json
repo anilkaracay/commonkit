@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-11-14T11:33:16.855354+00:00",
+  "source_url": "https://commonkit.cayvox.com/",
+  "walkthrough_reads": "live NEAR testnet views and historical transaction pages",
+  "wallet_signing_in_video": false,
+  "devices": "emulated or simulated",
+  "narration": "locally generated Kokoro-82M synthetic English voice",
+  "duration_seconds": 86.6,
+  "bytes": 11639512,
+  "sha256": "ef3d3d90a58294eb1f06a4cb4528a94ba830c016113e018f9456aa94e8a45a63",
+  "captions": "commonkit-demo.en.srt",
+  "x_upload": "video/out/commonkit-demo-x-1280x720.mp4"
+}

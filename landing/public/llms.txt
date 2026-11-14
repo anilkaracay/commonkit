@@ -4,11 +4,12 @@
 
 Every shared machine gets its own keyless NEAR account running the same `asset` contract. Members reserve it and pay a fee plus a refundable deposit; a bridge next to the machine unlocks it only for a valid on-chain reservation. The asset keeps a capped float and sweeps the rest to the community's Sputnik DAO. When the machine's own telemetry crosses a profile rule, its operations agent may open an upkeep task; the member who does the work and is approved by a different member receives non-transferable NEP-171 usage rights.
 
-Honest limits: every asset is simulated (device emulators or the simulator); no physical device is used. Testnet NEAR has no value. No pilot numbers are claimed until a pilot has run.
+Scope: NEAR testnet with device emulators and a simulator; device readings are labelled SIMULATED. Testnet NEAR has no value. Machine accounts hold money; NFT cards carry earned access and credentials.
 
 ## Links
 
 - [App (read-only without a wallet)](/app)
+- [Demo video](/demo/)
 - [Proof: keyless accounts, code hashes, ledger invariants](/app/proof)
-- [Pilot](/app/pilot)
+- [Run the read-only verifier](https://github.com/anilkaracay/commonkit/blob/main/scripts/verify.sh)
 - [Source code](https://github.com/anilkaracay/commonkit)

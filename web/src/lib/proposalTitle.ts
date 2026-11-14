@@ -37,6 +37,10 @@ const RULES: Rule[] = [
 
 export function proposalTitle(description: string): string {
   const d = description.trim();
+  if (/\[trezu-tmpl:/.test(d)) {
+    const summary = d.match(/\* Summary:\s*([^<]+)/i)?.[1]?.trim();
+    if (summary) return `Trezu · ${proposalTitle(summary)}`;
+  }
   const body = d.replace(/^COMMONKIT (?:seed|demo step \d+) \([\w-]+\):\s*/, '');
   for (const [re, f] of RULES) {
     const m = (re.source.startsWith('^COMMONKIT') ? d : body).match(re);

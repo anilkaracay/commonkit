@@ -9,6 +9,7 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { isIP } from 'node:net';
 import { FPS, HERE, dir, playwright, settle, startSite } from './lib.mjs';
 import { CHAPTERS, PRINTER, TX } from './story.mjs';
 
@@ -140,7 +141,7 @@ class Recorder {
     const u = new URL(this.page.url());
     const local = u.origin === this.base;
     for (const k of ['3d', 'live', 'demo']) u.searchParams.delete(k);
-    const host = local ? (process.env.VIDEO_HOST ?? '') : u.host; // the hosted domain once there is one; never localhost
+    const host = local ? (process.env.VIDEO_HOST ?? u.host) : u.host;
     const path = u.pathname + (u.searchParams.size ? `?${u.searchParams}` : '');
     const last = this.bars.at(-1);
     if (last && last.host === host && last.path === path) return;
@@ -159,6 +160,7 @@ class Recorder {
   /** Start a caption + narration line once the previous one has been spoken; the previous caption ends here. */
   async say(key, line, chapter = null) {
     await this.settleVoice();
+    console.log(`[video] ${key} at ${this.t.toFixed(1)} s`);
     const last = this.cues.at(-1);
     if (last && last.end === null) last.end = this.t;
     const voiceDur = VOICE[key];
@@ -252,9 +254,17 @@ async function fadeMark(rec, box, sec = 0.4) {
 }
 
 async function main() {
-  const site = await startSite();
+  const remote = process.env.VIDEO_BASE_URL;
+  if (remote && new URL(remote).protocol !== 'https:') throw new Error('VIDEO_BASE_URL must use HTTPS');
+  const site = remote ? { base: new URL(remote).origin, close() {} } : await startSite();
+  // Optional verified public DNS result when the recording host still caches NXDOMAIN.
+  // Only resolution changes; HTTPS certificate validation stays enabled.
+  const dnsAddress = process.env.VIDEO_DNS_ADDRESS;
+  if (dnsAddress && (!remote || !isIP(dnsAddress))) throw new Error('VIDEO_DNS_ADDRESS requires a hosted URL and an IP address');
   const { chromium } = playwright();
-  const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
+  const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist',
+    ...(dnsAddress ? [`--host-resolver-rules=MAP ${new URL(site.base).hostname} ${dnsAddress}`] : []),
+  ] });
   const context = await browser.newContext({ viewport: VIEW, deviceScaleFactor: 1.2, reducedMotion: 'no-preference' });
   await context.addInitScript(OVERLAY_JS);
   const page = await context.newPage();
@@ -271,7 +281,7 @@ async function main() {
     await page.waitForTimeout(800);
     await rec.overlays();
     rec.tick = (f) => page.evaluate((t) => window.__hero.renderAt(t), f / FPS);
-    await rec.hold(0.6); // a beat before the first word
+    await rec.hold(0.3); // a beat before the first word
     await line('intro', 0, 'intro');
     await line('intro', 1);
     await rec.click(page.locator('.hero .ctas a.ck-btn').first(), {
@@ -292,7 +302,6 @@ async function main() {
       if (b) await rec.move(b.x + b.width * 0.5, b.y + b.height * 0.38, 0.55);
     }
     await rec.hold(0.4);
-    await line('board', 1);
     await rec.click(page.locator(printerLink).first(), { sec: 1, wait: () => appReady(page, 'a.ck-btn:has-text("Reserve")') });
 
     // 3 · The printer: its account, its float, and the Reserve button.
@@ -302,7 +311,6 @@ async function main() {
     const fb = await float.boundingBox();
     if (fb) await rec.move(fb.x + 120, fb.y + 50, 0.9);
     await rec.hold(0.3);
-    await line('printer', 1);
     await rec.click(page.locator('a.ck-btn:has-text("Reserve")').first(), { sec: 0.9, wait: () => appReady(page, 'fieldset button') });
 
     // 4 · Booking: pick a slot, see fee + deposit, sign in a wallet → the real booking tx.
@@ -325,7 +333,7 @@ async function main() {
     await rec.scrollTo(booked.y - VIEW.height * 0.45, 1.3);
     await fadeMark(rec, booked);
     await rec.move(booked.x + booked.w + 30, booked.y - (await page.evaluate(() => window.scrollY)) + booked.h, 0.6);
-    await rec.hold(0.8);
+    await rec.hold(0.4);
     rec.mark = null;
 
     // 5 · Use + upkeep: the bridge reports usage, rules fill up, the agent opens a task.
@@ -383,7 +391,10 @@ async function main() {
     const swept = page.getByText('Swept to DAO', { exact: true }).first();
     const sb = await swept.boundingBox();
     if (sb) await rec.move(sb.x + sb.width / 2, sb.y + sb.height + 16, 0.8);
+    const escalations = await boxOf(heading(page, 'Escalations'));
+    await rec.scrollTo(escalations.y - 110, 0.8);
     await rec.hold(0.3);
+    await rec.quiet(); // let the machine-opened proposal remain visible while it is described
 
     // 8 · Proof: every claim re-read from testnet.
     await rec.scrollTo(0, 0.8);
@@ -406,6 +417,10 @@ async function main() {
     await end.evaluate(() => document.fonts.ready);
     await end.screenshot({ path: join(BUILD, 'end.png') });
     console.log(`[video] tour recorded: ${timeline.duration.toFixed(1)} s, ${timeline.cues.length} captions, ${timeline.bars.length} URLs`);
+  } catch (error) {
+    await page.screenshot({ path: join(BUILD, 'recording-error.png'), fullPage: true }).catch(() => {});
+    console.error(`[video] failed at ${page.url()}`);
+    throw error;
   } finally {
     await browser.close();
     site.close();

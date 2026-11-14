@@ -1,6 +1,6 @@
 # PITCH — 2 minutes + judge Q&A
 
-For a live or recorded pitch. Every fact here is in the README with a tx, test or file link; say "simulated" wherever the README does. Status as of 2026-11-10: devices are emulated or simulated (D-022); the real smart plug and the real-users pilot are pending (D-024). Update the "Who uses it?" answer only from real pilot evidence.
+For a live or recorded pitch. Every fact here is in the README with a tx, test or file link; say "simulated" wherever the README does. Updated 2026-11-14: demo at https://commonkit.cayvox.com/app/, video at https://commonkit.cayvox.com/demo/. Devices are emulated or simulated (D-022); user-adoption claims require evidence.
 
 ## The 2-minute pitch (about 290 words)
 
@@ -10,7 +10,7 @@ For a live or recorded pitch. Every fact here is in the README with a tx, test o
 
 **The loop (40 s).** The machine asks for its own care. When a rule comes due — print hours, a weekly cleaning, two members reporting a fault — an operations agent opens an upkeep task. A member does the work, a different member approves it, and the worker gets usage-right cards that no method can revoke. Fix it, refill it, clean it, check it, teach it: every kind of care earns access. Restock and repair can claim a capped, receipt-backed expense, and big purchases become DAO proposals that the machine's contract opens itself.
 
-**Proof (30 s).** On NEAR testnet we run two unmodified Sputnik DAOs, two community contracts and four asset accounts, all keyless and sharing one code hash. All 21 judge steps passed with tx links, and `verify.sh` checks every claim without keys. `simulate.sh` runs the whole loop for 12 kinds of commons on a local NEAR sandbox. The devices in this demo are emulated and labelled so; a real plug and a real-users pilot are next.
+**Proof (30 s).** On NEAR testnet we run two unmodified Sputnik DAOs, two community contracts and four asset accounts, all keyless; the four machines share one code hash. All 21 judge steps passed with tx links, and `verify.sh` checks every claim without keys. `simulate.sh` runs the whole loop for 12 kinds of commons on a local NEAR sandbox. The devices in this demo are emulated and labelled so.
 
 **Ask (10 s).** Try `/app`, run `simulate.sh`, and tell us which shared thing near you should pay for its own upkeep.
 
@@ -26,8 +26,8 @@ For a live or recorded pitch. Every fact here is in the README with a tx, test o
 | Is the machine really autonomous? | It has its own account, float, upkeep requests and access check; people set the rules, do the work and approve it. The agent can only open tasks the contract says are due, within quotas (step 16). |
 | Won't rewards drain the machine? | Rewards are mostly usage rights, capped by a period quota; cash and expenses are capped per rule, need a council approval above a threshold and a DAO vote above the cap (step 18). Deposits are never used for any of it (`inv_custody_deposits_never_swept`). |
 | Does it scale to other commons? | The same WASM runs four testnet assets in two DAOs, and the loop passes for 12 profiles in `simulate.sh`. Only the profile and the adapter change. |
-| Can the DAO take a right back? | No method deletes, downgrades or transfers a granted card. The DAO can still make a card unusable in practice (deactivate the asset, move it to another group, add a credential requirement), and the README says so. |
+| Can the DAO take a right back? | No method deletes, downgrades or transfers a granted usage right. The DAO can still make a card unusable in practice (deactivate the asset, move it to another group, add a credential requirement), and the README says so. |
 | Is this a business? | A hardware bridge kit and a small protocol fee the DAO can switch on (0 in every profile today). It is not validated. |
-| Why no Trezu? | We use Sputnik unmodified, so our proposals are standard Sputnik proposals. The hosted Trezu backend is mainnet-only, so we claim no end-to-end Trezu integration. |
+| How do you use Trezu? | Five custom templates compile through Trezu's own engine; one output was submitted by our script and passed on testnet. Trezu's UI was shown locally with its official testnet mock backend; its hosted mainnet app was not used (D-037). |
 | Is the deployed code reproducible? | The deployed code is a host build that reproduces with the same toolchain; a Docker reproducible build of the same source gives different hashes, so we do not claim reproducibility (D-218). |
-| Which tracks? | Social Money. NFTs only if a wallet shows the cards before submission; Agent Economy is not claimed, because the agent does not earn or spend in a market. |
+| Which tracks? | Social Money and NFTs That Do Something (D-032). Cards carry access and credentials; the machine accounts hold money. Wallet card display is not claimed, and Agent Economy is not selected. |
