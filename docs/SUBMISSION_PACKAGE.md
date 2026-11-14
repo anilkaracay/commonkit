@@ -15,29 +15,30 @@ Rules source: [`docs/HACKATHON.md`](HACKATHON.md) (live rules rechecked 2026-11-
 - [x] **License and disclosures:** root MIT LICENSE, README dependencies/AI disclosures and development-window/other-project declaration exist. Local README link paths were checked; this does not claim a browser rendering check of unpublished edits.
 - [x] **Sensitive local paths ignored:** `.env` variants, key/credential paths and `submission/` are excluded. No personal fields were collected for this package.
 - [x] **History secrets scan:** Gitleaks 8.30.1 scanned 203 commits through `29a46d8` on 14 November; all 12 detections were historical public Ed25519 keys. [Sanitized result](../evidence/history-scan-2026-11-14.json). This is a scoped check, not a guarantee about later edits.
-- [ ] **Owner X post and saved form submission:** still pending; one submission per project.
+- [x] **Owner X post published:** [public demo post](https://x.com/usecommonkit/status/2121587837816730030), verified through official X oEmbed.
+- [ ] **Saved form submission:** owner completes once and retains the official success receipt.
 - [ ] **Retention:** keep repository public through judging and hosting through 18 November, ideally 25 November.
 
 ## (b) X demo post (≤ 280 characters, D-023)
 
-Requirements (HACKATHON.md §2, re-read live 2026-11-14): says it was built at NEAR HACKATHON, tags @NEARProtocol and #NEARHackathon, video attached, problem first, NEAR's concrete role, demo and repo links, and "ask a genuine question or invite specific feedback" (the question line, added 2026-11-13). Optional tags @NearLegion and @NearBuilders do not fit in 280 characters; they can go in a reply.
+Requirements (HACKATHON.md §2, re-read live 2026-11-14): says it was built at NEAR HACKATHON, tags @NEARProtocol and #NEARHackathon, video attached, problem first, NEAR's concrete role, demo and repo links, and "ask a genuine question or invite specific feedback" (the question line, added 2026-11-13). The published post includes both optional community tags, @NearLegion and @NearBuilders.
 
-<!-- character count: 277 / 280 (URLs count as 23) -->
+<!-- character count: 272 / 280 (URLs count as 23) -->
 ```text
-Shared machines need shared rules.
+COMMONKIT: book shared machines, govern budgets & earn access NFTs for approved work.
 
-Built at NEAR HACKATHON: COMMONKIT uses keyless NEAR accounts for bookings & budgets. Approved contributions earn access NFTs.
+Built at NEAR HACKATHON with keyless NEAR accounts.
 
-Testnet: https://commonkit.cayvox.com/app/
-Code: https://github.com/anilkaracay/commonkit
+Testnet https://commonkit.cayvox.com/
+https://github.com/anilkaracay/commonkit
 What would you share?
-@NEARProtocol #NEARHackathon
+@NEARProtocol #NEARHackathon @NearLegion @NearBuilders
 ```
 
-- The post contains the live testnet app and public repository URLs directly.
+- The published post contains the hosted testnet demo and public repository URLs directly.
 - NEAR's role in the post: machine accounts coordinate bookings and shared funds; independently approved upkeep earns usage rights.
 - The draft includes a question: "What would you share?"
-- @NearLegion and @NearBuilders are optional; adding both (24 characters with spaces) would exceed 280 with this text.
+- The published post includes both optional community tags.
 - Attach `video/out/commonkit-demo-x-1280x720.mp4` natively to the X post; the repository copy is `video/commonkit-demo.mp4`. Captions: `video/commonkit-demo.en.srt`.
 - Recount after any edit: `node -e 'const t=require("fs").readFileSync(0,"utf8").trim();console.log(t.replace(/https?:\/\/\S+/g,"x".repeat(23)).length)' < post.txt`.
 
@@ -55,7 +56,7 @@ The owner fills personal values directly in the official form. For an API submis
 | tracks | `["social", "nfts"]` | see decision below (D-032) |
 | nearAddress | `<H6: mainnet payout account>` | human; lowercase, regex in HACKATHON.md; never invented |
 | projectUrl | `https://github.com/anilkaracay/commonkit` (only once public) | unique per submission |
-| demoUrl | `<H8: URL of the published X post>` | human posts first |
+| demoUrl | `https://x.com/usecommonkit/status/2121587837816730030` | published by the owner |
 | idea | text in (d) | 20–2000 chars |
 | consent | `true` only after the human agrees to: "I agree that the organizers may use these details to review our submission and contact us about this hackathon." | human |
 

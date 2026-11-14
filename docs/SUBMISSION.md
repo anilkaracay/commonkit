@@ -1,6 +1,6 @@
 # Submission checklist
 
-Deadline: **14 November 2026, 23:59 UTC = 15 November, 02:59 Europe/Istanbul**. The owner publishes the X post and submits the [official form](https://nearhackathon.com/#apply). No personal fields need to be shared with an agent.
+Deadline: **14 November 2026, 23:59 UTC = 15 November, 02:59 Europe/Istanbul**. The X post is published; the owner submits the [official form](https://nearhackathon.com/#apply). No personal fields need to be shared with an agent.
 
 Checked on 14 November against the full [live rules](https://nearhackathon.com/HACKATHON.md); [the saved copy](HACKATHON.md) matched byte for byte. Recheck the live rules immediately before submission. [SUBMISSION_PACKAGE.md](SUBMISSION_PACKAGE.md) is the canonical copy source for the post and description. The ready-to-copy post is also in `submission/x-post.txt` (gitignored).
 
@@ -12,8 +12,8 @@ Checked on 14 November against the full [live rules](https://nearhackathon.com/H
 - [x] **DONE — Video release checked:** `cee1ae64ed4d9e4d2e47c108d17c45a2e6befe61`; [CI passed](https://github.com/anilkaracay/commonkit/actions/runs/43592560225) and [Pages passed](https://github.com/anilkaracay/commonkit/actions/runs/43592560269). Subsequent documentation and campaign-art edits run the same workflows. The original `hackathon-submission` tag preserves `29a46d8`; v2 preserves `cd7934b`; `hackathon-submission-v3` records the final handoff. Source fixes `46fb0cb` passed [CI](https://github.com/anilkaracay/commonkit/actions/runs/43595589680) and [Pages](https://github.com/anilkaracay/commonkit/actions/runs/43595589754).
 - [x] **DONE — Hosting now:** [landing](https://commonkit.cayvox.com/), [app](https://commonkit.cayvox.com/app/) and [player](https://commonkit.cayvox.com/demo/) returned HTTPS 200. Checks used the Pages address with normal TLS verification; resolver propagation can differ.
 - [x] **DONE — Final video published:** 81.84 seconds, captions and disclosed synthetic narration; downloaded hosted MP4 matches `video/manifest.json` SHA-256 `ac4c7de2773421473a5b8e7205a3c239e88536c01a9bc545eb0244b0ae67ad0a`. Range requests return 206; the player and WebVTT return 200. The sequence starts with the product purpose, then includes recorded booking confirmation, earned-right zero-fee redemption and the machine-opened DAO proposal. No fresh wallet signature is recorded.
-- [x] **DONE — X draft:** event wording, `@NEARProtocol`, `#NEARHackathon`, concrete NEAR role, app/repo links and a feedback question; 277 weighted characters. Community amplification tags are optional.
-- [ ] **PENDING — Owner publishes X:** attach final `video/out/commonkit-demo-x-1280x720.mp4` natively. Recheck the export after any replacement render.
+- [x] **DONE — X draft:** event wording, `@NEARProtocol`, `#NEARHackathon`, concrete NEAR role, app/repo links and a feedback question; 272 weighted characters. Community amplification tags are optional.
+- [x] **DONE — Owner published X:** [public demo post](https://x.com/usecommonkit/status/2121587837816730030). Official X oEmbed verified the text, mandatory tags and attached-media link; the owner reported uploading the prepared video. [Evidence](../evidence/x-post-2026-11-14.json).
 - [ ] **PENDING — Owner submits once:** `demoUrl` is the public X post URL, not the app/player. Finish before the deadline; retain the official success receipt.
 - [ ] **UNVERIFIED — Previous submission:** no saved-submission receipt was inspected. If already saved, do not submit again; use [request changes](https://nearhackathon.com/request-changes).
 - [ ] **PENDING — Retention:** repository stays public through judging; demo stays available through 18 November, ideally 25 November. Project target: 25 November.
@@ -34,7 +34,7 @@ Checked on 14 November against the full [live rules](https://nearhackathon.com/H
 | [x] DONE | Q-009: RPC / hosting | Hosted app reads testnet; hosting checked above. |
 | [x] DONE | Q-010: eligibility | Testnet-only projects eligible; network limitations explicit. |
 | [x] DONE | Q-011: integrations | Sputnik, Trezu and NEP-171 use documented; hints and prompts optional. |
-| [x] DONE / [ ] PENDING | Q-012: demo | [Do/See and local steps](../README.md#explore-the-app), hosted video available; X post and future hosting pending. |
+| [x] DONE / [ ] PENDING | Q-012: demo | [Do/See and local steps](../README.md#explore-the-app), hosted video and public X post available; future hosting remains pending. |
 | [x] N/A | Q-013: rights | Informational terms; no extra deliverable. |
 | [x] DONE / [ ] PENDING | Q-014: license / publicity | [MIT LICENSE](../LICENSE) exists; continued public access through judging pending. |
 | [x] DONE | Q-015: other projects | README declares none by any team member (D-035); this records the declaration. |
@@ -62,7 +62,7 @@ Owner fills personal details directly in the form. Never invent values or commit
 | [ ] PENDING | `tracks` | Owner confirms `social`, `nfts`, each once. |
 | [ ] PENDING | `nearAddress` | Owner's mainnet prize account, not project testnet account; lowercase, 2–64 characters, live-contract syntax. Never invented. |
 | [x] DONE | `projectUrl` | `https://github.com/anilkaracay/commonkit`; prior submission uniqueness unverified. |
-| [ ] PENDING | `demoUrl` | Public X post URL, ≤300 characters. |
+| [x] DONE | `demoUrl` | `https://x.com/usecommonkit/status/2121587837816730030` |
 | [x] DONE / [ ] PENDING | `idea` | Draft within 20–2,000 characters; owner reviews/pastes. |
 | [ ] PENDING | `consent` | Owner reads/agrees to exact notice before selecting consent. |
 

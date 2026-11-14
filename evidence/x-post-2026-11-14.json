@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-11-14T13:01:00.836270+00:00",
+  "post_url": "https://x.com/usecommonkit/status/2121587837816730030",
+  "author_name": "CommonKit",
+  "author_url": "https://x.com/usecommonkit",
+  "verification_source": "https://publish.twitter.com/oembed?url=https%3A%2F%2Fx.com%2Fusecommonkit%2Fstatus%2F2121587837816730030&omit_script=true&dnt=true",
+  "verification": "Official X oEmbed returned the public post text and an attached-media link. The owner reported posting the prepared video; media content was not decoded through oEmbed.",
+  "mandatory_event_wording": true,
+  "mandatory_account_tag": true,
+  "mandatory_hashtag": true,
+  "optional_community_tags": [
+    "NearLegion",
+    "NearBuilders"
+  ],
+  "demo_link_resolved": "https://commonkit.cayvox.com/",
+  "repository_link_resolved": "https://github.com/anilkaracay/commonkit",
+  "resolved_links_http_status": 200,
+  "weighted_text_characters": 272,
+  "posted_text": "COMMONKIT: book shared machines, govern budgets & earn access NFTs for approved work.\n\nBuilt at NEAR HACKATHON with keyless NEAR accounts.\n\nTestnet https://commonkit.cayvox.com/\nhttps://github.com/anilkaracay/commonkit\nWhat would you share?\n@NEARProtocol #NEARHackathon @NearLegion @NearBuilders"
+}

@@ -8,6 +8,8 @@ COMMONKIT helps communities share and manage machines: members book access, book
 
 **[Open the app](https://commonkit.cayvox.com/app/) · [Watch the demo](https://commonkit.cayvox.com/demo/) · [Verify the chain state](https://commonkit.cayvox.com/app/proof/)**
 
+[Public hackathon demo post on X](https://x.com/usecommonkit/status/2121587837816730030).
+
 Built at **NEAR HACKATHON 2026** for **Social Money** and **NFTs That Do Something**. On testnet: **2 Sputnik DAOs, 2 community contracts, 4 machine accounts, all keyless; 21 recorded judge steps**. Devices use API-faithful Moonraker/Shelly emulators and a labelled simulator.
 
 ![COMMONKIT's public board: four machines, community budgets, upkeep tasks and DAO proposals, read live from NEAR testnet.](docs/img/board-1440.png)
