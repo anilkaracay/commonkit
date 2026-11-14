@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useDataSource, type DataSource } from './source';
 import type { AccountId, RuleStatus } from './types';
 import { describeTrigger } from '../lib/metrics';
-import type { DeployedAsset, DeployedCommunity } from './offchain';
+import type { DeployedAsset, DeployedCommunity, Deployment } from './offchain';
 
 const PAGE = 100;
 
@@ -69,18 +69,25 @@ export async function loadBoardSnapshot(ds: DataSource, assetId: AccountId) {
 }
 export type BoardSnapshot = Awaited<ReturnType<typeof loadBoardSnapshot>>;
 
-/** Every deployed asset with its board snapshot (board, approvals, agent feed). */
-export function useAllAssets() {
+/** Every deployed asset with its board snapshot, in deployment order. */
+export async function loadAllAssets(ds: DataSource, dep: Deployment) {
+  const snaps = await Promise.all(dep.assets.map((d) => loadBoardSnapshot(ds, d.asset_id)));
+  return snaps.map((snap, i) => ({ deployed: dep.assets[i] as DeployedAsset, snap }));
+}
+export type AllAssets = Awaited<ReturnType<typeof loadAllAssets>>;
+
+/**
+ * Every deployed asset with its board snapshot (board, approvals, agent feed). `placeholder` is
+ * shown (with `isPlaceholderData`) until the live read lands; it never enters the cache.
+ */
+export function useAllAssets(placeholder?: AllAssets) {
   const ds = useDataSource();
   const dep = useDeployment();
   return useQuery({
     queryKey: ['assets', ds.kind, dep.data?.assets.map((a) => a.asset_id).join(',')],
     enabled: !!dep.data,
-    queryFn: async () => {
-      const list = (dep.data as NonNullable<typeof dep.data>).assets;
-      const snaps = await Promise.all(list.map((d) => loadBoardSnapshot(ds, d.asset_id)));
-      return snaps.map((snap, i) => ({ deployed: list[i] as DeployedAsset, snap }));
-    },
+    queryFn: () => loadAllAssets(ds, dep.data as Deployment),
+    placeholderData: placeholder,
   });
 }
 
@@ -100,13 +107,19 @@ export async function loadCommunity(ds: DataSource, c: DeployedCommunity) {
 }
 export type CommunitySnapshot = Awaited<ReturnType<typeof loadCommunity>>;
 
-export function useCommunities() {
+export function loadCommunities(ds: DataSource, dep: Deployment) {
+  return Promise.all(dep.communities.map((c) => loadCommunity(ds, c)));
+}
+
+/** `placeholder`: see useAllAssets. */
+export function useCommunities(placeholder?: CommunitySnapshot[]) {
   const ds = useDataSource();
   const dep = useDeployment();
   return useQuery({
     queryKey: ['communities', ds.kind],
     enabled: !!dep.data,
-    queryFn: () => Promise.all((dep.data as NonNullable<typeof dep.data>).communities.map((c) => loadCommunity(ds, c))),
+    queryFn: () => loadCommunities(ds, dep.data as Deployment),
+    placeholderData: placeholder,
   });
 }
 
