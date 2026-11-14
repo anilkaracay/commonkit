@@ -37,7 +37,11 @@ export interface WalletProvider {
   readonly unavailableReason?: string;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  signAndSendTransaction(call: ContractCall): Promise<{ txHash: string }>;
+  signAndSendTransaction(call: ContractCall): Promise<{
+    txHash: string;
+    /** Exact reserve return value, when the wallet supplies a full outcome. */
+    reservationId?: string;
+  }>;
   signMessage(req: Nep413Request): Promise<Nep413Signed>;
 }
 

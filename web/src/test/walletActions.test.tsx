@@ -6,13 +6,13 @@ import { AppProviders, makeQueryClient } from '../App';
 import { createMockSource } from '../data/mock/mockSource';
 import { A } from '../data/mock/fixtures';
 import type { DataSource } from '../data/source';
-import type { Card, Task } from '../data/types';
+import type { Card, Reservation, Task } from '../data/types';
 import { routes } from '../routes';
 import { parseNear } from '../lib/near';
 import type { WalletProvider } from '../wallet/wallet';
 
-function setup(path: string, accountId: string = A.ayse, source = createMockSource()) {
-  const sign = vi.fn<WalletProvider['signAndSendTransaction']>(async () => ({ txHash: 'confirmedTestTx' }));
+function setup(path: string, accountId: string = A.ayse, source = createMockSource(), result: Awaited<ReturnType<WalletProvider['signAndSendTransaction']>> = { txHash: 'confirmedTestTx' }) {
+  const sign = vi.fn<WalletProvider['signAndSendTransaction']>(async () => result);
   const wallet: WalletProvider = { status: 'connected', accountId, connect: vi.fn(), disconnect: vi.fn(), signAndSendTransaction: sign, signMessage: vi.fn() };
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   const clear = vi.fn();
@@ -45,6 +45,118 @@ async function chooseSlot(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('reservation wallet transactions', () => {
+  it('clears its completed selection after availability refresh without hiding a later real conflict', async () => {
+    const source = reservationSource();
+    const asset = source.asset;
+    const base = (await asset(A.printer).get_reservations(0, 1))[0]!;
+    let availabilityReads = 0;
+    source.asset = (id) => ({ ...asset(id),
+      get_reservation: async () => ({ ...base, id: '42', status: 'Confirmed' }),
+      get_availability: async (...args) => {
+        const slots = await asset(id).get_availability(...args);
+        if (++availabilityReads > 1) {
+          slots[0] = { ...slots[0]!, reservation_id: '42' };
+          slots[2] = { ...slots[2]!, reservation_id: 'another-booking' };
+        }
+        return slots;
+      },
+    });
+    const { sign, user } = setup(`/a/${A.printer}/reserve`, A.ali, source, { txHash: 'txWithReturnedId', reservationId: '42' });
+    await chooseSlot(user);
+    await user.click(screen.getByRole('button', { name: 'Sign reserve' }));
+    await screen.findByText('Reservation #42: Confirmed.');
+    expect(screen.getByRole('button', { name: '10:30' })).toBeDisabled();
+    expect(screen.queryByText('Someone already booked one of these slots. Pick another time.')).toBeNull();
+    const submit = screen.getByRole('button', { name: 'Sign reserve' });
+    expect(submit).toBeDisabled();
+    fireEvent.click(submit);
+    expect(sign).toHaveBeenCalledTimes(1);
+
+    await user.click(screen.getByRole('button', { name: '11:00' }));
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Slots' }), { target: { value: '2' } });
+    expect(screen.getByRole('alert')).toHaveTextContent('Someone already booked one of these slots');
+    expect(submit).toBeDisabled();
+    expect(sign).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['Confirmed', 'Rejected'] as const)('shows exact booking state %s instead of inferring it from transaction success', async (status) => {
+    const source = reservationSource();
+    const asset = source.asset;
+    const base = (await asset(A.printer).get_reservations(0, 1))[0]!;
+    source.asset = (id) => ({ ...asset(id), get_reservation: async () => ({ ...base, id: '42', status, fee_paid: parseNear('0.25').toString(), deposit_paid: parseNear('2').toString(), storage_cost: parseNear('0.003').toString() }) });
+    const { user } = setup(`/a/${A.printer}/reserve`, A.ali, source, { txHash: 'txWithReturnedId', reservationId: '42' });
+    await chooseSlot(user);
+    await user.click(screen.getByRole('button', { name: 'Sign reserve' }));
+    if (status === 'Confirmed') expect(await screen.findByText('Reservation #42: Confirmed.')).toBeInTheDocument();
+    else {
+      expect(await screen.findByText(/Reservation #42 was rejected/)).toHaveTextContent('Expected refund: 2.247 NEAR; 0.003 NEAR retained for recorded storage');
+      fireEvent.change(screen.getByRole('spinbutton', { name: 'Slots' }), { target: { value: '2' } });
+      expect(screen.getByText(/Reservation #42 was rejected/)).toHaveTextContent('Expected refund: 2.247 NEAR; 0.003 NEAR retained for recorded storage');
+    }
+  });
+
+  it('keeps a pending authorization distinct and refreshes it to Confirmed', async () => {
+    const source = reservationSource();
+    const asset = source.asset;
+    let reservation: Reservation = { ...(await asset(A.printer).get_reservations(0, 1))[0]!, id: '42', status: 'PendingAuthorization' };
+    source.asset = (id) => ({ ...asset(id), get_reservation: async () => reservation });
+    const { user } = setup(`/a/${A.printer}/reserve`, A.ali, source, { txHash: 'txWithReturnedId', reservationId: '42' });
+    await chooseSlot(user);
+    await user.click(screen.getByRole('button', { name: 'Sign reserve' }));
+    expect(await screen.findByText(/Reservation #42: authorization pending/)).toBeInTheDocument();
+    reservation = { ...reservation, status: 'Confirmed' };
+    await user.click(screen.getByRole('button', { name: 'Refresh booking status' }));
+    expect(await screen.findByText('Reservation #42: Confirmed.')).toBeInTheDocument();
+  });
+
+  it('does not claim booking authorization when the wallet returns only a hash', async () => {
+    const { user } = setup(`/a/${A.printer}/reserve`, A.ali);
+    await chooseSlot(user);
+    await user.click(screen.getByRole('button', { name: 'Sign reserve' }));
+    expect(await screen.findByText(/booking authorization is not verified here/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Check the live reservation and refund records' })).toHaveAttribute('href', `/a/${A.printer}#reservations`);
+    expect(screen.queryByText(/Reservation #[0-9]+: Confirmed/)).toBeNull();
+  });
+
+  it('recovers an exact booking-state read failure without sending another transaction', async () => {
+    const source = reservationSource();
+    const asset = source.asset;
+    const base = (await asset(A.printer).get_reservations(0, 1))[0]!;
+    let unavailable = true;
+    source.asset = (id) => ({ ...asset(id), get_reservation: async () => {
+      if (unavailable) throw new Error('Temporary status-read outage');
+      return { ...base, id: '42', status: 'Confirmed' };
+    } });
+    const { sign, user } = setup(`/a/${A.printer}/reserve`, A.ali, source, { txHash: 'txWithReturnedId', reservationId: '42' });
+    await chooseSlot(user);
+    await user.click(screen.getByRole('button', { name: 'Sign reserve' }));
+    expect(await screen.findByRole('alert', {}, { timeout: 3000 })).toHaveTextContent('check its status before booking again');
+    unavailable = false;
+    await user.click(screen.getByRole('button', { name: 'Refresh booking status' }));
+    expect(await screen.findByText('Reservation #42: Confirmed.')).toBeInTheDocument();
+    expect(sign).toHaveBeenCalledTimes(1);
+  });
+
+  it('discloses the retained fee for the nearest time before the wallet signs', async () => {
+    const source = reservationSource();
+    source.now = () => Date.UTC(2026, 10, 12, 10, 5);
+    const { sign, user } = setup(`/a/${A.printer}/reserve`, A.ali, source);
+    await chooseSlot(user);
+    expect(screen.getByText(/Cancel at least 30 min before start/)).toBeInTheDocument();
+    expect(screen.getByText(/For this time, the 0.25 NEAR usage fee would be retained/)).toHaveTextContent('only the 2 NEAR deposit would be refunded');
+    expect(sign).not.toHaveBeenCalled();
+  });
+
+  it('shows the exact UTC cutoff for a later refundable booking', async () => {
+    const source = reservationSource();
+    source.now = () => Date.UTC(2026, 10, 12, 10, 5);
+    const { sign, user } = setup(`/a/${A.printer}/reserve`, A.ali, source);
+    await screen.findByText('Attached exactly');
+    await user.click(screen.getByRole('button', { name: '11:00' }));
+    expect(screen.getByText(/For this time, cancel by 12 Nov 10:30 UTC/)).toHaveTextContent('refund 0.25 NEAR of usage fee plus the 2 NEAR deposit');
+    expect(sign).not.toHaveBeenCalled();
+  });
+
   it('sends the selected earned right, zero fee and the trusted deposit', async () => {
     const { sign, clear, user } = setup(`/a/${A.printer}/reserve`, A.ayse, reservationSource({ clean: 3 }));
     await chooseSlot(user);

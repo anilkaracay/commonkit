@@ -1,0 +1,460 @@
+{
+  "schema": "commonkit-external-meteor-wallet-qa-v1",
+  "status": "passed",
+  "date": "2026-11-14",
+  "checked_at": "2026-11-14T13:35:05.957975+00:00",
+  "network": "NEAR testnet",
+  "public_origin": "https://commonkit.cayvox.com",
+  "asset": "printer-01.makerlab.commonkit-sxflo.testnet",
+  "wallet_account": "rarequokka635.testnet",
+  "account_scope": "Fresh team-controlled QA wallet created by the user, not a customer or adoption claim.",
+  "wallet": {
+    "name": "Meteor Wallet",
+    "official_web_origin": "https://wallet.meteorwallet.app",
+    "displayed_build": "261113-0703",
+    "integration": "Production @hot-labs/near-connect, Meteor Web; browser popups under /connect/testnet/login and /connect/testnet/sign.",
+    "chrome_profile": "COMMONKIT Testnet QA, signed out of Google",
+    "private_setup": "The user completed password, Terms and recovery privately. The agent did not inspect the recovery phrase or obtain/import the wallet key; existing password autofill remained masked."
+  },
+  "funding": {
+    "scope": "Setup funding only, separate from the external-wallet proof.",
+    "source": "Dedicated local QA account ck-browser-qa-261114.testnet",
+    "amount_yoctonear": "5000000000000000000000000",
+    "method": "Official near CLI with legacy keychain; no key exported or imported into Meteor.",
+    "transaction": {
+      "hash": "GWJyJZncKUwurGxhSNfeZV5dKpUZe6DtSyfF2ghzcHnU",
+      "explorer_url": "https://testnet.nearblocks.io/txns/GWJyJZncKUwurGxhSNfeZV5dKpUZe6DtSyfF2ghzcHnU",
+      "signer_id": "ck-browser-qa-261114.testnet",
+      "public_key": "ed25519:4jQ8fek2wSTeqNifuGDPYv5Vu4g6YQJ1LmmWcpzHfBh4",
+      "nonce": "277650456000003",
+      "receiver_id": "rarequokka635.testnet",
+      "block_height": 277662989,
+      "block_timestamp_ns": "1794662871593733837",
+      "actions": [
+        {
+          "Transfer": {
+            "deposit": "5000000000000000000000000"
+          }
+        }
+      ],
+      "all_outcomes_successful": true,
+      "total_tokens_burnt": "44636512500000000000",
+      "receipt_events": [],
+      "transfer_receipts": [
+        {
+          "receipt_id": "FvgyZL7wgbV1oQ5f9bJYQWYizbgvzDSaZJu657nA2wju",
+          "predecessor_id": "ck-browser-qa-261114.testnet",
+          "receiver_id": "rarequokka635.testnet",
+          "deposit": "5000000000000000000000000",
+          "status": {
+            "SuccessValue": ""
+          },
+          "block_height": 277662990
+        },
+        {
+          "receipt_id": "2x98r7USgniyWFyd6ZVvb6mAhu1uRBsbXUwnh9XTkjXK",
+          "predecessor_id": "system",
+          "receiver_id": "ck-browser-qa-261114.testnet",
+          "deposit": "200864306250000000000",
+          "status": {
+            "SuccessValue": ""
+          },
+          "block_height": 277662991
+        }
+      ]
+    },
+    "ui_faucet_attempt": "near-faucet.io request for 2 testnet NEAR returned an error; no successful faucet transfer observed."
+  },
+  "ui_observations": [
+    {
+      "step": "connect",
+      "observed": "Public app Connect wallet \u2192 Meteor Wallet \u2192 Meteor Web \u2192 external Meteor testnet popup. Connect Request named commonkit.cayvox.com and rarequokka635.testnet, with wallet-address/balance read permissions. App displayed the connected account."
+    },
+    {
+      "step": "reserve",
+      "observed": "One slot at 16:00 UTC, 14 November; usage fee 0.25 and deposit 2.00 testnet NEAR. Meteor Transaction Details showed reserve, start_slot 997040, slots 1, right_id null, attached 2.25 NEAR and gas 120 Tgas. Approval was clicked in Meteor, not a local signer."
+    },
+    {
+      "step": "confirmation",
+      "observed": "Public app showed Transaction confirmed and the reserve transaction link. The 16:00 slot became disabled. Independent final RPC showed reservation #4 Confirmed before cancellation."
+    },
+    {
+      "step": "cancel",
+      "observed": "Clicked cancel on reservation #4 in the public printer page. Meteor Transaction Details showed cancel_reservation with id 4, attached 0 NEAR and gas 60 Tgas. Approval was clicked in Meteor."
+    },
+    {
+      "step": "final_ui",
+      "observed": "Public printer page showed reservation #4 Cancelled, 16:00 free, deposits held 0.00 NEAR, operating float 2.60 NEAR and a balanced ledger. Browser Reload was clicked afterward and the accessibility state retained the completed result."
+    }
+  ],
+  "reservation_id": "4",
+  "slot_start_utc": "2026-11-14T16:00:00Z",
+  "transactions": [
+    {
+      "hash": "4LGTBU45x51JQtGxQEnBuGEeY4tKHf3oUtChjs4SguKW",
+      "explorer_url": "https://testnet.nearblocks.io/txns/4LGTBU45x51JQtGxQEnBuGEeY4tKHf3oUtChjs4SguKW",
+      "signer_id": "rarequokka635.testnet",
+      "public_key": "ed25519:G69qFiXsM7kbeWgW3pDBrNDS5zpv47kPANppaxA2q12c",
+      "nonce": "277662756000001",
+      "receiver_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "block_height": 277663307,
+      "block_timestamp_ns": "1794663056892910331",
+      "actions": [
+        {
+          "FunctionCall": {
+            "method_name": "reserve",
+            "args": {
+              "start_slot": "997040",
+              "slots": 1,
+              "right_id": null
+            },
+            "gas": 120000000000000,
+            "deposit": "2250000000000000000000000"
+          }
+        }
+      ],
+      "all_outcomes_successful": true,
+      "total_tokens_burnt": "782671932229500000000",
+      "receipt_events": [
+        {
+          "receipt_id": "9Ape5thrrQNy48Puwpvv6YkLik8oNbTQ7zjaJByzEskX",
+          "block_height": 277663308,
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "reservation_pending",
+          "data": [
+            {
+              "reservation_id": "4",
+              "holder": "rarequokka635.testnet",
+              "start_slot": "997040",
+              "slots": 1,
+              "fee": "250000000000000000000000",
+              "deposit": "2000000000000000000000000",
+              "right_id": null
+            }
+          ]
+        },
+        {
+          "receipt_id": "J9p2EVgioq3TpCKgNc3AJosWZU6yUpNgV5QfdeC7rT4r",
+          "block_height": 277663310,
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "reservation_confirmed",
+          "data": [
+            {
+              "reservation_id": "4",
+              "holder": "rarequokka635.testnet",
+              "start_slot": "997040",
+              "slots": 1,
+              "fee": "250000000000000000000000",
+              "deposit": "2000000000000000000000000",
+              "protocol_fee": "0",
+              "right_id": null
+            }
+          ]
+        }
+      ],
+      "transfer_receipts": [
+        {
+          "receipt_id": "13vgXZn9noMTVARv6FApXR2rXypmGo1GFVuMHeZKM6ps",
+          "predecessor_id": "system",
+          "receiver_id": "rarequokka635.testnet",
+          "deposit": "3175012524339900000000",
+          "status": {
+            "SuccessValue": ""
+          },
+          "block_height": 277663309
+        },
+        {
+          "receipt_id": "32sS36tpK9ZNwvx59XNTRwFrwfeE7qP87rSh4tcPt21p",
+          "predecessor_id": "system",
+          "receiver_id": "rarequokka635.testnet",
+          "deposit": "15720779771112200000000",
+          "status": {
+            "SuccessValue": ""
+          },
+          "block_height": 277663310
+        },
+        {
+          "receipt_id": "2cqSZVxHFFJxWaseQPEGpMCYpNwkK1e4qzkEnVJqEyUw",
+          "predecessor_id": "system",
+          "receiver_id": "rarequokka635.testnet",
+          "deposit": "101240793463426400000000",
+          "status": {
+            "SuccessValue": ""
+          },
+          "block_height": 277663311
+        }
+      ]
+    },
+    {
+      "hash": "99i21ohjM9aQawh7Vh5hcjN2PXxVEjr2pkF9SJuwGwiX",
+      "explorer_url": "https://testnet.nearblocks.io/txns/99i21ohjM9aQawh7Vh5hcjN2PXxVEjr2pkF9SJuwGwiX",
+      "signer_id": "rarequokka635.testnet",
+      "public_key": "ed25519:G69qFiXsM7kbeWgW3pDBrNDS5zpv47kPANppaxA2q12c",
+      "nonce": "277662756000002",
+      "receiver_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "block_height": 277663410,
+      "block_timestamp_ns": "1794663118756580199",
+      "actions": [
+        {
+          "FunctionCall": {
+            "method_name": "cancel_reservation",
+            "args": {
+              "id": "4"
+            },
+            "gas": 60000000000000,
+            "deposit": "0"
+          }
+        }
+      ],
+      "all_outcomes_successful": true,
+      "total_tokens_burnt": "621088372981600000000",
+      "receipt_events": [
+        {
+          "receipt_id": "5VngoiZcuLopFqbY2rbrwgvg3f5My1Q7pHhmwzArtLAJ",
+          "block_height": 277663411,
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "op_created",
+          "data": [
+            {
+              "op_id": "8",
+              "kind": "Refund",
+              "to": "rarequokka635.testnet",
+              "amount": "2250000000000000000000000",
+              "ref_id": "4"
+            }
+          ]
+        },
+        {
+          "receipt_id": "5VngoiZcuLopFqbY2rbrwgvg3f5My1Q7pHhmwzArtLAJ",
+          "block_height": 277663411,
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "reservation_cancelled",
+          "data": [
+            {
+              "reservation_id": "4",
+              "holder": "rarequokka635.testnet",
+              "fee_refunded": "250000000000000000000000",
+              "fee_refund_owed": "0",
+              "deposit_refunded": "2000000000000000000000000",
+              "refund_op_id": "8",
+              "right_id": null,
+              "reason": "holder"
+            }
+          ]
+        },
+        {
+          "receipt_id": "HSnigfrXB3rVqEHLC6HxxvbkWxQtAbMShmVDfjStZjqh",
+          "block_height": 277663413,
+          "standard": "commonkit",
+          "version": "1.0.0",
+          "event": "op_result",
+          "data": [
+            {
+              "op_id": "8",
+              "kind": "Refund",
+              "status": "Succeeded",
+              "amount": "2250000000000000000000000",
+              "ref_id": "4"
+            }
+          ]
+        }
+      ],
+      "transfer_receipts": [
+        {
+          "receipt_id": "3w4R5GdWhZuN54W6ZCpAjZ1iKYEGFFRJ4seJJzYj9uvc",
+          "predecessor_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+          "receiver_id": "rarequokka635.testnet",
+          "deposit": "2250000000000000000000000",
+          "status": {
+            "SuccessValue": ""
+          },
+          "block_height": 277663412
+        },
+        {
+          "receipt_id": "8TarexSeHWDNLCBztUsDsZHxwnmApH1A7rnVyAb9CSjU",
+          "predecessor_id": "system",
+          "receiver_id": "rarequokka635.testnet",
+          "deposit": "3107770630723800000000",
+          "status": {
+            "SuccessValue": ""
+          },
+          "block_height": 277663412
+        },
+        {
+          "receipt_id": "4ECSr2WycHTs84Tgk551FWzzEm42shiBLjcAuvNqPHqr",
+          "predecessor_id": "system",
+          "receiver_id": "rarequokka635.testnet",
+          "deposit": "200864306250000000000",
+          "status": {
+            "SuccessValue": ""
+          },
+          "block_height": 277663413
+        },
+        {
+          "receipt_id": "GQP3eoYrL56WM13wXjXE7GraxtMtfVVyNmTSfQA6bBhx",
+          "predecessor_id": "system",
+          "receiver_id": "rarequokka635.testnet",
+          "deposit": "56989338260598600000000",
+          "status": {
+            "SuccessValue": ""
+          },
+          "block_height": 277663414
+        }
+      ]
+    }
+  ],
+  "refund": {
+    "principal_refunded_yoctonear": "2250000000000000000000000",
+    "fee_refunded_yoctonear": "250000000000000000000000",
+    "deposit_refunded_yoctonear": "2000000000000000000000000",
+    "operation_id": "8",
+    "successful_transfer_receipt": {
+      "receipt_id": "3w4R5GdWhZuN54W6ZCpAjZ1iKYEGFFRJ4seJJzYj9uvc",
+      "predecessor_id": "printer-01.makerlab.commonkit-sxflo.testnet",
+      "receiver_id": "rarequokka635.testnet",
+      "deposit": "2250000000000000000000000",
+      "status": {
+        "SuccessValue": ""
+      },
+      "block_height": 277663412
+    },
+    "callback_event": "op_result: Refund, Succeeded, ref_id 4"
+  },
+  "balances": {
+    "before_reservation_yoctonear": "5000000000000000000000000",
+    "before_reservation_observation": {
+      "block_height": 277663196,
+      "observed_at": "2026-11-14T13:29:55Z"
+    },
+    "after_cancellation_yoctonear": "4998596239694788900000000",
+    "roundtrip_network_tokens_burnt": "1403760305211100000000",
+    "net_balance_difference_equals_network_tokens_burnt": true,
+    "note": "The full 2.25 testnet NEAR principal returned. The remaining balance difference is exactly the sum of tokens_burnt across the two transactions and all their receipt outcomes.",
+    "before_reservation_near": "5",
+    "after_cancellation_near": "4.9985962396947889",
+    "roundtrip_network_tokens_burnt_near": "0.0014037603052111"
+  },
+  "independent_final_rpc_state": {
+    "checked_at": "2026-11-14T13:35:05.957975+00:00",
+    "rpc": "https://rpc.testnet.fastnear.com",
+    "reservation": {
+      "block_height": 277663724,
+      "block_hash": "BzAhmv5rBQQSufPvxB3DJK8W8GG4YidNcXNnXL4zzUEp",
+      "value": {
+        "id": "4",
+        "holder": "rarequokka635.testnet",
+        "start_slot": "997040",
+        "slots": 1,
+        "fee_paid": "250000000000000000000000",
+        "protocol_fee": "0",
+        "deposit_paid": "2000000000000000000000000",
+        "right_id": null,
+        "status": "Cancelled",
+        "created_at": "1794663057458786925",
+        "session_started_at": null,
+        "session_finished_at": null,
+        "metrics_delta": null,
+        "return_result": null,
+        "right_op_id": null,
+        "storage_cost": "3240000000000000000000",
+        "fee_refund_owed": "0"
+      }
+    },
+    "ledger": {
+      "block_height": 277663724,
+      "block_hash": "BzAhmv5rBQQSufPvxB3DJK8W8GG4YidNcXNnXL4zzUEp",
+      "value": {
+        "float_free": "2600000000000000000000000",
+        "deposits_held": "0",
+        "rewards_reserved": "0",
+        "pending_in": "0",
+        "protocol_fees_owed": "0",
+        "fee_refunds_owed": "0",
+        "pending_out": "0",
+        "bonds_outstanding": "0",
+        "total_fees_in": "1500000000000000000000000",
+        "total_swept": "49959398775000000000000",
+        "total_refunded": "10500000000000000000000000",
+        "total_rewards_paid": "0",
+        "total_reimbursed": "400000000000000000000000",
+        "total_bonds_paid": "1000000000000000000000000",
+        "total_bonds_returned": "1000000000000000000000000",
+        "total_bonds_lost": "0",
+        "total_protocol_fees": "0",
+        "float_cap": "3000000000000000000000000",
+        "storage_reserve": "7000000000000000000000000",
+        "balance": "9600000000000000000000000",
+        "storage_usage": "476614",
+        "storage_byte_cost": "10000000000000000000",
+        "storage_cost": "4766140000000000000000000",
+        "invariant_ok": true,
+        "storage_ok": true
+      }
+    },
+    "availability": {
+      "block_height": 277663725,
+      "block_hash": "GHpoEXw6jDsbsd48uknf1z2HSyNcftbfTRK88cRdETEd",
+      "value": [
+        {
+          "slot": "997040",
+          "reservation_id": null
+        }
+      ]
+    },
+    "refund_op": {
+      "block_height": 277663725,
+      "block_hash": "GHpoEXw6jDsbsd48uknf1z2HSyNcftbfTRK88cRdETEd",
+      "value": [
+        {
+          "id": "8",
+          "kind": "Refund",
+          "to": "rarequokka635.testnet",
+          "amount": "2250000000000000000000000",
+          "ref_id": "4",
+          "status": "Succeeded",
+          "attempts": 1,
+          "created_at": "1794663119290239772",
+          "updated_at": "1794663120466197584"
+        }
+      ]
+    },
+    "wallet": {
+      "block_height": 277663725,
+      "block_hash": "GHpoEXw6jDsbsd48uknf1z2HSyNcftbfTRK88cRdETEd",
+      "value": {
+        "amount": "4998596239694788900000000",
+        "code_hash": "11111111111111111111111111111111",
+        "locked": "0",
+        "storage_paid_at": 0,
+        "storage_usage": 182
+      }
+    },
+    "wallet_access_keys": {
+      "block_height": 277663725,
+      "block_hash": "GHpoEXw6jDsbsd48uknf1z2HSyNcftbfTRK88cRdETEd",
+      "value": {
+        "keys": [
+          {
+            "access_key": {
+              "nonce": 277662756000002,
+              "permission": "FullAccess"
+            },
+            "public_key": "ed25519:G69qFiXsM7kbeWgW3pDBrNDS5zpv47kPANppaxA2q12c"
+          }
+        ]
+      }
+    }
+  },
+  "scope_limits": [
+    "This proves the specific Meteor Web testnet connection, reservation and UI cancellation round trip; other wallets, mobile/extension variants and NEP-413 signing through Meteor were not tested.",
+    "No physical device was unlocked; the demonstrated printer remains emulated.",
+    "No mainnet transaction or real-value payment occurred.",
+    "The observed published app showed a misleading Someone already booked message after the successful own reservation. It did not prevent confirmation or cancellation; a later UI correction is separate from this successful signing test.",
+    "Native-CUA accessibility observations establish the external wallet interaction; public-chain receipts independently establish signer, methods, amounts, outcomes and full refund. No end-to-end video or sanitized native screenshot file was saved in this run.",
+    "The browser used the publication available before subsequent wallet UX fixes; this record does not claim to validate those later changes."
+  ]
+}

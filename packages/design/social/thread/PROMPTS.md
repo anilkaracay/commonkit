@@ -1,0 +1,13 @@
+# Image-generation direction
+
+Tool: OpenAI built-in image generation. Five separate scene calls using `../commonkit-devices-studio-background.png` as the local style/device reference. No cloud API key or fallback CLI. All scene outputs omit text; exact typography and logos are rendered from project vectors by `build.py`.
+
+Shared direction: premium industrial product illustration, landscape 16:10, seamless cool pale blue-white #f5f8fc studio and floor, soft diffuse light and contact shadows, no warm sunshine/concrete grain. White/navy manufactured bodies, rich cobalt functional parts; plausible mechanical details and restrained material rendering. Device imagery occupies the right 60–62%, quiet left space for typography. Full silhouettes inside margins. No rendered text, letters, numbers, logos, UI, watermarks, coins, neon, network effects, robots, people or floating podiums. Illustrative scenes, not installed-device evidence.
+
+1. **Shared machines:** sculptural family of open-frame FDM printer with blue head/print, closed laser cutter in front, front-loading washer and community fridge behind. All four recognizable, overlapping naturally on one floor. More compact and dramatic than the ultra-wide cover.
+2. **Book access:** a larger shared FDM printer in three-quarter front view. A blank white pass and two blank calendar-like flat tiles suggest a reserved session. No card reader, NFC hardware or fake app interface.
+3. **Community money:** printer alongside ordinary operating supplies: cobalt filament spool, two brass nozzles in a white organizer, compact maintenance tool and boxed replacement hot-end kit. Tangible supplies explain what the operating budget pays for; no coins or crypto metaphors.
+4. **Earned access:** printer behind two upright ivory access-pass cards with cobalt edges and plain inset blue-square geometry; a small nozzle-cleaning brush links contribution to future use. Cards are a visual metaphor, not a wallet screenshot; no invented text or QR codes.
+5. **Inspect proof:** the same four-machine family from a higher angle. A low, wide, blank matte-navy plaque in front provides space for exact authored figures. No invented security locks or blockchain hardware. The final vector layer adds 8 keyless accounts, 4 machines and 21 recorded steps.
+
+Final composition: cool backgrounds, original COMMONKIT lockup, CK Sans headlines, understated sequence numbers, three short labels per panel, official NEAR N mark and a visible testnet/illustration footer. Device scenes are preserved as source PNGs; graphic composition never depends on generated lettering.

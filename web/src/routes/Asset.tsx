@@ -269,7 +269,7 @@ export function AssetPage() {
             })}
           </ol>
         </Section>
-        <Section title="Reservations" note="Latest first">
+        <Section title="Reservations" note="Latest first" id="reservations">
           {s.reservations.length === 0 ? (
             <Empty>No reservations yet.</Empty>
           ) : (
@@ -293,7 +293,7 @@ export function AssetPage() {
                         Start →
                       </Link>
                     )}
-                    <ReservationActions assetId={assetId} r={r} profile={s.profile} nowMs={now} />
+                    <ReservationActions assetId={assetId} r={r} profile={s.profile} nowMs={now} inService={s.service.in_service} floatFree={s.ledger.float_free} />
                     <TxLink hash={ds.rowTx(`res-${deployed.alias}-${r.id}`)} />
                   </div>
                 </li>

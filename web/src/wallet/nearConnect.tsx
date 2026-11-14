@@ -26,6 +26,17 @@ export function txHashOf(outcome: unknown): string {
   return o?.transaction?.hash ?? o?.transaction_outcome?.id ?? '';
 }
 
+/** reserve returns a JSON U64 string in the final outcome; never infer an id from other receipts. */
+export function reservationIdOf(outcome: unknown): string | undefined {
+  const o = outcome as { status?: { SuccessValue?: unknown } } | null;
+  const encoded = o?.status?.SuccessValue;
+  if (typeof encoded !== 'string' || encoded.length > 128) return undefined;
+  try {
+    const id: unknown = JSON.parse(atob(encoded));
+    return typeof id === 'string' && /^(0|[1-9]\d*)$/.test(id) && BigInt(id) <= 18_446_744_073_709_551_615n ? id : undefined;
+  } catch { return undefined; }
+}
+
 export function NearConnectProvider({ children, network = 'testnet' }: { children: ReactNode; network?: 'testnet' }) {
   const connectorRef = useRef<Connector | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
@@ -100,7 +111,8 @@ export function NearConnectProvider({ children, network = 'testnet' }: { childre
         });
         const err = outcomeError(outcome);
         if (err) throw err;
-        return { txHash: txHashOf(outcome) };
+        const reservationId = call.methodName === 'reserve' ? reservationIdOf(outcome) : undefined;
+        return { txHash: txHashOf(outcome), ...(reservationId === undefined ? {} : { reservationId }) };
       },
       async signMessage(req: Nep413Request): Promise<Nep413Signed> {
         const w = await wallet();

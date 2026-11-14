@@ -4,18 +4,19 @@
  * (bridge for manual_qr items, `confirm_return` on chain otherwise), `?action=fault` → report a fault.
  * Without a wallet the visitor goes through /pilot first and comes back here (`next`).
  */
-import { useQuery } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRef, useState, type ReactNode } from 'react';
 import { Link, Navigate, useLocation } from 'react-router';
 import type { AssetSnapshot } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { useLang } from '../pilot/lang';
 import { useWallet } from '../wallet/wallet';
-import { bridgeMessage, confirmManual, manualSession } from '../bridge/client';
+import { bridgeMessage, confirmManual, manualSession, type ManualLoan } from '../bridge/client';
 import { formatDateTime } from '../lib/time';
 import { useToast } from './Toast';
 import { Account, TxLink } from './TxLink';
 import { SimulatedBadge } from './Badges';
+import { useContractAction } from '../wallet/useContractAction';
 
 export type DeepAction = 'reserve' | 'return' | 'fault';
 
@@ -122,7 +123,11 @@ function ReturnPanel({ snap }: { snap: AssetSnapshot }) {
   const wallet = useWallet();
   const ds = useDataSource();
   const toast = useToast();
+  const action = useContractAction();
+  const qc = useQueryClient();
   const [tx, setTx] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const pending = useRef(false);
   const manual = snap.profile.adapter === 'manual_qr';
   const roles = useQuery({
     queryKey: ['roles', ds.kind, snap.assetId, wallet.accountId],
@@ -132,19 +137,37 @@ function ReturnPanel({ snap }: { snap: AssetSnapshot }) {
   const isSteward = roles.data?.includes('steward') ?? false;
   const finished = snap.reservations.filter((r) => r.status === 'Finished');
 
-  const confirmOnChain = async (id: string, clean: boolean) => {
+  const confirm = async (target: { id: string; clean: boolean } | { loan: ManualLoan }) => {
+    // A ref blocks even two clicks before React has rendered the pending state.
+    if (pending.current) return;
+    pending.current = true;
+    setBusy(true);
+    let contractSubmitted = false;
     try {
-      const result = clean ? 'Clean' : { Damage: { note_hash: await sha256Hex(`damage:${snap.assetId}:${id}`) } };
-      const r = await wallet.signAndSendTransaction({ receiverId: snap.assetId, methodName: 'confirm_return', args: { id, result }, deposit: 0n });
-      setTx(r.txHash);
+      if ('loan' in target) {
+        await confirmManual(wallet, snap.assetId, target.loan, 'return');
+        ds.invalidateViews?.();
+        await qc.invalidateQueries();
+        setTx('bridge');
+      } else {
+        const result = target.clean ? 'Clean' : { Damage: { note_hash: await sha256Hex(`damage:${snap.assetId}:${target.id}`) } };
+        contractSubmitted = true;
+        const r = await action.mutateAsync({ receiverId: snap.assetId, methodName: 'confirm_return', args: { id: target.id, result }, deposit: 0n });
+        setTx(r.txHash);
+      }
     } catch (e) {
-      toast.showError(e);
+      // Contract errors are already shown by useContractAction.
+      if (!contractSubmitted) toast.showError(new Error(bridgeMessage(e)));
+    } finally {
+      pending.current = false;
+      setBusy(false);
     }
   };
 
   return (
     <Panel title={t.returnTitle}>
       <p className="text-text-2">{t.returnStewardOnly}</p>
+      {busy && <p role="status">{t.returnPending}</p>}
       {manual ? (
         loans.isError ? (
           <p className="text-due">{t.bridgeUnreachable}</p>
@@ -155,9 +178,9 @@ function ReturnPanel({ snap }: { snap: AssetSnapshot }) {
                 <span className="num">#{loan.reservation_id ?? '—'}</span>
                 <button
                   type="button"
-                  disabled={!isSteward}
+                  disabled={!isSteward || busy || loan.holder === wallet.accountId}
                   className="ck-btn ck-btn--sm"
-                  onClick={() => void confirmManual(wallet, snap.assetId, loan, 'return').then(() => setTx('bridge'), (e: unknown) => toast.showError(new Error(bridgeMessage(e))))}
+                  onClick={() => void confirm({ loan })}
                 >
                   {t.confirmManualReturn}
                 </button>
@@ -174,10 +197,10 @@ function ReturnPanel({ snap }: { snap: AssetSnapshot }) {
             <li key={r.id} className="flex flex-wrap items-center gap-2">
               <span className="num">#{r.id}</span> <Account id={r.holder} />
               {r.session_finished_at && <span className="text-xs text-text-3">{formatDateTime(r.session_finished_at)}</span>}
-              <button type="button" disabled={!isSteward || r.holder === wallet.accountId} onClick={() => void confirmOnChain(r.id, true)} className="ck-btn ck-btn--sm">
+              <button type="button" disabled={!isSteward || busy || r.holder === wallet.accountId} onClick={() => void confirm({ id: r.id, clean: true })} className="ck-btn ck-btn--sm">
                 {t.confirmClean}
               </button>
-              <button type="button" disabled={!isSteward || r.holder === wallet.accountId} onClick={() => void confirmOnChain(r.id, false)} className="ck-btn ck-btn--sm ck-btn--danger">
+              <button type="button" disabled={!isSteward || busy || r.holder === wallet.accountId} onClick={() => void confirm({ id: r.id, clean: false })} className="ck-btn ck-btn--sm ck-btn--danger">
                 {t.reportDamage}
               </button>
             </li>

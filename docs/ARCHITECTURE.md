@@ -2,6 +2,8 @@
 
 ## Deployment and wallet compatibility
 
+Meteor Web testnet booking and UI cancellation/refund were verified through the public app on 14 November ([evidence](../evidence/meteor-wallet-qa-2026-11-14.json)). This covers the external signing flow; NFT wallet-gallery display remains a separate capability.
+
 - The deployment is NEAR testnet with emulated/simulated devices. The contracts have not had an external security audit; the bridge is trusted for physical access and telemetry, with independent human approval required for rewards.
 - Cards expose NEP-171/177/181 views. `nft_transfer`, `nft_transfer_call` and `nft_approve` always reject; their argument signatures are simpler than the standard because the implementation ignores those arguments. A future deployment should preserve the standard signatures. Display in third-party wallets has not been verified.
 - A granted usage right cannot be deleted, downgraded or transferred through contract methods. Usage rights retain their expiry, and DAO-controlled machine availability, group membership and credential requirements can affect whether a right can be used. Credentials can be suspended by the DAO; this does not revoke earned usage rights.

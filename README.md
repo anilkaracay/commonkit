@@ -2,19 +2,13 @@
 
 [![CI](https://github.com/anilkaracay/commonkit/actions/workflows/ci.yml/badge.svg)](https://github.com/anilkaracay/commonkit/actions/workflows/ci.yml)
 
+![COMMONKIT brand illustration: shared machines in a cool white and cobalt studio.](packages/design/social/commonkit-x-header-studio-final.png)
+
+*Brand illustration. Live demo: NEAR testnet with emulated/simulated devices.*
+
 **Share and manage community machines, with earned access for the people who care for them.**
 
-COMMONKIT helps communities share and manage machines: members book access, booking fees fund upkeep, and the community's Sputnik DAO controls budgets and rules. Contributors earn usage-right cards for upkeep after an independent member approves the work. Trainers can earn rights for teaching another member after independent approval; the learner receives a credential. Earned rights can be spent on later bookings. Each machine has its own named, keyless NEAR account with a capped operating budget, and surplus returns to the DAO treasury. Funds move through contract rules, and no method revokes a granted usage right ([scope](#security-model-and-limits)).
-
 **[Open the app](https://commonkit.cayvox.com/app/) · [Watch the demo](https://commonkit.cayvox.com/demo/) · [Verify the chain state](https://commonkit.cayvox.com/app/proof/)**
-
-[Public hackathon demo post on X](https://x.com/usecommonkit/status/2121587837816730030).
-
-Built at **NEAR HACKATHON 2026** for **Social Money** and **NFTs That Do Something**. On testnet: **2 Sputnik DAOs, 2 community contracts, 4 machine accounts, all keyless; 21 recorded judge steps**. Devices use API-faithful Moonraker/Shelly emulators and a labelled simulator.
-
-![COMMONKIT's public board: four machines, community budgets, upkeep tasks and DAO proposals, read live from NEAR testnet.](docs/img/board-1440.png)
-
-**First use case:** one staffed makerspace, one shared printer and an existing community treasury. The proposed deployment would test bookings, shared budgets and whether earned access gets upkeep completed sooner without increasing disputes or the steward's workload.
 
 ## Start here
 
@@ -23,6 +17,16 @@ Built at **NEAR HACKATHON 2026** for **Social Money** and **NFTs That Do Somethi
 | [Open the board](https://commonkit.cayvox.com/app/) | Four machines in two communities, their budgets, open tasks and DAO proposals. No wallet or setup. |
 | [Follow one completed task](https://commonkit.cayvox.com/app/t/printer-01.makerlab.commonkit-sxflo.testnet/0/) | The rule that triggered it, the worker, independent approval and two earned access cards. |
 | [Open Proof](https://commonkit.cayvox.com/app/proof/) or run `pnpm install --frozen-lockfile` then `./scripts/verify.sh` | Zero access keys on eight accounts, matching machine code hashes, ledger checks and transaction evidence. Read-only; no signing keys. |
+
+Built at **NEAR HACKATHON 2026** for **Social Money** and **NFTs That Do Something**. On testnet: **2 Sputnik DAOs, 2 community contracts, 4 machine accounts, all keyless; 21 recorded judge steps**. Devices use API-faithful Moonraker/Shelly emulators and a labelled simulator.
+
+[Public hackathon demo post on X](https://x.com/usecommonkit/status/2121587837816730030).
+
+COMMONKIT helps communities share and manage machines: members book access, booking fees fund upkeep, and the community's Sputnik DAO controls budgets and rules. Contributors earn usage-right cards for upkeep after an independent member approves the work. Trainers can earn rights for teaching another member after independent approval; the learner receives a credential. Earned rights can be spent on later bookings. Each machine has its own named, keyless NEAR account with a capped operating budget, and surplus returns to the DAO treasury. Funds move through contract rules, and no method revokes a granted usage right ([scope](#security-model-and-limits)).
+
+**First use case:** one staffed makerspace, one shared printer and an existing community treasury. The proposed deployment would test bookings, shared budgets and whether earned access gets upkeep completed sooner without increasing disputes or the steward's workload.
+
+![COMMONKIT's public board: four machines, community budgets, upkeep tasks and DAO proposals, read live from NEAR testnet.](docs/img/board-1440.png)
 
 ## What is proven on testnet
 
@@ -37,7 +41,9 @@ Six core steps of the 21-step judge flow ([`docs/JUDGE_FLOW.md`](docs/JUDGE_FLOW
 | Alex books more printer time and the float passes its 3 NEAR cap | `swept` 0.0499 NEAR in the same tx; DAO treasury 5.6511 → 5.701 NEAR | [`DBTLyXkr…`](https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S) |
 | Run `./scripts/verify.sh` | Current contract state and representative step transactions checked, exit 0 | [`evidence/verify-step21.txt`](evidence/verify-step21.txt) |
 
-**Fresh browser-to-chain check (14 November).** A new team-controlled testnet account booked the printer through the real React reservation page; the transaction confirmed and availability refreshed. The booking was cancelled and its full **2.25 testnet NEAR** returned; the asset ledger remained balanced. A NEP-413 signature passed the production bridge verifier, and a changed message was rejected. [Reservation](https://testnet.nearblocks.io/txns/AkSeyqkgRS2CuvNcpdMDK1v4X6bkY2niNo2cSt9vPZ9X) · [cancellation/refund](https://testnet.nearblocks.io/txns/azzR7G1A52N8sBQA62DAo5h3q3n2qd2aspdMgEfCtnT) · [full evidence and test scope](evidence/browser-wallet-qa.json). This test uses a temporary local signer; third-party wallet popups/redirects are a separate integration boundary.
+**Real wallet round trip (14 November).** A dedicated testnet QA account connected through Meteor Web, signed a **2.25 testnet NEAR** printer reservation, saw it confirmed and its slot unavailable, then cancelled through the app and approved the cancellation in Meteor. The browser showed `Cancelled` and the slot free again. Independent RPC checks verified the full **2.25 NEAR** refund, zero pending liabilities and a balanced ledger; the account spent only **0.0014037603052111 NEAR** in network fees. [Reservation](https://testnet.nearblocks.io/txns/4LGTBU45x51JQtGxQEnBuGEeY4tKHf3oUtChjs4SguKW) · [cancellation](https://testnet.nearblocks.io/txns/99i21ohjM9aQawh7Vh5hcjN2PXxVEjr2pkF9SJuwGwiX) · [receipt and test scope](evidence/meteor-wallet-qa-2026-11-14.json). This is controlled browser QA with a fresh wallet, separate from customer or physical-device trials.
+
+Additional bridge checks accepted a valid NEP-413 signature and rejected a changed message; an earlier [local-signer browser run](evidence/browser-wallet-qa.json) documents that separate boundary.
 
 **Public browser navigation (14 November).** A separate read-only check followed 11 public routes with direct RPC and normal HTTPS: all pages finished loading, Proof passed 11/11 checks, and all 161 RPC queries returned HTTP 200. No wallet or signing was involved. [Run and timing evidence](evidence/public-navigation-qa-after-rpc-fix-2026-11-14.json).
 

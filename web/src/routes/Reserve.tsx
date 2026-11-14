@@ -9,7 +9,7 @@ import { WalletGate } from '../components/WalletGate';
 import { useDemoLink } from '../demo/demo';
 import { ERROR_MESSAGES } from '../lib/errors';
 import { formatNear, toYocto } from '../lib/near';
-import { formatTime, slotOf, slotStartNs } from '../lib/time';
+import { formatDateTime, formatTime, slotOf, slotStartNs } from '../lib/time';
 import { useWallet } from '../wallet/wallet';
 import { Near } from '../components/Near';
 import { TxLink } from '../components/TxLink';
@@ -51,6 +51,17 @@ export function ReservePage() {
     enabled: !!q.data,
     queryFn: () => ds.asset(assetId).get_availability(firstSlot.toString(), SHOWN),
   });
+  const reservationId = action.data?.reservationId;
+  const booked = useQuery({
+    queryKey: ['reservation-result', ds.kind, assetId, reservationId],
+    enabled: reservationId !== undefined,
+    queryFn: () => ds.asset(assetId).get_reservation(reservationId!),
+    retry: 1,
+  });
+  const refreshBooking = () => {
+    ds.invalidateViews?.();
+    void booked.refetch();
+  };
 
   if (q.error || avail.error || member.error) return <LoadError error={q.error ?? avail.error ?? member.error} />;
   if (!q.data || !avail.data) return <Loading what="availability" />;
@@ -73,7 +84,15 @@ export function ReservePage() {
   const baseDeposit = toYocto(trusted ? p.deposit_trusted : p.deposit);
   const deposit = useRight && baseDeposit < 10_000_000_000_000_000_000_000n ? 10_000_000_000_000_000_000_000n : baseDeposit;
   const attached = fee + deposit;
-  const problem = start === null ? null : taken ? ERROR_MESSAGES.E_SLOT_TAKEN : tooMany ? ERROR_MESSAGES.E_TOO_MANY_SLOTS : null;
+  const feeCutoff = start === null ? null : slotStartNs(firstSlot + BigInt(start), p.slot_minutes) - BigInt(p.slot_minutes) * 60_000_000_000n;
+  const lateCancellation = feeCutoff !== null && BigInt(ds.now()) * 1_000_000n > feeCutoff;
+  const protocolFee = p.protocol_fee_receiver ? fee * BigInt(p.protocol_fee_bps) / 10_000n : 0n;
+  const rejectedAttached = booked.data ? toYocto(booked.data.fee_paid) + toYocto(booked.data.deposit_paid) : 0n;
+  const storageCost = booked.data ? toYocto(booked.data.storage_cost) : 0n;
+  const retainedStorage = storageCost < rejectedAttached ? storageCost : rejectedAttached;
+  // The success refresh marks our submitted slots taken before the mutation settles.
+  // That is not a new-selection conflict; clear the completed selection on success.
+  const problem = start === null || action.isPending ? null : taken ? ERROR_MESSAGES.E_SLOT_TAKEN : tooMany ? ERROR_MESSAGES.E_TOO_MANY_SLOTS : null;
 
   const submit = () => {
     if (start === null || problem || !memberReady || action.isPending || (useRight && !selectedRight) || !q.data.service.in_service) return;
@@ -82,7 +101,7 @@ export function ReservePage() {
         methodName: 'reserve',
         args: { start_slot: (firstSlot + BigInt(start)).toString(), slots: count, right_id: useRight ? selectedRight!.token_id : null },
         deposit: attached,
-      });
+      }, { onSuccess: () => setStart(null) });
   };
 
   return (
@@ -195,6 +214,15 @@ export function ReservePage() {
             </dd>
           </div>
         </dl>
+        <div className="mt-5 space-y-2 text-sm text-text-2" aria-label="Cancellation policy">
+          <p>Cancel at least {p.slot_minutes} min before start to refund the usage fee{protocolFee > 0n ? ' minus the protocol fee' : ''}. Later cancellations before start refund only the deposit. Gas is not refunded.</p>
+          {feeCutoff !== null && fee > 0n && (
+            <p>{lateCancellation
+              ? `For this time, the ${formatNear(fee)} NEAR usage fee would be retained if you cancel; only the ${formatNear(deposit)} NEAR deposit would be refunded.`
+              : `For this time, cancel by ${formatDateTime(feeCutoff)} to refund ${formatNear(fee - protocolFee)} NEAR of usage fee plus the ${formatNear(deposit)} NEAR deposit.`}</p>
+          )}
+          {useRight && <p>Cancelling releases your usage right and refunds the deposit; there is no usage fee to refund.</p>}
+        </div>
         <div className="mt-6">
           <WalletGate action="Signing a reservation">
             <button type="button" disabled={start === null || !!problem || !memberReady || action.isPending || (useRight && !selectedRight) || !q.data.service.in_service} onClick={submit} className="ck-btn ck-btn--lg w-full sm:w-auto">
@@ -202,7 +230,22 @@ export function ReservePage() {
             </button>
           </WalletGate>
           {!q.data.service.in_service && <p role="alert" className="mt-3 text-sm">This machine is out of service.</p>}
-          {action.data && <p role="status" className="mt-3 text-sm">Transaction confirmed. <TxLink hash={action.data.txHash} label="View reservation transaction" /></p>}
+          {action.data && <div className="mt-3 space-y-2 text-sm">
+            <p>{reservationId === undefined ? 'Wallet returned a transaction.' : 'Transaction confirmed.'} <TxLink hash={action.data.txHash} label="View reservation transaction" /></p>
+            {reservationId === undefined ? (
+              <p role="status">This wallet did not return a reservation id, so booking authorization is not verified here.</p>
+            ) : booked.isError ? (
+              <p role="alert">Could not read reservation #{reservationId}. The transaction may have completed; check its status before booking again.</p>
+            ) : !booked.data ? (
+              <p role="status">{booked.isFetching ? `Reading reservation #${reservationId}…` : `Reservation #${reservationId} is not visible yet. Refresh its status before booking again.`}</p>
+            ) : booked.data.status === 'Rejected' ? (
+              <p role="alert">Reservation #{reservationId} was rejected. Expected refund: {formatNear(rejectedAttached - retainedStorage)} NEAR; {formatNear(retainedStorage)} NEAR retained for recorded storage. Check the refund operation in the machine's records. Gas is not refunded.</p>
+            ) : (
+              <p role="status">{booked.data.status === 'PendingAuthorization' ? `Reservation #${reservationId}: authorization pending. Wait for Confirmed before treating it as booked.` : `Reservation #${reservationId}: ${booked.data.status}.`}</p>
+            )}
+            {reservationId !== undefined && <button type="button" onClick={refreshBooking} disabled={booked.isFetching} className="text-link">Refresh booking status</button>}
+            <p><Link to={`${link(`/a/${assetId}`)}#reservations`}>Check the live reservation and refund records</Link>. Transaction success alone does not prove booking authorization.</p>
+          </div>}
         </div>
       </div>
     </div>

@@ -1,0 +1,5 @@
+2/5 Choose a machine and time slot. A booking pays a usage fee plus a refundable deposit.
+
+The bridge checks the booking before granting emulated device access. A clean return releases the deposit.
+
+Explore: https://commonkit.cayvox.com/app/

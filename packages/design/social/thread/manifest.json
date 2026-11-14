@@ -1,0 +1,77 @@
+[
+  {
+    "image": "01-shared-machines.png",
+    "scene": "scene-01.png",
+    "headline": "Shared machines.",
+    "labels": [
+      "Bookings",
+      "Community budgets",
+      "Earned access"
+    ],
+    "scope": "Illustrated device scene; real testnet workflow described in paired post.",
+    "width": 2400,
+    "height": 1650,
+    "bytes": 1959348,
+    "sha256": "f29c2baa61b4b2655d6e12a188f98d1f030c2a7b6fb1c30326be870281f841bc"
+  },
+  {
+    "image": "02-book-access.png",
+    "scene": "scene-02.png",
+    "headline": "Book shared access.",
+    "labels": [
+      "Time slot",
+      "Usage fee",
+      "Refundable deposit"
+    ],
+    "scope": "Illustrated device scene; real testnet workflow described in paired post.",
+    "width": 2400,
+    "height": 1650,
+    "bytes": 1854866,
+    "sha256": "eab97a478634a8ea91c8a3e9a841417f756e0afed12a2644682880d390b2f6b3"
+  },
+  {
+    "image": "03-community-budget.png",
+    "scene": "scene-03.png",
+    "headline": "Give machines a budget.",
+    "labels": [
+      "Capped float",
+      "DAO surplus",
+      "Machine-opened proposals"
+    ],
+    "scope": "Illustrated device scene; real testnet workflow described in paired post.",
+    "width": 2400,
+    "height": 1650,
+    "bytes": 2008240,
+    "sha256": "392ab436829bfc2708afeb1f61f4a52fab7c646141632dbcb62133b2d48cd6c4"
+  },
+  {
+    "image": "04-earned-access.png",
+    "scene": "scene-04.png",
+    "headline": "Contribute. Earn access.",
+    "labels": [
+      "Independent approval",
+      "Usage fee: 0*",
+      "Deposit still applies"
+    ],
+    "scope": "Illustrated device scene; real testnet workflow described in paired post.",
+    "width": 2400,
+    "height": 1650,
+    "bytes": 1725050,
+    "sha256": "99be4478cefec8130378697ed35f90398d691f7ecaa688f9f8c4daa08fd0ac7b"
+  },
+  {
+    "image": "05-inspect-proof.png",
+    "scene": "scene-05.png",
+    "headline": "Inspect the proof.",
+    "labels": [
+      "Inspect live accounts",
+      "Trace transactions",
+      "Run the verifier"
+    ],
+    "scope": "Illustrated device scene; real testnet workflow described in paired post.",
+    "width": 2400,
+    "height": 1650,
+    "bytes": 2084841,
+    "sha256": "335fce5d573b55513fa8891992d1553ad988d8353570fb8c4da5a9e0f4d2375a"
+  }
+]

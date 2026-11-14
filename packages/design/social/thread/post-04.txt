@@ -1,0 +1,5 @@
+4/5 Completed upkeep earns usage-right NFTs after independent approval. Trainers can earn rights too.
+
+In our recorded testnet flow, Ava spent right-3 on a booking: usage fee 0, deposit still applies.
+
+NEP-171 cards grant access; machine accounts hold the funds.
