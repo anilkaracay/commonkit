@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-11-14T12:04:38.648409+00:00",
+  "release_commit": "cee1ae64ed4d9e4d2e47c108d17c45a2e6befe61",
+  "ci_run": 43592560225,
+  "pages_run": 43592560269,
+  "downloaded_mp4_sha256": "494c74224d496464b8047901f92b7c782f31cd51e573d863b4c2894db15c0e0f",
+  "duration_seconds": 73.2,
+  "range_status": 206,
+  "captions_match_committed_srt": true,
+  "origin_address": "185.199.108.153",
+  "normal_tls_verification": true,
+  "audio_decode": "Complete H.264/AAC decode succeeded; integrated loudness -13.31 LUFS, true peak -1.41 dBTP. This is a technical check, not a listening review."
+}

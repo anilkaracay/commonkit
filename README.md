@@ -24,13 +24,14 @@ Built at **NEAR HACKATHON 2026** for **Social Money** and **NFTs That Do Somethi
 
 ## What is proven on testnet
 
-The five core steps of the 21-step judge flow ([`docs/JUDGE_FLOW.md`](docs/JUDGE_FLOW.md), every tx in [`evidence/EVIDENCE.md`](evidence/EVIDENCE.md)). Alex, Casey, Ava and Mark are display names for team-controlled demo accounts (`ali.`, `can.`, `ayse.`, `mehmet.commonkit-sxflo.testnet`).
+Six core steps of the 21-step judge flow ([`docs/JUDGE_FLOW.md`](docs/JUDGE_FLOW.md), every tx in [`evidence/EVIDENCE.md`](evidence/EVIDENCE.md)). Alex, Casey, Ava and Mark are display names for team-controlled demo accounts (`ali.`, `can.`, `ayse.`, `mehmet.commonkit-sxflo.testnet`).
 
 | Do | See | Tx |
 | :--- | :--- | :--- |
 | Alex books 2 printer slots and asks the bridge for access with a signed request | Fee 0.5 NEAR to the float, deposit 2 NEAR held as a liability; the session is written on chain before the emulated printer starts (SIMULATED) | [`3hHS1wra…`](https://testnet.nearblocks.io/txns/3hHS1wra65mLrgztB94qVNeLiUsLzNRvkfK3CbBzp6Qz), [`ARRc2y3M…`](https://testnet.nearblocks.io/txns/ARRc2y3M1WwSKcCfcCkp7PpmMDBGBrqWoJ3zkTNMmKwz) |
 | Casey, with no booking, asks for access | `can_access` → `not_holder`, bridge 403, printer stays idle | none by design: refused before any write |
 | Print time crosses `nozzle_clean`; Ava claims, the bridge runs a calibration print, Mark approves | The agent opens the task; Ava receives `right-3` and `right-4` | [`AbQSVeSa…`](https://testnet.nearblocks.io/txns/AbQSVeSayT76JeE4jikELhUUs3QEEmaqMjrmYHQrAvem), [`5RAh6R1w…`](https://testnet.nearblocks.io/txns/5RAh6R1wsw7SKYN4sv6XMLmQdRjZ67KAmNgsoEQWD6rr), [`Gr7bwqmC…`](https://testnet.nearblocks.io/txns/Gr7bwqmCWqTzxqa4fSrmNHdZyexyar2eAoSidRfrPhQx) |
+| Ava uses earned `right-3` for her next printer booking | Usage fee **0 NEAR**, deposit still applies; `right-3` locks for the booking and is consumed after use. Follow [task #0](https://commonkit.cayvox.com/app/t/printer-01.makerlab.commonkit-sxflo.testnet/0/) → [card](https://commonkit.cayvox.com/app/me/?as=ayse.commonkit-sxflo.testnet) → recorded redemption. | [`5HGbP8ji…`](https://testnet.nearblocks.io/txns/5HGbP8ji8pyb53vJdCqhWWJzoVGpVDynx1v11HKouyD6) |
 | Alex books more printer time and the float passes its 3 NEAR cap | `swept` 0.0499 NEAR in the same tx; DAO treasury 5.6511 → 5.701 NEAR | [`DBTLyXkr…`](https://testnet.nearblocks.io/txns/DBTLyXkrBuovZTd6xyc9Ys3WnfBuHfiLgfEqJJquC31S) |
 | Run `./scripts/verify.sh` | Current contract state and representative step transactions checked, exit 0 | [`evidence/verify-step21.txt`](evidence/verify-step21.txt) |
 
@@ -233,7 +234,7 @@ The proposed first deployment is one makerspace with a staffed steward, one shar
 
 ## Built with
 
-AI tools: **Claude Code** (Anthropic) and **Codex** (OpenAI) were used for implementation, tests, documentation and review under the team's direction ([HACKATHON.md](docs/HACKATHON.md) Q-005). The video narration is a synthetic voice (Kokoro-82M, below).
+AI tools: **Claude Code** (Anthropic) and **Codex** (OpenAI) were used for implementation, tests, documentation and review under the team's direction ([HACKATHON.md](docs/HACKATHON.md) Q-005). The video narration is a synthetic voice (Kokoro-82M, below). The alternative [device campaign cover](packages/design/social/README.md#device-campaign-cover) uses OpenAI image generation; it is brand illustration, not a photograph of deployed equipment.
 
 | Area | Library or asset | Version | License |
 | :--- | :--- | :--- | :--- |
