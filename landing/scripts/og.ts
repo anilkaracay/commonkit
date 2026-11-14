@@ -33,7 +33,7 @@ h1{margin-top:auto;font-stretch:112%;font-weight:560;font-size:72px;line-height:
 p{margin-top:24px;font-size:22px;color:${color.slate600}}
 .f{margin-top:36px;font-size:16px;color:${color.slate500};display:flex;gap:10px;align-items:center}
 img{width:640px;height:640px;margin-top:-10px}
-</style></head><body><div class="l"><span class="mark">${lockupSvg(26)}</span><h1>Machines that pay their own upkeep.</h1>
+</style></head><body><div class="l"><span class="mark">${lockupSvg(26)}</span><h1>Shared machines. Community rules.</h1>
 <p>Float ${fixed(printer.ledger.float_free)} of ${fixed(printer.ledger.float_cap)} NEAR, live on NEAR testnet</p>
 <span class="f">Simulated device, state read ${utcStamp(d.snapshot.taken_at)}</span></div>
 <img src="data:image/webp;base64,${b64(resolve(root, 'public/posters/hero-1200.webp'))}" alt=""></body></html>`;

@@ -28,7 +28,7 @@ section { scroll-margin-top: 24px; }
 
 /* Hero */
 .hero { display: grid; grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); align-items: center; gap: 0 24px; min-height: min(calc(100svh - 72px), 880px); padding-bottom: 48px; }
-.hero h1 { font-size: var(--ck-text-5xl); margin: 0; }
+.hero h1 { font-size: clamp(40px, 4.4vw, 64px); margin: 0; }
 .hero-copy { padding-bottom: 40px; }
 .ctas { display: flex; align-items: center; gap: 28px; margin-top: 40px; }
 .stage { position: relative; margin: 0; aspect-ratio: 1; width: min(100%, calc(100svh - 150px), 840px); justify-self: end; }

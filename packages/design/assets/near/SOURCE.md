@@ -31,3 +31,7 @@ Nominative use only: a small glyph next to amounts denominated in NEAR (testnet)
 used, so a reader sees the unit at a glance. It is never our logo, never an avatar, never modified, recoloured,
 outlined or animated, and never placed so it suggests endorsement by NEAR Foundation. Screen readers get the word
 "NEAR" (the mark is `aria-hidden`), and running prose keeps the word.
+
+### Social campaign cover (14 November 2026)
+
+At the owner's request, the final COMMONKIT social cover also includes this exact, unmodified N mark next to the separate words “Built on NEAR”. It identifies the underlying network; COMMONKIT's own mark remains distinct and prominent. The NEAR mark is not used as the profile avatar or altered to create a joint logo.
