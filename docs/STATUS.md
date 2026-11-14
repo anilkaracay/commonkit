@@ -28,7 +28,7 @@ Updated after every milestone. Newest entry on top. Only verified facts.
 | H6 | Fill personal form fields | before submission | form | owner fills directly; no agent data collection |
 | H7 | Make repo public | — | submission | done; API verified 2026-11-14 |
 | H8 | Publish X post with video | G6 | demoUrl | done; [public post](https://x.com/usecommonkit/status/2121587837816730030) verified via X oEmbed |
-| H9 | Submit form on nearhackathon.com (filled checklist provided) | after H7+H8 | done | later |
+| H9 | Submit form on nearhackathon.com (filled checklist provided) | after H7+H8 | done | done; the owner submitted the form on 2026-11-14 (~16:10 UTC, as reported by the owner) |
 | H10 | Pick art direction | — | redesign | ✅ light-led blue concept chosen (D-030) |
 | H11 | Custom-domain hosting | — | hosted demo | done; GitHub Pages + DNS only CNAME + HTTPS enforcement |
 
