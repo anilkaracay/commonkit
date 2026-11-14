@@ -4,7 +4,7 @@ import { useCardsFor, useDeployment } from '../data/hooks';
 import { useDataSource } from '../data/source';
 import { CardTile } from '../components/CardTile';
 import { Mark } from '../components/Badges';
-import { Empty, Loading, PageHead, Section } from '../components/Section';
+import { Empty, LoadError, Loading, PageHead, Section } from '../components/Section';
 import { WalletGate } from '../components/WalletGate';
 import { Account } from '../components/TxLink';
 import { useDemoLink } from '../demo/demo';
@@ -34,6 +34,10 @@ export function MePage() {
         }),
       ),
   });
+
+  const retry = (what: string, run: () => Promise<unknown>) => (
+    <button className="ck-btn ck-btn--sm mt-3" onClick={() => { void run(); }}>Retry {what}</button>
+  );
 
   if (!account) {
     return (
@@ -73,7 +77,9 @@ export function MePage() {
         <span className="mono-id">{account}</span>
       </PageHead>
       <Section title="Cards" note="Usage rights and credentials">
-        {!cards.data ? (
+        {cards.isError ? (
+          <div><LoadError error={cards.error} />{retry('cards', cards.refetch)}</div>
+        ) : !cards.data ? (
           <Loading what="cards" />
         ) : cards.data.length === 0 ? (
           <Empty>No cards yet. Maintain a machine or get trained to earn one.</Empty>
@@ -91,7 +97,9 @@ export function MePage() {
         )}
       </Section>
       <Section title="Reservations and reputation" note="Per machine">
-        {!perAsset.data ? (
+        {perAsset.isError ? (
+          <div><LoadError error={perAsset.error} />{retry('reservations', perAsset.refetch)}</div>
+        ) : !perAsset.data ? (
           <Loading what="reservations" />
         ) : active.length === 0 ? (
           <Empty>No reservations or upkeep yet.</Empty>

@@ -55,3 +55,30 @@ describe('throttled fetch', () => {
     vi.useRealTimers();
   });
 });
+
+it('keeps healthy traffic on the primary instead of probing fallbacks on every view', async () => {
+  const base = vi.fn<typeof fetch>(async () => new Response('ok'));
+  const f = throttledFetch(2, 2, 100_000, base as typeof fetch, ['https://backup.invalid']);
+  await Promise.all([f('https://primary.invalid'), f('https://primary.invalid')]);
+  expect(base.mock.calls.map((call) => call[0])).toEqual(['https://primary.invalid', 'https://primary.invalid']);
+});
+
+it('times out a stalled provider and releases the queue for later reads', async () => {
+  vi.useFakeTimers();
+  try {
+    let first = true;
+    const base: typeof fetch = vi.fn(async (_input, init) => {
+      if (!first) return new Response('recovered');
+      first = false;
+      return new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });
+      });
+    });
+    const f = throttledFetch(1, 0, 1000, base, [], 20);
+    const timedOut = f('https://primary.invalid').catch((e: unknown) => e);
+    const next = f('https://primary.invalid');
+    await vi.runAllTimersAsync();
+    expect(await timedOut).toMatchObject({ name: 'TimeoutError' });
+    expect(await (await next).text()).toBe('recovered');
+  } finally { vi.useRealTimers(); }
+});

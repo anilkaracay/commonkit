@@ -32,7 +32,9 @@ export interface RpcSourceOptions {
 
 export function createRpcSource(opts: RpcSourceOptions = {}): DataSource {
   const url = opts.rpcUrl ?? DEFAULT_TESTNET_RPC;
-  const rpc = opts.rpc ?? new NearRpc(url, throttledFetch(2, 6, 6, undefined, FALLBACK_TESTNET_RPC));
+  // Three bounded attempts cover the primary and both fallbacks. React Query owns any
+  // subsequent user-visible retry; a page must not queue seven attempts per view.
+  const rpc = opts.rpc ?? new NearRpc(url, throttledFetch(2, 2, 6, undefined, FALLBACK_TESTNET_RPC));
   const cache = new ViewCache();
   const v = <T,>(account: string, method: string, args: object = {}) =>
     cache.get<T>(`${account}|${method}|${JSON.stringify(args)}`, method, () => rpc.view<T>(account, method, args));

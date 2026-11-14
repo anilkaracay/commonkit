@@ -31,22 +31,38 @@ section { scroll-margin-top: 24px; }
 .hero h1 { font-size: clamp(40px, 4.4vw, 64px); margin: 0; }
 .hero-copy { padding-bottom: 40px; }
 .ctas { display: flex; align-items: center; gap: 28px; margin-top: 40px; }
-.stage { position: relative; margin: 0; aspect-ratio: 1; width: min(100%, calc(100svh - 150px), 840px); justify-self: end; }
+.stage { position: relative; margin: 0; aspect-ratio: 1; width: min(100%, calc(100svh - 150px), 840px); justify-self: end; container: hero-stage / inline-size; }
 .stage .poster, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.stage .poster { transition: opacity var(--ck-dur-4) var(--ck-ease-out); }
 .stage canvas { opacity: 0; transition: opacity var(--ck-dur-4) var(--ck-ease-out); }
 .stage.live canvas { opacity: 1; }
+.stage.live .poster { opacity: 0; }
 .leaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .leaders path { fill: none; stroke: var(--ck-slate-400); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .callouts { list-style: none; margin: 0; padding: 0; }
-.callout { position: absolute; display: grid; gap: 2px; max-width: 15em; left: var(--x); top: var(--y); transform: translateY(-50%); }
-.callout .v { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+/* Keep the labels inside their stage, with separate left/right lanes even when the stage gets smaller. */
+.callout { --callout-width: min(160px, calc(50% - 20px)); position: absolute; display: grid; gap: 2px; width: var(--callout-width); left: clamp(0px, var(--x), calc(100% - var(--callout-width))); top: var(--y); transform: translateY(-50%); }
+.callout .v { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
 .callout .c { font-size: 13px; line-height: 1.35; color: var(--ck-text-3); }
 .callout[data-anchor='nozzle'] { --x: 77%; --y: 50%; }
 .callout[data-anchor='screen'] { --x: 0%; --y: 91%; }
-.callout[data-anchor='upkeep'] { --x: -4%; --y: 46%; }
+.callout[data-anchor='upkeep'] { --x: 0%; --y: 46%; }
 .callout[data-anchor='upkeep'] .c { max-width: 11.5em; }
 .callout .tx { color: inherit; }
 .hero-status { margin-top: 32px; }
+
+/* Compact desktop stages reserve a reading row instead of laying text over the machine. */
+@media (min-width: 701px) {
+  @container hero-stage (max-width: 500px) {
+    .stage .poster, .stage canvas { inset: 0 auto auto 50%; width: calc(100% - 96px); height: auto; aspect-ratio: 1; transform: translateX(-50%); }
+    .leaders { display: none; }
+    .callouts { position: absolute; inset: auto 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .callout { position: static; width: auto; transform: none; }
+    .callout .v { font-size: 13.5px; }
+    .callout .c { font-size: 12px; }
+    .callout[data-anchor='screen'] { order: -1; }
+  }
+}
 
 /* Problem: a crafted spreadsheet, played once on scroll (final state without JS or with reduced motion) */
 .problem { background: var(--ck-bg-alt); padding-block: clamp(88px, 10vw, 144px); }
@@ -361,7 +377,7 @@ section { scroll-margin-top: 24px; }
   .stage canvas { inset: 0 0 auto 0; height: auto; aspect-ratio: 1; }
   .leaders { display: none; }
   .callouts { display: grid; grid-template-columns: auto auto auto; justify-content: space-between; gap: 12px; margin-top: 4px; }
-  .callout { position: static; transform: none; max-width: none; }
+  .callout { position: static; transform: none; width: auto; max-width: none; }
   .callout .v { font-size: 13.5px; white-space: nowrap; }
   .callout .c { max-width: 9.5em; }
   .callout .c { font-size: 12px; }
