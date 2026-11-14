@@ -1,6 +1,6 @@
 # COMMONKIT
 
-> Shared things that pay for their own upkeep — and open up to the people who keep them alive. A NEAR HACKATHON 2026 project (Social Money track), testnet only.
+> Shared things that pay for their own upkeep — and open up to the people who keep them alive. A NEAR HACKATHON 2026 project (Social Money track), live on NEAR testnet.
 
 Every shared machine gets its own keyless NEAR account running the same `asset` contract. Members reserve it and pay a fee plus a refundable deposit; a bridge next to the machine unlocks it only for a valid on-chain reservation. The asset keeps a capped float and sweeps the rest to the community's Sputnik DAO. When the machine's own telemetry crosses a profile rule, its operations agent may open an upkeep task; the member who does the work and is approved by a different member receives non-transferable NEP-171 usage rights.
 

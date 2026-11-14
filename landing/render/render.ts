@@ -72,7 +72,7 @@ export function heroCallouts(d: LandingData): string {
   const done = a.tasks.find((t) => t.id === doneId && t.status === 'Rewarded');
   step(d, 8);
   const items: [string, string, string, string][] = [
-    ['nozzle', `${int(nozzle.due_value)} / ${int(thr)} s`, ov ? 'Nozzle time · demo threshold' : 'Nozzle time since the last clean', 'nozzle'],
+    ['nozzle', `${int(nozzle.due_value)} / ${int(thr)} s`, ov ? 'Nozzle time, lowered for the demo' : 'Nozzle time since the last clean', 'nozzle'],
     ['screen', `<span class="ck-near">${nearMarkSvg()}<span class="ck-num" data-live="float">${nearFixed(a.ledger.float_free)} / ${nearFixed(a.ledger.float_cap)}</span><span class="ck-sr"> NEAR</span></span>`, 'Float, capped', ''],
   ];
   if (done)
@@ -94,24 +94,24 @@ export function how(d: LandingData): string {
   </li>`;
   return [
     card(1, 'Reserve', 'Pay the fee and a refundable deposit to the machine’s own account.', `<div class="mini ck-card">
-        <p class="mini-k">Reservation · ${esc(SHORT.printer_3d!)}</p>
+        <p class="mini-k">${esc(SHORT.printer_3d!)} reservation</p>
         <dl class="ck-rows">
           <div><dt>Member</dt><dd>${esc(who(stepTx(d, 2, /reserves/).by))}</dd></div>
           <div><dt>Slots</dt><dd class="ck-num">2</dd></div>
           <div><dt>Fee</dt><dd>${nearAmountHtml(nearFixed(fee))}</dd></div>
           <div><dt>Deposit, refundable</dt><dd>${nearAmountHtml(nearFixed(p.deposit))}</dd></div>
         </dl>
-        <p class="mini-ok"><span class="ck-dot" aria-hidden="true"></span>Confirmed on testnet</p>
+        <p class="mini-ok">Confirmed on NEAR testnet</p>
       </div>`, 'how-reserve'),
     card(2, 'Unlock', 'The bridge unlocks only for a valid on-chain reservation.', `<div class="mini ck-card">
         <p class="mini-k">Bridge access check</p>
         <ul class="mini-list">
-          <li><span>${esc(who(stepTx(d, 2, /reserves/).by))} · reservation valid</span><b>Unlocked</b></li>
-          <li><span>${esc(who('can'))} · no reservation</span><b class="no">Refused</b></li>
+          <li><span>${esc(who(stepTx(d, 2, /reserves/).by))} has a reservation</span><b>Unlocked</b></li>
+          <li><span>${esc(who('can'))} has none</span><b class="no">Refused</b></li>
         </ul>
       </div>`, 'how-unlock'),
     card(3, 'Upkeep', 'The machine’s agent opens a task only when telemetry crosses a rule. Another member verifies.', `<div class="mini ck-card">
-        <p class="mini-k">Upkeep task · ${esc(RULE_NAME[t0.rule_id] ?? t0.rule_id)}</p>
+        <p class="mini-k">${esc(RULE_NAME[t0.rule_id] ?? t0.rule_id)} task</p>
         <dl class="ck-rows">
           <div><dt>Done by</dt><dd>${esc(who(t0.claimer))}</dd></div>
           <div><dt>Verified by</dt><dd>${esc(who(t0.verifier))}</dd></div>
@@ -119,7 +119,7 @@ export function how(d: LandingData): string {
         </dl>
       </div>`, 'how-upkeep'),
     card(4, 'Earn access', `The maintainer receives ${t0.reward_rights} usage rights and books the machine with them, fee-free.`, `<div class="mini ck-card">
-        <p class="mini-k">Reservation · with a usage right</p>
+        <p class="mini-k">Paid with a usage right</p>
         <dl class="ck-rows">
           <div><dt>Member</dt><dd>${esc(who(t0.claimer))}</dd></div>
           <div><dt>Fee</dt><dd>${nearAmountHtml('0.00')}</dd></div>
@@ -183,55 +183,55 @@ export function sceneCopy(d: LandingData): SceneCopy[] {
   const cap = nearOf(fuel.reimbursable_max);
   return [
     {
-      kind: 'printer_3d', place: 'Makerspace · 3D printer', title: 'The printer asks for care.', poster: 'scene-1',
+      kind: 'printer_3d', place: 'Makerspace 3D printer', title: 'The printer asks for care.', poster: 'scene-1',
       line: `Nozzle time crosses its rule. ${who(t0.claimer)} cleans it, ${who(t0.verifier)} verifies, ${who(t0.claimer)} earns ${t0.reward_rights} usage rights.`,
       beats: [
-        { who: 'Printer', role: 'telemetry', what: 'Nozzle time crosses the cleaning rule', chain: nozzle.demo ? `${nozzle.demo.replace(/^every /, '')} · demo threshold` : undefined },
+        { who: 'Printer', role: 'telemetry', what: 'Nozzle time crosses the cleaning rule', chain: nozzle.demo ? `Lowered to ${nozzle.demo.replace(/^every /, '')} for the demo` : undefined },
         { who: 'Agent', role: 'operations agent', what: 'Opens the nozzle task', chain: `reward ${t0.reward_rights} usage rights`, tx: txOf(d, 7, /open_upkeep_task/) },
         { who: who(t0.claimer), role: 'member', what: 'Cleans the nozzle; the bridge runs a calibration print', chain: 'work submitted', tx: txOf(d, 8, /^submit task/) },
-        { who: who(t0.verifier), role: 'verifier', what: 'Approves the work', chain: `+${t0.reward_rights} usage rights to ${who(t0.claimer)}`, tx: txOf(d, 8, /approves/) },
+        { who: who(t0.verifier), role: 'verifier', what: 'Approves the work', chain: `${who(t0.claimer)} earns ${t0.reward_rights} usage rights`, tx: txOf(d, 8, /approves/) },
       ],
-      outcome: { k: 'Usage rights', v: `${t0.reward_rights} → ${who(t0.claimer)}`, sub: 'Non-transferable · NEP-171' },
-      note: nozzle.demo ? `Simulated · demo threshold ${nozzle.demo.replace(/^every /, '')}, normally ${trim(nozzle.prod)}` : 'Simulated',
+      outcome: { k: `Usage rights earned by ${who(t0.claimer)}`, v: `${t0.reward_rights}`, sub: 'Non-transferable NEP-171 tokens' },
+      note: nozzle.demo ? `Simulated, with a demo threshold of ${nozzle.demo.replace(/^every /, '')} (normally ${trim(nozzle.prod)})` : 'Simulated',
     },
     {
-      kind: 'washer', place: 'Dorm laundry · washer', title: 'A fault stops the washer.', poster: 'scene-2',
+      kind: 'washer', place: 'Dorm laundry washer', title: 'A fault stops the washer.', poster: 'scene-2',
       line: `${reporter} reports a fault. Bookings stop until a repair is done and verified.`,
       beats: [
         { who: reporter, role: 'member', what: 'Reports a fault after his wash', chain: 'fault report accepted', tx: txOf(d, 19, /reports a fault/) },
         { who: steward, role: 'steward', what: 'Takes the washer out of service', chain: 'new bookings refused', tx: txOf(d, 19, /out_of_service/) },
         // The refund came from the member's own cancel tx (reason out_of_service, full fee); he then claimed the repair.
         { who: repairer, role: 'member', what: 'Cancels his booking, then repairs the washer', chain: `booking refunded ${near(canFee)} NEAR`, tx: txOf(d, 19, /cancels his future booking/) },
-        { who: verifier, role: 'verifier', what: 'Approves the repair', chain: `service restored · +${repairRights} usage rights to ${repairer}`, tx: txOf(d, 19, /approves/) },
+        { who: verifier, role: 'verifier', what: 'Approves the repair', chain: `Service restored, ${repairer} earns ${repairRights} usage rights`, tx: txOf(d, 19, /approves/) },
       ],
       outcome: { k: 'Washer', v: washer?.in_service ? 'Back in service' : 'Out of service', sub: 'Repair verified on chain' },
       note: 'Simulated',
     },
     {
-      kind: 'laser_cutter', place: 'Workshop · laser cutter', title: 'Locked until you are trained.', poster: 'scene-3',
+      kind: 'laser_cutter', place: 'Workshop laser cutter', title: 'Locked until you are trained.', poster: 'scene-3',
       line: `${trainee} is refused without laser safety. ${trainer} trains her, ${approver} approves, the plug turns on.`,
       beats: [
         { who: trainee, role: 'member', what: 'Tries to book without the credential', chain: 'refused, payment refunded', tx: txOf(d, 11, /no credential/) },
         { who: trainer, role: 'trainer', what: `Proposes ${trainee}’s laser training`, tx: txOf(d, 12, /proposes/) },
-        { who: approver, role: 'verifier', what: 'Approves the training', chain: `laser_safety credential issued · +1 usage right to ${trainer}`, tx: txOf(d, 12, /approves training/) },
+        { who: approver, role: 'verifier', what: 'Approves the training', chain: `Credential issued, ${trainer} earns 1 usage right`, tx: txOf(d, 12, /approves training/) },
         { who: trainee, role: 'member', what: 'Books; the plug powers on for her session', tx: txOf(d, 13, /session_started/) },
       ],
-      outcome: { k: 'Credential', v: `laser_safety → ${trainee}`, sub: 'Non-transferable · NEP-171' },
+      outcome: { k: `Credential for ${trainee}`, v: 'laser_safety', sub: 'Non-transferable NEP-171 token' },
       note: 'Simulated',
     },
     {
-      kind: 'community_fridge', place: 'Neighbourhood · community fridge', title: 'Cleaning comes due on schedule.', poster: 'scene-4',
+      kind: 'community_fridge', place: 'Neighbourhood fridge', title: 'Cleaning comes due on schedule.', poster: 'scene-4',
       line: 'The weekly clean cannot open early. Once the interval passes, the agent opens it.',
       beats: [
         { who: 'Agent', role: 'operations agent', what: 'Tries to open the clean too early', chain: 'refused: not due yet', tx: step(d, 20).txs.find((t) => t.error_code === 'E_RULE_NOT_DUE')!.hash },
-        { who: 'Schedule', role: 'profile rule', what: 'The interval passes', chain: fridge.demo ? `${fridge.demo.replace(/^every /, '')} · demo threshold` : undefined },
+        { who: 'Schedule', role: 'profile rule', what: 'The interval passes', chain: fridge.demo ? `Lowered to ${fridge.demo.replace(/^every /, '')} for the demo` : undefined },
         { who: 'Agent', role: 'operations agent', what: 'Opens the cleaning task', chain: `reward ${fridgeRule.reward_rights} usage rights`, tx: txOf(d, 20, /^agent open_upkeep_task\("weekly_clean"\)$/) },
       ],
       outcome: { k: 'Cleaning task', v: 'Open', sub: `Reward ${fridgeRule.reward_rights} usage rights` },
-      note: fridge.demo ? `Simulated · demo threshold ${fridge.demo.replace(/^every /, '')}, normally ${trim(fridge.prod)}` : 'Simulated',
+      note: fridge.demo ? `Simulated, with a demo threshold of ${fridge.demo.replace(/^every /, '')} (normally ${trim(fridge.prod)})` : 'Simulated',
     },
     {
-      kind: 'emergency_generator', place: 'Co-op · emergency generator', title: 'Fuel paid back, within a cap.', poster: 'scene-5',
+      kind: 'emergency_generator', place: 'Co-op emergency generator', title: 'Fuel paid back, within a cap.', poster: 'scene-5',
       line: `Test run under load ${triggerText(test.trigger)}, then a receipt-backed refill, capped at ${cap} NEAR.`,
       beats: [
         { who: 'Generator', role: 'telemetry', what: 'Runs its test under load', chain: triggerText(test.trigger) },
@@ -240,7 +240,7 @@ export function sceneCopy(d: LandingData): SceneCopy[] {
         { who: 'Verifier', role: 'another member', what: 'Approves; the machine reimburses', chain: `at most ${cap} NEAR` },
       ],
       outcome: { k: 'Restock', v: `Reimbursed ≤ ${cap} NEAR`, sub: 'Example' },
-      note: 'Example · profile rules, not deployed on testnet',
+      note: 'Example from the profile rules, not deployed on testnet',
     },
   ];
 }
@@ -254,16 +254,15 @@ function outcomeCard(o: SceneCopy['outcome'], cls: string, attrs = ''): string {
 
 export function scenes(d: LandingData): { list: string; progress: string; posters: string } {
   const c = sceneCopy(d);
-  const n = String(c.length).padStart(2, '0');
   const list = c.map((s, i) => `<li class="scene" data-i="${i}">
       <img class="scene-poster" src="/posters/${s.poster}-800.webp" width="800" height="800" alt="${esc(s.place)}, rendered model" loading="lazy" decoding="async">
       <div class="scene-copy">
-        <p class="scene-meta"><span class="ck-num">${String(i + 1).padStart(2, '0')} / ${n}</span><span>${esc(s.place)}</span></p>
+        <p class="scene-meta">${esc(s.place)}</p>
         <h3 class="scene-title">${esc(s.title)}</h3>
         <p class="scene-line">${esc(s.line)}</p>
         <ol class="timeline">${s.beats.map((b) => `<li class="tl-step">
           <span class="tl-dot">${ICON_CHECK}</span>
-          <p class="tl-who"><span class="av" aria-hidden="true">${esc(b.who.charAt(0))}</span><b>${esc(b.who)}</b><span class="role">· ${esc(b.role)}</span></p>
+          <p class="tl-who"><span class="av" aria-hidden="true">${esc(b.who.charAt(0))}</span><b>${esc(b.who)}</b><span class="role">${esc(b.role)}</span></p>
           <p class="tl-what">${esc(b.what)}</p>${b.chain || b.tx ? `
           <p class="tl-chain">${b.chain ? `<span class="ck-num">${withNear(b.chain)}</span>` : 'On NEAR testnet'}${b.tx ? ` <a class="tl-link" href="${tx(b.tx)}" rel="noopener" aria-label="View on NEAR explorer">${ICON_LINK}</a>` : ''}</p>` : ''}
         </li>`).join('')}</ol>
@@ -283,7 +282,7 @@ export function care(d: LandingData): string {
   return CARE_ORDER.map((t) => {
     const p = d.profiles.find((x) => x.asset_type === t);
     if (!p) throw new Error(`profile ${t} missing`);
-    const kinds = [...new Set(p.rules.map((r) => r.kind))].join(' · ');
+    const kinds = [...new Set(p.rules.map((r) => r.kind))].join(', ');
     return `<li class="care-tile">
       <img src="/posters/m-${t}-640.webp" width="640" height="640" alt="${esc(SHORT[t]!)}, rendered model" loading="lazy" decoding="async">
       <p class="care-name">${esc(SHORT[t]!)}</p>
@@ -340,7 +339,7 @@ export function rights(d: LandingData): { refused: string; pass: string } {
   }).join('');
   // Valid: right_validity_days from profiles/printer_3d.json (the profile set on testnet by DAO proposal).
   const pass = `<article class="pass" aria-label="Usage right card">
-    <header class="pass-top"><span class="pass-brand">COMMONKIT</span><span>${esc(d.dep.communities[a.community]?.name ?? a.community)}</span></header>
+    <header class="pass-top"><span class="pass-brand" role="img" aria-label="COMMONKIT">${lockupSvg(15, { symbol: 'currentColor' })}</span><span>${esc(d.dep.communities[a.community]?.name ?? a.community)}</span></header>
     <p class="pass-count"><span class="n ck-num">${t0.reward_rights}</span><span class="u">usage rights</span></p>
     <dl class="pass-rows">
       <div><dt>Earned by</dt><dd>${esc(who(t0.claimer))}</dd></div>
@@ -355,46 +354,123 @@ export function rights(d: LandingData): { refused: string; pass: string } {
 
 // ---------- proof: three facts anyone can check ----------
 
-function latestVerify(): { passed: boolean; lines: string[] } | null {
+function latestVerify(): { passed: boolean; lines: string[]; date: string } | null {
   const dir = resolve(REPO, 'evidence');
   const f = readdirSync(dir).filter((x) => /^verify-.*\.txt$/.test(x)).sort().at(-1);
   if (!f) return null;
   const lines = readFileSync(resolve(dir, f), 'utf8').split('\n');
-  return { passed: lines.some((l) => l.includes('all checks passed')) && !lines.some((l) => l.startsWith('❌')), lines };
+  // Run date: from the file name (verify-YYYY-MM-DD.txt) or, for verify-stepN.txt, from that judge step's timestamp.
+  const n = f.match(/^verify-step(\d+)\.txt$/)?.[1];
+  const steps = n ? (JSON.parse(readFileSync(resolve(dir, 'steps.json'), 'utf8')) as { step: number; timestamp?: string }[]) : [];
+  const date = f.match(/\d{4}-\d{2}-\d{2}/)?.[0] ?? steps.find((x) => x.step === Number(n))?.timestamp?.slice(0, 10);
+  if (!date) throw new Error(`no run date for evidence/${f}`);
+  return { passed: lines.some((l) => l.includes('all checks passed')) && !lines.some((l) => l.startsWith('❌')), lines, date };
 }
+function verified() {
+  const v = latestVerify();
+  if (!v?.passed) throw new Error('the latest evidence/verify-*.txt did not pass; the landing only shows verified facts');
+  return v;
+}
+const longDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const explorerAcct = (a: string) => `https://testnet.nearblocks.io/address/${a}`;
+/** An account id set so its first label leads and the rest is quiet (the dots are the id's own syntax). */
+const acctHtml = (a: string, wrap = true) => { const [h, ...r] = a.split('.'); return `<span class="acct"><b>${esc(h!)}</b>${r.length ? `<span>${r.map((x) => `.${wrap ? '<wbr>' : ''}<span>${esc(x)}</span>`).join('')}</span>` : ''}</span>`; };
 
 export function proof(d: LandingData): string {
-  const v = latestVerify();
-  if (!v?.passed) throw new Error('the latest evidence/verify-*.txt did not pass; the proof section only shows verified facts');
-  const keyless = v.lines.filter((l) => /^✅ \[1\] .*access keys: 0$/.test(l)).length;
-  const sameCode = v.lines.some((l) => new RegExp(`^✅ \\[2\\] ${d.snapshot.assets.length} asset account\\(s\\) share code_hash`).test(l));
-  if (!keyless || !sameCode) throw new Error('verify output lacks the keyless or code_hash checks');
-  const facts = [
-    ['0', 'keys', `on the ${keyless} machine, community and DAO accounts. No one can sign for them.`],
-    ['1', 'contract', `All ${d.snapshot.assets.length} machines run identical code, with the same code hash.`],
-    // evidence_txs: unique successful testnet tx hashes across evidence/*.json (data.ts readTicker).
-    [String(d.evidence_txs), 'transactions', 'Every reservation, payment and upkeep in this demo is public on the explorer.'],
+  const v = verified();
+  const keyless = v.lines.map((l) => l.match(/^✅ \[1\] (\S+) access keys: 0$/)?.[1]).filter((x): x is string => !!x);
+  const share = v.lines.map((l) => l.match(/^✅ \[2\] (\d+) asset account\(s\) share code_hash (\S+)$/)).find((m) => m);
+  const hash = share?.[2];
+  if (!keyless.length || !hash || Number(share![1]) !== d.snapshot.assets.length) throw new Error('verify output lacks the keyless or code_hash checks');
+  if (hash !== d.dep.code.asset.code_hash || d.snapshot.assets.some((a) => a.code_hash !== hash || a.full_access_keys !== 0)) throw new Error('snapshot, deployments and verify disagree on keys or code_hash');
+  // Three real transactions from the judge run (the same ones the page tells above), each linked to the explorer.
+  const { a } = printer(d);
+  const t0 = a.tasks.find((t) => t.id === String(step(d, 7).outputs.task_id ?? '0'))!;
+  const txs: [string, string][] = [
+    [`${who(stepTx(d, 2, /reserves/).by)} reserves the 3D printer`, stepTx(d, 2, /reserves/).hash],
+    ['The agent opens the nozzle task', stepTx(d, 7, /open_upkeep_task/).hash],
+    [`${who(t0.verifier)} approves ${who(t0.claimer)}’s work`, stepTx(d, 8, /approves/).hash],
   ];
-  return facts.map(([n, u, t]) => `<li><p class="fact-n"><b class="ck-num">${n}</b> ${u}</p><p>${esc(t!)}</p></li>`).join('');
+  const row = (n: string, unit: string, line: string, ev: string) => `<li class="fact">
+      <p class="fact-n" aria-hidden="true">${n}</p>
+      <div class="fact-body">
+        <h3><span class="visually-hidden">${n} </span>${unit}</h3>
+        <p>${line}</p>
+        ${ev}
+      </div>
+    </li>`;
+  return [
+    row('0', 'full-access keys', `On all ${keyless.length} machine, community and DAO accounts. No one can sign for them.`,
+      `<ul class="ev ev-keys">${keyless.map((k) => `<li>${acctHtml(k, false)}<span class="ev-v">No keys</span></li>`).join('')}</ul>`),
+    row('1', 'contract', `All ${d.snapshot.assets.length} machines run the same code. Their code hashes are identical.`,
+      `<ul class="ev ev-hash">${d.snapshot.assets.map((x) => `<li><b>${esc(firstLabel(x.account))}</b><span class="hash">${esc(x.code_hash)}</span></li>`).join('')}</ul>`),
+    // evidence_txs: unique successful testnet tx hashes across evidence/*.json (data.ts readTicker).
+    row(String(d.evidence_txs), 'transactions', 'Every reservation, payment and upkeep in this demo is public on the explorer.',
+      `<ul class="ev ev-tx">${txs.map(([l, h]) => `<li><span>${esc(l)}</span><a href="${tx(h)}" rel="noopener">Explorer ${ICON_LINK}</a></li>`).join('')}</ul>`),
+  ].join('');
 }
 
-// ---------- why NEAR ----------
+/** Source line under the proof facts: when verify.sh last read these facts from testnet. */
+export function proofSource(): string {
+  return `Read from NEAR testnet by scripts/verify.sh on ${longDate(verified().date)}.`;
+}
+
+// ---------- why NEAR: the real things, not descriptions ----------
 
 export function nearSection(d: LandingData): string {
+  const v = verified();
   const { a } = printer(d);
-  const tiles = [
-    ['Named accounts', 'Each machine is an account you can read aloud and look up.', `<span class="acct"><b>${esc(firstLabel(a.account))}</b>.${esc(a.account.split('.').slice(1, 2).join('.'))}…</span>`],
-    ['Function-call keys', 'The bridge and the agent hold keys that can call only their own methods, on one machine.', ''],
-    ['Standard DAO and NFTs', 'Community money sits in an unmodified Sputnik DAO; usage rights are NEP-171 cards.', ''],
-  ];
-  return `<ul class="near-tiles">${tiles.map(([t, b, x]) => `<li><h3>${t}</h3><p>${b}</p>${x ? `<div class="near-x">${x}</div>` : ''}</li>`).join('')}</ul>`;
+  // 1. The printer's named account, segment by segment.
+  const parts = a.account.split('.');
+  const meaning = ['Machine', 'Community', 'Deployment', 'Network'];
+  if (parts.length !== meaning.length) throw new Error(`unexpected account shape ${a.account}`);
+  const name = `<a class="spec spec-name" href="${explorerAcct(a.account)}" rel="noopener" aria-label="${esc(a.account)} on the explorer">
+      <span class="visually-hidden">${esc(a.account)}</span>
+      <ol aria-hidden="true">${parts.map((p, i) => `<li><span class="seg">${i ? '<i>.</i>' : ''}${esc(p)}</span><span class="mean">${meaning[i]}</span></li>`).join('')}</ol>
+    </a>`;
+  // 2. The bridge's function-call key on that machine, as deployed and as verify.sh read it back.
+  const k = d.dep.function_call_keys.find((x) => x.account.startsWith('bridge.') && x.receiver_id === a.account);
+  if (!k || !v.lines.some((l) => l.startsWith('✅ [5] bridge key') && l.endsWith(`→ ${a.account}: ${k.method_names.join(', ')}`))) throw new Error('bridge key not verified on testnet');
+  const key = `<div class="spec spec-key">
+      <dl>
+        <div><dt>Held by</dt><dd>${acctHtml(k.account)}</dd></div>
+        <div><dt>May call</dt><dd>${acctHtml(k.receiver_id)}</dd></div>
+        <div><dt>Methods</dt><dd><ul>${k.method_names.map((m) => `<li>${esc(m)}</li>`).join('')}</ul></dd></div>
+        <div><dt>Transfers</dt><dd>Not allowed</dd></div>
+      </dl>
+    </div>`;
+  // 3. The community DAO (unmodified Sputnik v2) and one usage-right token it governs.
+  const dao = a.dao;
+  const council = v.lines.map((l) => l.match(new RegExp(`^✅ \\[4\\] ${dao.replace(/\./g, '\\.')} council = (\\d+) recorded accounts$`))?.[1]).find((x) => x);
+  const stock = v.lines.some((l) => l.startsWith(`✅ [4] ${dao} runs the factory default code`));
+  const minted = v.lines.map((l) => l.match(/^✅ \[7\] printer-01 task #(\d+) Rewarded → (right-\d+)[^ ]* .*owned by (\S+)$/)).find((m) => m);
+  if (!council || !stock || !minted) throw new Error('DAO or usage-right facts missing from verify output');
+  const task = a.tasks.find((t) => t.id === minted[1])!;
+  const daoCard = `<div class="spec spec-dao">
+      <div class="dao">
+        <p class="spec-k">Community treasury</p>
+        <p class="dao-id">${acctHtml(dao)}</p>
+        <dl><div><dt>Code</dt><dd>Sputnik DAO v2, unmodified</dd></div><div><dt>Council</dt><dd>${council} members</dd></div></dl>
+      </div>
+      <div class="nft">
+        <p class="spec-k">Usage right</p>
+        <p class="nft-id">${esc(minted[2]!)}</p>
+        <dl><div><dt>Owner</dt><dd>${esc(who(minted[3]))}</dd></div><div><dt>Earned for</dt><dd>${esc(RULE_NAME[task.rule_id] ?? task.rule_id)}</dd></div><div><dt>Standard</dt><dd>NEP-171</dd></div><div><dt>Transfers</dt><dd>Not allowed</dd></div></dl>
+      </div>
+    </div>`;
+  const card = (spec: string, h: string, p: string) => `<li class="near-card"><div class="near-spec">${spec}</div><h3>${h}</h3><p>${p}</p></li>`;
+  return `<ul class="near-cards">${[
+    card(name, 'Named accounts', 'Each machine is an account you can read aloud and look up.'),
+    card(key, 'Function-call keys', 'The bridge and the agent can call only their own methods, on one machine.'),
+    card(daoCard, 'Standard DAO and NFTs', 'Community money sits in an unmodified Sputnik DAO. Usage rights are <span class="nw">NEP-171</span> tokens.'),
+  ].join('')}</ul>`;
 }
 
 /** Footer status line, from the snapshot: every asset keyless and on one code_hash, or the build fails. */
 function footStatus(d: LandingData): string {
   const as = d.snapshot.assets;
   if (!as.every((a) => a.full_access_keys === 0) || new Set(as.map((a) => a.code_hash)).size !== 1) throw new Error('snapshot: assets not keyless or not on one code_hash');
-  return `${as.length} machines · keyless · 1 contract · NEAR testnet`;
+  return `${as.length} keyless machines on one contract, on NEAR testnet.`;
 }
 
 // ---------- everything ----------
@@ -415,6 +491,7 @@ export function renderSlots(d: LandingData): Record<string, string> {
     'rights-refused': r.refused,
     'rights-pass': r.pass,
     proof: proof(d),
+    'proof-source': proofSource(),
     'scenes-list': sc.list,
     'scenes-progress': sc.progress,
     'scenes-posters': sc.posters,
