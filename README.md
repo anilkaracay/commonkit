@@ -2,9 +2,7 @@
 
 [![CI](https://github.com/anilkaracay/commonkit/actions/workflows/ci.yml/badge.svg)](https://github.com/anilkaracay/commonkit/actions/workflows/ci.yml)
 
-![COMMONKIT brand illustration: shared machines in a cool white and cobalt studio.](packages/design/social/commonkit-x-header-studio-final.png)
-
-*Brand illustration. Live demo: NEAR testnet with emulated/simulated devices.*
+![COMMONKIT: shared machines, community budgets and earned access.](packages/design/social/commonkit-x-header-studio-final.png)
 
 **Share and manage community machines, with earned access for the people who care for them.**
 
