@@ -4,7 +4,7 @@ First customer profile: **one staffed makerspace, one printer and an existing Sp
 
 ## Current testnet baseline
 
-Two Sputnik DAOs, two community contracts and four machine accounts run on NEAR testnet with emulated/simulated devices and team-controlled members. The [recorded flow](JUDGE_FLOW.md) covers the full loop. The [browser check](../evidence/browser-wallet-qa.json) confirms booking/cancellation/refund with a local signer; participant-wallet onboarding belongs in acceptance testing.
+Two Sputnik DAOs, two community contracts and four machine accounts run on NEAR testnet with emulated/simulated devices and team-controlled members. The [recorded flow](JUDGE_FLOW.md) covers the full loop. Following the earlier [local-signer browser check](../evidence/browser-wallet-qa.json), two public-app runs with a fresh team-controlled Meteor Web testnet wallet confirmed connection, booking, cancellation and full refunds: [first run](../evidence/meteor-wallet-qa-2026-11-14.json) and [repeat after UI fixes](../evidence/meteor-wallet-qa-after-ui-fixes-2026-11-14.json). These checks cover the wallet transaction flow; trial-member onboarding, NEP-413 access signing and physical-device commissioning remain deployment acceptance steps.
 
 A read-only recount of [the 21-step evidence](../evidence/steps.json), deduplicating transaction records by hash, finds **7 `reservation_confirmed`, 4 `session_started`, 3 `task_rewarded`, 1 `right_consumed` and 3 `swept` event occurrences**. These selected test-sequence counts demonstrate measurable events; they are not chain-wide totals or customer utilization.
 
