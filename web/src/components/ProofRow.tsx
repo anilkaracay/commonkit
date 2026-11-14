@@ -32,16 +32,16 @@ function Mark({ status }: { status: ProofCheck['status'] }) {
 /** One verify.sh check: mark, title, summary, and the evidence behind it one tap away. */
 export function ProofRow({ check, defaultOpen = false }: { check: ProofCheck; defaultOpen?: boolean }) {
   return (
-    <li data-status={check.status}>
+    <li data-status={check.status} data-check-id={check.id}>
       <details open={defaultOpen} className="group">
-        <summary className="flex cursor-pointer list-none items-start gap-4 px-5 py-4 hover:bg-bg-alt [&::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-start gap-4 px-5 py-4 min-h-[8rem] hover:bg-bg-alt [&::-webkit-details-marker]:hidden">
           <Mark status={check.status} />
           <div className="min-w-0 flex-1">
-            <p className="font-medium">
+            <p className="line-clamp-2 font-medium group-open:line-clamp-none" title={check.title}>
               <span className="num mr-2 text-text-3">{check.id}</span>
               {check.title}
             </p>
-            <p className="mt-1 text-sm break-words text-text-3">{check.summary}</p>
+            <p className="mt-1 line-clamp-2 text-sm break-words text-text-3 group-open:line-clamp-none" title={check.summary}>{check.summary}</p>
           </div>
           <span aria-hidden className="mt-0.5 text-text-3 transition-transform group-open:rotate-90">
             ›
@@ -65,6 +65,21 @@ export function ProofRow({ check, defaultOpen = false }: { check: ProofCheck; de
           {check.items.length === 0 && <li className="py-2.5 text-sm text-text-3">Nothing to check yet.</li>}
         </ul>
       </details>
+    </li>
+  );
+}
+
+/** The same reserved summary space, with no success mark or result before a completed read. */
+export function ProofRowPending({ id, title, unavailable = false }: { id: number; title: string; unavailable?: boolean }) {
+  return (
+    <li data-status="pending" data-check-id={id} aria-busy={!unavailable}>
+      <div className="flex min-h-[8rem] items-start gap-4 px-5 py-4">
+        <span aria-hidden className="size-6 shrink-0 rounded-full border border-line bg-bg-alt" />
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-2 font-medium" title={title}><span className="num mr-2 text-text-3">{id}</span>{title}</p>
+          <p className="mt-1 text-sm text-text-3">{unavailable ? 'Live result unavailable' : 'Checking…'}</p>
+        </div>
+      </div>
     </li>
   );
 }

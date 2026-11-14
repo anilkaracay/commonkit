@@ -39,3 +39,6 @@ agent/state/
 # AI-tool files are kept out of the repository (owner's standing rule)
 CLAUDE.md
 .claude/
+
+# build-time testnet snapshot for instant first paint (web/scripts/snapshot.mjs)
+web/src/data/snapshot/web-snapshot.json

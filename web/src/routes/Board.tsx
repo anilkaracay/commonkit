@@ -13,13 +13,16 @@ import { Account, TxLink } from '../components/TxLink';
 import { ProposalRow } from '../components/ProposalRow';
 import { useDemoLink } from '../demo/demo';
 import { formatAgo } from '../lib/time';
+import { webSnapshot, snapshotTime } from '../data/snapshot/snapshot';
 
 /** `/` — the board. The machines are the page. */
 export function BoardPage() {
   const ds = useDataSource();
   const dep = useDeployment();
-  const all = useAllAssets();
-  const comms = useCommunities();
+  const snapshot = ds.kind === 'rpc' ? webSnapshot(dep.data) : null;
+  const all = useAllAssets(snapshot?.board.assets);
+  const comms = useCommunities(snapshot?.board.communities);
+  const usingSnapshot = !!snapshot && (all.isPlaceholderData || comms.isPlaceholderData);
   const catalog = useCatalog();
   const link = useDemoLink();
   const now = ds.now();
@@ -79,8 +82,8 @@ export function BoardPage() {
     <div className="space-y-16 sm:space-y-20">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
         <h1 className="display text-[30px] sm:text-[36px]">Machines</h1>
-        <p className="text-sm text-text-3">
-          {count} {keyless ? 'keyless ' : ''}accounts · live from NEAR testnet
+        <p className="text-sm text-text-3" role="status" data-snapshot={usingSnapshot ? snapshot?.read_at : undefined}>
+          {usingSnapshot && snapshot ? `Snapshot from ${snapshotTime(snapshot)}, refreshing from testnet…` : `${count} ${keyless ? 'keyless ' : ''}accounts · live from NEAR testnet`}
         </p>
       </div>
 
@@ -197,6 +200,7 @@ export function BoardPage() {
           </ul>
         )}
         {comms.isLoading && <Loading what="proposals" />}
+        {comms.error && <LoadError error={comms.error} />}
       </Section>
     </div>
   );

@@ -16,6 +16,8 @@ else
   printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=/app/"><title>COMMONKIT</title><a href="/app/">COMMONKIT app</a>\n' > site/index.html
 fi
 
+pnpm --filter @commonkit/web exec node scripts/snapshot.mjs
+
 COMMONKIT_WEB_BASE=/app/ pnpm --filter @commonkit/web build
 cp -R web/dist/. site/app/
 

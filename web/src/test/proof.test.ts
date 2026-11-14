@@ -64,3 +64,31 @@ describe('check 11 matches the recorded verify.sh run', () => {
     expect(items[3]?.info).toBe(true);
   });
 });
+
+describe('progressive live checks', () => {
+  it('publishes independent results while a slow key check remains pending, then preserves final order', async () => {
+    const ds = createMockSource();
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const keys = ds.viewAccessKeyList;
+    ds.viewAccessKeyList = async (id) => { await gate; return keys(id); };
+    const received: { id: number; status: string }[] = [];
+    const complete = runProofChecks(ds, (check) => received.push(check));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(received.some((c) => c.id === 11)).toBe(true);
+    expect(received.some((c) => c.id === 1)).toBe(false);
+    release();
+    const final = await complete;
+    expect(final.map((c) => c.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    expect(received.find((c) => c.id === 1)?.status).toBe('pass');
+  });
+
+  it('keeps valid results when another RPC read fails, without reporting that check as passed', async () => {
+    const ds = createMockSource();
+    ds.viewAccessKeyList = async () => { throw new Error('RPC unavailable'); };
+    const ids: number[] = [];
+    await expect(runProofChecks(ds, (check) => ids.push(check.id))).rejects.toThrow('RPC unavailable');
+    expect(ids).not.toContain(1);
+    expect(ids).toContain(11);
+  });
+});
