@@ -11,6 +11,8 @@ const page = (load: () => Promise<{ Component: RouteObject['Component'] }>): Pic
 export const routes: RouteObject[] = [
   {
     element: <Shell />,
+    // Shown while a lazy route chunk loads on first paint; also silences React Router's missing-fallback warning.
+    HydrateFallback: () => null,
     children: [
       { path: '/', element: <BoardPage /> },
       { path: '/c/:community', ...page(async () => ({ Component: (await import('./routes/Community')).CommunityPage })) },

@@ -1,6 +1,6 @@
 # PILOT — real users, in two layers (D-024)
 
-Status: **pending.** It starts once the human confirms the item, the people and the place (STATUS.md HUMAN TODO H1, H2). If the pilot does not happen, the README says so plainly and claims no pilot numbers. Judges never need hardware: the full demo still runs on emulators and the simulator (D-022).
+Status: **not run; deferred until after the hackathon.** The kit below (app page `/app/pilot`, QR sheets, runbook) is ready; no pilot numbers are claimed anywhere. Judges never need hardware: the full demo still runs on emulators and the simulator (D-022).
 
 | Layer | What | Adapter | Label everywhere |
 | :--- | :--- | :--- | :--- |

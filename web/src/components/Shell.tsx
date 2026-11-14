@@ -93,7 +93,7 @@ function Frame() {
         <div className="wrap flex flex-wrap items-baseline gap-x-6 gap-y-2 py-6 text-sm text-text-3">
           <NavLink to={link('/train')} className="no-underline hover:text-text">Trainings</NavLink>
           <NavLink to={link('/approvals')} className="no-underline hover:text-text">Approvals</NavLink>
-          <NavLink to={link('/pilot')} className="no-underline hover:text-text">Pilot</NavLink>
+          <NavLink to={link('/pilot?lang=en')} className="no-underline hover:text-text">Pilot kit</NavLink>
           <a href="/" className="no-underline hover:text-text">About</a>
           <span className="w-full text-xs lg:ml-auto lg:w-auto">{sourceNote(pathname, ds.kind)}</span>
         </div>

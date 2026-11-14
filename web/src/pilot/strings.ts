@@ -10,7 +10,7 @@ export const STRINGS = {
     pilotEyebrow: 'pilot',
     pilotTitle: 'Üç adımda katıl',
     pilotIntro:
-      'Bu bir NEAR testnet pilotu. Testnet NEAR gerçek para değildir. Eşyanın kuralları ve kasası, eşyanın kendi anahtarsız hesabında durur.',
+      'Gerçek üyelerle yapılacak NEAR testnet pilotunun katılım kiti; pilot henüz yapılmadı. Testnet NEAR gerçek para değildir. Eşyanın kuralları ve kasası, eşyanın kendi anahtarsız hesabında durur.',
     step1Title: '1. Testnet cüzdanı oluştur veya bağla',
     step1Body:
       'NEAR testnet destekleyen bir cüzdan seç (ör. MyNearWallet, Meteor, HOT). Yeni hesap oluştururken ağın “testnet” olduğundan emin ol.',
@@ -61,7 +61,7 @@ export const STRINGS = {
     pilotEyebrow: 'pilot',
     pilotTitle: 'Join in three steps',
     pilotIntro:
-      'This is a NEAR testnet pilot. Testnet NEAR is not real money. The item’s rules and cash box live in its own keyless account.',
+      'Onboarding kit for a NEAR testnet pilot with real members; the pilot has not run yet. Testnet NEAR is not real money. The item’s rules and cash box live in its own keyless account.',
     step1Title: '1. Create or connect a testnet wallet',
     step1Body:
       'Pick a wallet that supports NEAR testnet (e.g. MyNearWallet, Meteor, HOT). When creating an account, make sure the network is “testnet”.',
